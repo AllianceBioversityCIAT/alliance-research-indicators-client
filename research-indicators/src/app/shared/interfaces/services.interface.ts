@@ -49,6 +49,7 @@ export type ControlListServices =
   | 'innResults'
   | 'applicationOptions'
   | 'levers'
+  | 'sciencePrograms'
   | 'leverStrategicOutcomes'
   | 'leverSdgTargets'
   | 'clarisaSdgTargets'

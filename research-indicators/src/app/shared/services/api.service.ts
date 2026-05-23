@@ -74,6 +74,7 @@ import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { PoolFundingTagPatchBody, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
 import { AlignmentResponse, UpdatePoolFundingAlignmentDto } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
@@ -137,6 +138,11 @@ export class ApiService {
 
   GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_SciencePrograms = (): Promise<MainResponse<GetSciencePrograms[]>> => {
+    const url = () => `tools/clarisa/science-programs`;
     return this.TP.get(url(), {});
   };
 

@@ -95,16 +95,16 @@
               [label]="SP_PICKER_LABEL"
               [isRequired]="true"
               [signal]="formData"
-              signalOptionValue="lever_ids"
-              optionLabel="short_name"
-              optionValue="id"
-              serviceName="levers"
+              signalOptionValue="sp_codes"
+              optionLabel="name"
+              optionValue="official_code"
+              serviceName="sciencePrograms"
               placeholder="Select Science Programs"
               [disabled]="!editable() || isReadOnly()">
             </app-multiselect>
-            @if (inlineErrors()?.['lever_codes']; as msg) {
+            @if (inlineErrors()?.['sp_codes']; as msg) {
               <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
-                     data-testid="pf-alignment-error-lever_codes">{{ msg }}</small>
+                     data-testid="pf-alignment-error-sp_codes">{{ msg }}</small>
             }
           </section>
         }

@@ -22,7 +22,7 @@ import {
 
 interface AlignmentFormData {
   has_contribution: boolean | null;
-  lever_ids: number[];
+  sp_codes: string[];
 }
 
 @Component({
@@ -79,14 +79,14 @@ export default class PoolFundingAlignmentComponent {
 
   readonly formData = signal<AlignmentFormData>({
     has_contribution: null,
-    lever_ids: []
+    sp_codes: []
   });
 
   // AR.1 — alignment edit is NOT gated by result_status.
   readonly canSave = computed(() => {
     const form = this.formData();
-    const hasMinimalLevers = form.has_contribution === false || form.lever_ids.length >= 1;
-    return this.editable() && !this.isReadOnly() && this.isDirty() && hasMinimalLevers;
+    const hasMinimalSelection = form.has_contribution === false || form.sp_codes.length >= 1;
+    return this.editable() && !this.isReadOnly() && this.isDirty() && hasMinimalSelection;
   });
 
   readonly isDirty = computed(() => {
@@ -96,7 +96,7 @@ export default class PoolFundingAlignmentComponent {
     const form = this.formData();
     return (
       server.has_contribution !== form.has_contribution ||
-      !this.sameLeverSet(server.lever_ids, form.lever_ids)
+      !this.sameCodeSet(server.sp_codes, form.sp_codes)
     );
   });
 
@@ -160,7 +160,7 @@ export default class PoolFundingAlignmentComponent {
     this.formData.update(form => ({
       ...form,
       has_contribution: value,
-      lever_ids: value === false ? [] : form.lever_ids
+      sp_codes: value === false ? [] : form.sp_codes
     }));
   }
 
@@ -171,7 +171,7 @@ export default class PoolFundingAlignmentComponent {
     const form = this.formData();
     const body: UpdatePoolFundingAlignmentDto = {
       has_contribution: form.has_contribution as boolean,
-      ...(form.has_contribution ? { lever_codes: form.lever_ids.map(String) } : {})
+      ...(form.has_contribution ? { sp_codes: form.sp_codes } : {})
     };
 
     const result = await this.bilateralService.patchAlignment(this.resultCode(), body);
@@ -181,7 +181,7 @@ export default class PoolFundingAlignmentComponent {
       this.clarityService?.trackEvent('bilateral.alignment.saved', {
         result_code: result.data.result_code,
         has_contribution: result.data.has_contribution,
-        lever_count: result.data.selected_levers.length
+        sp_count: (result.data.selected_science_programs ?? []).length
       });
       this.actions.showToast({
         severity: 'success',
@@ -209,16 +209,22 @@ export default class PoolFundingAlignmentComponent {
   }
 
   private snapshotFromServer(alignment: AlignmentResponse): AlignmentFormData {
+    // Prefer the new SP field; fall back to the deprecated lever payload so a
+    // response that hasn't migrated yet still seeds something readable.
+    const sps = alignment.selected_science_programs;
+    const codes = sps && sps.length > 0
+      ? sps.map(sp => sp.code)
+      : alignment.selected_levers.map(l => l.lever_code);
     return {
       has_contribution: alignment.has_contribution,
-      lever_ids: alignment.selected_levers.map(l => Number(l.lever_code)).filter(n => Number.isFinite(n))
+      sp_codes: codes.filter((c): c is string => !!c)
     };
   }
 
-  private sameLeverSet(a: number[], b: number[]): boolean {
+  private sameCodeSet(a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;
-    const sortedA = [...a].sort((x, y) => x - y);
-    const sortedB = [...b].sort((x, y) => x - y);
+    const sortedA = [...a].sort();
+    const sortedB = [...b].sort();
     return sortedA.every((v, i) => v === sortedB[i]);
   }
 }

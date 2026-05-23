@@ -33,6 +33,7 @@ describe('PoolFundingAlignmentComponent', () => {
     eligible: true,
     has_pool_funding_alignment_eligible: true,
     has_contribution: null,
+    selected_science_programs: [],
     selected_levers: [],
     is_synced_to_prms: false,
     is_read_only: false
@@ -149,7 +150,7 @@ describe('PoolFundingAlignmentComponent', () => {
     it('formData is null/empty when alignment is null (loading)', () => {
       expect(component.formData()).toEqual({
         has_contribution: null,
-        lever_ids: []
+        sp_codes: []
       });
     });
 
@@ -158,7 +159,7 @@ describe('PoolFundingAlignmentComponent', () => {
       component.seedFromServer(currentAlignment()!);
 
       expect(component.formData().has_contribution).toBeNull();
-      expect(component.formData().lever_ids).toEqual([]);
+      expect(component.formData().sp_codes).toEqual([]);
     });
 
     it('seeds formData from server with has_contribution=false', () => {
@@ -166,22 +167,37 @@ describe('PoolFundingAlignmentComponent', () => {
       component.seedFromServer(currentAlignment()!);
 
       expect(component.formData().has_contribution).toBe(false);
-      expect(component.formData().lever_ids).toEqual([]);
+      expect(component.formData().sp_codes).toEqual([]);
     });
 
-    it('seeds formData from server with has_contribution=true and pre-filled levers', () => {
+    it('seeds formData from server with has_contribution=true and pre-filled SPs', () => {
       currentAlignment.set({
         ...baseAlignment,
         has_contribution: true,
-        selected_levers: [
-          { lever_code: '10', lever_name: 'Lever 10' },
-          { lever_code: '11', lever_name: 'Lever 11' }
+        selected_science_programs: [
+          { code: 'SP01', name: 'Breeding for Tomorrow' },
+          { code: 'SP02', name: 'Sustainable Farming' }
         ]
       });
       component.seedFromServer(currentAlignment()!);
 
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().lever_ids.sort()).toEqual([10, 11]);
+      expect(component.formData().sp_codes.sort()).toEqual(['SP01', 'SP02']);
+    });
+
+    it('falls back to selected_levers when selected_science_programs is absent (backend compat)', () => {
+      currentAlignment.set({
+        ...baseAlignment,
+        has_contribution: true,
+        selected_science_programs: undefined,
+        selected_levers: [
+          { lever_code: 'SP01', lever_name: 'Lever 1' },
+          { lever_code: 'SP02', lever_name: 'Lever 2' }
+        ]
+      });
+      component.seedFromServer(currentAlignment()!);
+
+      expect(component.formData().sp_codes.sort()).toEqual(['SP01', 'SP02']);
     });
   });
 
@@ -190,24 +206,24 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({
         ...baseAlignment,
         has_contribution: true,
-        selected_levers: [{ lever_code: '10', lever_name: 'Lever 10' }]
+        selected_science_programs: [{ code: 'SP01', name: 'Breeding for Tomorrow' }]
       });
       component.seedFromServer(currentAlignment()!);
     });
 
-    it('flip true → false clears lever_ids', () => {
-      expect(component.formData().lever_ids).toEqual([10]);
+    it('flip true → false clears sp_codes', () => {
+      expect(component.formData().sp_codes).toEqual(['SP01']);
       component.onContributionChange(false);
       expect(component.formData().has_contribution).toBe(false);
-      expect(component.formData().lever_ids).toEqual([]);
+      expect(component.formData().sp_codes).toEqual([]);
     });
 
-    it('flip false → true preserves lever_ids already in form state', () => {
+    it('flip false → true preserves sp_codes already in form state', () => {
       component.onContributionChange(false);
-      expect(component.formData().lever_ids).toEqual([]);
+      expect(component.formData().sp_codes).toEqual([]);
       component.onContributionChange(true);
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().lever_ids).toEqual([]);
+      expect(component.formData().sp_codes).toEqual([]);
     });
   });
 
@@ -221,23 +237,23 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(component.canSave()).toBe(false);
     });
 
-    it('false when has_contribution=true and lever_ids is empty (≥1 lever required)', () => {
+    it('false when has_contribution=true and sp_codes is empty (≥1 SP required)', () => {
       component.onContributionChange(true);
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().lever_ids).toEqual([]);
+      expect(component.formData().sp_codes).toEqual([]);
       expect(component.canSave()).toBe(false);
     });
 
-    it('true when has_contribution=true and ≥1 lever selected and form is dirty', () => {
+    it('true when has_contribution=true and ≥1 SP selected and form is dirty', () => {
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       expect(component.canSave()).toBe(true);
     });
 
     it('false when not editable, even with valid dirty form', () => {
       editable.set(false);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       expect(component.canSave()).toBe(false);
     });
 
@@ -245,7 +261,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false, is_read_only: true });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       expect(component.canSave()).toBe(false);
     });
   });
@@ -301,6 +317,7 @@ describe('PoolFundingAlignmentComponent', () => {
         eligible: true,
         has_pool_funding_alignment_eligible: true,
         has_contribution: null,
+        selected_science_programs: [],
         selected_levers: [],
         is_synced_to_prms: false,
         is_read_only: false
@@ -316,6 +333,7 @@ describe('PoolFundingAlignmentComponent', () => {
         eligible: false,
         has_pool_funding_alignment_eligible: false,
         has_contribution: null,
+        selected_science_programs: [],
         selected_levers: [],
         is_synced_to_prms: false,
         is_read_only: false
@@ -346,14 +364,14 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: true });
       component.seedFromServer(currentAlignment()!);
 
-      expect(Object.keys(component.formData()).sort()).toEqual(['has_contribution', 'lever_ids']);
+      expect(Object.keys(component.formData()).sort()).toEqual(['has_contribution', 'sp_codes']);
     });
 
     it('does not send justification on PATCH (RR-G)', async () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
 
       await component.onSave();
@@ -368,7 +386,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
     };
 
     it('200 — calls seedFromServer with returned data and fires success toast', async () => {
@@ -376,7 +394,7 @@ describe('PoolFundingAlignmentComponent', () => {
       const returned: AlignmentResponse = {
         ...baseAlignment,
         has_contribution: true,
-        selected_levers: [{ lever_code: '10', lever_name: 'Lever 10' }]
+        selected_science_programs: [{ code: 'SP01', name: 'Breeding for Tomorrow' }]
       };
       patchAlignmentMock.mockResolvedValue({ ok: true, data: returned } as PatchAlignmentResult);
 
@@ -384,7 +402,7 @@ describe('PoolFundingAlignmentComponent', () => {
 
       expect(patchAlignmentMock).toHaveBeenCalledWith('RES-001', {
         has_contribution: true,
-        lever_codes: ['10']
+        sp_codes: ['SP01']
       });
       expect(showToastMock).toHaveBeenCalledWith({
         severity: 'success',
@@ -392,7 +410,7 @@ describe('PoolFundingAlignmentComponent', () => {
         detail: 'Saved'
       });
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().lever_ids).toEqual([10]);
+      expect(component.formData().sp_codes).toEqual(['SP01']);
       expect(component.inlineErrors()).toBeNull();
     });
 
@@ -402,14 +420,14 @@ describe('PoolFundingAlignmentComponent', () => {
         ok: false,
         status: 400,
         description: 'Validation failed',
-        fieldErrors: { has_contribution: 'invalid', lever_codes: 'at least one required' }
+        fieldErrors: { has_contribution: 'invalid', sp_codes: 'at least one required' }
       } as PatchAlignmentResult);
 
       await component.onSave();
 
       expect(component.inlineErrors()).toEqual({
         has_contribution: 'invalid',
-        lever_codes: 'at least one required'
+        sp_codes: 'at least one required'
       });
       expect(showToastMock).not.toHaveBeenCalled();
     });
@@ -475,8 +493,12 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(patchAlignmentMock).not.toHaveBeenCalled();
     });
 
-    it('builds PATCH body without lever_codes when has_contribution=false', async () => {
-      currentAlignment.set({ ...baseAlignment, has_contribution: true, selected_levers: [{ lever_code: '10', lever_name: 'L10' }] });
+    it('builds PATCH body without sp_codes when has_contribution=false', async () => {
+      currentAlignment.set({
+        ...baseAlignment,
+        has_contribution: true,
+        selected_science_programs: [{ code: 'SP01', name: 'Breeding for Tomorrow' }]
+      });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(false);
       patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: false } } as PatchAlignmentResult);
@@ -508,7 +530,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       currentAlignment.set({ ...baseAlignment, is_read_only: true });
       expect(component.canSave()).toBe(false);
     });
@@ -518,7 +540,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       expect(component.canSave()).toBe(false);
     });
 
@@ -599,7 +621,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
       expect(component.isDirty()).toBe(true);
       getAlignmentMock.mockClear();
 
@@ -642,7 +664,8 @@ describe('PoolFundingAlignmentComponent', () => {
       eligible: true,
       has_pool_funding_alignment_eligible: true,
       has_contribution: true,
-      selected_levers: [{ lever_code: '10', lever_name: 'Lever 10' }],
+      selected_science_programs: [{ code: 'SP01', name: 'Breeding for Tomorrow' }],
+      selected_levers: [],
       justification: 'matters because reasons',
       is_synced_to_prms: false,
       is_read_only: false
@@ -710,18 +733,18 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(track).not.toHaveBeenCalledWith('bilateral.alignment.viewed', expect.anything());
     });
 
-    it('fires bilateral.alignment.saved with lever_count on successful PATCH', async () => {
+    it('fires bilateral.alignment.saved with sp_count on successful PATCH', async () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, lever_ids: [10, 11] }));
+      component.formData.update(f => ({ ...f, sp_codes: ['SP01', 'SP02'] }));
 
       const returned: AlignmentResponse = {
         ...baseAlignment,
         has_contribution: true,
-        selected_levers: [
-          { lever_code: '10', lever_name: 'L10' },
-          { lever_code: '11', lever_name: 'L11' }
+        selected_science_programs: [
+          { code: 'SP01', name: 'Breeding for Tomorrow' },
+          { code: 'SP02', name: 'Sustainable Farming' }
         ]
       };
       patchAlignmentMock.mockResolvedValue({ ok: true, data: returned } as PatchAlignmentResult);
@@ -732,7 +755,7 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(trackEventMock).toHaveBeenCalledWith('bilateral.alignment.saved', {
         result_code: 'RES-001',
         has_contribution: true,
-        lever_count: 2
+        sp_count: 2
       });
     });
   });
