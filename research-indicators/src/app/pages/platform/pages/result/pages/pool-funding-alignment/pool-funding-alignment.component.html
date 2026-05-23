@@ -4,7 +4,8 @@
   <div class="content-section">
     <div class="flex flex-col bg-[#fcfcfc] rounded-[10px] p-[30px] mb-10">
       <header class="flex items-center justify-between mb-6">
-        <h2 class="text-lg font-semibold m-0" data-testid="pf-alignment-title">Pool Funding Alignment</h2>
+        <h2 class="text-lg font-semibold m-0 tracking-wider uppercase"
+            data-testid="pf-alignment-title">SCIENCE PROGRAM CONTRIBUTION</h2>
         @if (isReadOnly()) {
           <app-custom-tag
             statusId="pf-synced"
@@ -36,20 +37,45 @@
         </div>
       }
 
+      <div role="note"
+           class="mb-6 flex items-start gap-2 p-3 rounded border border-[var(--ac-grey-300)] bg-[var(--ac-grey-100)] text-sm"
+           data-testid="pf-alignment-info-banner">
+        <i class="pi pi-info-circle mt-0.5" style="color: #3B82F6;" aria-hidden="true"></i>
+        <span>{{ INFO_BANNER }}</span>
+      </div>
+
       <section class="mb-6" data-testid="pf-alignment-contribution-section">
-        <label for="pf-alignment-toggle" class="block text-sm font-medium mb-2">
-          Does this result contribute to Pool Funding?
-        </label>
-        <p-selectButton
-          inputId="pf-alignment-toggle"
-          [options]="toggleOptions"
-          optionLabel="label"
-          optionValue="value"
-          [ngModel]="formData().has_contribution"
-          (ngModelChange)="onContributionChange($event)"
-          [disabled]="!editable() || isReadOnly()"
-          data-testid="pf-alignment-toggle">
-        </p-selectButton>
+        <p id="pf-alignment-question" class="text-sm font-medium mb-2">
+          {{ CONTRIBUTION_QUESTION }}<span class="atc-red-1" aria-hidden="true">*</span>
+        </p>
+        <div role="radiogroup"
+             aria-labelledby="pf-alignment-question"
+             aria-required="true"
+             class="flex flex-row gap-6"
+             data-testid="pf-alignment-radio-group">
+          <div class="flex items-center gap-2">
+            <p-radioButton
+              name="pf-alignment-contribution"
+              inputId="pf-alignment-radio-yes"
+              [value]="true"
+              [ngModel]="formData().has_contribution"
+              (ngModelChange)="onContributionChange($event)"
+              [disabled]="!editable() || isReadOnly()"
+              data-testid="pf-alignment-radio-yes"></p-radioButton>
+            <label for="pf-alignment-radio-yes" class="text-sm">Yes</label>
+          </div>
+          <div class="flex items-center gap-2">
+            <p-radioButton
+              name="pf-alignment-contribution"
+              inputId="pf-alignment-radio-no"
+              [value]="false"
+              [ngModel]="formData().has_contribution"
+              (ngModelChange)="onContributionChange($event)"
+              [disabled]="!editable() || isReadOnly()"
+              data-testid="pf-alignment-radio-no"></p-radioButton>
+            <label for="pf-alignment-radio-no" class="text-sm">No</label>
+          </div>
+        </div>
         @if (inlineErrors()?.['has_contribution']; as msg) {
           <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
                  data-testid="pf-alignment-error-has_contribution">{{ msg }}</small>
@@ -59,14 +85,14 @@
       @if (formData().has_contribution === true) {
         <section class="mb-6" data-testid="pf-alignment-levers-section">
           <app-multiselect
-            label="Pool Funding levers"
+            label="Select the Science Program(s) this is related to"
             description="Select the Science Programs or Accelerators this result contributes to."
             [signal]="formData"
             signalOptionValue="lever_ids"
             optionLabel="short_name"
             optionValue="id"
             serviceName="levers"
-            placeholder="Select levers"
+            placeholder="Select Science Programs"
             [disabled]="!editable() || isReadOnly()">
           </app-multiselect>
           @if (inlineErrors()?.['lever_codes']; as msg) {
@@ -79,29 +105,6 @@
           No Pool Funding contribution recorded.
         </section>
       }
-
-      <section class="mb-6" data-testid="pf-alignment-justification-section">
-        <label for="pf-alignment-justification" class="block text-sm font-medium mb-2">Justification (optional)</label>
-        <textarea
-          id="pf-alignment-justification"
-          pTextarea
-          class="w-full"
-          rows="4"
-          [maxlength]="500"
-          [ngModel]="formData().justification"
-          (ngModelChange)="onJustificationChange($event)"
-          [disabled]="!editable() || isReadOnly()"
-          data-testid="pf-alignment-justification"></textarea>
-        <div class="flex justify-end mt-1 text-xs"
-             [class.text-orange-600]="justificationCounterIsWarning()"
-             data-testid="pf-alignment-justification-counter">
-          {{ justificationCounter() }}
-        </div>
-        @if (inlineErrors()?.['justification']; as msg) {
-          <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
-                 data-testid="pf-alignment-error-justification">{{ msg }}</small>
-        }
-      </section>
 
       @if (inlineErrors()?.['_global']; as msg) {
         <div role="alert" aria-live="polite" class="mb-3 text-sm text-red-700"

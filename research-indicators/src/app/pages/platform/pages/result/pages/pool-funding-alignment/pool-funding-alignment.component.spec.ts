@@ -149,8 +149,7 @@ describe('PoolFundingAlignmentComponent', () => {
     it('formData is null/empty when alignment is null (loading)', () => {
       expect(component.formData()).toEqual({
         has_contribution: null,
-        lever_ids: [],
-        justification: ''
+        lever_ids: []
       });
     });
 
@@ -334,26 +333,33 @@ describe('PoolFundingAlignmentComponent', () => {
     });
   });
 
-  describe('justification clipping (AC-05.1)', () => {
-    beforeEach(() => {
-      currentAlignment.set({ ...baseAlignment });
+  describe('mockup-remediation (RR-A..G + RR-I)', () => {
+    it('exposes the canonical mockup copy as i18n-extractable constants', () => {
+      // RR-B / RR-C / RR-D — copy literals locked here so a drift fails CI.
+      expect(component.CONTRIBUTION_QUESTION).toBe('Does this result contribute to a Science Program or Accelerator?');
+      expect(component.INFO_BANNER).toBe(
+        'Select the High-Level Outputs (HLO) and related indicators this result contributes to.'
+      );
+    });
+
+    it('formData no longer carries a justification field (RR-G)', () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: true });
       component.seedFromServer(currentAlignment()!);
+
+      expect(Object.keys(component.formData()).sort()).toEqual(['has_contribution', 'lever_ids']);
     });
 
-    it('clips justification to 500 chars on input', () => {
-      const longInput = 'a'.repeat(750);
-      component.onJustificationChange(longInput);
-      expect(component.formData().justification.length).toBe(500);
-    });
+    it('does not send justification on PATCH (RR-G)', async () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, lever_ids: [10] }));
+      patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
 
-    it('counter reflects current length', () => {
-      component.onJustificationChange('hello');
-      expect(component.justificationCounter()).toBe('5 / 500');
-    });
+      await component.onSave();
 
-    it('counter signals warning when remaining < 50', () => {
-      component.onJustificationChange('a'.repeat(460));
-      expect(component.justificationCounterIsWarning()).toBe(true);
+      const [, body] = patchAlignmentMock.mock.calls[0];
+      expect(body).not.toHaveProperty('justification');
     });
   });
 
@@ -480,19 +486,6 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(patchAlignmentMock).toHaveBeenCalledWith('RES-001', { has_contribution: false });
     });
 
-    it('includes trimmed justification in PATCH body when present', async () => {
-      dirtyForm();
-      component.onJustificationChange('   matters because reasons   ');
-      patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment } } as PatchAlignmentResult);
-
-      await component.onSave();
-
-      expect(patchAlignmentMock).toHaveBeenCalledWith('RES-001', {
-        has_contribution: true,
-        lever_codes: ['10'],
-        justification: 'matters because reasons'
-      });
-    });
   });
 
   describe('read-only states (AC-07.x, AC-10.x)', () => {
@@ -720,7 +713,7 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(track).not.toHaveBeenCalledWith('bilateral.alignment.viewed', expect.anything());
     });
 
-    it('fires bilateral.alignment.saved with lever_count + has_justification on successful PATCH', async () => {
+    it('fires bilateral.alignment.saved with lever_count on successful PATCH', async () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
@@ -732,8 +725,7 @@ describe('PoolFundingAlignmentComponent', () => {
         selected_levers: [
           { lever_code: '10', lever_name: 'L10' },
           { lever_code: '11', lever_name: 'L11' }
-        ],
-        justification: 'why'
+        ]
       };
       patchAlignmentMock.mockResolvedValue({ ok: true, data: returned } as PatchAlignmentResult);
       trackEventMock.mockClear();
@@ -743,8 +735,7 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(trackEventMock).toHaveBeenCalledWith('bilateral.alignment.saved', {
         result_code: 'RES-001',
         has_contribution: true,
-        lever_count: 2,
-        has_justification: true
+        lever_count: 2
       });
     });
   });

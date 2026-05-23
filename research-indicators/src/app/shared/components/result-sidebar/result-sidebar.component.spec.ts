@@ -209,20 +209,25 @@ describe('ResultSidebarComponent', () => {
         expect(poolFundingOption).toBeUndefined();
       });
 
-      it('shows the Pool Funding alignment tab between Alliance alignment and Partners when eligible=true', () => {
+      it('places the Pool funding alignment tab at the bottom of the sidebar (per mockup 33356:11736) when eligible=true', () => {
         (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
 
         const options = component.allOptionsWithGreenChecks();
         const paths = options.map(o => o.path);
-        const allianceIdx = paths.indexOf('alliance-alignment');
         const poolFundingIdx = paths.indexOf('pool-funding-alignment');
-        const partnersIdx = paths.indexOf('partners');
 
         expect(poolFundingIdx).toBeGreaterThan(-1);
-        expect(allianceIdx).toBeGreaterThan(-1);
-        expect(partnersIdx).toBeGreaterThan(-1);
-        expect(poolFundingIdx).toBeGreaterThan(allianceIdx);
-        expect(poolFundingIdx).toBeLessThan(partnersIdx);
+        // Last item in the visible list (mockup `33356:11736` shows the tab at bottom).
+        expect(poolFundingIdx).toBe(paths.length - 1);
+      });
+
+      it('uses the lowercase-"f" label "Pool funding alignment" (mockup `33356:11736` RR-F)', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+
+        const options = component.allOptionsWithGreenChecks();
+        const poolFundingOption = options.find(o => o.path === 'pool-funding-alignment');
+
+        expect(poolFundingOption?.label).toBe('Pool funding alignment');
       });
 
       // AR.3 — sidebar side: the new SidebarOption uses greenCheckKey 'pool_funding_alignment',

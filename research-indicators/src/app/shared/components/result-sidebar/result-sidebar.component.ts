@@ -100,11 +100,6 @@ export class ResultSidebarComponent {
       greenCheckKey: 'alignment'
     },
     {
-      label: 'Pool Funding alignment',
-      path: 'pool-funding-alignment',
-      greenCheckKey: 'pool_funding_alignment'
-    },
-    {
       label: 'OICR Details',
       path: 'oicr-details',
       indicator_id: 5,
@@ -162,6 +157,11 @@ export class ResultSidebarComponent {
       path: 'ip-rights',
       indicator_id: 2,
       greenCheckKey: 'ip_rights'
+    },
+    {
+      label: 'Pool funding alignment',
+      path: 'pool-funding-alignment',
+      greenCheckKey: 'pool_funding_alignment'
     }
   ]);
 
