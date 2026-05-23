@@ -407,4 +407,64 @@ describe('SubmissionService', () => {
       );
     });
   });
+
+  // AR.3 — HLO indicator mappings are NOT part of the submission validator.
+  // See docs/specs/bilateral-module/indicator-mapping/requirements.md REQ-BIL-IM
+  // (AR.3 holds for indicator mappings; mirrors alignment-section AC-09). If anyone
+  // adds `hlo_mappings`, `indicator_mappings`, `pool_funding_indicators`, or similar
+  // to the GreenChecks interface or runtime map, this block fails and the change
+  // should be reviewed against the indicator-mapping spec.
+  describe('AR.3 — HLO indicator mappings are decoupled from submission completion (T-BIL-IM-14)', () => {
+    // Same canonical fixture as the alignment-section AR.3 block above. Kept as a
+    // separate const so each block is self-contained; future churn here is localized.
+    const canonicalGreenChecks: Required<GreenChecks> = {
+      general_information: 1,
+      alignment: 1,
+      geo_location: 1,
+      partners: 1,
+      evidences: 1,
+      policy_change: 1,
+      cap_sharing_ip: 1,
+      completness: 1,
+      link_result: 1,
+      innovation_dev: 1,
+      oicr: 1
+    };
+
+    it('canSubmitResult returns true even though no HLO-mapping concept is represented in greenChecks', () => {
+      cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+      cacheMock.greenChecks.mockReturnValue(canonicalGreenChecks);
+      cacheMock.isMyResult.mockReturnValue(true);
+      cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+
+      // canSubmitResult must NOT depend on HLO mapping state. None of the concept
+      // names the indicator-mapping spec introduces should leak into GreenChecks.
+      expect(service.canSubmitResult()).toBe(true);
+      expect(Object.keys(canonicalGreenChecks)).not.toContain('hlo_mappings');
+      expect(Object.keys(canonicalGreenChecks)).not.toContain('indicator_mappings');
+      expect(Object.keys(canonicalGreenChecks)).not.toContain('pool_funding_indicators');
+      expect(Object.keys(canonicalGreenChecks)).not.toContain('pool_funding_alignment_indicators');
+    });
+
+    it('GreenChecks interface canonical key set is the exact 11 known keys — no HLO concept added', () => {
+      // Locks the GreenChecks shape against quiet additions of any HLO-mapping
+      // concept. If the indicator-mapping work ever needs to surface completion in
+      // the sidebar, the AR.3 conversation must happen first — see the spec.
+      expect(Object.keys(canonicalGreenChecks).sort()).toEqual(
+        [
+          'alignment',
+          'cap_sharing_ip',
+          'completness',
+          'evidences',
+          'general_information',
+          'geo_location',
+          'innovation_dev',
+          'link_result',
+          'oicr',
+          'partners',
+          'policy_change'
+        ].sort()
+      );
+    });
+  });
 });

@@ -370,7 +370,7 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ### T-BIL-IM-14 — AR.3 regression test: mappings do NOT block result submission
 
-- **Status**: `pending` *(no backend deps — pure test)*
+- **Status**: `completed` (2026-05-24) — see [`./execution.md`](./execution.md) for implementation notes.
 - **Size**: S
 - **Depends on**: none (can run today against current code)
 - **Discharges ACs**: REQ-BIL-IM (AR.3 holds for indicator mappings, same as alignment-section AC-09).
@@ -481,5 +481,5 @@ T-BIL-IM-15 (constitutional docs update) — last
 | T-BIL-IM-11 | Diff-and-batch Save (DELETE → POST → PATCH) + 409 | M | T-BIL-IM-04, T-BIL-IM-08, T-BIL-IM-10 | OQ-IM-1 | pending — GATED |
 | T-BIL-IM-12 | Lever-cascade refresh effect | S | T-BIL-IM-04, T-BIL-IM-10 | — | pending |
 | T-BIL-IM-13 | Telemetry events (Clarity) | S | T-BIL-IM-05, T-BIL-IM-10, T-BIL-IM-11 | — | pending |
-| T-BIL-IM-14 | AR.3 regression test (mappings don't block submission) | S | — | — | pending |
+| T-BIL-IM-14 | AR.3 regression test (mappings don't block submission) | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-15 | Constitutional docs update | S | T-BIL-IM-10, T-BIL-IM-11, T-BIL-IM-13 | — | pending |

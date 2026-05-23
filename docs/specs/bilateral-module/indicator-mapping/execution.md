@@ -72,8 +72,27 @@
 
 ---
 
+---
+
+### Entry 4 — T-BIL-IM-14 — AR.3 regression test (HLO mappings don't block submission)
+
+| Field | Value |
+| --- | --- |
+| Status | ✅ completed |
+| Date | 2026-05-24 |
+| Method | `/sdd-execute bilateral-module/indicator-mapping T-BIL-IM-14` |
+| Files changed | `research-indicators/src/app/shared/services/submission.service.spec.ts` — appended a new `describe('AR.3 — HLO indicator mappings are decoupled from submission completion (T-BIL-IM-14)')` block with 2 cases. |
+| Mockups consulted | None — pure regression test. Conceptually mirrors the alignment-section AR.3 lock (T-BIL-AS-13) per [`./tasks.md` T-BIL-IM-14](./tasks.md#t-bil-im-14--ar3-regression-test-mappings-do-not-block-result-submission). |
+| Decisions | <ul><li>**Two cases mirror the alignment-section pattern**: (a) `canSubmitResult` returns true with the canonical 11-key fixture + assert no HLO-mapping concept name appears in the keys (`hlo_mappings`, `indicator_mappings`, `pool_funding_indicators`, `pool_funding_alignment_indicators`); (b) the canonical key set is exactly the 11 known keys, sorted-equal.</li><li>**Separate `describe` block** (not folded into the existing AR.3 alignment block) so each rule has its own self-contained fixture + comment block. Localizes future churn — if the alignment-section AR.3 needs a tweak, it doesn't accidentally touch the indicator-mapping lock.</li><li>**Sidebar-side equivalent is intentionally skipped** — the indicator-mapping spec does NOT add a new `SidebarOption` (mappings render inside the alignment tab), so there's no sidebar-completion regression risk. T-BIL-IM-14 description confirms this.</li><li>**The fixture is duplicated, not shared.** Sharing via a top-level const would re-use one source of truth — but if a future contributor extends the alignment AR.3 fixture, the indicator-mapping AR.3 should fail INDEPENDENTLY for the right reasons. Duplication is deliberate.</li></ul> |
+| Issues encountered | None. Pure test addition; no production code changed; `submission.service.ts` itself is untouched. |
+| Verification | • ESLint: clean. <br>• `npx jest src/app/shared/services/submission.service.spec.ts` → **50 / 50 tests pass** (48 existing + 2 new). <br>• `npx ng build --configuration development` → clean. <br>• No coverage delta needed on the production code (none changed); the spec's own statements are exercised by their own cases. |
+| ACs discharged | REQ-BIL-IM (AR.3 holds — mappings don't block submission), mirroring alignment-section REQ-BIL-AS-09 AC-09.1 + AC-09.2. |
+| Coverage on the spec | 2 cases: `canSubmitResult` returns true with HLO concepts absent from greenChecks; canonical `GreenChecks` key set is the exact 11 known keys. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
 
-**Status**: 3 of 16 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-02, T-BIL-IM-03). One more (T-BIL-IM-14) is unblocked and can run without BA / backend resolution. The remaining 11 tasks chain off OQ-IM-1 / OQ-IM-2 / OQ-IM-3 — see [`./tasks.md` §9 OI-IM-1](./tasks.md#9-open-items) and [`./requirements.md` §12 Gating open questions](./requirements.md#12-assumptions--open-questions).
+**Status**: 4 of 16 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-02, T-BIL-IM-03, T-BIL-IM-14). The remaining 12 tasks all chain off the unresolved gating OQs (OQ-IM-1 contribution body shape, OQ-IM-2 AOW source, OQ-IM-3 edit-mode GET) — see [`./tasks.md` §9 OI-IM-1](./tasks.md#9-open-items) and [`./requirements.md` §12 Gating open questions](./requirements.md#12-assumptions--open-questions). No more independent work remains until those resolve.
