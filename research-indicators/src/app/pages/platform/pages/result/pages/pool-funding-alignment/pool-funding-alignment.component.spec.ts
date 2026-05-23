@@ -541,10 +541,9 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-banner"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-readonly-banner"]')).toBeNull();
-      expect(root.querySelector('[data-testid="pf-alignment-save"]')).toBeNull();
     });
 
-    it('renders read-only banner when !editable && !is_read_only; Save absent; no synced badge', () => {
+    it('renders read-only banner when !editable && !is_read_only; no synced badge', () => {
       editable.set(false);
       currentAlignment.set({ ...baseAlignment, is_read_only: false });
       fixture.detectChanges();
@@ -553,7 +552,6 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(root.querySelector('[data-testid="pf-alignment-readonly-banner"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-banner"]')).toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).toBeNull();
-      expect(root.querySelector('[data-testid="pf-alignment-save"]')).toBeNull();
     });
 
     it('synced wins when both is_read_only and !editable hold (precedence)', () => {
@@ -567,13 +565,12 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).not.toBeNull();
     });
 
-    it('renders Save button when editable && !is_read_only; no banners', () => {
+    it('clean state: editable && !is_read_only; no banners', () => {
       editable.set(true);
       currentAlignment.set({ ...baseAlignment, is_read_only: false });
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.querySelector('[data-testid="pf-alignment-save"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-banner"]')).toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-readonly-banner"]')).toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).toBeNull();

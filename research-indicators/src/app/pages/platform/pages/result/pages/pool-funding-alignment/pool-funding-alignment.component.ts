@@ -3,7 +3,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { filter } from 'rxjs/operators';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { ButtonModule } from 'primeng/button';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { BilateralService } from '@shared/services/bilateral.service';
@@ -30,7 +29,6 @@ interface AlignmentFormData {
   selector: 'app-pool-funding-alignment',
   imports: [
     FormsModule,
-    ButtonModule,
     RadioButtonModule,
     TooltipModule,
     MultiselectComponent,
