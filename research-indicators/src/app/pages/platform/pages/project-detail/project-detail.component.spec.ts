@@ -105,16 +105,16 @@ describe('ProjectComponent', () => {
   });
 
   describe('Pool Funding badge', () => {
-    it('showPoolFundingBadge is true when currentProject.is_pool_funding_contributor is true', () => {
-      component.currentProject.set({ is_pool_funding_contributor: true } as any);
+    it('showPoolFundingBadge is true when bilateralService.currentContract.is_pool_funding_contributor is true', () => {
+      component.bilateralService.currentContract.set({ is_pool_funding_contributor: true } as any);
       expect(component.showPoolFundingBadge()).toBe(true);
     });
 
     it('showPoolFundingBadge is false when the flag is false or undefined', () => {
-      component.currentProject.set({ is_pool_funding_contributor: false } as any);
+      component.bilateralService.currentContract.set({ is_pool_funding_contributor: false } as any);
       expect(component.showPoolFundingBadge()).toBe(false);
 
-      component.currentProject.set({} as any);
+      component.bilateralService.currentContract.set(null);
       expect(component.showPoolFundingBadge()).toBe(false);
     });
 

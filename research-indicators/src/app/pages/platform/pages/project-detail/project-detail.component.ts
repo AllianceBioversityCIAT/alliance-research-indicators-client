@@ -4,12 +4,12 @@ import { TableFiltersSidebarComponent } from '../results-center/components/table
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
-import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { ApiService } from '../../../../shared/services/api.service';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ResultsCenterService } from '../results-center/results-center.service';
 import { RolesService } from '@services/cache/roles.service';
+import { BilateralService } from '@shared/services/bilateral.service';
 
 @Component({
   selector: 'app-project-detail',
@@ -18,9 +18,7 @@ import { RolesService } from '@services/cache/roles.service';
     ProjectItemComponent,
     TableFiltersSidebarComponent,
     TableConfigurationComponent,
-    SectionSidebarComponent,
-    CustomTagComponent,
-    RouterLink
+    SectionSidebarComponent
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
@@ -30,10 +28,14 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   resultsCenterService = inject(ResultsCenterService);
   rolesService = inject(RolesService);
+  bilateralService = inject(BilateralService);
   contractId = signal('');
   currentProject = signal<GetProjectDetail>({});
 
-  showPoolFundingBadge = computed(() => !!(this.currentProject() as { is_pool_funding_contributor?: boolean })?.is_pool_funding_contributor);
+  // Pool Funding flag is sourced from `bilateralService.currentContract`
+  // (populated by GET_FindContracts) because the GET_ResultsCount payload
+  // that drives `currentProject` does not include `is_pool_funding_contributor`.
+  showPoolFundingBadge = computed(() => !!this.bilateralService.currentContract()?.is_pool_funding_contributor);
   canEditPoolFundingTag = computed(() => this.rolesService.canAccessCenterAdmin());
 
   ngOnInit(): void {
@@ -51,6 +53,8 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     this.getProjectDetail();
+    // Fetch contract details to source the Pool Funding flag for the header badge.
+    void this.bilateralService.getContract(this.contractId());
   }
 
   ngOnDestroy(): void {

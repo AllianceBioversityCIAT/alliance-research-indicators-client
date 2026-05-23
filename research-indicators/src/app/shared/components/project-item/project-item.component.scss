@@ -187,3 +187,14 @@
     gap: 5px !important;
   }
 }
+
+/* Inline "CONTRIBUTING TO POOL FUNDING" label shown next to the project code
+   on the project-detail header (per bilateral mockups `A1032 · CONTRIBUTING
+   TO POOL FUNDING`). Green-300 token from the mockup color palette §5. */
+.contributing-to-pool-funding {
+  color: var(--ac-green-300);
+  font-family: 'Space Grotesk', 'Space_Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
