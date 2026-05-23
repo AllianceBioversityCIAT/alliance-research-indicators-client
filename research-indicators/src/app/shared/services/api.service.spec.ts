@@ -207,23 +207,32 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('authorization/view/scomponents', {});
     });
 
-    it('should call GET_PoolFundingAlignment with the result code', () => {
-      const resultCode = 'RES-001';
+    it('should call GET_PoolFundingAlignment with v1-prefixed URL and numeric result code', () => {
+      const resultCode = '19792';
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
 
       service.GET_PoolFundingAlignment(resultCode);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/RES-001/pool-funding-alignment', {});
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment', {});
     });
 
-    it('should URL-encode the resultCode for GET_PoolFundingAlignment', () => {
-      const resultCode = 'INIT-2025/AB#1';
+    it('should strip the STAR- prefix from the resultCode for GET_PoolFundingAlignment', () => {
+      const resultCode = 'STAR-19792';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_PoolFundingAlignment(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment', {});
+    });
+
+    it('should URL-encode the (post-strip) resultCode for GET_PoolFundingAlignment', () => {
+      const resultCode = 'edge case#1';
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
 
       service.GET_PoolFundingAlignment(resultCode);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith(
-        `results/${encodeURIComponent(resultCode)}/pool-funding-alignment`,
+        `v1/results/${encodeURIComponent(resultCode)}/pool-funding-alignment`,
         {}
       );
     });
@@ -515,47 +524,46 @@ describe('ApiService', () => {
       );
     });
 
-    it('should call PATCH_PoolFundingAlignment with has_contribution=true and lever_codes', () => {
-      const resultCode = 'RES-001';
+    it('should call PATCH_PoolFundingAlignment with v1-prefixed URL and has_contribution=true + lever_codes', () => {
+      const resultCode = '19792';
       const body = {
         has_contribution: true,
-        lever_codes: ['L1', 'L2'],
-        justification: 'because reasons'
+        lever_codes: ['L1', 'L2']
       };
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_PoolFundingAlignment(resultCode, body);
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith(
-        'results/RES-001/pool-funding-alignment',
+        'v1/results/19792/pool-funding-alignment',
         body,
         {}
       );
     });
 
     it('should call PATCH_PoolFundingAlignment with has_contribution=false and no lever_codes', () => {
-      const resultCode = 'RES-001';
+      const resultCode = '19792';
       const body = { has_contribution: false };
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_PoolFundingAlignment(resultCode, body);
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith(
-        'results/RES-001/pool-funding-alignment',
+        'v1/results/19792/pool-funding-alignment',
         body,
         {}
       );
     });
 
-    it('should URL-encode the resultCode for PATCH_PoolFundingAlignment', () => {
-      const resultCode = 'INIT-2025/AB#1';
+    it('should strip the STAR- prefix from the resultCode for PATCH_PoolFundingAlignment', () => {
+      const resultCode = 'STAR-19792';
       const body = { has_contribution: true, lever_codes: ['L1'] };
       (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
 
       service.PATCH_PoolFundingAlignment(resultCode, body);
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith(
-        `results/${encodeURIComponent(resultCode)}/pool-funding-alignment`,
+        'v1/results/19792/pool-funding-alignment',
         body,
         {}
       );

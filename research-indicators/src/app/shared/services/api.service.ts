@@ -653,17 +653,23 @@ export class ApiService {
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
+  // Bilateral routes are URI-versioned and the backend regex on :resultCode accepts
+  // only digits, so we strip any STAR- prefix the FE may pass in (route params can
+  // arrive in either form). See bilateral-module/ari-backend-context handoff §4.
+  private bilateralPath(resultCode: string, suffix = ''): string {
+    const numeric = resultCode.replace(/^STAR-/i, '');
+    return `v1/results/${encodeURIComponent(numeric)}/pool-funding-alignment${suffix}`;
+  }
+
   GET_PoolFundingAlignment = (resultCode: string): Promise<MainResponse<AlignmentResponse>> => {
-    const url = () => `results/${encodeURIComponent(resultCode)}/pool-funding-alignment`;
-    return this.TP.get(url(), {});
+    return this.TP.get(this.bilateralPath(resultCode), {});
   };
 
   PATCH_PoolFundingAlignment = (
     resultCode: string,
     body: UpdatePoolFundingAlignmentDto
   ): Promise<MainResponse<AlignmentResponse>> => {
-    const url = () => `results/${encodeURIComponent(resultCode)}/pool-funding-alignment`;
-    return this.TP.patch(url(), body, {});
+    return this.TP.patch(this.bilateralPath(resultCode), body, {});
   };
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {
