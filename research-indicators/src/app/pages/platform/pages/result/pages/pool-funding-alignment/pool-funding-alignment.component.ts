@@ -48,8 +48,16 @@ export default class PoolFundingAlignmentComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly actions = inject(ActionsService);
-  private readonly websocketService = inject(WebsocketService);
-  private readonly clarityService = inject(ClarityService);
+  // Defensive: if WebsocketService can't be constructed (e.g., SocketIoModule
+  // not provided in this environment), the alignment tab should still work —
+  // socket reconcile silently degrades to "manual refresh" UX.
+  private readonly websocketService: WebsocketService | null = (() => {
+    try { return inject(WebsocketService); } catch { return null; }
+  })();
+  // Same defensive pattern for ClarityService — telemetry must never block UX.
+  private readonly clarityService: ClarityService | null = (() => {
+    try { return inject(ClarityService); } catch { return null; }
+  })();
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loadFailed = signal(false);
@@ -112,7 +120,7 @@ export default class PoolFundingAlignmentComponent {
         return;
       }
       this.seedFromServer(alignment);
-      this.clarityService.trackEvent('bilateral.alignment.viewed', {
+      this.clarityService?.trackEvent('bilateral.alignment.viewed', {
         result_code: alignment.result_code,
         eligible: alignment.eligible,
         has_contribution: alignment.has_contribution,
@@ -121,7 +129,7 @@ export default class PoolFundingAlignmentComponent {
     });
 
     this.websocketService
-      .listen('result.pool-funding-alignment.changed')
+      ?.listen('result.pool-funding-alignment.changed')
       .pipe(
         filter((evt): evt is AlignmentChangedEvent =>
           !!evt && typeof evt === 'object' && (evt as AlignmentChangedEvent).result_code === this.resultCode()
@@ -171,7 +179,7 @@ export default class PoolFundingAlignmentComponent {
 
     if (result.ok) {
       this.seedFromServer(result.data);
-      this.clarityService.trackEvent('bilateral.alignment.saved', {
+      this.clarityService?.trackEvent('bilateral.alignment.saved', {
         result_code: result.data.result_code,
         has_contribution: result.data.has_contribution,
         lever_count: result.data.selected_levers.length
