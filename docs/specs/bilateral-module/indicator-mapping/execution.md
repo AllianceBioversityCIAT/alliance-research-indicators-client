@@ -53,8 +53,27 @@
 
 ---
 
+---
+
+### Entry 3 — T-BIL-IM-02 — `ModalName 'hloSelection'` + `HloSelectionModalContextService`
+
+| Field | Value |
+| --- | --- |
+| Status | ✅ completed |
+| Date | 2026-05-24 |
+| Method | `/sdd-execute bilateral-module/indicator-mapping T-BIL-IM-02` |
+| Files changed | <ul><li>`research-indicators/src/app/shared/types/modal.types.ts` — added `'hloSelection'` to the `ModalName` union.</li><li>`research-indicators/src/app/shared/services/cache/all-modals.service.ts` — added the `hloSelection` config entry to the initial `modalConfig` signal AND to the second `modalConfig.set({...})` call inside `closeAllModals()` (both required because `Record<ModalName, ModalConfig>` is exhaustive — the strict-template compiler in `ng build` caught the second site as a regression risk).</li><li>`research-indicators/src/app/shared/services/cache/hlo-selection-modal-context.service.{ts,spec.ts}` — new singleton (`providedIn: 'root'`) holding the modal-session payload (`{ resultCode }`) via a `context` signal with `setContext` / `clear` helpers.</li></ul> |
+| Mockups consulted | [`../figma-mockups/32471-131617-hlo-modal-empty.md`](../figma-mockups/32471-131617-hlo-modal-empty.md) — the modal shell this enables. Title `High Level Outputs` taken verbatim from the mockup header; `isWide: true` set in the modal config to match the 1277×1113 canvas. |
+| Decisions | <ul><li>**Minimal context payload** — `HloSelectionModalContext = { resultCode: string }` only. Everything else the modal needs (selected_levers, indicatorGroups, pendingMappings) is already in `BilateralService`. Expand the context shape only when a real consumer needs to pass more.</li><li>**Pattern matches `CreateResultManagementService`** — singleton, signal-based, minimal API surface (`context` + `setContext` + `clear`). Same shape so future contributors see a consistent modal-context idiom.</li><li>**Modal config: `isWide: true`** so the existing modal-host renders the wider canvas the HLO selector needs.</li></ul> |
+| Issues encountered | First `ng build` failed with `TS2345` — `Record<ModalName, ModalConfig>` is exhaustive AND `all-modals.service.ts` has TWO sites that construct the record: the initial `modalConfig` signal value AND the `closeAllModals()` reset. Missing the new key in the reset call broke strict-template compile. Fix was one extra line; spec coverage on `closeAllModals` (existing tests in `all-modals.service.spec.ts`) caught it implicitly via the type system. Logged as a reminder: when extending `ModalName`, grep for ALL `modalConfig.set` / `modalConfig =` sites, not just the declaration. |
+| Verification | • ESLint: clean on all 4 changed files. <br>• `npx jest src/app/shared/services/cache/` → **137 / 137 tests pass** across 6 suites (new spec + all existing cache-service specs, no regression in `all-modals.service.spec.ts`). <br>• `npx jest --coverage --collectCoverageFrom=hlo-selection-modal-context.service.ts` → **100% statements / 100% branches / 100% functions / 100% lines**. <br>• `npx ng build --configuration development` → clean. |
+| ACs discharged | Enables AC-01.3 / AC-06.x modal-open flow (the modal itself + its open trigger land in T-BIL-IM-05 + T-BIL-IM-10). |
+| Coverage on the spec | Default context is `null`; `setContext` updates the signal; `setContext` is idempotent on repeated calls (latest payload wins); `clear()` resets to null; `providedIn: 'root'` semantics — `TestBed.inject` returns the same instance across calls. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
 
-**Status**: 2 of 16 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-03). Three more (T-BIL-IM-02 + T-BIL-IM-14) are unblocked and can run without BA / backend resolution. The remaining 11 tasks chain off OQ-IM-1 / OQ-IM-2 / OQ-IM-3 — see [`./tasks.md` §9 OI-IM-1](./tasks.md#9-open-items) and [`./requirements.md` §12 Gating open questions](./requirements.md#12-assumptions--open-questions).
+**Status**: 3 of 16 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-02, T-BIL-IM-03). One more (T-BIL-IM-14) is unblocked and can run without BA / backend resolution. The remaining 11 tasks chain off OQ-IM-1 / OQ-IM-2 / OQ-IM-3 — see [`./tasks.md` §9 OI-IM-1](./tasks.md#9-open-items) and [`./requirements.md` §12 Gating open questions](./requirements.md#12-assumptions--open-questions).
