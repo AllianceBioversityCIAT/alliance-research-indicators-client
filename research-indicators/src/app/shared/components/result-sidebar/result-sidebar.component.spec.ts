@@ -14,6 +14,8 @@ import { of } from 'rxjs';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { BilateralService } from '@shared/services/bilateral.service';
+import { AlignmentResponse } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
 describe('ResultSidebarComponent', () => {
   let component: ResultSidebarComponent;
@@ -28,6 +30,7 @@ describe('ResultSidebarComponent', () => {
   let route: Partial<ActivatedRoute>;
   let rolesService: Partial<RolesService>;
   let currentResultService: Partial<CurrentResultService>;
+  let bilateralService: Partial<BilateralService>;
 
   beforeEach(async () => {
     cacheService = {
@@ -107,6 +110,10 @@ describe('ResultSidebarComponent', () => {
       openEditRequestdOicrsModal: jest.fn().mockResolvedValue(undefined)
     };
 
+    bilateralService = {
+      currentAlignment: signal<AlignmentResponse | null>(null)
+    };
+
     await TestBed.configureTestingModule({
       imports: [HttpClientTestingModule, RouterTestingModule, ResultSidebarComponent],
       providers: [
@@ -119,7 +126,8 @@ describe('ResultSidebarComponent', () => {
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route },
         { provide: RolesService, useValue: rolesService },
-        { provide: CurrentResultService, useValue: currentResultService }
+        { provide: CurrentResultService, useValue: currentResultService },
+        { provide: BilateralService, useValue: bilateralService }
       ]
     }).compileComponents();
 
@@ -166,6 +174,102 @@ describe('ResultSidebarComponent', () => {
       for (const option of options) {
         expect(option.greenCheck).toBe(false);
       }
+    });
+
+    describe('Pool Funding Alignment tab visibility (REQ-BIL-AS-01)', () => {
+      const eligibleAlignment: AlignmentResponse = {
+        result_code: 'RES-001',
+        eligible: true,
+        has_pool_funding_alignment_eligible: true,
+        has_contribution: null,
+        selected_levers: [],
+        is_synced_to_prms: false,
+        is_read_only: false
+      };
+
+      it('hides the Pool Funding alignment tab when currentAlignment is null (loading state — AC-01.3)', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(null);
+
+        const options = component.allOptionsWithGreenChecks();
+        const poolFundingOption = options.find(o => o.path === 'pool-funding-alignment');
+
+        expect(poolFundingOption).toBeUndefined();
+      });
+
+      it('hides the Pool Funding alignment tab when eligible=false', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set({
+          ...eligibleAlignment,
+          eligible: false,
+          has_pool_funding_alignment_eligible: false
+        });
+
+        const options = component.allOptionsWithGreenChecks();
+        const poolFundingOption = options.find(o => o.path === 'pool-funding-alignment');
+
+        expect(poolFundingOption).toBeUndefined();
+      });
+
+      it('shows the Pool Funding alignment tab between Alliance alignment and Partners when eligible=true', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+
+        const options = component.allOptionsWithGreenChecks();
+        const paths = options.map(o => o.path);
+        const allianceIdx = paths.indexOf('alliance-alignment');
+        const poolFundingIdx = paths.indexOf('pool-funding-alignment');
+        const partnersIdx = paths.indexOf('partners');
+
+        expect(poolFundingIdx).toBeGreaterThan(-1);
+        expect(allianceIdx).toBeGreaterThan(-1);
+        expect(partnersIdx).toBeGreaterThan(-1);
+        expect(poolFundingIdx).toBeGreaterThan(allianceIdx);
+        expect(poolFundingIdx).toBeLessThan(partnersIdx);
+      });
+
+      // AR.3 — sidebar side: the new SidebarOption uses greenCheckKey 'pool_funding_alignment',
+      // which is intentionally NOT a key on the GreenChecks interface. The runtime cache.greenChecks()
+      // never populates it, so the green-check decoration stays false regardless of alignment state.
+      // See docs/specs/bilateral-module/alignment-section/requirements.md REQ-BIL-AS-09.
+      it('AR.3 — Pool Funding alignment option never has greenCheck=true (decoupled from completion)', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+        // Populate every legitimate GreenChecks key as truthy — none of them is pool_funding_alignment.
+        cacheService.greenChecks?.set({
+          general_information: 1,
+          alignment: 1,
+          geo_location: 1,
+          partners: 1,
+          evidences: 1,
+          policy_change: 1,
+          cap_sharing_ip: 1,
+          completness: 1,
+          link_result: 1,
+          innovation_dev: 1,
+          oicr: 1
+        } as GreenChecks);
+
+        const options = component.allOptionsWithGreenChecks();
+        const poolFundingOption = options.find(o => o.path === 'pool-funding-alignment');
+
+        expect(poolFundingOption).toBeDefined();
+        expect(poolFundingOption?.greenCheck).toBe(false);
+        expect(poolFundingOption?.greenCheckKey).toBe('pool_funding_alignment');
+      });
+
+      it('regression — existing indicator_id filtering and green-check decoration unaffected by alignment state', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+        cacheService.currentMetadata?.set({ ...cacheService.currentMetadata(), indicator_id: 2 });
+
+        const options = component.allOptionsWithGreenChecks();
+        const innovationOption = options.find(opt => opt.path === 'innovation-details');
+        const oicrOption = options.find(opt => opt.path === 'oicr-details');
+
+        // indicator_id=2 → innovation-details renders, oicr-details (id=5) does not.
+        expect(innovationOption).toBeDefined();
+        expect(oicrOption).toBeUndefined();
+        // Green-check decoration still propagates.
+        for (const option of options) {
+          expect(typeof option.greenCheck).toBe('boolean');
+        }
+      });
     });
   });
 

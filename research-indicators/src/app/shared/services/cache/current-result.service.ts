@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, computed, inject } from '@angular/core';
 import { AllModalsService } from './all-modals.service';
 import { CreateResultManagementService } from '../../components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { ApiService } from '../api.service';
@@ -13,6 +13,15 @@ export class CurrentResultService {
   api = inject(ApiService);
   allModalsService = inject(AllModalsService);
   cache = inject(CacheService);
+
+  readonly isCurrentUserOwner = computed(() => {
+    const metadata = this.cache.currentMetadata();
+    return (
+      this.cache.isMyResult() ||
+      metadata.is_principal_investigator === true ||
+      metadata.is_main_contact_person === true
+    );
+  });
 
   async openEditRequestdOicrsModal(
     indicatorId: number,

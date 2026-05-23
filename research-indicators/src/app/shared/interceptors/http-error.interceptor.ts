@@ -60,13 +60,17 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
         const isPoolFundingTagValidationError =
           error.status === 400 && req.url.includes('/pool-funding-tag');
 
+        const isPoolFundingAlignmentValidationError =
+          error.status === 400 && req.url.includes('/pool-funding-alignment');
+
         if (
           cache.isLoggedIn() &&
           error.status !== 409 &&
           error.status !== 401 &&
           !req.url.includes('refresh-token') &&
           !isAiFormalizeError &&
-          !isPoolFundingTagValidationError
+          !isPoolFundingTagValidationError &&
+          !isPoolFundingAlignmentValidationError
         ) {
           actions.showToast({ detail: error.error.errors, severity: 'error', summary: 'Error' });
         }

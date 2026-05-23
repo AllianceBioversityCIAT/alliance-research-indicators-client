@@ -638,4 +638,93 @@ describe('httpErrorInterceptor', () => {
       }
     });
   });
+
+  it('should not show toast when 400 comes from /pool-funding-alignment (bilateral inline-error path)', done => {
+    const poolFundingAlignmentRequest = new HttpRequest(
+      'PATCH',
+      'http://test.com/api/v1/results/RES-001/pool-funding-alignment',
+      { has_contribution: true, lever_codes: [] }
+    );
+    const errorResponse = new HttpErrorResponse({
+      error: { description: 'At least one lever is required when has_contribution=true.', errors: null },
+      status: 400,
+      statusText: 'Bad Request'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(poolFundingAlignmentRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockApiService.saveErrors).toHaveBeenCalled();
+        expect(mockActionsService.showToast).not.toHaveBeenCalled();
+        done();
+      }
+    });
+  });
+
+  it('should still show toast for non-400 errors from /pool-funding-alignment', done => {
+    const poolFundingAlignmentRequest = new HttpRequest(
+      'PATCH',
+      'http://test.com/api/v1/results/RES-001/pool-funding-alignment',
+      { has_contribution: true, lever_codes: ['L1'] }
+    );
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Server exploded' },
+      status: 500,
+      statusText: 'Internal Server Error'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: { sec_user_id: 1, first_name: 'X', last_name: 'Y', email: 'x@y.z' }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(poolFundingAlignmentRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockActionsService.showToast).toHaveBeenCalledWith({
+          detail: 'Server exploded',
+          severity: 'error',
+          summary: 'Error'
+        });
+        done();
+      }
+    });
+  });
+
+  it('should still show toast for 400 errors on an unrelated endpoint (URL-scoped exception)', done => {
+    const unrelatedRequest = new HttpRequest('POST', 'http://test.com/api/v1/results', { title: 'x' });
+    const errorResponse = new HttpErrorResponse({
+      error: { errors: 'Validation failed' },
+      status: 400,
+      statusText: 'Bad Request'
+    });
+
+    mockHandler = jest.fn().mockReturnValue(throwError(() => errorResponse));
+    mockCacheService.isLoggedIn.mockReturnValue(true);
+    mockCacheService.dataCache.mockReturnValue({
+      user: { sec_user_id: 1, first_name: 'X', last_name: 'Y', email: 'x@y.z' }
+    });
+    mockApiService.saveErrors.mockResolvedValue(undefined);
+
+    interceptor(unrelatedRequest, mockHandler).subscribe({
+      next: () => done.fail('Should have thrown an error'),
+      error: error => {
+        expect(error).toBe(errorResponse);
+        expect(mockActionsService.showToast).toHaveBeenCalledWith({
+          detail: 'Validation failed',
+          severity: 'error',
+          summary: 'Error'
+        });
+        done();
+      }
+    });
+  });
 });

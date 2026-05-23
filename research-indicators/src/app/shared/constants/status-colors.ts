@@ -5,4 +5,5 @@ export const STATUS_COLOR_MAP: Record<string, { border: string; text: string, ba
   '2': { border: '#7C9CB9', text: '#173F6F' }, // Completed
   '3': { border: '#F58220', text: '#F58220' }, // Suspended - Orange
   'pool-funding': { border: 'var(--ac-pool-funding-border)', text: 'var(--ac-pool-funding-fg)' },
+  'pf-synced': { border: 'var(--ac-grey-700)', text: 'var(--ac-grey-700)' }
 };

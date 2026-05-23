@@ -96,6 +96,11 @@ export const routes: Routes = [
             data: createResultData()
           },
           {
+            path: 'pool-funding-alignment',
+            loadComponent: () => import('@platform/pages/result/pages/pool-funding-alignment/pool-funding-alignment.component'),
+            data: createResultData()
+          },
+          {
             path: 'partners',
             loadComponent: () => import('@platform/pages/result/pages/partners/partners.component'),
             data: createResultData()

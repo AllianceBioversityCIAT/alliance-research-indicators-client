@@ -16,6 +16,8 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
+import { BilateralService } from '@shared/services/bilateral.service';
+import { AlignmentResponse } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import {
   isResultsCenterEntryFromUrl,
   RESULT_ENTRY_SOURCE_QUERY,
@@ -56,14 +58,25 @@ export class ResultSidebarComponent {
   submissionService = inject(SubmissionService);
   roles = inject(RolesService);
   currentResultService = inject(CurrentResultService);
+  bilateralService = inject(BilateralService);
   allOptionsWithGreenChecks = computed(() => {
+    const alignment = this.bilateralService.currentAlignment();
     return this.allOptions()
-      .filter(option => option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id)
+      .filter(
+        option =>
+          (option?.indicator_id === this.cache.currentMetadata()?.indicator_id || !option?.indicator_id) &&
+          !this.shouldHidePoolFundingTab(option, alignment)
+      )
       .map(option => ({
         ...option,
         greenCheck: Boolean(this.cache.greenChecks()[option.greenCheckKey as keyof GreenChecks])
       }));
   });
+
+  private shouldHidePoolFundingTab(option: SidebarOption, alignment: AlignmentResponse | null): boolean {
+    if (option.path !== 'pool-funding-alignment') return false;
+    return !alignment || alignment.eligible === false;
+  }
 
   getResultChildQueryParams(): Record<string, string> {
     const m = this.route.snapshot.queryParamMap;
@@ -85,6 +98,11 @@ export class ResultSidebarComponent {
       label: 'Alliance alignment',
       path: 'alliance-alignment',
       greenCheckKey: 'alignment'
+    },
+    {
+      label: 'Pool Funding alignment',
+      path: 'pool-funding-alignment',
+      greenCheckKey: 'pool_funding_alignment'
     },
     {
       label: 'OICR Details',

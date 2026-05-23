@@ -52,7 +52,7 @@ The Angular app is organized by **page domain** under `src/app/pages/` with cros
 | **Platform shell** | `src/app/pages/platform/` | Authenticated shell — navbar, sidebar, outlet for children |
 | **Home** | `pages/platform/pages/home/` | Logged-in dashboard / entry actions |
 | **Indicator** | `pages/platform/pages/indicator/`, `about-indicators/` | Indicator catalog & detail |
-| **Results** | `pages/platform/pages/result/`, `results-center/`, `search-a-result/`, `load-result/` | Result lifecycle: create, edit (11 tabs), search, hub |
+| **Results** | `pages/platform/pages/result/`, `results-center/`, `search-a-result/`, `load-result/` | Result lifecycle: create, edit (11 tabs + the conditionally-rendered Pool Funding alignment tab), search, hub |
 | **Projects** | `pages/platform/pages/my-projects/`, `project-detail/` | Project portfolio & detail |
 | **Dashboard** | `pages/platform/pages/dashboard/` | Aggregate analytics, Chart.js views |
 | **Notifications** | `pages/platform/pages/notifications/` | Real-time feed |
@@ -145,6 +145,7 @@ The client should **never** parse a raw `T` — always go through `MainResponse<
 - `GET /results-center`, `GET /dashboards`
 - `GET /projects`, `GET /contracts`, `GET /metadata`
 - `PATCH /agresso/contracts/:code/pool-funding-tag` — Center Admin / System Admin override of the bilateral Pool Funding tag (spec: [`../specs/bilateral-module/tag-visibility/`](../specs/bilateral-module/tag-visibility/)).
+- `GET /results/:resultCode/pool-funding-alignment`, `PATCH /results/:resultCode/pool-funding-alignment` — Pool Funding Alignment read + write (eligible bilateral results only; PATCH returns 409 once synced to PRMS; spec: [`../specs/bilateral-module/alignment-section/`](../specs/bilateral-module/alignment-section/)).
 
 ### 4.4 Client contract rules
 
@@ -199,14 +200,14 @@ The backend is authoritative; the client must mirror these rules so users don't 
 Three are registered (order matters):
 
 1. `jWtInterceptor` — attaches JWT, proactively refreshes near expiry, retries once on 401.
-2. `httpErrorInterceptor` — central error logging + toast/alert dispatch via `ActionsService`. URL-scoped toast exceptions exist for `refresh-token`, AI-formalize 502, and 400 on `/pool-funding-tag` (where the inline-error path owns the user message).
+2. `httpErrorInterceptor` — central error logging + toast/alert dispatch via `ActionsService`. URL-scoped toast exceptions exist for `refresh-token`, AI-formalize 502, 400 on `/pool-funding-tag`, and 400 on `/pool-funding-alignment` (where the inline-error path owns the user message).
 3. `resultInterceptor` — result-domain transformations (e.g., version handling).
 
 ### 6.4 Real-time (WebSocket)
 
 - `WebsocketService` connects on app init via `ngx-socket-io`.
 - Emits `config-user` (name, userId, platform) to identify the client.
-- Listens to: `all-connected-users-<platform>`, `notifications`, `alert-<platform>`.
+- Listens to: `all-connected-users-<platform>`, `notifications`, `alert-<platform>`, `result.pool-funding-alignment.changed` (per-result subscription in `PoolFundingAlignmentComponent`; dirty-state guard via info toast — design: [`../specs/bilateral-module/alignment-section/design.md`](../specs/bilateral-module/alignment-section/design.md) §7).
 - Exposes signals (`userList`, `currentRoom`) for components.
 - **Degradation**: when the socket is disconnected, UI must continue to function with REST polling fallbacks where applicable; it must never block on `connected`.
 

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { SubmissionService } from './submission.service';
 import { signal } from '@angular/core';
 import { RolesService } from './cache/roles.service';
+import { GreenChecks } from '../interfaces/get-green-checks.interface';
 
 const cacheMock = {
   allGreenChecksAreTrue: jest.fn(),
@@ -354,5 +355,56 @@ describe('SubmissionService', () => {
   it('currentResultIsSubmitted handles undefined status_id', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: undefined });
     expect(service.currentResultIsSubmitted()).toBe(false);
+  });
+
+  // AR.3 — Pool Funding Alignment is NOT part of the submission validator.
+  // See docs/specs/bilateral-module/alignment-section/requirements.md REQ-BIL-AS-09.
+  // If anyone adds `pool_funding_alignment` to the GreenChecks interface or to the
+  // runtime greenChecks() map, this test will fail and the change should be reviewed
+  // against the alignment-section spec.
+  describe('AR.3 — Pool Funding Alignment is decoupled from submission completion', () => {
+    const canonicalGreenChecks: Required<GreenChecks> = {
+      general_information: 1,
+      alignment: 1,
+      geo_location: 1,
+      partners: 1,
+      evidences: 1,
+      policy_change: 1,
+      cap_sharing_ip: 1,
+      completness: 1,
+      link_result: 1,
+      innovation_dev: 1,
+      oicr: 1
+    };
+
+    it('canSubmitResult returns true when all canonical green checks pass, with no alignment field present', () => {
+      cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
+      cacheMock.greenChecks.mockReturnValue(canonicalGreenChecks);
+      cacheMock.isMyResult.mockReturnValue(true);
+      cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
+
+      expect(service.canSubmitResult()).toBe(true);
+      expect(Object.keys(canonicalGreenChecks)).not.toContain('pool_funding_alignment');
+    });
+
+    it('GreenChecks interface canonical key set excludes pool_funding_alignment', () => {
+      // Lock the GreenChecks shape. Adding pool_funding_alignment here would require
+      // explicit reasoning against AR.3 — see the spec.
+      expect(Object.keys(canonicalGreenChecks).sort()).toEqual(
+        [
+          'alignment',
+          'cap_sharing_ip',
+          'completness',
+          'evidences',
+          'general_information',
+          'geo_location',
+          'innovation_dev',
+          'link_result',
+          'oicr',
+          'partners',
+          'policy_change'
+        ].sort()
+      );
+    });
   });
 });

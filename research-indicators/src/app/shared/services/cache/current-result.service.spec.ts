@@ -1,9 +1,11 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { CurrentResultService } from './current-result.service';
 import { ApiService } from '../api.service';
 import { AllModalsService } from './all-modals.service';
 import { CacheService } from './cache.service';
 import { CreateResultManagementService } from '../../components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { GetMetadata } from '../../interfaces/get-metadata.interface';
 
 describe('CurrentResultService', () => {
   let service: CurrentResultService;
@@ -256,6 +258,70 @@ describe('CurrentResultService', () => {
       expect(mockApi.GET_OICRModal).toHaveBeenCalledWith(-1);
       expect(mockCreateResultManagement.currentRequestedResultCode.set).toHaveBeenCalledWith(-1);
       expect(mockCache.currentResultId.set).toHaveBeenCalledWith(-1);
+    });
+  });
+
+  describe('isCurrentUserOwner', () => {
+    let currentMetadataSignal: ReturnType<typeof signal<GetMetadata>>;
+    let isMyResultSignal: ReturnType<typeof signal<boolean>>;
+    let ownerService: CurrentResultService;
+
+    beforeEach(() => {
+      currentMetadataSignal = signal<GetMetadata>({});
+      isMyResultSignal = signal<boolean>(false);
+
+      const reactiveCache = {
+        currentResultId: signalMock() as any,
+        currentMetadata: currentMetadataSignal,
+        isMyResult: isMyResultSignal
+      } as any;
+
+      TestBed.resetTestingModule();
+      TestBed.configureTestingModule({
+        providers: [
+          CurrentResultService,
+          { provide: ApiService, useValue: mockApi },
+          { provide: AllModalsService, useValue: mockAllModals },
+          { provide: CacheService, useValue: reactiveCache },
+          { provide: CreateResultManagementService, useValue: mockCreateResultManagement }
+        ]
+      });
+      ownerService = TestBed.inject(CurrentResultService);
+    });
+
+    it('returns false when there is no metadata and the user matches no owner field', () => {
+      currentMetadataSignal.set({});
+      isMyResultSignal.set(false);
+
+      expect(ownerService.isCurrentUserOwner()).toBe(false);
+    });
+
+    it('returns true when the current user is the creator (isMyResult)', () => {
+      currentMetadataSignal.set({ is_principal_investigator: false, is_main_contact_person: false });
+      isMyResultSignal.set(true);
+
+      expect(ownerService.isCurrentUserOwner()).toBe(true);
+    });
+
+    it('returns true when the current user is the principal investigator', () => {
+      currentMetadataSignal.set({ is_principal_investigator: true, is_main_contact_person: false });
+      isMyResultSignal.set(false);
+
+      expect(ownerService.isCurrentUserOwner()).toBe(true);
+    });
+
+    it('returns true when the current user is the main contact person', () => {
+      currentMetadataSignal.set({ is_principal_investigator: false, is_main_contact_person: true });
+      isMyResultSignal.set(false);
+
+      expect(ownerService.isCurrentUserOwner()).toBe(true);
+    });
+
+    it('returns false when the user matches none of creator, PI, or contact', () => {
+      currentMetadataSignal.set({ is_principal_investigator: false, is_main_contact_person: false });
+      isMyResultSignal.set(false);
+
+      expect(ownerService.isCurrentUserOwner()).toBe(false);
     });
   });
 });

@@ -1,21 +1,41 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
 import { BilateralService } from './bilateral.service';
 import { ApiService } from './api.service';
+import { RolesService } from './cache/roles.service';
+import { CurrentResultService } from './cache/current-result.service';
 import { FindContracts, FindContractsResponse } from '@shared/interfaces/find-contracts.interface';
 import { MainResponse } from '@shared/interfaces/responses.interface';
 import { PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
+import { AlignmentResponse } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
 describe('BilateralService', () => {
   let service: BilateralService;
-  let mockApi: { GET_FindContracts: jest.Mock; PATCH_PoolFundingTag: jest.Mock };
+  let mockApi: {
+    GET_FindContracts: jest.Mock;
+    PATCH_PoolFundingTag: jest.Mock;
+    GET_PoolFundingAlignment: jest.Mock;
+    PATCH_PoolFundingAlignment: jest.Mock;
+  };
+  let canAccessCenterAdminSignal: ReturnType<typeof signal<boolean>>;
+  let isCurrentUserOwnerSignal: ReturnType<typeof signal<boolean>>;
 
   beforeEach(() => {
     mockApi = {
       GET_FindContracts: jest.fn(),
-      PATCH_PoolFundingTag: jest.fn()
+      PATCH_PoolFundingTag: jest.fn(),
+      GET_PoolFundingAlignment: jest.fn(),
+      PATCH_PoolFundingAlignment: jest.fn()
     };
+    canAccessCenterAdminSignal = signal<boolean>(false);
+    isCurrentUserOwnerSignal = signal<boolean>(false);
     TestBed.configureTestingModule({
-      providers: [BilateralService, { provide: ApiService, useValue: mockApi }]
+      providers: [
+        BilateralService,
+        { provide: ApiService, useValue: mockApi },
+        { provide: RolesService, useValue: { canAccessCenterAdmin: canAccessCenterAdminSignal } },
+        { provide: CurrentResultService, useValue: { isCurrentUserOwner: isCurrentUserOwnerSignal } }
+      ]
     });
     service = TestBed.inject(BilateralService);
   });
@@ -182,6 +202,201 @@ describe('BilateralService', () => {
       expect(service.isBilateral({})).toBe(false);
       expect(service.isBilateral({ funding_type: 'Pool Funding' })).toBe(false);
       expect(service.isBilateral({ funding_type: null })).toBe(false);
+    });
+  });
+
+  describe('getAlignment', () => {
+    const baseAlignment: AlignmentResponse = {
+      result_code: 'RES-001',
+      eligible: true,
+      has_pool_funding_alignment_eligible: true,
+      has_contribution: true,
+      selected_levers: [{ lever_code: 'L1', lever_name: 'Lever 1' }],
+      is_synced_to_prms: false,
+      is_read_only: false
+    };
+
+    it('happy path — sets currentAlignment, toggles loadingAlignment true→false', async () => {
+      let loadingDuringCall = false;
+      mockApi.GET_PoolFundingAlignment.mockImplementation(() => {
+        loadingDuringCall = service.loadingAlignment();
+        return Promise.resolve(ok<AlignmentResponse>(baseAlignment));
+      });
+
+      const result = await service.getAlignment('RES-001');
+
+      expect(loadingDuringCall).toBe(true);
+      expect(service.loadingAlignment()).toBe(false);
+      expect(service.currentAlignment()).toEqual(baseAlignment);
+      expect(result).toEqual(baseAlignment);
+      expect(mockApi.GET_PoolFundingAlignment).toHaveBeenCalledWith('RES-001');
+    });
+
+    it('404 — returns null and sets currentAlignment to null', async () => {
+      mockApi.GET_PoolFundingAlignment.mockResolvedValue(
+        err<AlignmentResponse>(404, 'not found', undefined as unknown as AlignmentResponse)
+      );
+
+      const result = await service.getAlignment('NONE');
+
+      expect(result).toBeNull();
+      expect(service.currentAlignment()).toBeNull();
+      expect(service.loadingAlignment()).toBe(false);
+    });
+
+    it('rejection — loadingAlignment resets to false (defensive try/finally)', async () => {
+      mockApi.GET_PoolFundingAlignment.mockRejectedValue(new Error('network down'));
+
+      await expect(service.getAlignment('RES-001')).rejects.toThrow('network down');
+
+      expect(service.loadingAlignment()).toBe(false);
+    });
+  });
+
+  describe('patchAlignment', () => {
+    const successAlignment: AlignmentResponse = {
+      result_code: 'RES-001',
+      eligible: true,
+      has_pool_funding_alignment_eligible: true,
+      has_contribution: true,
+      selected_levers: [{ lever_code: 'L1', lever_name: 'Lever 1' }],
+      is_synced_to_prms: false,
+      is_read_only: false
+    };
+
+    it('200 — returns ok:true and updates currentAlignment', async () => {
+      let savingDuringCall = false;
+      mockApi.PATCH_PoolFundingAlignment.mockImplementation(() => {
+        savingDuringCall = service.savingAlignment();
+        return Promise.resolve(ok<AlignmentResponse>(successAlignment));
+      });
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true, lever_codes: ['L1'] });
+
+      expect(savingDuringCall).toBe(true);
+      expect(service.savingAlignment()).toBe(false);
+      expect(result).toEqual({ ok: true, data: successAlignment });
+      expect(service.currentAlignment()).toEqual(successAlignment);
+    });
+
+    it('400 with structured field-keyed errors — returns ok:false with fieldErrors', async () => {
+      const errorsJson = JSON.stringify({ has_contribution: 'must be true or false', lever_codes: 'at least one required' });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue({
+        data: undefined,
+        status: 400,
+        description: 'error',
+        timestamp: '',
+        path: '',
+        successfulRequest: false,
+        errorDetail: { errors: errorsJson, detail: '', description: 'Validation failed' }
+      } as MainResponse<AlignmentResponse>);
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        fieldErrors: { has_contribution: 'must be true or false', lever_codes: 'at least one required' }
+      });
+      expect(service.savingAlignment()).toBe(false);
+    });
+
+    it('400 without parseable field errors — returns ok:false with description, no fieldErrors', async () => {
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(
+        err<AlignmentResponse>(400, 'has_contribution must be set', undefined as unknown as AlignmentResponse)
+      );
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        description: 'has_contribution must be set'
+      });
+      expect((result as { fieldErrors?: unknown }).fieldErrors).toBeUndefined();
+    });
+
+    it('409 — returns ok:false with status 409 (component handles refetch)', async () => {
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(
+        err<AlignmentResponse>(409, 'Result was synced to PRMS', undefined as unknown as AlignmentResponse)
+      );
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect(result).toEqual({ ok: false, status: 409, description: 'Result was synced to PRMS' });
+      expect(service.savingAlignment()).toBe(false);
+    });
+
+    it('500 — returns ok:false with status 500; global interceptor handles toast', async () => {
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(
+        err<AlignmentResponse>(500, 'Internal Server Error', undefined as unknown as AlignmentResponse)
+      );
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: false });
+
+      expect(result).toEqual({ ok: false, status: 500, description: 'Internal Server Error' });
+      expect(service.savingAlignment()).toBe(false);
+    });
+
+    it('rejection — savingAlignment resets to false (defensive try/finally)', async () => {
+      mockApi.PATCH_PoolFundingAlignment.mockRejectedValue(new Error('network down'));
+
+      await expect(service.patchAlignment('RES-001', { has_contribution: false })).rejects.toThrow('network down');
+
+      expect(service.savingAlignment()).toBe(false);
+    });
+  });
+
+  describe('editable computed', () => {
+    const readOnlyFalse: AlignmentResponse = {
+      result_code: 'RES-001',
+      eligible: true,
+      has_pool_funding_alignment_eligible: true,
+      has_contribution: false,
+      selected_levers: [],
+      is_synced_to_prms: false,
+      is_read_only: false
+    };
+
+    it('false when currentAlignment is null', () => {
+      service.currentAlignment.set(null);
+      canAccessCenterAdminSignal.set(true);
+      isCurrentUserOwnerSignal.set(true);
+
+      expect(service.editable()).toBe(false);
+    });
+
+    it('false when is_read_only is true (even for admin owner)', () => {
+      service.currentAlignment.set({ ...readOnlyFalse, is_read_only: true });
+      canAccessCenterAdminSignal.set(true);
+      isCurrentUserOwnerSignal.set(true);
+
+      expect(service.editable()).toBe(false);
+    });
+
+    it('true for admin / center admin (canAccessCenterAdmin=true) when not read-only', () => {
+      service.currentAlignment.set(readOnlyFalse);
+      canAccessCenterAdminSignal.set(true);
+      isCurrentUserOwnerSignal.set(false);
+
+      expect(service.editable()).toBe(true);
+    });
+
+    it('true for owner (isCurrentUserOwner=true) when not admin and not read-only', () => {
+      service.currentAlignment.set(readOnlyFalse);
+      canAccessCenterAdminSignal.set(false);
+      isCurrentUserOwnerSignal.set(true);
+
+      expect(service.editable()).toBe(true);
+    });
+
+    it('false when neither admin nor owner', () => {
+      service.currentAlignment.set(readOnlyFalse);
+      canAccessCenterAdminSignal.set(false);
+      isCurrentUserOwnerSignal.set(false);
+
+      expect(service.editable()).toBe(false);
     });
   });
 });
