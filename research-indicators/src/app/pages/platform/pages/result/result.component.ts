@@ -6,6 +6,7 @@ import { GetMetadataService } from '../../../../shared/services/get-metadata.ser
 import { SubmissionHistoryContentComponent } from './components/submission-history-content/submission-history-content.component';
 import { SectionSidebarComponent } from '../../../../shared/components/section-sidebar/section-sidebar.component';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
+import { BilateralService } from '@shared/services/bilateral.service';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
@@ -19,9 +20,11 @@ export default class ResultComponent {
   metadata = inject(GetMetadataService);
   route = inject(ActivatedRoute);
   versionWatcher = inject(VersionWatcherService);
+  bilateralService = inject(BilateralService);
   versionChangeEffect: EffectRef | undefined;
   lastVersion: string | null = null;
   lastId: number | null = null;
+  private lastAlignmentResultCode: string | null = null;
 
   routeParams = toSignal(this.route.params, { initialValue: {} });
 
@@ -41,6 +44,17 @@ export default class ResultComponent {
 
       if (id > 0 && !isNaN(id)) {
         this.cache.setCurrentResultId(this.getCurrentResultIdentifier(idParam, id));
+      }
+
+      // Load Pool Funding Alignment so the sidebar can decide whether to show
+      // the tab. Without this, the tab is permanently hidden because
+      // BilateralService.currentAlignment never populates until the user
+      // navigates to the tab — which they can't see. See bilateral-module
+      // alignment-section spec, AC-01.x.
+      const alignmentCode = (typeof idParam === 'string' && idParam.length > 0) ? idParam : (id > 0 ? String(id) : null);
+      if (alignmentCode && this.lastAlignmentResultCode !== alignmentCode) {
+        this.lastAlignmentResultCode = alignmentCode;
+        void this.bilateralService.getAlignment(alignmentCode);
       }
     });
 
