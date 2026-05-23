@@ -11,6 +11,8 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { ClarityService } from '@shared/services/clarity.service';
 import { SubmissionService } from '@shared/services/submission.service';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { HloSelectionModalContextService } from '@shared/services/cache/hlo-selection-modal-context.service';
 import { AlignmentResponse } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
 describe('PoolFundingAlignmentComponent', () => {
@@ -27,6 +29,11 @@ describe('PoolFundingAlignmentComponent', () => {
   let socketEvents$: Subject<unknown>;
   let listenMock: jest.Mock;
   let trackEventMock: jest.Mock;
+  let openModalMock: jest.Mock;
+  let setContextMock: jest.Mock;
+
+  const codes = (form: { selected_sps: { official_code: string }[] }) => form.selected_sps.map(sp => sp.official_code);
+  const sp = (official_code: string) => ({ official_code });
 
   const baseAlignment: AlignmentResponse = {
     result_code: 'RES-001',
@@ -51,6 +58,8 @@ describe('PoolFundingAlignmentComponent', () => {
     socketEvents$ = new Subject<unknown>();
     listenMock = jest.fn().mockReturnValue(socketEvents$.asObservable());
     trackEventMock = jest.fn();
+    openModalMock = jest.fn();
+    setContextMock = jest.fn();
 
     const bilateralServiceMock = {
       currentAlignment,
@@ -89,15 +98,15 @@ describe('PoolFundingAlignmentComponent', () => {
         { provide: ActionsService, useValue: { showToast: showToastMock } },
         { provide: SubmissionService, useValue: { isEditableStatus: signal(true) } },
         { provide: WebsocketService, useValue: { listen: listenMock } },
-        { provide: ClarityService, useValue: { trackEvent: trackEventMock } }
+        { provide: ClarityService, useValue: { trackEvent: trackEventMock } },
+        { provide: AllModalsService, useValue: { openModal: openModalMock } },
+        { provide: HloSelectionModalContextService, useValue: { setContext: setContextMock, clear: jest.fn(), context: signal(null) } }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
 
     fixture = TestBed.createComponent(PoolFundingAlignmentComponent);
     component = fixture.componentInstance;
-    // NOTE: detectChanges intentionally skipped — child template renders standalone components
-    // whose DI is exercised in T-BIL-AS-09 DOM-level cases.
   });
 
   it('should create and call getAlignment with the route resultCode on init', () => {
@@ -136,7 +145,9 @@ describe('PoolFundingAlignmentComponent', () => {
         { provide: Router, useValue: { navigate: jest.fn().mockResolvedValue(true) } },
         { provide: ActionsService, useValue: { showToast: jest.fn() } },
         { provide: WebsocketService, useValue: { listen: jest.fn().mockReturnValue(new Subject().asObservable()) } },
-        { provide: ClarityService, useValue: { trackEvent: jest.fn() } }
+        { provide: ClarityService, useValue: { trackEvent: jest.fn() } },
+        { provide: AllModalsService, useValue: { openModal: jest.fn() } },
+        { provide: HloSelectionModalContextService, useValue: { setContext: jest.fn(), clear: jest.fn(), context: signal(null) } }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
@@ -150,7 +161,7 @@ describe('PoolFundingAlignmentComponent', () => {
     it('formData is null/empty when alignment is null (loading)', () => {
       expect(component.formData()).toEqual({
         has_contribution: null,
-        sp_codes: []
+        selected_sps: []
       });
     });
 
@@ -159,7 +170,7 @@ describe('PoolFundingAlignmentComponent', () => {
       component.seedFromServer(currentAlignment()!);
 
       expect(component.formData().has_contribution).toBeNull();
-      expect(component.formData().sp_codes).toEqual([]);
+      expect(codes(component.formData())).toEqual([]);
     });
 
     it('seeds formData from server with has_contribution=false', () => {
@@ -167,7 +178,7 @@ describe('PoolFundingAlignmentComponent', () => {
       component.seedFromServer(currentAlignment()!);
 
       expect(component.formData().has_contribution).toBe(false);
-      expect(component.formData().sp_codes).toEqual([]);
+      expect(codes(component.formData())).toEqual([]);
     });
 
     it('seeds formData from server with has_contribution=true and pre-filled SPs', () => {
@@ -182,7 +193,9 @@ describe('PoolFundingAlignmentComponent', () => {
       component.seedFromServer(currentAlignment()!);
 
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().sp_codes.sort()).toEqual(['SP01', 'SP02']);
+      expect(codes(component.formData()).sort()).toEqual(['SP01', 'SP02']);
+      // Seeded objects carry name + category/color slots for the picker's enrichment.
+      expect(component.formData().selected_sps[0]).toMatchObject({ official_code: 'SP01', name: 'Breeding for Tomorrow' });
     });
 
     it('falls back to selected_levers when selected_science_programs is absent (backend compat)', () => {
@@ -197,7 +210,7 @@ describe('PoolFundingAlignmentComponent', () => {
       });
       component.seedFromServer(currentAlignment()!);
 
-      expect(component.formData().sp_codes.sort()).toEqual(['SP01', 'SP02']);
+      expect(codes(component.formData()).sort()).toEqual(['SP01', 'SP02']);
     });
   });
 
@@ -211,19 +224,19 @@ describe('PoolFundingAlignmentComponent', () => {
       component.seedFromServer(currentAlignment()!);
     });
 
-    it('flip true → false clears sp_codes', () => {
-      expect(component.formData().sp_codes).toEqual(['SP01']);
+    it('flip true → false clears selected_sps', () => {
+      expect(codes(component.formData())).toEqual(['SP01']);
       component.onContributionChange(false);
       expect(component.formData().has_contribution).toBe(false);
-      expect(component.formData().sp_codes).toEqual([]);
+      expect(codes(component.formData())).toEqual([]);
     });
 
-    it('flip false → true preserves sp_codes already in form state', () => {
+    it('flip false → true preserves selected_sps already in form state', () => {
       component.onContributionChange(false);
-      expect(component.formData().sp_codes).toEqual([]);
+      expect(codes(component.formData())).toEqual([]);
       component.onContributionChange(true);
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().sp_codes).toEqual([]);
+      expect(codes(component.formData())).toEqual([]);
     });
   });
 
@@ -237,23 +250,23 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(component.canSave()).toBe(false);
     });
 
-    it('false when has_contribution=true and sp_codes is empty (≥1 SP required)', () => {
+    it('false when has_contribution=true and selected_sps is empty (≥1 SP required)', () => {
       component.onContributionChange(true);
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().sp_codes).toEqual([]);
+      expect(codes(component.formData())).toEqual([]);
       expect(component.canSave()).toBe(false);
     });
 
     it('true when has_contribution=true and ≥1 SP selected and form is dirty', () => {
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       expect(component.canSave()).toBe(true);
     });
 
     it('false when not editable, even with valid dirty form', () => {
       editable.set(false);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       expect(component.canSave()).toBe(false);
     });
 
@@ -261,7 +274,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false, is_read_only: true });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       expect(component.canSave()).toBe(false);
     });
   });
@@ -300,12 +313,13 @@ describe('PoolFundingAlignmentComponent', () => {
 
           { provide: Router, useValue: { navigate } },
           { provide: ActionsService, useValue: { showToast: jest.fn() } },
-          { provide: WebsocketService, useValue: { listen: jest.fn().mockReturnValue(new Subject().asObservable()) } }
+          { provide: WebsocketService, useValue: { listen: jest.fn().mockReturnValue(new Subject().asObservable()) } },
+          { provide: AllModalsService, useValue: { openModal: jest.fn() } },
+          { provide: HloSelectionModalContextService, useValue: { setContext: jest.fn(), clear: jest.fn(), context: signal(null) } }
         ],
         schemas: [NO_ERRORS_SCHEMA]
       }).compileComponents();
       const f = TestBed.createComponent(PoolFundingAlignmentComponent);
-      // Let the constructor's getAlignment promise resolve.
       await Promise.resolve();
       await Promise.resolve();
       return { component: f.componentInstance, navigate };
@@ -353,7 +367,6 @@ describe('PoolFundingAlignmentComponent', () => {
 
   describe('mockup-remediation (RR-A..G + RR-I)', () => {
     it('exposes the canonical mockup copy as i18n-extractable constants', () => {
-      // RR-B / RR-C / RR-D — copy literals locked here so a drift fails CI.
       expect(component.CONTRIBUTION_QUESTION).toBe('Does this result contribute to a Science Program or Accelerator?');
       expect(component.INFO_BANNER).toBe(
         'Select the High-Level Outputs (HLO) and related indicators this result contributes to.'
@@ -364,14 +377,14 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: true });
       component.seedFromServer(currentAlignment()!);
 
-      expect(Object.keys(component.formData()).sort()).toEqual(['has_contribution', 'sp_codes']);
+      expect(Object.keys(component.formData()).sort()).toEqual(['has_contribution', 'selected_sps']);
     });
 
     it('does not send justification on PATCH (RR-G)', async () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
 
       await component.onSave();
@@ -386,7 +399,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
     };
 
     it('200 — calls seedFromServer with returned data and fires success toast', async () => {
@@ -410,7 +423,7 @@ describe('PoolFundingAlignmentComponent', () => {
         detail: 'Saved'
       });
       expect(component.formData().has_contribution).toBe(true);
-      expect(component.formData().sp_codes).toEqual(['SP01']);
+      expect(codes(component.formData())).toEqual(['SP01']);
       expect(component.inlineErrors()).toBeNull();
     });
 
@@ -483,7 +496,6 @@ describe('PoolFundingAlignmentComponent', () => {
     });
 
     it('does nothing when canSave is false (guards against double-clicks)', async () => {
-      // No dirtying — canSave is false because form == server.
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       expect(component.canSave()).toBe(false);
@@ -510,6 +522,67 @@ describe('PoolFundingAlignmentComponent', () => {
 
   });
 
+  describe('HLO action card (Figma 32471:129636)', () => {
+    it('showHloSection is false when has_contribution=null', () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: null });
+      component.seedFromServer(currentAlignment()!);
+      expect(component.showHloSection()).toBe(false);
+    });
+
+    it('showHloSection is false when has_contribution=true but selected_sps is empty', () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      expect(codes(component.formData())).toEqual([]);
+      expect(component.showHloSection()).toBe(false);
+    });
+
+    it('showHloSection is true once has_contribution=true and ≥1 SP is selected', () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      expect(component.showHloSection()).toBe(true);
+    });
+
+    it('CTA copy is locked to mockup values (Select, VIEW HIGH LEVEL OUTPUTS)', () => {
+      expect(component.HLO_SECTION_LABEL).toBe('Map HLOs and/or indicators');
+      expect(component.HLO_CARD_TITLE).toBe('VIEW HIGH LEVEL OUTPUTS');
+      expect(component.HLO_CARD_CTA_LABEL).toBe('Select');
+      expect(component.HLO_CARD_BODY).toContain('Browse and select the High-Level Outputs');
+    });
+
+    it('onOpenHloSelector sets modal context with resultCode + opens hloSelection modal', () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01'), sp('SP02')] }));
+
+      component.onOpenHloSelector();
+
+      expect(setContextMock).toHaveBeenCalledWith({ resultCode: 'RES-001' });
+      expect(openModalMock).toHaveBeenCalledWith('hloSelection');
+      expect(trackEventMock).toHaveBeenCalledWith('bilateral.alignment.hlo_selector_opened', {
+        result_code: 'RES-001',
+        sp_count: 2
+      });
+    });
+
+    it('HLO section renders in the DOM only when showHloSection is true', () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      fixture.detectChanges();
+      const root: HTMLElement = fixture.nativeElement;
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-section"]')).toBeNull();
+
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      fixture.detectChanges();
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-section"]')).not.toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-card"]')).not.toBeNull();
+    });
+  });
+
   describe('read-only states (AC-07.x, AC-10.x)', () => {
     it('isReadOnly is true when alignment.is_read_only=true', () => {
       currentAlignment.set({ ...baseAlignment, is_read_only: true });
@@ -530,7 +603,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       currentAlignment.set({ ...baseAlignment, is_read_only: true });
       expect(component.canSave()).toBe(false);
     });
@@ -540,7 +613,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       expect(component.canSave()).toBe(false);
     });
 
@@ -621,7 +694,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       expect(component.isDirty()).toBe(true);
       getAlignmentMock.mockClear();
 
@@ -706,7 +779,9 @@ describe('PoolFundingAlignmentComponent', () => {
           { provide: ActionsService, useValue: { showToast: jest.fn() } },
           { provide: SubmissionService, useValue: { isEditableStatus: signal(true) } },
           { provide: WebsocketService, useValue: { listen: jest.fn().mockReturnValue(new Subject().asObservable()) } },
-          { provide: ClarityService, useValue: { trackEvent: altTrack } }
+          { provide: ClarityService, useValue: { trackEvent: altTrack } },
+          { provide: AllModalsService, useValue: { openModal: jest.fn() } },
+          { provide: HloSelectionModalContextService, useValue: { setContext: jest.fn(), clear: jest.fn(), context: signal(null) } }
         ],
         schemas: [NO_ERRORS_SCHEMA]
       }).compileComponents();
@@ -737,7 +812,7 @@ describe('PoolFundingAlignmentComponent', () => {
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
       component.seedFromServer(currentAlignment()!);
       component.onContributionChange(true);
-      component.formData.update(f => ({ ...f, sp_codes: ['SP01', 'SP02'] }));
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01'), sp('SP02')] }));
 
       const returned: AlignmentResponse = {
         ...baseAlignment,

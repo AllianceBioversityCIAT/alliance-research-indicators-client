@@ -95,18 +95,64 @@
               [label]="SP_PICKER_LABEL"
               [isRequired]="true"
               [signal]="formData"
-              signalOptionValue="sp_codes"
+              signalOptionValue="selected_sps"
               optionLabel="name"
               optionValue="official_code"
               serviceName="sciencePrograms"
               placeholder="Select Science Programs"
+              selectedItemsSurfaceColor="#FFFFFF"
+              [columnsOnXl]="true"
               [disabled]="!editable() || isReadOnly()">
+              <ng-template #rows let-row>
+                <span class="flex items-center gap-2 min-w-0">
+                  <img [src]="'/sps/' + row.official_code + '.png'"
+                       [alt]="row.official_code + ' icon'"
+                       class="rounded shrink-0 object-cover"
+                       [style.background]="row.color || 'transparent'"
+                       style="width:24px;height:24px;"
+                       loading="lazy" />
+                  <span class="truncate text-[var(--ac-primary-blue-500)] text-[14px]"
+                        style="font-family: 'Barlow', sans-serif;">
+                    <strong>{{ row.official_code }}</strong> - {{ row.name }}
+                  </span>
+                </span>
+              </ng-template>
+              <ng-template #item let-row>
+                <span class="flex items-center gap-2 min-w-0">
+                  <img [src]="'/sps/' + row.official_code + '.png'"
+                       [alt]="row.official_code + ' icon'"
+                       class="rounded shrink-0 object-cover"
+                       [style.background]="row.color || 'transparent'"
+                       style="width:24px;height:24px;"
+                       loading="lazy" />
+                  <span class="truncate text-[var(--ac-grey-800)] text-[14px]"
+                        style="font-family: 'Barlow', sans-serif;">
+                    <strong>{{ row.official_code }}</strong> - {{ row.name }}
+                  </span>
+                </span>
+              </ng-template>
             </app-multiselect>
             @if (inlineErrors()?.['sp_codes']; as msg) {
               <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
                      data-testid="pf-alignment-error-sp_codes">{{ msg }}</small>
             }
           </section>
+
+          @if (showHloSection()) {
+            <section class="mb-6" data-testid="pf-alignment-hlo-section">
+              <p class="label inline-block mb-3">
+                {{ HLO_SECTION_LABEL }}<span class="text-red-500" aria-hidden="true">*</span>
+              </p>
+              <app-bilateral-action-card
+                [title]="HLO_CARD_TITLE"
+                [body]="HLO_CARD_BODY"
+                [ctaLabel]="HLO_CARD_CTA_LABEL"
+                [disabled]="!editable() || isReadOnly()"
+                (ctaClick)="onOpenHloSelector()"
+                data-testid="pf-alignment-hlo-card">
+              </app-bilateral-action-card>
+            </section>
+          }
         }
 
         @if (inlineErrors()?.['_global']; as msg) {

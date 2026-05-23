@@ -14,15 +14,25 @@ import { MultiselectComponent } from '@shared/components/custom-fields/multisele
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { BilateralActionCardComponent } from '@shared/components/bilateral-action-card/bilateral-action-card.component';
+import { AllModalsService } from '@shared/services/cache/all-modals.service';
+import { HloSelectionModalContextService } from '@shared/services/cache/hlo-selection-modal-context.service';
 import {
   AlignmentChangedEvent,
   AlignmentResponse,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
+interface SelectedScienceProgram {
+  official_code: string;
+  name?: string;
+  category?: string | null;
+  color?: string | null;
+}
+
 interface AlignmentFormData {
   has_contribution: boolean | null;
-  sp_codes: string[];
+  selected_sps: SelectedScienceProgram[];
 }
 
 @Component({
@@ -34,7 +44,8 @@ interface AlignmentFormData {
     MultiselectComponent,
     FormHeaderComponent,
     NavigationButtonsComponent,
-    CustomTagComponent
+    CustomTagComponent,
+    BilateralActionCardComponent
   ],
   templateUrl: './pool-funding-alignment.component.html',
   styleUrl: './pool-funding-alignment.component.scss',
@@ -56,6 +67,8 @@ export default class PoolFundingAlignmentComponent {
   private readonly clarityService: ClarityService | null = (() => {
     try { return inject(ClarityService); } catch { return null; }
   })();
+  private readonly allModals = inject(AllModalsService);
+  private readonly hloContext = inject(HloSelectionModalContextService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loadFailed = signal(false);
@@ -68,6 +81,11 @@ export default class PoolFundingAlignmentComponent {
   readonly INFO_BANNER = 'Select the High-Level Outputs (HLO) and related indicators this result contributes to.';
   readonly CONTRIBUTION_QUESTION = 'Does this result contribute to a Science Program or Accelerator?';
   readonly SP_PICKER_LABEL = 'Select the Science Program(s) this is related to';
+  readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
+  readonly HLO_CARD_TITLE = 'VIEW HIGH LEVEL OUTPUTS';
+  readonly HLO_CARD_BODY =
+    'Browse and select the High-Level Outputs associated with this result. You can review their details before linking them to ensure proper alignment and reporting accuracy.';
+  readonly HLO_CARD_CTA_LABEL = 'Select';
 
   readonly alignment = this.bilateralService.currentAlignment;
   readonly loading = this.bilateralService.loadingAlignment;
@@ -77,15 +95,20 @@ export default class PoolFundingAlignmentComponent {
   readonly isReadOnly = computed(() => !!this.alignment()?.is_read_only);
   readonly eligible = computed(() => !!this.alignment()?.eligible);
 
+  readonly showHloSection = computed(() => {
+    const form = this.formData();
+    return form.has_contribution === true && form.selected_sps.length >= 1;
+  });
+
   readonly formData = signal<AlignmentFormData>({
     has_contribution: null,
-    sp_codes: []
+    selected_sps: []
   });
 
   // AR.1 — alignment edit is NOT gated by result_status.
   readonly canSave = computed(() => {
     const form = this.formData();
-    const hasMinimalSelection = form.has_contribution === false || form.sp_codes.length >= 1;
+    const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
     return this.editable() && !this.isReadOnly() && this.isDirty() && hasMinimalSelection;
   });
 
@@ -96,7 +119,7 @@ export default class PoolFundingAlignmentComponent {
     const form = this.formData();
     return (
       server.has_contribution !== form.has_contribution ||
-      !this.sameCodeSet(server.sp_codes, form.sp_codes)
+      !this.sameCodeSet(server.selected_sps.map(sp => sp.official_code), form.selected_sps.map(sp => sp.official_code))
     );
   });
 
@@ -160,8 +183,17 @@ export default class PoolFundingAlignmentComponent {
     this.formData.update(form => ({
       ...form,
       has_contribution: value,
-      sp_codes: value === false ? [] : form.sp_codes
+      selected_sps: value === false ? [] : form.selected_sps
     }));
+  }
+
+  onOpenHloSelector(): void {
+    this.hloContext.setContext({ resultCode: this.resultCode() });
+    this.allModals.openModal('hloSelection');
+    this.clarityService?.trackEvent('bilateral.alignment.hlo_selector_opened', {
+      result_code: this.resultCode(),
+      sp_count: this.formData().selected_sps.length
+    });
   }
 
   async onSave(): Promise<void> {
@@ -171,7 +203,7 @@ export default class PoolFundingAlignmentComponent {
     const form = this.formData();
     const body: UpdatePoolFundingAlignmentDto = {
       has_contribution: form.has_contribution as boolean,
-      ...(form.has_contribution ? { sp_codes: form.sp_codes } : {})
+      ...(form.has_contribution ? { sp_codes: form.selected_sps.map(sp => sp.official_code) } : {})
     };
 
     const result = await this.bilateralService.patchAlignment(this.resultCode(), body);
@@ -210,14 +242,23 @@ export default class PoolFundingAlignmentComponent {
 
   private snapshotFromServer(alignment: AlignmentResponse): AlignmentFormData {
     // Prefer the new SP field; fall back to the deprecated lever payload so a
-    // response that hasn't migrated yet still seeds something readable.
+    // response that hasn't migrated yet still seeds something readable. Form
+    // state must be objects with `official_code` populated — the multiselect
+    // enriches them with name/color from the SP catalog.
     const sps = alignment.selected_science_programs;
-    const codes = sps && sps.length > 0
-      ? sps.map(sp => sp.code)
-      : alignment.selected_levers.map(l => l.lever_code);
+    const selected_sps: SelectedScienceProgram[] = sps && sps.length > 0
+      ? sps.filter(sp => !!sp.code).map(sp => ({
+          official_code: sp.code,
+          name: sp.name,
+          category: sp.category ?? null,
+          color: sp.color ?? null
+        }))
+      : alignment.selected_levers
+          .filter(l => !!l.lever_code)
+          .map(l => ({ official_code: l.lever_code, name: l.lever_name }));
     return {
       has_contribution: alignment.has_contribution,
-      sp_codes: codes.filter((c): c is string => !!c)
+      selected_sps
     };
   }
 
