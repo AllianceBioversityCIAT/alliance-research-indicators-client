@@ -210,6 +210,22 @@ Dark mode overrides the same token names under `:root[data-theme="dark"]`. Prime
 - Custom form-field styles in `src/styles/custom-fields.scss`.
 - PrimeNG inputs are wrapped/restyled through `src/styles/custom-prime-force-styles.scss`. New form patterns should use the wrapped versions, not raw PrimeNG defaults.
 
+#### 7.4.1 Canonical form-label classes (binding contract)
+
+Form labels MUST use the canonical SCSS classes from [`src/styles/custom-fields.scss`](../../research-indicators/src/styles/custom-fields.scss). Tailwind utility classes (`text-sm`, `font-medium`, body color defaults) are NOT a substitute — they render in body grey/black instead of the brand blue used across every other tab.
+
+| Element | Class | Resolved style |
+| --- | --- | --- |
+| Field label / question text (`<label>` or `<p>` used as a `radiogroup`'s `aria-labelledby`) | `.label` | `#153c71` (= `--ac-primary-blue-400`), Space Grotesk, 14px, 450 weight |
+| Description / helper text below a label | `.description` | `#777c83` (= `--ac-grey-700`), Barlow, 14.5px, 400 weight |
+| Per-option text in radio / checkbox groups | `.option-label` | `#4c5158` (= `--ac-grey-800`), Barlow, 14px, 400 weight |
+| Section heading inside a form card | `.section-title` | `#a2a9af` (= `--ac-grey-500`), Space Grotesk, 14px, 450 weight, uppercase, `margin-bottom: 20px` |
+| Required marker | `<span class="text-red-500">*</span>` next to the label text (NOT `atc-red-1`, which is a heavier color) | Tailwind red — same shade the shared `app-radio-button` uses |
+
+**Why this is enforced**: The visual audit on `pool-funding-alignment` (2026-05-24) found question text rendering in body grey instead of primary-blue-400 because the template used `text-sm font-medium` instead of `.label`. The result was a tab that looked visibly "off" next to General Information / Alliance Alignment / IP Rights. The shared `app-radio-button` and `app-input` components apply `.label` / `.option-label` internally; bare `<p-radioButton>` / `<label>` usage must replicate them.
+
+**Reach for the shared `app-radio-button` component first** when a 2+ option radio group is needed. Only drop down to raw `<p-radioButton>` when the shared component's contract (a `service`-driven options list) doesn't fit the use case (e.g., a hard-coded Yes/No pair tied to a discriminated-union field).
+
 ---
 
 ## 8. Component Inventory
@@ -285,6 +301,7 @@ Append new decisions here; do not silently change established patterns. Each ent
 - **2026-05-13 — Spacing/sizing via `rs-*` utilities, not inline styles.** *Rationale*: responsive breakpoint already encoded; ad-hoc CSS drifts.
 - **2026-05-20 — Bilateral / Pool Funding tag visibility shipped.** New tokens `--ac-pool-funding-fg` / `--ac-pool-funding-border` registered in `STATUS_COLOR_MAP` under key `'pool-funding'`; surfaces on `my-projects` (table column + sidebar filter + card view) and `project-detail` (clickable badge for Center Admins). New admin page `/administration/center-admin/agresso-pool-funding-tag` for manual tag override. Spec: [`../specs/bilateral-module/tag-visibility/`](../specs/bilateral-module/tag-visibility/). *Rationale*: bilateral module phase 1 — make Pool Funding contracts visible and Center-Admin-overridable before the alignment-section work lands.
 - **2026-05-23 — Bilateral / Pool Funding Alignment section shipped (12th result tab, conditionally rendered).** New `STATUS_COLOR_MAP` entry `'pf-synced'` reusing `--ac-grey-700` (no new tokens) for the synced/read-only badge; sidebar entry positioned between "Alliance alignment" and "Partners" and hidden when `eligible !== true` (signal-driven via `BilateralService.currentAlignment`). Real-time reconcile via the new Socket.IO event `result.pool-funding-alignment.changed` with a dirty-state guard (info toast on conflict). AR.3 holds: alignment is NOT in the submission validator (`pool_funding_alignment` intentionally absent from the `GreenChecks` interface; regression test in `submission.service.spec.ts`). Spec: [`../specs/bilateral-module/alignment-section/`](../specs/bilateral-module/alignment-section/). *Rationale*: bilateral module phase 2 — let editors record Pool Funding contribution + lever selection per result with cross-tab real-time coherence.
+- **2026-05-24 — Pool Funding Alignment remediated to match the Figma mockups + canonical layout / typography.** Seven visual / copy / placement defects were fixed (RR-A..F + G + I in [`../specs/bilateral-module/indicator-mapping/design.md`](../specs/bilateral-module/indicator-mapping/design.md) §4.7), plus a parent-page-load fix (sidebar tab wouldn't appear because `BilateralService.currentAlignment` was only loaded when navigating into the tab — chicken-and-egg), a URL pattern fix (bilateral routes are URI-versioned: `v1/results/<digits>/pool-funding-alignment`; the FE must strip `STAR-` from route params before calling), defensive injection of `WebsocketService` / `ClarityService` (the app does NOT register `SocketIoModule.forRoot(...)` in production providers — until backend/infra adds it, the alignment tab degrades gracefully), and a layout pass aligning the tab with the shell pattern (`.app-page-wrapper`, `.section-title`, single `<app-navigation-buttons>` footer instead of a duplicated Save). *Rationale*: trust the Figma mockups under [`../specs/bilateral-module/figma-mockups/`](../specs/bilateral-module/figma-mockups/) as the canonical UX source; reuse the canonical layout primitives (§6 Layout Patterns, §7.4 Form fields) instead of bespoke Tailwind classes — see §7.4.1 for the form-label class binding contract added in the same change.
 
 ---
 
