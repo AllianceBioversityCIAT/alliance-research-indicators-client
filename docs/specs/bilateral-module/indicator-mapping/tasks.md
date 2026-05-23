@@ -134,7 +134,7 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ### T-BIL-IM-03 — `BilateralActionCardComponent` (the "VIEW HIGH LEVEL OUTPUTS" AI card)
 
-- **Status**: `pending` *(no backend deps — visual is fully mockup-specified; can start immediately)*
+- **Status**: `completed` (2026-05-24) — see [`./execution.md`](./execution.md) for implementation notes.
 - **Size**: S
 - **Depends on**: none
 - **Discharges ACs**: REQ-BIL-IM-01.
@@ -470,7 +470,7 @@ T-BIL-IM-15 (constitutional docs update) — last
 | T-BIL-IM-RR-01 | Alignment-section mockup remediation (RR-A..I) | M | — | — | **completed** (2026-05-23 → 2026-05-24) |
 | T-BIL-IM-01 | Backend verification + interfaces + 5 ApiService methods | M | — | OQ-IM-1/2/3 | pending — GATED |
 | T-BIL-IM-02 | `ModalName 'hloSelection'` + `HloSelectionModalContextService` | S | — | — | pending |
-| T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | pending |
+| T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | pending — GATED |
 | T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | OQ-IM-2 | pending — GATED |
 | T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending |

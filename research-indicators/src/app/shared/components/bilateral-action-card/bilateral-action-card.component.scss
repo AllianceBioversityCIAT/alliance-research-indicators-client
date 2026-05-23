@@ -1,0 +1,31 @@
+/* Bilateral action card — visual reference: Figma `32471:129636`.
+   Card surface uses --ac-grey-100/--ac-grey-300 tokens for the soft border;
+   title uses the canonical .label typography (Space Grotesk, primary-blue-400);
+   body uses Barlow 14px / 17px / --ac-grey-700 per design.md §4.6. */
+:host {
+  display: block;
+}
+
+.bilateral-action-card {
+  min-height: 103px;
+}
+
+.bilateral-action-card__title {
+  font-family: 'Space Grotesk', 'Space_Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ac-primary-blue-400);
+}
+
+.bilateral-action-card__body {
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 17px;
+  color: var(--ac-grey-700);
+}
+
+.bilateral-action-card__illustration {
+  width: 73px;
+  height: 73px;
+}
