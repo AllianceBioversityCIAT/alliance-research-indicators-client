@@ -303,6 +303,29 @@ describe('resultExistsResolver', () => {
     expect(result).toBe(false);
   });
 
+  it('should navigate to home and open OICR without creation context when query has from=home', async () => {
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    route.queryParamMap.get = jest.fn((key: string) => (key === 'from' ? 'home' : null));
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 1,
+      status_id: 2,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    router.url = '/some-other-path';
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(router.navigate).toHaveBeenCalledWith(['/home']);
+    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, undefined);
+    expect(result).toBe(false);
+  });
+
   it('should handle validateOpenResult returning true but not set cache when already on project-detail', async () => {
     // Arrange
     const id = 123;

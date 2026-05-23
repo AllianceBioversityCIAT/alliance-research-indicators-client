@@ -655,6 +655,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       contract_status: 'status',
       display_principal_investigator: 'principal-investigator',
       display_lever_name: 'lever',
+      count_results: 'count-results',
       lead_center: 'lead-center',
       start_date: 'start-date',
       end_date: 'end-date',

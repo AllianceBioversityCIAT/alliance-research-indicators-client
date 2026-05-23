@@ -43,8 +43,8 @@ export class AllianceSidebarComponent implements OnInit, AfterViewInit, OnDestro
 
   resourceOptions = [
     { icon: 'pi-file', label: 'About Indicators', link: '/about-indicators', disabled: false },
-    { icon: 'pi-exclamation-circle transform scale-y-[-1]', label: 'About the Tool', link: '1', underConstruction: true, hide: false },
-    { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: false }
+    { icon: 'pi-exclamation-circle transform scale-y-[-1]', label: 'About the Tool', link: '1', underConstruction: true, hide: true },
+    { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: true }
   ];
 
   administrationGroups: AdministrationNavGroup[] = [

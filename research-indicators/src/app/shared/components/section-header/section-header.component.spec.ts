@@ -618,9 +618,29 @@ describe('SectionHeaderComponent', () => {
       ]);
     });
 
+    it('should return Home → Result when result was opened from Home (from query)', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/result/STAR-11809/general-information?from=home');
+      component['resultTitle'].set('LEVERS OICRS 2026');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toEqual([
+        { label: 'Home', route: '/home' },
+        { label: 'Result STAR-11809', tooltip: 'LEVERS OICRS 2026' }
+      ]);
+    });
+
     it('should return empty breadcrumb when Results Center entry has no result id segment', () => {
       component['contractId'].set('');
       component['currentUrl'].set('/result/?from=results-center');
+      component['resultTitle'].set('x');
+
+      expect(component.breadcrumb()).toEqual([]);
+    });
+
+    it('should return empty breadcrumb when Home entry has no result id segment', () => {
+      component['contractId'].set('');
+      component['currentUrl'].set('/result/?from=home');
       component['resultTitle'].set('x');
 
       expect(component.breadcrumb()).toEqual([]);

@@ -1,6 +1,19 @@
 import { StatusConfig } from '../result-config.interface';
 import { Result } from './result.interface';
 
+export function normalizeSnapshotYears(value: unknown): number[] {
+  if (Array.isArray(value)) {
+    return value.map(y => (typeof y === 'string' ? Number.parseInt(y.trim(), 10) : Number(y))).filter(n => Number.isFinite(n));
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    return value
+      .split(',')
+      .map(s => Number.parseInt(s.trim(), 10))
+      .filter(n => Number.isFinite(n));
+  }
+  return [];
+}
+
 export interface V2ResultListItem {
   created_at?: string;
   updated_at?: string;
@@ -18,8 +31,9 @@ export interface V2ResultListItem {
   status_name?: string;
   status_config?: StatusConfig;
   status_description?: string;
-  snapshot_years?: number[] | null;
+  snapshot_years?: number[] | string | null;
   contract_id?: string | null;
+  contract_description?: string | null;
   lever_name?: string | null;
   create_user_id?: number;
   create_user_first_name?: string;
@@ -29,8 +43,7 @@ export interface V2ResultListItem {
 }
 
 export function mapV2ResultListItemToResult(row: V2ResultListItem): Result {
-  const snapshotYears = row.snapshot_years;
-  const normalizedSnapshots = Array.isArray(snapshotYears) ? snapshotYears : [];
+  const normalizedSnapshots = normalizeSnapshotYears(row.snapshot_years);
 
   const hasCreator =
     (row.create_user_first_name != null && String(row.create_user_first_name).trim() !== '') ||
@@ -59,6 +72,8 @@ export function mapV2ResultListItemToResult(row: V2ResultListItem): Result {
             config: row.status_config
           }
         : undefined,
+    contract_id: row.contract_id ?? undefined,
+    contract_description: row.contract_description ?? undefined,
     result_contracts: row.contract_id ? { contract_id: row.contract_id, is_primary: 1 } : undefined,
     report_year_id: row.report_year_id,
     created_by_user: hasCreator
@@ -68,6 +83,7 @@ export function mapV2ResultListItemToResult(row: V2ResultListItem): Result {
         }
       : undefined,
     created_at: row.created_at,
+    updated_at: row.updated_at,
     snapshot_years: normalizedSnapshots,
     ...(row.lever_name ? { result_levers: [{ is_primary: 1, lever: { short_name: row.lever_name } }] as unknown as Result['result_levers'] } : {})
   } as Result;

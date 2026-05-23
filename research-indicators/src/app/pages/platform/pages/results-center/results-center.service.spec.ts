@@ -286,13 +286,22 @@ describe('ResultsCenterService', () => {
       }
     });
 
-    it('should return empty array for versions when snapshot_years is not array', () => {
+    it('should return empty array for versions when snapshot_years is not array or string', () => {
       const columns = service.tableColumns();
       const versionsColumn = columns.find(col => col.field === 'versions');
       const getValue = versionsColumn?.getValue;
       if (getValue) {
         expect(getValue({ snapshot_years: null } as unknown as Result)).toEqual([]);
         expect(getValue({ snapshot_years: {} } as unknown as Result)).toEqual([]);
+      }
+    });
+
+    it('should parse versions when snapshot_years is comma-separated string', () => {
+      const columns = service.tableColumns();
+      const versionsColumn = columns.find(col => col.field === 'versions');
+      const getValue = versionsColumn?.getValue;
+      if (getValue) {
+        expect(getValue({ snapshot_years: '2026,2025' } as unknown as Result)).toEqual([2026, 2025]);
       }
     });
 

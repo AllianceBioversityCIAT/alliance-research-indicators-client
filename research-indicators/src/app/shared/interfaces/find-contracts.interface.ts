@@ -46,6 +46,7 @@ export interface FindContracts {
   is_active?: boolean;
   indicators?: GetProjectDetailIndicator[];
   is_pool_funding_contributor?: boolean;
+  count_results?: number | null;
 }
 
 export interface FindContractsResponse {

@@ -15,7 +15,7 @@ import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { DownloadOicrTemplateComponent } from '../download-oicr-template/download-oicr-template.component';
 import { RolesService } from '@shared/services/cache/roles.service';
-import { isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
+import { isHomeEntryFromUrl, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 
 export interface BreadcrumbItem {
   label: string;
@@ -172,16 +172,14 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     const contractId = this.contractId();
     const fullUrl = this.currentUrl();
 
-    if (this.isResultPage() && isResultsCenterEntryFromUrl(fullUrl)) {
-      const pathOnly = fullUrl.split(/[?#]/)[0];
-      const segs = pathOnly.split('/').filter(Boolean);
-      const resultId = segs[0] === 'result' && segs.length >= 2 ? segs[1] : '';
-      if (resultId) {
-        return [
-          { label: 'Results Center', route: '/results-center' },
-          { label: `Result ${resultId}`, tooltip: this.resultTitle() }
-        ] as BreadcrumbItem[];
-      }
+    const homeEntryBreadcrumb = this.breadcrumbForHomeEntry(fullUrl);
+    if (homeEntryBreadcrumb) {
+      return homeEntryBreadcrumb;
+    }
+
+    const resultsCenterEntryBreadcrumb = this.breadcrumbForResultsCenterEntry(fullUrl);
+    if (resultsCenterEntryBreadcrumb) {
+      return resultsCenterEntryBreadcrumb;
     }
 
     if (!contractId) return [];
@@ -229,6 +227,36 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     });
 
     this.loadData();
+  }
+
+  private breadcrumbForHomeEntry(fullUrl: string): BreadcrumbItem[] | undefined {
+    if (this.isResultPage() && isHomeEntryFromUrl(fullUrl)) {
+      const pathOnly = fullUrl.split(/[?#]/)[0];
+      const segs = pathOnly.split('/').filter(Boolean);
+      const resultId = segs[0] === 'result' && segs.length >= 2 ? segs[1] : '';
+      if (resultId) {
+        return [
+          { label: 'Home', route: '/home' },
+          { label: `Result ${resultId}`, tooltip: this.resultTitle() }
+        ];
+      }
+    }
+    return undefined;
+  }
+
+  private breadcrumbForResultsCenterEntry(fullUrl: string): BreadcrumbItem[] | undefined {
+    if (this.isResultPage() && isResultsCenterEntryFromUrl(fullUrl)) {
+      const pathOnly = fullUrl.split(/[?#]/)[0];
+      const segs = pathOnly.split('/').filter(Boolean);
+      const resultId = segs[0] === 'result' && segs.length >= 2 ? segs[1] : '';
+      if (resultId) {
+        return [
+          { label: 'Results Center', route: '/results-center' },
+          { label: `Result ${resultId}`, tooltip: this.resultTitle() }
+        ];
+      }
+    }
+    return undefined;
   }
 
   private clearData() {
