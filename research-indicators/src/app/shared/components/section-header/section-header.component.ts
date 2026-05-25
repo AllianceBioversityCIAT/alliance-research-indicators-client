@@ -303,8 +303,9 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
   private async loadProjectData() {
     const pathOnly = this.router.url.split(/[?#]/)[0];
-    const urlParts = pathOnly.split('/');
-    const projectId = urlParts[urlParts.length - 1];
+    const segments = pathOnly.split('/').filter(Boolean);
+    const detailIndex = segments.indexOf('project-detail');
+    const projectId = detailIndex >= 0 && segments.length > detailIndex + 1 ? segments[detailIndex + 1] : '';
     this.contractId.set(projectId);
 
     try {
