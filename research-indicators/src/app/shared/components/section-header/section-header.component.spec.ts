@@ -606,6 +606,18 @@ describe('SectionHeaderComponent', () => {
       expect(breadcrumb[1].tooltip).toBe('Test Project');
     });
 
+    it('should return Results Center breadcrumb for project detail page entered from results-center', () => {
+      component['contractId'].set('A1048');
+      component['currentProject'].set({ projectDescription: 'Test Project' });
+      component['currentUrl'].set('/project-detail/A1048?from=results-center');
+
+      const breadcrumb = component.breadcrumb();
+      expect(breadcrumb).toHaveLength(2);
+      expect(breadcrumb[0].label).toBe('Results Center');
+      expect(breadcrumb[0].route).toBe('/results-center');
+      expect(breadcrumb[1].label).toBe('Project A1048');
+    });
+
     it('should return breadcrumb for result page', () => {
       component['contractId'].set('123');
       component['currentProject'].set({ projectDescription: 'Test Project' });
