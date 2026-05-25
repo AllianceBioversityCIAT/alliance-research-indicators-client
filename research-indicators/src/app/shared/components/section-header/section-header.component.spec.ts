@@ -801,6 +801,17 @@ describe('SectionHeaderComponent', () => {
 
         expect(component['currentProject']()).toEqual({});
       });
+
+      it('should set empty contractId when URL has no project-detail segment', async () => {
+        apiService.GET_ResultsCount = jest.fn().mockResolvedValue({ data: {} });
+
+        (routerSpy as any).url = '/some-other-page';
+        component['currentUrl'].set('/some-other-page');
+
+        await component['loadProjectData']();
+
+        expect(component['contractId']()).toBe('');
+      });
     });
 
     describe('loadResultData', () => {
