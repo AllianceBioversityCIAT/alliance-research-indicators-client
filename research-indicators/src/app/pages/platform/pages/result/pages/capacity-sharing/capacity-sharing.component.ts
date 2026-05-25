@@ -69,9 +69,16 @@ export default class CapacitySharingComponent {
     return this.submission.isEditableStatus();
   };
 
+  parseCapacitySharingTimestamp(value: string | Date | null | undefined): Date | undefined {
+    if (value == null) return undefined;
+    const date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return undefined;
+    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
+  }
+
   isStartDateGreaterThanEndDate = computed(() => {
     const { start_date, end_date } = this.body() ?? {};
-    if (!this.hasBothDates({ start_date, end_date } as GetCapSharing)) return false;
+    if (!this.hasBothDates({ start_date, end_date })) return false;
     return new Date(start_date as string | number | Date).getTime() > new Date(end_date as string | number | Date).getTime();
   });
 
@@ -88,15 +95,12 @@ export default class CapacitySharingComponent {
   async getData() {
     this.cache.loadingCurrentResult.set(true);
     const response = await this.api.GET_CapacitySharing();
-    const data = {
+    this.body.set({
       ...response.data,
-      start_date: typeof response.data.start_date === 'string' ? this.parseToLocalDate(response.data.start_date) : undefined,
-      end_date: typeof response.data.end_date === 'string' ? this.parseToLocalDate(response.data.end_date) : undefined
-    };
-
-    this.body.set(data);
+      start_date: this.parseCapacitySharingTimestamp(response.data.start_date),
+      end_date: this.parseCapacitySharingTimestamp(response.data.end_date)
+    });
     this.cache.loadingCurrentResult.set(false);
-    this.body.update(current => this.normalizeDates(current));
     this.loading.set(false);
   }
 
@@ -114,17 +118,13 @@ export default class CapacitySharingComponent {
     };
 
     if (this.submission.isEditableStatus()) {
-      this.body.update(current => {
-        if (current.start_date) {
-          current.start_date = new Date(current.start_date).toISOString();
-        }
-        if (current.end_date) {
-          current.end_date = new Date(current.end_date).toISOString();
-        }
-        return { ...current };
-      });
+      const payload = {
+        ...this.body(),
+        start_date: this.toISOTimestamp(this.body().start_date),
+        end_date: this.toISOTimestamp(this.body().end_date)
+      };
 
-      await this.api.PATCH_CapacitySharing(this.body());
+      await this.api.PATCH_CapacitySharing(payload);
 
       this.actions.showToast({
         severity: 'success',
@@ -141,35 +141,14 @@ export default class CapacitySharingComponent {
     this.loading.set(false);
   }
 
+  private toISOTimestamp(value: string | Date | undefined): string | undefined {
+    if (!value) return undefined;
+    return new Date(value).toISOString();
+  }
+
   setSectionAndOpenModal(section: string) {
     this.allModalsService.setPartnerRequestSection(section);
     this.allModalsService.openModal('requestPartner');
-  }
-
-  parseToLocalDate(dateStr: string): Date {
-    const date = new Date(dateStr);
-    return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate());
-  }
-
-  protected toDate(value: string | number | Date | undefined): Date | undefined {
-    if (value === undefined) return undefined;
-    return new Date(value);
-  }
-
-  protected toDatePreservingFalsy(value: unknown): unknown {
-    if (value instanceof Date) return value;
-    if (typeof value === 'string') {
-      if (value.trim().length === 0) return value;
-      return new Date(value);
-    }
-    return value;
-  }
-
-  protected normalizeDates<T extends { start_date?: unknown; end_date?: unknown }>(current: T) {
-    const result = { ...current } as T & { start_date?: unknown; end_date?: unknown };
-    result.start_date = this.toDatePreservingFalsy(result.start_date);
-    result.end_date = this.toDatePreservingFalsy(result.end_date);
-    return result;
   }
 
   protected hasBothDates(current: GetCapSharing): boolean {
