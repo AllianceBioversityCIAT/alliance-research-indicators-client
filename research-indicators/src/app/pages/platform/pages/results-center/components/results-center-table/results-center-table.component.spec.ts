@@ -837,7 +837,7 @@ describe('ResultsCenterTableComponent', () => {
 
     expect(preventDefaultSpy).toHaveBeenCalled();
     expect(stopPropagationSpy).toHaveBeenCalled();
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1', 'project-results'], { queryParams: {} });
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1'], { queryParams: {} });
   });
 
   it('processRowClick should navigate to project-detail with from query when resultEntryContext is results-center', () => {
@@ -858,7 +858,7 @@ describe('ResultsCenterTableComponent', () => {
     };
     const event = new MouseEvent('click', { bubbles: true, cancelable: true });
     (component as any).processRowClick(cell, event);
-    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1', 'project-results'], {
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'C-1'], {
       queryParams: { from: 'results-center' }
     });
   });
