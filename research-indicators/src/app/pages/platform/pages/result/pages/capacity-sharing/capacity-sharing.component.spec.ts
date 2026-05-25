@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import CapacitySharingComponent, { parseCapacitySharingTimestamp } from './capacity-sharing.component';
+import CapacitySharingComponent from './capacity-sharing.component';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
@@ -77,54 +77,6 @@ const activatedRouteMock = {
     queryParamMap: { get: (key: string) => (key === 'version' ? 'v1' : null) }
   }
 };
-
-describe('parseCapacitySharingTimestamp', () => {
-  it('should parse ISO 8601 string with microseconds', () => {
-    const result = parseCapacitySharingTimestamp('2025-06-06T12:51:43.861000Z');
-    expect(result).toBeInstanceOf(Date);
-    expect(result!.getFullYear()).toBe(2025);
-    expect(result!.getMonth()).toBe(5);
-    expect(result!.getDate()).toBe(6);
-  });
-
-  it('should parse standard ISO 8601 string', () => {
-    const result = parseCapacitySharingTimestamp('2023-01-01T00:00:00.000Z');
-    expect(result).toBeInstanceOf(Date);
-    expect(result!.getFullYear()).toBe(2023);
-    expect(result!.getMonth()).toBe(0);
-    expect(result!.getDate()).toBe(1);
-  });
-
-  it('should parse date-only string', () => {
-    const result = parseCapacitySharingTimestamp('2023-06-15');
-    expect(result).toBeInstanceOf(Date);
-    expect(result!.getDate()).toBe(15);
-  });
-
-  it('should handle a Date object input', () => {
-    const result = parseCapacitySharingTimestamp(new Date(Date.UTC(2024, 2, 10)));
-    expect(result).toBeInstanceOf(Date);
-    expect(result!.getFullYear()).toBe(2024);
-    expect(result!.getMonth()).toBe(2);
-    expect(result!.getDate()).toBe(10);
-  });
-
-  it('should return undefined for null', () => {
-    expect(parseCapacitySharingTimestamp(null)).toBeUndefined();
-  });
-
-  it('should return undefined for undefined', () => {
-    expect(parseCapacitySharingTimestamp(undefined)).toBeUndefined();
-  });
-
-  it('should return undefined for empty string', () => {
-    expect(parseCapacitySharingTimestamp('')).toBeUndefined();
-  });
-
-  it('should return undefined for invalid date string', () => {
-    expect(parseCapacitySharingTimestamp('not-a-date')).toBeUndefined();
-  });
-});
 
 describe('CapacitySharingComponent', () => {
   let component: CapacitySharingComponent;
@@ -457,6 +409,54 @@ describe('CapacitySharingComponent', () => {
     await cb();
     expect(spy).toHaveBeenCalled();
     spy.mockRestore();
+  });
+
+  describe('parseCapacitySharingTimestamp', () => {
+    it('should parse ISO 8601 string with microseconds', () => {
+      const result = component.parseCapacitySharingTimestamp('2025-06-06T12:51:43.861000Z');
+      expect(result).toBeInstanceOf(Date);
+      expect(result!.getFullYear()).toBe(2025);
+      expect(result!.getMonth()).toBe(5);
+      expect(result!.getDate()).toBe(6);
+    });
+
+    it('should parse standard ISO 8601 string', () => {
+      const result = component.parseCapacitySharingTimestamp('2023-01-01T00:00:00.000Z');
+      expect(result).toBeInstanceOf(Date);
+      expect(result!.getFullYear()).toBe(2023);
+      expect(result!.getMonth()).toBe(0);
+      expect(result!.getDate()).toBe(1);
+    });
+
+    it('should parse date-only string', () => {
+      const result = component.parseCapacitySharingTimestamp('2023-06-15');
+      expect(result).toBeInstanceOf(Date);
+      expect(result!.getDate()).toBe(15);
+    });
+
+    it('should handle a Date object input', () => {
+      const result = component.parseCapacitySharingTimestamp(new Date(Date.UTC(2024, 2, 10)));
+      expect(result).toBeInstanceOf(Date);
+      expect(result!.getFullYear()).toBe(2024);
+      expect(result!.getMonth()).toBe(2);
+      expect(result!.getDate()).toBe(10);
+    });
+
+    it('should return undefined for null', () => {
+      expect(component.parseCapacitySharingTimestamp(null)).toBeUndefined();
+    });
+
+    it('should return undefined for undefined', () => {
+      expect(component.parseCapacitySharingTimestamp(undefined)).toBeUndefined();
+    });
+
+    it('should return undefined for empty string', () => {
+      expect(component.parseCapacitySharingTimestamp('')).toBeUndefined();
+    });
+
+    it('should return undefined for invalid date string', () => {
+      expect(component.parseCapacitySharingTimestamp('not-a-date')).toBeUndefined();
+    });
   });
 
   it('toISOTimestamp should return undefined for falsy values', () => {
