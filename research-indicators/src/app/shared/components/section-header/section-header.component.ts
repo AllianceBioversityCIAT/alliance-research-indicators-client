@@ -191,10 +191,12 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
     if (!contractId) return [];
 
+    const enteredFromResultsCenter = isResultsCenterEntryFromUrl(fullUrl);
+
     const baseItems: BreadcrumbItem[] = [
       {
-        label: 'Projects',
-        route: '/projects'
+        label: enteredFromResultsCenter ? 'Results Center' : 'Projects',
+        route: enteredFromResultsCenter ? '/results-center' : '/projects'
       },
       {
         label: `Project ${contractId}`,
@@ -300,7 +302,8 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   }
 
   private async loadProjectData() {
-    const urlParts = this.router.url.split('/');
+    const pathOnly = this.router.url.split(/[?#]/)[0];
+    const urlParts = pathOnly.split('/');
     const projectId = urlParts[urlParts.length - 1];
     this.contractId.set(projectId);
 
