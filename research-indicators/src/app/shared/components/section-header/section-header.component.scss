@@ -100,9 +100,14 @@
 }
 
 ::ng-deep .delete-result .p-menu-item-content {
-  color: red !important;
+  color: #cf0808 !important;
+  font-size: 14px !important;
 }
 
 ::ng-deep .delete-result .pi-trash {
-  color: red !important;
+  color: #cf0808 !important;
+  font-size: 14px !important;
+}
+::ng-deep .p-menu-submenu-label {
+  padding: 0px;
 }
