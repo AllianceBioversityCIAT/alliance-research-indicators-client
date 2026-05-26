@@ -109,8 +109,13 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     this.renderer.listen('document', 'click', (event: Event) => {
-      if (this.showDropdown && this.dropdownRef && !this.dropdownRef.nativeElement.contains(event.target)) {
+      if (!this.showDropdown) return;
+      const target = event.target as Node;
+      const insideDropdown = this.dropdownRef?.nativeElement?.contains(target);
+      const insideToggle = this.elementRef.nativeElement.querySelector('[dropdown-button]')?.contains(target);
+      if (!insideDropdown && !insideToggle) {
         this.showDropdown = false;
+        this.cdr.markForCheck();
       }
     });
   }
