@@ -2,8 +2,8 @@
 
 > **Audience**: BA, backend dev, designer (if available).
 > **Purpose**: surface three product / technical decisions that block ~75% of the indicator-mapping (US3 + US4) implementation. Until these are answered, no further code can land beyond the four small pieces already shipped.
-> **Read time**: 5–10 minutes.
-> **Status**: requested 2026-05-24.
+> **Read time**: 5–10 minutes (or 15 if you also read §6 backend audit).
+> **Status**: requested 2026-05-24 · **updated 2026-05-26** with §6 backend code audit + FE recommended paths (all three → Path A). Awaiting BA + backend decisions.
 
 ---
 
@@ -11,11 +11,11 @@
 
 Three open questions block the indicator-mapping work. The **mockups under `docs/specs/bilateral-module/figma-mockups/` and the backend handoff `docs/specs/bilateral-module/ari-backend-context/frontend-handoff.md` disagree on three points**. The FE is built mockup-first per the project rule that the Figma file is canonical for UX — but each disagreement maps to a concrete backend decision the BA + backend team need to make together. Picking either side per question is fine; what we need is a decision.
 
-| OQ | What needs to be decided | Who decides | Unblocks |
-|---|---|---|---|
-| **OQ-IM-1** | Contribution body shape on the `POST/PATCH /contribution` endpoint | BA + backend | 5 FE tasks |
-| **OQ-IM-2** | Where does the **Area of Work (AOW)** grouping come from? | Backend | 3 FE tasks |
-| **OQ-IM-3** | Does `GET .../contribution?lever-code=` exist for edit-mode pre-fill? | Backend | 2 FE tasks |
+| OQ | What needs to be decided | Who decides | Unblocks | FE recommendation (post §6 audit) |
+|---|---|---|---|---|
+| **OQ-IM-1** | Contribution body shape on the `POST/PATCH /contribution` endpoint | BA + backend | 5 FE tasks | **Path A** — simplify to `{ reason_code, quantitative_contribution_value? }`; deprecate 5 polymorphic handlers |
+| **OQ-IM-2** | Where does the **Area of Work (AOW)** grouping come from? | Backend | 3 FE tasks | **Path A** — backend adds `area_of_work` entity + nest in `IndicatorGroupResponse` |
+| **OQ-IM-3** | Does `GET .../contribution?lever-code=` exist for edit-mode pre-fill? | Backend | 2 FE tasks | **Path A** — backend adds the GET endpoint |
 
 The proposal that produced this work is [`../proposal.md`](../proposal.md). The mockup-first FE design that ran into these gates is [`./design.md`](./design.md). The full requirements list is [`./requirements.md`](./requirements.md). Visual references live under [`../figma-mockups/`](../figma-mockups/).
 
@@ -191,7 +191,146 @@ Once all three are answered, the FE can start T-BIL-IM-01 (backend verification 
 
 ---
 
-## 6. References
+## 6. Backend code findings — 2026-05-26 (FE-side audit + recommendations)
+
+> **Update — 2026-05-26.** Two days after sending this brief, the FE team ran a direct audit of the **ARI backend repo** (`alliance-research-indicators-main/server/researchindicators/src/domain/entities/bilateral/`, branch `AC-1594-bilateral-module`) to ground the three Open Questions in actual code rather than the snapshot frontend-handoff (which is dated 2026-05-19, ~1 week old). The findings sharpen the conflict and reveal **three real backend modeling gaps** beyond what's described in the snapshot. Posted here so the BA + backend team can react with full context.
+
+### 6.0 Method
+
+Read-only audit of the bilateral entity tree on `AC-1594-bilateral-module`. No code modified. Specific files inspected:
+
+- `bilateral.controller.ts` — route registration
+- `bilateral.service.ts` — service-layer logic, handler dispatch, `listIndicators`
+- `dto/upsert-indicator-mapping.dto.ts` — request/response DTOs
+- `dto/list-indicators-query.dto.ts` — panel-GET response shape
+- `handlers/{capacity-sharing,knowledge-product,policy-change,innovation-development,noop}.handler.ts` — per-type handlers
+- `handlers/bilateral-indicator-type-handler.interface.ts` — handler contract
+- `entities/result-pool-funding-indicator-mapping.entity.ts` — TypeORM entity for stored mappings
+- `entities/indicator.entity.ts` — indicator catalog row shape
+- `src/domain/tools/socket/server.gateway.ts` — socket event emitter
+
+### 6.1 OQ-IM-1 — Contribution body shape — findings
+
+**What the backend actually says today:**
+
+| Surface | Today | Evidence |
+|---|---|---|
+| `POST/PATCH /pool-funding-alignment/indicators/:indicatorCode/contribution` accepts | `ContributionDto = { indicator_type, type, [key: string]: unknown }` — **fully open polymorphic** | `bilateral.controller.ts:171-244` + `dto/upsert-indicator-mapping.dto.ts:3-11` |
+| Dispatch by `indicator_type` | Yes — 5 handlers registered in `bilateral.service.ts:76-80` and dispatched in `getContributionHandler()` | `bilateral.service.ts` |
+| `capacity_sharing` required fields | `women, men, non_binary, has_unkown_using, capdev_term_id, capdev_delivery_method_id` | `handlers/capacity-sharing.handler.ts:25-33` |
+| `knowledge_product` required fields | `handle, knowledge_product_type, licence, peer_reviewed, is_isi, accessibility` | `handlers/knowledge-product.handler.ts:24-32` |
+| `policy_change` required fields | `policy_type_id, policy_stage_id, implementing_organizations[]` (`amount?` optional) | `handlers/policy-change.handler.ts:24-36` |
+| `innovation_development` required fields | `innovation_typology.code, innovation_developers, readinness_level_id` | `handlers/innovation-development.handler.ts:24-38` |
+| `NOOP` required fields | `narrative` (free text) | `handlers/noop.handler.ts:14-17` |
+| Stored mapping entity columns | type-specific FKs (`result_capacity_sharing_id`, `result_knowledge_product_id`, `result_policy_change_id`, `result_innovation_dev_id`) + `other_contribution_narrative` (NOOP) | `entities/result-pool-funding-indicator-mapping.entity.ts:17-135` |
+| `reason_code` column on the mapping entity | **NOT present** | (absence) |
+| `quantitative_contribution` column on the mapping entity | **NOT present** | (absence) |
+
+**Bottom line**: the snapshot handoff §7 is current. The 5 polymorphic handlers are alive and the entity stores type-specific FK relations. The mockup's 3-field shape (`Expected target` read-only / `Quantitative contribution` / `Why is this being reported?`) **maps to nothing in the current backend** — it's not a simplification of the current shape, it's a different model. No NOOP-only shortcut: NOOP's only field is `narrative`, which doesn't carry a `quantitative_contribution` value.
+
+**FE recommendation — Path (A) "Mockups supersede; backend simplifies"**
+
+- Add columns to `ResultPoolFundingIndicatorMapping`: `reason_code: string` (NOT NULL) and `quantitative_contribution_value: number | null` (NULL allowed; only set when `is_quantitative=true` on the indicator).
+- Reshape POST/PATCH body to `{ reason_code: string, quantitative_contribution_value?: number }`. `indicator_type` becomes a discriminator the backend already infers from the indicator catalog (not user input).
+- The 5 polymorphic handlers + their per-type tables (`result_capacity_sharing`, `result_knowledge_product`, etc.) are **deferred or deprecated** in v1. They can stay in code as dead branches and be removed later, OR be repurposed for a future "Details" sub-form (which isn't in the mockups today).
+- Rationale: the mockups went through the design QA cycle and represent the current product intent. The 5-type model predates them (it's an early backend design from before the mockup set was approved on 2026-05-15). One unified form per HLO card is what users will see and what reviewers will approve. The per-type richness can come back later as a deeper drill-down if the business reverses, but it doesn't need to ship in US3/US4.
+
+**Backend implications (Path A)**
+
+- ~1 migration: `ALTER TABLE result_pool_funding_indicator_mapping ADD COLUMN reason_code VARCHAR(50) NOT NULL DEFAULT 'unspecified'`; `ADD COLUMN quantitative_contribution_value NUMERIC NULL`.
+- `ContributionDto` simplifies to `{ reason_code, quantitative_contribution_value? }`.
+- The 5 handlers can be replaced by one method that writes the two new columns directly. **OR** keep the handlers + treat them as inert (the controller stops invoking the per-type ones).
+- Validation moves from "type-specific required fields" to "`reason_code` must be in the reason taxonomy"; the taxonomy itself is OQ-IM-4 (still non-gating but needs the BA to pick a source).
+- No data migration required if v1 ships before any production data exists. If production already has rows, the new `reason_code` column needs a backfill — defer the decision to the migration PR.
+
+### 6.2 OQ-IM-2 — AOW (Area of Work) data source — findings
+
+**What the backend actually says today:**
+
+| Surface | Today | Evidence |
+|---|---|---|
+| `GET /pool-funding-alignment/indicators` response shape | `IndicatorGroupResponse[] = { lever_code, lever_name, indicators[] }` — **no AOW layer** | `bilateral.service.ts:369-404` + `dto/list-indicators-query.dto.ts:32-36` |
+| Any `area_of_work` / `aow` / `AreaOfWork` entity, table, or column | **Zero references** anywhere under `src/domain/` | `grep -r "area.of.work\|area_of_work\|aow\|AreaOfWork" src/domain` returned no matches |
+| Any FK on indicator → AOW | **Not present** | `entities/indicator.entity.ts` has no AOW reference |
+| Separate `GET /areas-of-work` endpoint | **Does not exist** | controller search |
+| `indicator_code` prefix convention | Not enforced as a parsable identifier in code | (inspected the entity; codes are opaque strings) |
+
+**Bottom line**: AOW is **genuinely unmodeled** in the backend. There is no field to read, no convention to parse, no FK to join on. The mockup's three-level tree (SP → AOW → HLO) cannot render today regardless of FE work.
+
+**FE recommendation — Path (A) "Backend extends the response to include AOW nesting"**
+
+- Add an `area_of_work` entity + `area_of_work` table with at minimum: `aow_code: string PK, aow_name: string, lever_code: string FK → levers`.
+- Add `aow_code: string FK NOT NULL` on the `indicator` entity (or a junction `indicator_area_of_work` if an indicator can span AOWs — the BA needs to confirm whether this is many-to-one or many-to-many).
+- Extend `IndicatorGroupResponse` to nest: `{ lever_code, lever_name, areas_of_work: { aow_code, aow_name, indicators: [] }[] }`.
+- AOW is a stable CGIAR ToC concept (PRMS / CLARISA already model it), so the entity should align with whatever upstream source it comes from — confirm during the backend implementation PR. PRD C-3 (CLARISA-owned vocabularies) likely applies.
+- Rationale: AOW is the modal's primary navigation. Without it, the SP → AOW → HLO sidebar can't render; flattening to SP → HLO (Path D) would require designer sign-off and would diverge visibly from the approved mockup. (B) — code-prefix inference — is fragile (the FE would silently break on any indicator code that doesn't match the convention, including legacy data). (C) — separate AOW endpoint — doubles request count without benefit.
+
+**Backend implications (Path A)**
+
+- 1 migration for the new entity + FK on `indicator`.
+- 1 service change: `listIndicators` groups by `(lever_code, aow_code)` instead of just `lever_code`.
+- 1 DTO change: `IndicatorGroupResponse` response shape.
+- 1 ingestion question (NOT this PR's concern): where do the AOW rows themselves come from? CLARISA sync? Manual seed? PRMS pull? — surface for the BA to answer when scheduling the migration.
+
+### 6.3 OQ-IM-3 — Edit-mode pre-fill (GET contribution endpoint) — findings
+
+**What the backend actually says today:**
+
+| Surface | Today | Evidence |
+|---|---|---|
+| `GET /pool-funding-alignment/indicators/:indicatorCode/contribution?lever-code=` route | **Does not exist** | `bilateral.controller.ts` — no `@Get('indicators/:indicatorCode/contribution')` |
+| Panel-GET `IndicatorPanelIndicatorResponse` shape | `{ indicator_code, indicator_name, indicator_type, target_description, is_active, is_mapped, is_stale }` — no `contribution` field | `dto/list-indicators-query.dto.ts:22-30` |
+| `MappingResponse` returned on POST/PATCH | `{ result_code, lever_code, lever_name, indicator_code, indicator_type, is_stale }` — no contribution body | `dto/upsert-indicator-mapping.dto.ts:13-20` |
+| Any service method returning a single contribution | **Not present** | searched `bilateral.service.ts` |
+
+**Bottom line**: no GET endpoint, no embedded body. Edit-mode pre-fill is impossible today.
+
+**FE recommendation — Path (A) "Backend adds GET .../contribution"**
+
+- Add a `GET /pool-funding-alignment/indicators/:indicatorCode/contribution?lever-code=...` route returning the stored contribution body in the same shape the POST/PATCH body uses (post §7.1 simplification: `{ reason_code, quantitative_contribution_value? }`).
+- Cheapest backend work of all three OQs — a single repository `findOne` + a thin DTO denormalize + a controller route. No new migration.
+- Rationale: keeps the panel-GET response light (it stays the catalog-listing endpoint). The contribution body only needs to be fetched when the user clicks edit on an HLO card — lazy is good.
+
+**Backend implications (Path A)**
+
+- 1 new route + 1 new service method + 1 new DTO (`ContributionResponse`, identical to the simplified `ContributionDto`).
+- No migration. No data change. Lowest-risk of the three.
+
+### 6.4 Bonus discoveries (related backend gaps)
+
+While auditing the entities, the FE found three additional fields the mockup relies on that don't exist in the backend today. Flagging here for the BA + backend team to incorporate into the same backend PR as OQ-IM-1's simplification:
+
+| Mockup field | Backend status | Recommended action |
+|---|---|---|
+| `is_quantitative: boolean` on indicator (drives conditional rendering of the Quantitative dropdown — OQ-IM-6) | **Not on `indicator.entity.ts`** | Add `is_quantitative: boolean NOT NULL DEFAULT false` to the `indicator` table. Source of truth: the indicator catalog (when it ships via the ToC sync — currently empty). |
+| `disabled_reason: string \| null` on `IndicatorPanelIndicatorResponse` (drives the inline "this indicator cannot be mapped because…" callout — OQ-IM-9) | **Not on the response DTO** | Add a per-row `disabled_reason: string \| null` to `IndicatorPanelIndicatorResponse`. Server-side validation computes it (e.g., "already mapped to a sibling result", "stale"). Client renders verbatim. |
+| `is_stale: boolean` on indicator | ✅ Present on `ResultPoolFundingIndicatorMapping:93-99` but NOT on `IndicatorPanelIndicatorResponse` | Surface `is_stale` on the panel response DTO too, so the modal can show the stale-disabled treatment without needing a second fetch. |
+
+The socket event `result.pool-funding-alignment.changed` was confirmed live in `src/domain/tools/socket/server.gateway.ts:11-12`. No gap there.
+
+### 6.5 Summary table — what we're asking from the backend team
+
+| OQ | FE recommended path | Backend work required | Effort estimate (rough) |
+|---|---|---|---|
+| **OQ-IM-1** | (A) Simplify contribution body to `{ reason_code, quantitative_contribution_value? }`; deprecate per-type handlers | 1 migration (2 columns on `result_pool_funding_indicator_mapping`) + DTO + service + controller updates; tests | M (2–3 days) |
+| **OQ-IM-2** | (A) Add `area_of_work` entity + nest in `IndicatorGroupResponse` | 1 migration (new table + FK on indicator) + service grouping + DTO; ingestion source TBD | M–L (3–5 days; depends on AOW seed source) |
+| **OQ-IM-3** | (A) Add `GET .../contribution?lever-code=` route | 1 service method + 1 controller route + 1 DTO; no migration | S (½ day) |
+| **Bonus** | Add `is_quantitative` + `disabled_reason` + `is_stale` on panel response | 1 migration (`is_quantitative` on indicator) + DTO updates + computed-property logic for `disabled_reason` | S (½–1 day) |
+
+Total: ~6–10 backend-dev days. FE work resumes the day OQ-IM-1's reason_code shape is locked (T-BIL-IM-01 backend-verification + interfaces can land that same day in parallel with the migration).
+
+### 6.6 How the BA / backend should respond
+
+Two equivalent paths to capture the decision — either is fine:
+
+1. **In-spec**: edit [`./requirements.md` §12 "Open questions"](./requirements.md#12-assumptions--open-questions) directly. Replace each `OQ-IM-1/2/3` block with `RESOLVED — Path X — <one-sentence rationale>`.
+2. **Out-of-spec**: reply via the AC-1594 Jira thread / Slack channel with the per-OQ decision. The FE folds the answer into `./requirements.md` §12 in the same PR that picks up the work.
+
+Once **OQ-IM-1 is locked**, the FE can start T-BIL-IM-01 (backend verification + interfaces + 5 ApiService methods) on the day the backend migration PR opens — they don't need to wait for the migration to merge. Lock OQ-IM-2 and -3 together with -1 ideally; if -1 is decided first, the FE will start and pause again at T-BIL-IM-05 (modal sidebar) which depends on -2.
+
+---
+
+## 7. References
 
 - Proposal: [`../proposal.md`](../proposal.md)
 - Spec docs: [`./requirements.md`](./requirements.md) · [`./design.md`](./design.md) · [`./tasks.md`](./tasks.md)

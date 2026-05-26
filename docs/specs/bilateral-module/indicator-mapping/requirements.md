@@ -384,6 +384,8 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 
 ### **Open questions — GATING (must resolve before `/sdd-execute`)**
 
+> **2026-05-26 status update**: a direct FE-side audit of the ARI backend repo (`alliance-research-indicators-main/server/researchindicators/src/domain/entities/bilateral/`, branch `AC-1594-bilateral-module`) grounded all three gating OQs in actual code. Findings + FE-recommended paths are captured in [`./open-questions-for-ba.md` §6](./open-questions-for-ba.md#6-backend-code-findings--2026-05-26-fe-side-audit--recommendations). **FE leans Path A on all three**. Awaiting BA + backend confirmation; until they sign off, the OQs remain gating.
+
 - **OQ-IM-1 — Contribution body shape (HEADLINE).** Mockup card has 3 user-editable fields: **Expected target** (read-only), **Quantitative contribution** (conditional dropdown), **Why is this being reported?** (required dropdown). Backend handoff §7 specifies **5 polymorphic types** with completely different fields (`capacity_sharing.women/men/non_binary/has_unkown_using/...`, `knowledge_product.handle/licence/...`, etc.). These do not overlap. **Resolution paths**:
   - (a) Mockups supersede; backend re-issues a simplified contribution body (`{ quantitative_contribution?: number; reason_code: string }`). Treats the 5 polymorphic types as deferred / dead code.
   - (b) Mockup card is a wrapper; clicking a deeper "Details" CTA opens a type-specific sub-form. Mockups don't show this — would need new design.

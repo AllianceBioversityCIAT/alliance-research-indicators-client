@@ -19,9 +19,9 @@ When this task list completes: a Pool-Funding-eligible result with at least one 
 - [x] Sibling specs `tag-visibility/` and `alignment-section/` have shipped (`2779b5fd`, `17417fdd`).
 - [x] Alignment-section UX remediated against the mockups (T-BIL-IM-RR-01 below — completed).
 - [x] Path aliases (`@platform`, `@services`, `@interfaces`, `@shared`, `@sockets`) declared in [`tsconfig.json`](../../../../research-indicators/tsconfig.json) + [`jest.config.ts`](../../../../research-indicators/jest.config.ts).
-- [ ] **OQ-IM-1 — Contribution body shape** answered by BA/backend team. *(Gates T-BIL-IM-01, T-BIL-IM-04, T-BIL-IM-08, T-BIL-IM-09, T-BIL-IM-11.)*
-- [ ] **OQ-IM-2 — AOW data source** answered by backend team. *(Gates T-BIL-IM-01, T-BIL-IM-05, T-BIL-IM-10.)*
-- [ ] **OQ-IM-3 — Edit-mode pre-fill source** confirmed by backend team. *(Gates T-BIL-IM-04, T-BIL-IM-08.)*
+- [ ] **OQ-IM-1 — Contribution body shape** answered by BA/backend team. *(Gates T-BIL-IM-01, T-BIL-IM-04, T-BIL-IM-08, T-BIL-IM-09, T-BIL-IM-11.)* **FE leans Path A** per [`./open-questions-for-ba.md` §6.1](./open-questions-for-ba.md#61-oq-im-1--contribution-body-shape--findings) (2026-05-26 backend audit).
+- [ ] **OQ-IM-2 — AOW data source** answered by backend team. *(Gates T-BIL-IM-01, T-BIL-IM-05, T-BIL-IM-10.)* **FE leans Path A** per [`./open-questions-for-ba.md` §6.2](./open-questions-for-ba.md#62-oq-im-2--aow-area-of-work-data-source--findings) (AOW not modeled in backend today).
+- [ ] **OQ-IM-3 — Edit-mode pre-fill source** confirmed by backend team. *(Gates T-BIL-IM-04, T-BIL-IM-08.)* **FE leans Path A** per [`./open-questions-for-ba.md` §6.3](./open-questions-for-ba.md#63-oq-im-3--edit-mode-pre-fill-get-contribution-endpoint--findings) (no GET route today).
 
 ---
 
@@ -455,7 +455,7 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ## 9. Open items
 
-- **OI-IM-1 — Gating OQs unresolved**. OQ-IM-1 (body shape), OQ-IM-2 (AOW source), OQ-IM-3 (edit-mode GET) all need BA/backend answers before Group B+ can start. Tracked in [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions).
+- **OI-IM-1 — Gating OQs unresolved**. OQ-IM-1 (body shape), OQ-IM-2 (AOW source), OQ-IM-3 (edit-mode GET) all need BA/backend answers before Group B+ can start. Tracked in [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions). **2026-05-26 update**: FE-side audit of the backend repo grounded all three in actual code and recorded FE-recommended paths (all Path A) in [`./open-questions-for-ba.md` §6](./open-questions-for-ba.md#6-backend-code-findings--2026-05-26-fe-side-audit--recommendations). Awaiting BA + backend sign-off; OQs remain gating until confirmed. Backend work estimate per the audit: ~6–10 backend-dev days (1 migration for OQ-IM-1 reason_code+quantitative cols, 1 new entity for OQ-IM-2 AOW, 1 new route for OQ-IM-3, plus 3 bonus backend gaps the audit surfaced — `is_quantitative` / `disabled_reason` / surface `is_stale` on the panel response).
 - **OI-IM-2 — `app-info-banner` shared component**. The IP Rights / Pool funding alignment info-banner pattern is now duplicated; promoting it to `src/app/shared/components/info-banner/` is a worthwhile small follow-up. Not gated by anything — could be done as a parallel cleanup any time. (Flagged after the mockup audit on 2026-05-24.)
 - **OI-IM-3 — Backend sort on `pool-funding-contributor`**. The FE sends the right URL (`order-field=pool-funding-contributor`) but the backend doesn't visibly reorder rows on the `current-user=false` path. Backend team to verify the sort dispatcher includes this column. Not blocking; filter works.
 - **OI-IM-4 — CGSpace / MQAP for `knowledge_product`** (D9 partial Phase 2). Out of scope for the mockup-first design; reopen if the OQ-IM-1 resolution requires per-type forms.
