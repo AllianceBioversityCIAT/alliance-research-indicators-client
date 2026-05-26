@@ -1,9 +1,9 @@
 # Open Questions for BA / Backend — Bilateral Module / Indicator Mapping
 
-> **Audience**: BA, backend dev, designer (if available).
+> **Audience**: BA, backend dev, designer (if available), **PO** (now needed for OQ-IM-1).
 > **Purpose**: surface three product / technical decisions that block ~75% of the indicator-mapping (US3 + US4) implementation. Until these are answered, no further code can land beyond the four small pieces already shipped.
-> **Read time**: 5–10 minutes (or 15 if you also read §6 backend audit).
-> **Status**: requested 2026-05-24 · **updated 2026-05-26** with §6 backend code audit + FE recommended paths (all three → Path A). Awaiting BA + backend decisions.
+> **Read time**: 5–10 minutes (or 20 if you also read §6 backend audit + §7 backend reply).
+> **Status**: requested 2026-05-24 · §6 FE-side backend code audit 2026-05-26 · **§7 backend reply received 2026-05-26** — OQ-IM-3 + 2 bonuses **ACCEPTED** (can ship in ~1 day after BA confirms seed/taxonomy); `is_stale` bonus already shipped; **OQ-IM-1 escalated to PO** (overturns R-BIL-031 + D5 + D12); **OQ-IM-2 escalated to BA** (3 sub-questions on AOW source/cardinality). Backend on `AC-1594-bilateral-module-v2`, snapshot at [`../ari-backend-context/backend-response-to-fe.md`](../ari-backend-context/backend-response-to-fe.md).
 
 ---
 
@@ -11,11 +11,14 @@
 
 Three open questions block the indicator-mapping work. The **mockups under `docs/specs/bilateral-module/figma-mockups/` and the backend handoff `docs/specs/bilateral-module/ari-backend-context/frontend-handoff.md` disagree on three points**. The FE is built mockup-first per the project rule that the Figma file is canonical for UX — but each disagreement maps to a concrete backend decision the BA + backend team need to make together. Picking either side per question is fine; what we need is a decision.
 
-| OQ | What needs to be decided | Who decides | Unblocks | FE recommendation (post §6 audit) |
-|---|---|---|---|---|
-| **OQ-IM-1** | Contribution body shape on the `POST/PATCH /contribution` endpoint | BA + backend | 5 FE tasks | **Path A** — simplify to `{ reason_code, quantitative_contribution_value? }`; deprecate 5 polymorphic handlers |
-| **OQ-IM-2** | Where does the **Area of Work (AOW)** grouping come from? | Backend | 3 FE tasks | **Path A** — backend adds `area_of_work` entity + nest in `IndicatorGroupResponse` |
-| **OQ-IM-3** | Does `GET .../contribution?lever-code=` exist for edit-mode pre-fill? | Backend | 2 FE tasks | **Path A** — backend adds the GET endpoint |
+| OQ | What needs to be decided | Who decides | Unblocks | FE recommendation (post §6 audit) | Backend reply (post §7) |
+|---|---|---|---|---|---|
+| **OQ-IM-1** | Contribution body shape on the `POST/PATCH /contribution` endpoint | **PO** (now — escalated) | 5 FE tasks | **Path A** — simplify to `{ reason_code, quantitative_contribution_value? }`; deprecate 5 polymorphic handlers | **DEFERRED — PO must retire R-BIL-031 + D5 + D12.** Backend agrees Path A is cleanest engineering but won't act without PO sign-off. |
+| **OQ-IM-2** | Where does the **Area of Work (AOW)** grouping come from? | **BA** (now — escalated) | 3 FE tasks | **Path A** — backend adds `area_of_work` entity + nest in `IndicatorGroupResponse` | **DEFERRED — BA must answer 3 sub-questions**: (a) is AOW a real CGIAR ToC taxonomy level?, (b) source = CLARISA / PRMS / manual seed / admin?, (c) cardinality = 1:1 or many-to-many? |
+| **OQ-IM-3** | Does `GET .../contribution?lever-code=` exist for edit-mode pre-fill? | Backend | 2 FE tasks | **Path A** — backend adds the GET endpoint | **ACCEPTED.** ~½ day to ship; can land bundled with bonuses on `AC-1594-bilateral-module-v2`. Response body shape couples to OQ-IM-1's outcome. |
+| **Bonus** `is_quantitative` | Add `is_quantitative: boolean` on `indicator` entity | Backend + BA | OQ-IM-6, REQ-BIL-IM-10 | Add as part of safe bundle | **ACCEPTED.** ~½ day. Needs BA seed list of quantitative indicator codes. |
+| **Bonus** `disabled_reason` | Add `disabled_reason: string \| null` on panel response | Backend + BA/FE | OQ-IM-9, REQ-BIL-IM-04 | Add as part of safe bundle | **ACCEPTED.** ~½ day. Needs BA/FE alignment on reason taxonomy; backend proposes 2 default rules. |
+| **Bonus** `is_stale` on panel | Surface existing `is_stale` flag on panel response | Backend | REQ-BIL-IM-04 / -18 | Add as part of safe bundle | **ALREADY SHIPPED** at `dto/list-indicators-query.dto.ts:29`. Our audit was stale on this one. |
 
 The proposal that produced this work is [`../proposal.md`](../proposal.md). The mockup-first FE design that ran into these gates is [`./design.md`](./design.md). The full requirements list is [`./requirements.md`](./requirements.md). Visual references live under [`../figma-mockups/`](../figma-mockups/).
 
@@ -330,7 +333,67 @@ Once **OQ-IM-1 is locked**, the FE can start T-BIL-IM-01 (backend verification +
 
 ---
 
-## 7. References
+## 7. Backend reply — 2026-05-26 (received)
+
+> **Update — 2026-05-26 (late afternoon).** Backend team replied to §6 the same day with a structured doc on their side (`alliance-research-indicators-main/docs/specs/bilateral-module/indicator-mapping/backend-response-to-fe.md`, commit `cfbeb8ec`, branch `AC-1594-bilateral-module-v2`). The full text is snapshotted in our repo at [`../ari-backend-context/backend-response-to-fe.md`](../ari-backend-context/backend-response-to-fe.md). This section is a STAR-side summary of what changed and what we now own to follow up on.
+
+### 7.1 Backend's verdict per OQ
+
+- **OQ-IM-1 — DEFERRED to PO.** Backend agrees Path A is the cleanest engineering call, but Path A overturns three approved spec items on the backend side: **R-BIL-031** ("Capture type-specific contribution payload"), **D5** (innovation_use decision), and **D12** (preserve backend-compatible typos). Backend cannot retire these without explicit PO sign-off, because doing so would break the audit trail to AC-1440 + risk losing the per-type tables (`result_capacity_sharing`, `result_knowledge_product`, …) that other platform surfaces (search, OpenSearch decorators, the future PRMS push payload in R-BIL-041) may consume.
+- **OQ-IM-2 — DEFERRED to BA.** Backend agrees Path A is the right engineering call but needs three answers from BA before implementing: (1) is AOW a real CGIAR ToC taxonomy level?, (2) where do AOW rows originate (CLARISA / PRMS / manual seed / admin-maintained)?, (3) is indicator↔AOW 1:1 (FK on indicator) or many-to-many (junction table)? Cardinality dictates schema; source dictates ingestion pipeline. Estimate after sign-off: M–L (~3–5 days).
+- **OQ-IM-3 — ACCEPTED.** Backend ships `GET /pool-funding-alignment/indicators/:indicatorCode/contribution?lever-code=` as a thin additive change (~½ day; controller + service + DTO + sibling spec + Swagger). Auth: ROAR JWT only — no `RolesGuard` / `ResultOwnerGuard` since it's a read. Response shape couples to OQ-IM-1's outcome: ships as the current polymorphic shape if OQ-IM-1 hasn't resolved, updates in the same PR as OQ-IM-1's simplification if/when Path A is approved.
+- **Bonus `is_quantitative`** — ACCEPTED. ~½ day. Backend needs BA's seed list (which `indicator_code` values are quantitative). Without it, the default is `false` for every indicator and the FE conditional dropdown never renders.
+- **Bonus `disabled_reason`** — ACCEPTED. ~½ day. Backend proposes 2 default rules: `null` when not disabled; `"Indicator is no longer active in the catalog"` when `is_active=false`; `"Already mapped to a sibling result version"` when there's an active mapping on a different version. BA / FE can extend or rewrite the taxonomy. (See §7.4 below for STAR's response.)
+- **Bonus `is_stale` on panel** — **ALREADY SHIPPED.** `IndicatorPanelIndicatorResponse.is_stale: boolean` exists at `dto/list-indicators-query.dto.ts:29` and is populated by `BilateralService.listIndicators`. The §6 audit was stale on this one — landed in a wave between the FE snapshot date and 2026-05-26. **FE can start consuming `is_stale` immediately** (no T-BIL-IM-01 typing work needed beyond declaring the field on `IndicatorRow`).
+
+### 7.2 New gating: OQ-IM-4 reclassified
+
+Backend reclassified **OQ-IM-4** ("reason taxonomy source") from "non-gating but BA should weigh in" → **gating-once-OQ-IM-1-Path-A-is-approved**. Reasoning: validation needs a finite set of values; backend can't validate `reason_code` without a defined enum. Backend proposed a provisional default of `direct_contribution | aligned_with | reference_only | other`. The FE should weigh in once the UX is settled (see §7.4).
+
+### 7.3 What the safe bundle unblocks on the FE side
+
+Once the backend's safe bundle (OQ-IM-3 + `is_quantitative` + `disabled_reason`) ships, the FE gains:
+
+- **Edit-mode pre-fill** is enabled — T-BIL-IM-04's `getContribution` service method + T-BIL-IM-08's HLO-card pre-fill have an endpoint to call. Wiring is straightforward but the **body shape is still gated on OQ-IM-1** — until that settles, the FE either implements the polymorphic shape inversion or waits.
+- **`is_quantitative` flag** unblocks the conditional Quantitative-contribution row on the HLO card (T-BIL-IM-09 / REQ-BIL-IM-10) — but only when the seed list is populated. Until then, every indicator renders without the row, which is a graceful fallback.
+- **`disabled_reason`** unblocks the disabled-indicator callout (T-BIL-IM-06 / REQ-BIL-IM-04). The FE consumes the field verbatim and renders it as a callout — server is the source of truth on the copy.
+- **`is_stale`** unblocks REQ-BIL-IM-04 stale-disabled treatment and REQ-BIL-IM-18 (stale-but-mapped editable) — both can rely on the existing flag.
+
+But **end-to-end shipping of US3/US4 is still gated on OQ-IM-1 + OQ-IM-2**. The safe bundle is necessary, not sufficient.
+
+### 7.4 STAR's open follow-ups (where the FE has input)
+
+The backend explicitly invited FE/BA input on three items. STAR's working positions:
+
+| Item | STAR's working position | Confidence |
+|---|---|---|
+| `disabled_reason` taxonomy defaults | **Backend's 2 default rules are good baseline copy.** Recommend adding two more: `"This indicator was retired in the upstream catalog. Existing mappings are preserved; new mappings are not accepted."` (stale-but-unmapped — matches REQ-BIL-IM-04 AC-04.4 canonical copy) AND `"This indicator is not available under the current Science Programs."` (for catalog-filter mismatch). BA can override. | High — matches existing FE spec. |
+| `is_quantitative` seed list | **STAR doesn't have visibility into which indicators are quantitative** — that's a content / domain question. Defer to BA. Mockup `32472:129409` shows the row appearing on one indicator (`CR-HL01-001` family per the mockup); the BA list of which indicators carry the flag is the source of truth. | Low — BA owns this. |
+| OQ-IM-4 reason taxonomy | **Backend's provisional `direct_contribution \| aligned_with \| reference_only \| other` is a reasonable starting point**, but the mockup language ("Why is this being reported?") suggests the dropdown should surface *human-meaningful reasons*, not technical contribution types. STAR recommends the BA confirm whether the dropdown is meant to capture (a) the *type of relationship* between the result and the HLO, or (b) the *reason this contribution counts* (deeper UX intent). If (b), the enum likely needs to be richer (e.g. `lead_contributor / supporting_contributor / capacity_building / advocacy / other`). | Medium — needs UX/BA discussion. |
+
+### 7.5 Sequencing (what FE will do, when)
+
+| State | FE action |
+|---|---|
+| **Today (post-reply)** | Update FE spec docs (this commit). Forward backend response + STAR follow-ups to PO/BA for sign-off on OQ-IM-1 + OQ-IM-2 + seed/taxonomy answers. |
+| **Once backend ships safe bundle** (~1 day after BA confirms seed + taxonomy) | FE picks up T-BIL-IM-01 partial: type `is_stale` / `is_quantitative` / `disabled_reason` on `IndicatorRow`; add `GET_PoolFundingContribution` to ApiService. Doesn't unblock end-to-end but reduces hot-path work. |
+| **Once OQ-IM-1 resolves** (PO sign-off + backend migration + simplified DTO) | FE resumes T-BIL-IM-01 fully → -04 → -08 → -09 → -11 chain. ~10–14 FE-dev days end-to-end. |
+| **Once OQ-IM-2 resolves** (BA sign-off + backend AOW model) | FE resumes T-BIL-IM-05 (modal sidebar) + T-BIL-IM-10 (mount). |
+| **Fallback after ~1 week if PO/BA stalls** | Per backend §6 paragraph 4: ship US3/US4 against the **current polymorphic shape** (suboptimal but unblocking); simplification becomes Phase 2 follow-up. Reopen the indicator-mapping spec to track the polymorphic path if we go this route. |
+
+### 7.6 What's now external to engineering
+
+Engineering on both sides is paused on three product/business decisions:
+
+1. **PO** — retire (or re-affirm) R-BIL-031 + D5 + D12. **Owns OQ-IM-1.**
+2. **BA** — answer the 3 AOW sub-questions (taxonomy / source / cardinality). **Owns OQ-IM-2.**
+3. **BA** — provide the `is_quantitative` seed list + confirm `disabled_reason` taxonomy + answer OQ-IM-4 reason-dropdown intent. **Owns the safe-bundle preconditions and OQ-IM-4.**
+
+The backend response template for capturing these decisions is documented in [`../ari-backend-context/backend-response-to-fe.md` §9](../ari-backend-context/backend-response-to-fe.md). PO/BA can reply either by editing that file directly (one block per OQ) or via the AC-1594 / AC-1439 / AC-1440 Jira threads.
+
+---
+
+## 8. References
 
 - Proposal: [`../proposal.md`](../proposal.md)
 - Spec docs: [`./requirements.md`](./requirements.md) · [`./design.md`](./design.md) · [`./tasks.md`](./tasks.md)

@@ -384,7 +384,17 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 
 ### **Open questions — GATING (must resolve before `/sdd-execute`)**
 
-> **2026-05-26 status update**: a direct FE-side audit of the ARI backend repo (`alliance-research-indicators-main/server/researchindicators/src/domain/entities/bilateral/`, branch `AC-1594-bilateral-module`) grounded all three gating OQs in actual code. Findings + FE-recommended paths are captured in [`./open-questions-for-ba.md` §6](./open-questions-for-ba.md#6-backend-code-findings--2026-05-26-fe-side-audit--recommendations). **FE leans Path A on all three**. Awaiting BA + backend confirmation; until they sign off, the OQs remain gating.
+> **2026-05-26 status update (early)**: a direct FE-side audit of the ARI backend repo (`alliance-research-indicators-main/server/researchindicators/src/domain/entities/bilateral/`, branch `AC-1594-bilateral-module`) grounded all three gating OQs in actual code. Findings + FE-recommended paths are captured in [`./open-questions-for-ba.md` §6](./open-questions-for-ba.md#6-backend-code-findings--2026-05-26-fe-side-audit--recommendations). **FE leans Path A on all three**.
+>
+> **2026-05-26 status update (late) — backend reply received**: full reply snapshotted at [`../ari-backend-context/backend-response-to-fe.md`](../ari-backend-context/backend-response-to-fe.md) and summarized at [`./open-questions-for-ba.md` §7](./open-questions-for-ba.md#7-backend-reply--2026-05-26-received). Net result:
+> - **OQ-IM-3 ACCEPTED** by backend; ships in ~½ day bundled with bonuses. Body shape couples to OQ-IM-1's outcome — backend can ship now with the current polymorphic shape OR wait for OQ-IM-1 to simplify.
+> - **Bonus `is_stale` already shipped** on the panel response DTO — FE can consume immediately. The audit was stale on this one.
+> - **Bonus `is_quantitative` + `disabled_reason` ACCEPTED** by backend, gated on BA seed list + reason taxonomy alignment.
+> - **OQ-IM-1 escalated to PO** — backend won't act without PO retiring R-BIL-031 + D5 + D12 (the per-type-payload requirement + its supporting decisions).
+> - **OQ-IM-2 escalated to BA** — backend needs 3 sub-answers (AOW taxonomy reality / source / cardinality) before implementing.
+> - **OQ-IM-4 reclassified as gating-once-OQ-IM-1-Path-A-approved** by backend (validation needs a finite enum). Provisional default `direct_contribution | aligned_with | reference_only | other`; FE's UX position recorded in [`./open-questions-for-ba.md` §7.4](./open-questions-for-ba.md#74-stars-open-follow-ups-where-the-fe-has-input).
+>
+> The OQs remain gating until PO + BA sign off. Fallback per backend §6 paragraph 4: if PO/BA stalls beyond ~1 week, FE can ship US3/US4 against the **current polymorphic shape** as a Phase-1 compromise and revisit simplification in Phase 2.
 
 - **OQ-IM-1 — Contribution body shape (HEADLINE).** Mockup card has 3 user-editable fields: **Expected target** (read-only), **Quantitative contribution** (conditional dropdown), **Why is this being reported?** (required dropdown). Backend handoff §7 specifies **5 polymorphic types** with completely different fields (`capacity_sharing.women/men/non_binary/has_unkown_using/...`, `knowledge_product.handle/licence/...`, etc.). These do not overlap. **Resolution paths**:
   - (a) Mockups supersede; backend re-issues a simplified contribution body (`{ quantitative_contribution?: number; reason_code: string }`). Treats the 5 polymorphic types as deferred / dead code.

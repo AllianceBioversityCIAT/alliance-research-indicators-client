@@ -17,8 +17,9 @@ docs/specs/bilateral-module/
 ├── jira-us/               — user-story reference (Jira epic AC-1385)
 ├── prms-context/          — what PRMS already built and how STAR can reuse it
 ├── ari-backend-context/   — this corner: the live API the STAR client integrates against
-│   ├── README.md          — you are here
-│   └── frontend-handoff.md  — verbatim snapshot of the backend handoff
+│   ├── README.md                  — you are here
+│   ├── frontend-handoff.md        — verbatim snapshot of the backend handoff (commit 7cb00e07)
+│   └── backend-response-to-fe.md  — 2026-05-26 backend reply to the indicator-mapping §6 audit (commit cfbeb8ec)
 └── (no requirements.md/design.md/tasks.md yet — see §5)
 ```
 
