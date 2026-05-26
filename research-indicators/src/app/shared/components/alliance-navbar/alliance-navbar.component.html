@@ -65,34 +65,45 @@
 </div>
 
 @if (this.showDropdown) {
-<div #dropdownRef class="fixed top-12 right-12 z-[9999] w-[280px] rounded-lg bg-white px-4 py-3 shadow-lg">
-  <div class="p-2.5">
-    <div class="mb-7 w-[250px] text-[#173f6f]">
-      <div class="mb-[18px] text-[15px] font-medium">Account</div>
-      <div class="flex flex-row items-center gap-[15px]">
-        <p-avatar [label]="this.actions.getInitials()" class="!rounded-xl" size="large"></p-avatar>
-        <div class="flex flex-col justify-center">
-          <span class="text-base text-[#909090]">{{ this.cache.dataCache().user.first_name }} {{
-            this.cache.dataCache().user.last_name }}</span>
-          <span class="text-[0.85rem] text-black">{{ this.cache.dataCache().user.email }}</span>
-          <span class="mt-2 inline-block w-max rounded-md bg-[rgb(37,37,37)] px-[8px] py-[5px] text-xs text-white">{{
-            this.cache.dataCache().user.roleName }}</span>
-        </div>
-      </div>
-    </div>
+<div #dropdownRef class="fixed top-12 right-12 z-[9999] w-[290px] rounded-xl bg-white py-3 shadow-xl">
+  <div class="mb-3 flex items-center justify-between px-4">
+    <span class="text-[11px] font-semibold tracking-[2px] font-[space_grotesk] text-[#8D9299] uppercase">Account</span>
+    <button type="button"
+      class="flex h-5 w-5 cursor-pointer items-center justify-center rounded-full border-0 bg-transparent text-[#8D9299] transition-colors hover:bg-gray-100"
+      (click)="this.showDropdown = false">
+      <i class="pi pi-times !text-[9px]"></i>
+    </button>
+  </div>
 
-    <div class="mb-1 flex justify-end">
-      <button type="button"
-        class="flex cursor-pointer items-center gap-3 rounded-md bg-[#FEF2F2] px-4 py-1.5 text-[13px]  text-[#cf0808]"
-        [disabled]="this.cache.isValidatingToken()" (click)="this.actions.logOut()">
-        @if (this.cache.isValidatingToken()) {
-        <i class="pi pi-spin pi-spinner text-[14px]"></i>
-        } @else {
-        <i class="pi pi-sign-out !text-[12.5px]"></i>
-        }
-        <span class="-mt-0.5">Log out</span>
-      </button>
+  <div class="mb-4 flex items-center gap-3 px-4">
+    <p-avatar [label]="this.actions.getInitials()" class="!rounded-xl" size="large"></p-avatar>
+    <div class="flex flex-col">
+      <span class="text-[14px] font-medium text-[#173f6f]">{{ this.cache.dataCache().user.first_name }} {{
+        this.cache.dataCache().user.last_name }}</span>
+      <span class="text-[12.5px] text-[#8D9299]">{{ this.cache.dataCache().user.email }}</span>
     </div>
+  </div>
+
+  <div class="mb-4 flex items-center gap-2 px-4">
+    <span class="text-[12px] font-[420] text-[#8D9299]">Role:</span>
+    <span
+      class="!rounded-[10px] border border-[#173f6f]/40 bg-white px-2 py-[2px] text-[10px] font-medium tracking-wide text-[#173f6f] uppercase">{{
+      this.cache.dataCache().user.roleName }}</span>
+  </div>
+
+  <div class="mb-3 border-t border-[#E4E4E7]"></div>
+
+  <div class="px-4">
+    <button type="button"
+      class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-[#cf0808] px-4 py-1.5 text-[13px] font-[450] text-[#cf0808] disabled:cursor-not-allowed disabled:opacity-50"
+      [disabled]="this.cache.isValidatingToken()" (click)="this.actions.logOut()">
+      @if (this.cache.isValidatingToken()) {
+      <i class="pi pi-spin pi-spinner text-[13px]"></i>
+      } @else {
+      <i class="pi pi-sign-out !text-[13px]"></i>
+      }
+      Log out
+    </button>
   </div>
 </div>
 }
