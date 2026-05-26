@@ -48,8 +48,7 @@
           (keyup.enter)="this.onSearchTextChange($event)" />
       </div>
       <a class="whats-new-nav-link" routerLink="/whats-new" routerLinkActive="whats-new-nav-link--active"
-        [routerLinkActiveOptions]="{ exact: true }"
-        pTooltip="What's New" tooltipPosition="bottom"
+        [routerLinkActiveOptions]="{ exact: true }" pTooltip="What's New" tooltipPosition="bottom"
         [attr.aria-label]="whatsNewService.hasUnreadReleaseNotes() ? 'What\'s New, new release notes available' : 'What\'s New'">
         <span class="material-symbols-rounded whats-new-nav-link__icon" aria-hidden="true">rocket_launch</span>
         @if (whatsNewService.hasUnreadReleaseNotes()) {
@@ -66,24 +65,33 @@
 </div>
 
 @if (this.showDropdown) {
-<div #dropdownRef class="icons-container fixed top-11 right-14 p-3 z-[9999] bg-white shadow-lg rounded-[4px] w-[280px]">
-  <div dropdown-content>
-    <div class="profile">
-      <div class="account-container">
-        <div class="account-header">Account</div>
-        <div class="account-content">
-          <p-avatar [label]="this.actions.getInitials()" size="large"></p-avatar>
-          <div class="account-details">
-            <span class="account-name">{{ this.cache.dataCache().user.first_name }} {{
-              this.cache.dataCache().user.last_name }}</span>
-            <span class="account-email">{{ this.cache.dataCache().user.email }}</span>
-            <span class="account-role">{{ this.cache.dataCache().user.roleName }}</span>
-          </div>
+<div #dropdownRef class="fixed top-12 right-12 z-[9999] w-[280px] rounded-lg bg-white px-4 py-3 shadow-lg">
+  <div class="p-2.5">
+    <div class="mb-7 w-[250px] text-[#173f6f]">
+      <div class="mb-[18px] text-[15px] font-medium">Account</div>
+      <div class="flex flex-row items-center gap-[15px]">
+        <p-avatar [label]="this.actions.getInitials()" class="!rounded-xl" size="large"></p-avatar>
+        <div class="flex flex-col justify-center">
+          <span class="text-base text-[#909090]">{{ this.cache.dataCache().user.first_name }} {{
+            this.cache.dataCache().user.last_name }}</span>
+          <span class="text-[0.85rem] text-black">{{ this.cache.dataCache().user.email }}</span>
+          <span class="mt-2 inline-block w-max rounded-md bg-[rgb(37,37,37)] px-[8px] py-[5px] text-xs text-white">{{
+            this.cache.dataCache().user.roleName }}</span>
         </div>
       </div>
+    </div>
 
-      <p-button size="small" label="Log out" icon="pi pi-sign-in" [loading]="this.cache.isValidatingToken()"
-        (onClick)="this.actions.logOut()"></p-button>
+    <div class="mb-1 flex justify-end">
+      <button type="button"
+        class="flex cursor-pointer items-center gap-3 rounded-md bg-[#FEF2F2] px-4 py-1.5 text-[13px]  text-[#cf0808]"
+        [disabled]="this.cache.isValidatingToken()" (click)="this.actions.logOut()">
+        @if (this.cache.isValidatingToken()) {
+        <i class="pi pi-spin pi-spinner text-[14px]"></i>
+        } @else {
+        <i class="pi pi-sign-out !text-[12.5px]"></i>
+        }
+        <span class="-mt-0.5">Log out</span>
+      </button>
     </div>
   </div>
 </div>
