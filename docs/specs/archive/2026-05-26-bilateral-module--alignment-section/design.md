@@ -512,6 +512,8 @@ If real-world telemetry shows users hitting stale-state confusion frequently, re
 
 - **2026-05-20 — Owner derivation lives on `CurrentResultService.isCurrentUserOwner()`, not on `BilateralService`.** Ownership is a property of the result, not of the bilateral domain. `BilateralService.editable` consumes the helper but doesn't own it.
 
+- **2026-05-26 — SP picker switched from CLARISA `levers` to Science Programs.** AC-04.1 originally specced the multiselect against the CLARISA `levers` source (parity with `alliance-alignment` / `my-projects`). Commits `691fc99d` + `fc56e0b1` narrow the picker to **Science Programs only** to align with the SP → AOW → HLO tree that the sibling [`../indicator-mapping/`](../indicator-mapping/) spec needs to render. Still a CLARISA-owned taxonomy (PRD C-3 holds — no new vocabulary), just a narrower slice. The interface field name `lever_codes` on `UpdatePoolFundingAlignmentDto` is preserved for back-compat with the backend contract. **Side-effect**: commit `fc56e0b1` also wired the `BilateralActionCardComponent` CTA inside this section's template — that mount technically discharges part of the sibling spec's T-BIL-IM-10 (AI-card host). Recorded here because the host lives in this component; the broader `T-BIL-IM-10` rendering loop + catalog-empty fallback still belong to the indicator-mapping spec. See [`../indicator-mapping/validation-report.md` §3](../indicator-mapping/validation-report.md) for the cross-spec status.
+
 ---
 
 ## 12. Testing strategy
