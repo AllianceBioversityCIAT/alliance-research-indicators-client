@@ -468,7 +468,7 @@ Each `PrmsTocResult` carries `toc_result_id`, `result_title`, `result_level_id`,
 
 - **Replace** the planned `GET .../indicators` consumer in T-BIL-IM-01 with a `GET .../hlos-indicators` consumer. Type the response from the backend DTO directly.
 - **Drop** the planned client-side regrouping in T-BIL-IM-05; render `response.pairs[]` directly.
-- **Add** a follow-up task (T-BIL-IM-12, to be created during the next planning pass) for the `no_aow_mappings` empty-state UX once OQ-IM-10 is answered.
+- **Add** a follow-up task (**T-BIL-IM-16** — created in this update) for the `no_aow_mappings` empty-state UX once OQ-IM-10 is answered.
 - **Keep** OQ-IM-1 + OQ-IM-3 + bonus seed/taxonomy items as the remaining gates.
 
 ### 8.6 Remaining gate list (post-§8)

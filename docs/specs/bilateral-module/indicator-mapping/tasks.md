@@ -2,7 +2,7 @@
 
 > Execution units for [`./requirements.md`](./requirements.md) and [`./design.md`](./design.md). Follows the template at [`../../general-setup/task.md`](../../general-setup/task.md). Consumed by `/sdd-execute`.
 >
-> **Mockup-first tasks.** Every task cites the Figma node(s) it implements. Where a task depends on one of the three gating Open Questions (OQ-IM-1 / OQ-IM-2 / OQ-IM-3 from [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions)), the gate is called out explicitly — those tasks cannot start until the BA / backend team answers.
+> **Mockup-first tasks.** Every task cites the Figma node(s) it implements. The original three gating Open Questions (OQ-IM-1 / OQ-IM-2 / OQ-IM-3 from [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions)) have been narrowed to **two**: OQ-IM-2 was **RESOLVED on 2026-05-27** via the ToC backend audit ([`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received)). Each task's gating annotation has been updated accordingly. A new non-gating **OQ-IM-10** (empty-AOW UX) is tracked as T-BIL-IM-16.
 
 ---
 
@@ -20,10 +20,11 @@ When this task list completes: a Pool-Funding-eligible result with at least one 
 - [x] Alignment-section UX remediated against the mockups (T-BIL-IM-RR-01 below — completed).
 - [x] Path aliases (`@platform`, `@services`, `@interfaces`, `@shared`, `@sockets`) declared in [`tsconfig.json`](../../../../research-indicators/tsconfig.json) + [`jest.config.ts`](../../../../research-indicators/jest.config.ts).
 - [ ] **OQ-IM-1 — Contribution body shape** — **ESCALATED TO PO** (2026-05-26 backend reply). Backend won't simplify the body without PO retiring R-BIL-031 + D5 + D12. *(Gates T-BIL-IM-01, T-BIL-IM-04, T-BIL-IM-08, T-BIL-IM-09, T-BIL-IM-11.)* FE leans Path A per [`./open-questions-for-ba.md` §6.1](./open-questions-for-ba.md#61-oq-im-1--contribution-body-shape--findings); backend response at [`./open-questions-for-ba.md` §7.1](./open-questions-for-ba.md#71-backends-verdict-per-oq).
-- [ ] **OQ-IM-2 — AOW data source** — **ESCALATED TO BA** (2026-05-26 backend reply). Backend needs 3 BA answers: (a) is AOW a real CGIAR ToC level?, (b) source = CLARISA / PRMS / manual seed / admin?, (c) cardinality = 1:1 or m2m? *(Gates T-BIL-IM-01, T-BIL-IM-05, T-BIL-IM-10.)* FE leans Path A per [`./open-questions-for-ba.md` §6.2](./open-questions-for-ba.md#62-oq-im-2--aow-area-of-work-data-source--findings); backend response at [`./open-questions-for-ba.md` §7.1](./open-questions-for-ba.md#71-backends-verdict-per-oq).
+- [x] **OQ-IM-2 — AOW data source** — **RESOLVED 2026-05-27** via ToC backend audit ([`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received)). Backend already ships `GET .../hlos-indicators` (T-15.12 / commit `907993e7`) returning the SP → AOW → outcome/output → indicator tree pre-grouped. No backend AOW entity will be added; AOW comes live from CLARISA (1:1 cardinality, not persisted in ARI). The FE switches its modal data source to the new endpoint — **no longer gates** T-BIL-IM-01, T-BIL-IM-05, or T-BIL-IM-10. **Replaces** prior `IndicatorGroupResponse` typing with `BilateralHlosIndicatorsResponse` in T-BIL-IM-01.
 - [x] **OQ-IM-3 — Edit-mode pre-fill source** — **ACCEPTED by backend** (2026-05-26). Ships GET .../contribution route in ~½ day. *(Still functionally gates T-BIL-IM-04 + T-BIL-IM-08 until the route is live on `AC-1594-bilateral-module-v2`.)* FE leans Path A per [`./open-questions-for-ba.md` §6.3](./open-questions-for-ba.md#63-oq-im-3--edit-mode-pre-fill-get-contribution-endpoint--findings); backend response at [`./open-questions-for-ba.md` §7.1](./open-questions-for-ba.md#71-backends-verdict-per-oq).
 - [ ] **OQ-IM-4 — Reason taxonomy** — **NEWLY GATING** (2026-05-26 backend reply) once OQ-IM-1 Path A is approved. Backend reclassified OQ-IM-4 from non-gating → gating-once-Path-A-chosen because `reason_code` validation needs a finite enum. STAR's UX position recorded at [`./open-questions-for-ba.md` §7.4](./open-questions-for-ba.md#74-stars-open-follow-ups-where-the-fe-has-input). *(Gates T-BIL-IM-08 reason-dropdown options.)*
-- [ ] **Backend safe bundle** (OQ-IM-3 + `is_quantitative` + `disabled_reason`) shipped on `AC-1594-bilateral-module-v2` — needs BA seed list for `is_quantitative` + taxonomy alignment for `disabled_reason`. *(Unblocks typing work for T-BIL-IM-01 partial — `IndicatorRow` shape, `GET_PoolFundingContribution` method.)*
+- [ ] **OQ-IM-10 — `no_aow_mappings` empty-state UX** *(new, raised by §8 audit)* — non-gating. Tracked as T-BIL-IM-16. FE can ship a graceful default (flat list per SP) without sign-off; designer + BA confirm later.
+- [ ] **Backend safe bundle** (OQ-IM-3 + `is_quantitative` + `disabled_reason`) shipped on `AC-1594-bilateral-module-v2` — needs BA seed list for `is_quantitative` + taxonomy alignment for `disabled_reason`. **Note 2026-05-27**: the safe bundle targets the (now-deprecated) `IndicatorPanelIndicatorResponse`, not the new `PrmsTocIndicator` returned by `GET .../hlos-indicators`. Coordinate with backend so the bonus fields mirror onto `PrmsTocIndicator` (or a sibling enrichment DTO) before T-BIL-IM-09 starts — otherwise FE keeps deriving them client-side per `materializeRows` in `BilateralService`.
 
 ---
 
@@ -32,11 +33,12 @@ When this task list completes: a Pool-Funding-eligible result with at least one 
 ```
 T-BIL-IM-RR-01 (alignment-section mockup remediation) — ✅ COMPLETED out-of-band
 
-T-BIL-IM-01 (backend verification + interfaces + ApiService methods) — 🔒 GATED on OQ-IM-1/2/3
+T-BIL-IM-01 (backend verification + interfaces + ApiService methods) — 🔒 GATED on OQ-IM-1 + OQ-IM-3
     └─▶ T-BIL-IM-04 (BilateralService extension) — 🔒 OQ-IM-1/3
-            ├─▶ T-BIL-IM-05 (HloSelectionModalComponent — shell + sidebar + table) — 🔒 OQ-IM-2
-            │       └─▶ T-BIL-IM-06 (disabled indicator + reason callout)
-            │       └─▶ T-BIL-IM-07 (modal session-state + Cancel-confirm)
+            ├─▶ T-BIL-IM-05 (HloSelectionModalComponent — shell + sidebar + table) — ✅ UNGATED (2026-05-27)
+            │       ├─▶ T-BIL-IM-06 (disabled indicator + reason callout)
+            │       ├─▶ T-BIL-IM-07 (modal session-state + Cancel-confirm)
+            │       └─▶ T-BIL-IM-16 (no_aow_mappings empty-state UX) — non-gating, can ship default
             ├─▶ T-BIL-IM-08 (HloCardComponent — header / target / reason / ×) — 🔒 OQ-IM-1/3
             │       └─▶ T-BIL-IM-09 (Quantitative contribution row) — 🔒 OQ-IM-1
             └─▶ T-BIL-IM-11 (diff-and-batch Save) — 🔒 OQ-IM-1
@@ -53,14 +55,15 @@ T-BIL-IM-12 (lever-cascade refresh effect) — needs T-BIL-IM-04, T-BIL-IM-10
 T-BIL-IM-13 (telemetry) — needs T-BIL-IM-05, T-BIL-IM-10, T-BIL-IM-11
 T-BIL-IM-14 (AR.3 regression test) — independent (pure test)
 T-BIL-IM-15 (constitutional docs update) — last
+T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 ```
 
 **Parallel-safe groups**:
 
 - **Group A (no backend deps; can start immediately)**: T-BIL-IM-02, T-BIL-IM-03, T-BIL-IM-14.
-- **Group B (after OQ-IM-1/2/3 resolve)**: T-BIL-IM-01.
+- **Group B (after OQ-IM-1 + OQ-IM-3 resolve)**: T-BIL-IM-01. *(OQ-IM-2 no longer in the gate set per §8 audit.)*
 - **Group C (after T-BIL-IM-01)**: T-BIL-IM-04.
-- **Group D (after T-BIL-IM-04 + T-BIL-IM-02)**: T-BIL-IM-05, then -06, -07 in parallel.
+- **Group D (after T-BIL-IM-04 + T-BIL-IM-02)**: T-BIL-IM-05, then -06, -07, -16 in parallel.
 - **Group E (after T-BIL-IM-04)**: T-BIL-IM-08, then -09 layered on the card.
 - **Group F (after C + D + E)**: T-BIL-IM-10, T-BIL-IM-11, T-BIL-IM-12.
 - **Group G (last)**: T-BIL-IM-13, T-BIL-IM-15.
@@ -89,25 +92,26 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ### T-BIL-IM-01 — Backend verification + interfaces + 5 ApiService methods
 
-- **Status**: `pending — GATED on OQ-IM-1 + OQ-IM-2 + OQ-IM-3`
+- **Status**: `pending — GATED on OQ-IM-1 + OQ-IM-3`
 - **Size**: M
-- **Depends on**: none (other than the three gating OQs answered)
+- **Depends on**: none (other than the two remaining gating OQs answered)
 - **Discharges ACs**: enables every functional REQ (typing only).
 - **Touches**:
   - `src/app/shared/interfaces/bilateral/pool-funding-alignment.interface.ts` *(extend)*
   - `src/app/shared/services/api.service.ts` *(add 5 methods)*
   - `src/app/shared/services/api.service.spec.ts` *(extend)*
 - **Visual references**: shape only — no UI yet.
-- **Summary**: Add `IndicatorType`, `IndicatorRow`, `AreaOfWorkGroup`, `IndicatorGroupResponse`, `HloMapping`, `ContributionBody` (shape per OQ-IM-1 resolution), `MappingResponse`, `HloModalSelectionKey`, `HloKeyString` to the shared interface file. Add five new methods on `ApiService`: `GET_PoolFundingIndicators(resultCode, opts)`, `GET_PoolFundingContribution(resultCode, indicatorCode, leverCode)`, `POST_PoolFundingContribution`, `PATCH_PoolFundingContribution`, `DELETE_PoolFundingContribution`. All use the existing `bilateralPath()` helper (so `v1/` prefix + STAR- strip are inherited).
+- **Summary**: Add `BilateralHlosAowStatus`, `PrmsTocIndicator`, `PrmsTocResult`, `BilateralHlosPair`, `BilateralHlosIndicatorsResponse` (mirrors backend DTO at `src/domain/entities/bilateral/dto/bilateral-hlos-indicators.response.dto.ts`), plus `IndicatorType`, `IndicatorRow` (derived view-model — see design.md §2.1), `HloMapping`, `ContributionBody` (shape per OQ-IM-1 resolution), `MappingResponse`, `HloModalSelectionKey`, `HloKeyString`. Add five new methods on `ApiService`: `GET_PoolFundingHlosIndicators(resultCode)`, `GET_PoolFundingContribution(resultCode, indicatorCode, leverCode)`, `POST_PoolFundingContribution`, `PATCH_PoolFundingContribution`, `DELETE_PoolFundingContribution`. All use the existing `bilateralPath()` helper (so `v1/` prefix + STAR- strip are inherited).
 - **Implementation notes**:
   - Bodies + URL helpers verbatim per [`./design.md` §3.1](./design.md#31-apiservice-additions). Reuses the bilateralPath helper from tag-visibility/alignment-section work.
+  - **The `IndicatorGroupResponse` / `AreaOfWorkGroup` types from earlier drafts are NOT to be added** — per [`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received), the backend does not expose that catalog endpoint. Use `BilateralHlosIndicatorsResponse` exclusively.
   - **Pre-flight verification (do this FIRST)**:
     - Open Swagger UI per [`../ari-backend-context/frontend-handoff.md` §10](../ari-backend-context/frontend-handoff.md#10-local-development-tips).
     - Confirm OQ-IM-1 answer reflected in the actual contribution-endpoint payload schema.
-    - Confirm OQ-IM-2 answer — does `IndicatorGroupResponse` include `areas_of_work: AreaOfWorkGroup[]`, or only `indicators: IndicatorRow[]`? If only the flat list, document the code-prefix inference fallback in `tasks.md` §9 Open Items.
-    - Confirm OQ-IM-3 — does `GET .../contribution?lever-code=` exist? If not, escalate before continuing.
+    - Confirm the `GET .../hlos-indicators` shape against the live backend DTO file `bilateral-hlos-indicators.response.dto.ts` on `AC-1594-bilateral-module-v2` (commit `907993e7` or later). Copy the DTO verbatim into our interface file; do NOT paraphrase field names (especially `unit_messurament` — the backend mirrors the upstream PRMS spelling).
+    - Confirm OQ-IM-3 — does `GET .../contribution?lever-code=` exist on `AC-1594-bilateral-module-v2`? Backend accepted in §7.1 and committed to ~½ day; verify the route is live before T-BIL-IM-04 starts.
     - **None of these can be assumed**; if any disagrees with the spec, **pause and reconcile** with the BA before writing code.
-- **Tests to add/update**: `api.service.spec.ts` — 5+ cases: URL shape, query-param serialization for `GET_PoolFundingIndicators`, `?lever-code=...` encoding, body shape for POST/PATCH, no-body DELETE.
+- **Tests to add/update**: `api.service.spec.ts` — 5+ cases: URL shape for `GET_PoolFundingHlosIndicators` (result-scoped, no query params), `?lever-code=...` encoding on contribution routes, body shape for POST/PATCH, no-body DELETE, `MainResponse<BilateralHlosIndicatorsResponse>` envelope shape.
 - **Done when**: `npm run lint`, `npm run test -- api.service`, `npm run build` all clean. Backend verification findings recorded in PR description.
 - **Relevant skills**: `angular-developer`, `api-design-principles`, `systematic-debugging` (for the Swagger audit).
 
@@ -165,13 +169,14 @@ T-BIL-IM-15 (constitutional docs update) — last
   - `src/app/shared/services/bilateral.service.ts` *(extend)*
   - `src/app/shared/services/bilateral.service.spec.ts` *(extend)*
 - **Visual references**: none (service layer); but the data flow it powers is rendered by `32471:131617`, `33356:11075`, `33563:138613`, `33563:137770`, `32472:129409`.
-- **Summary**: Add `indicatorGroups`, `persistedMappings`, `pendingMappings`, `hloModalSelection`, `loadingIndicators`, `savingMappings`, `indicatorSearch`, `indicatorTypeFilter` signals; `getIndicators`, `getMappings`, `loadModalSelection`, `commitModalSelection`, `cancelModalSelection`, `updateMappingField`, `removeMapping`, `saveMappings` methods. Reuses `editable` computed from alignment-section.
+- **Summary**: Add `hlosIndicators` (signal), `indicatorRows` (computed view-model via `materializeRows`), `persistedMappings`, `pendingMappings`, `hloModalSelection`, `loadingHlos`, `savingMappings`, `indicatorSearch` signals; `getHlosIndicators`, `getMappings`, `loadModalSelection`, `commitModalSelection`, `cancelModalSelection`, `updateMappingField`, `removeMapping`, `saveMappings`, and the private `materializeRows` / `deriveIndicatorType` / `composeTarget` / `inferQuantitative` helpers. Reuses `editable` computed from alignment-section.
 - **Implementation notes**:
   - Implementation body verbatim per [`./design.md` §4.4.1](./design.md#441-extended--bilateralservice).
   - `saveMappings` order: **DELETE → POST → PATCH**, stops on first 409, returns `SaveMappingsResult` discriminated union with `failedKey` so the calling component can pin the inline error to the right HLO card.
   - `bodyOf()` mapper depends on OQ-IM-1 resolution. The provisional shape in design §2.1 is the placeholder.
-  - `getContribution` depends on OQ-IM-3 — the FE shouldn't call it if the backend doesn't expose it (fall back to embedding contribution body in the panel GET).
-- **Tests**: ~12 cases covering signal toggles, query-param composition, diff correctness (added/updated/removed buckets), stop-on-409, `failedKey` propagation on 400/5xx.
+  - `getContribution` depends on OQ-IM-3 — the FE shouldn't call it if the backend doesn't expose it (fall back to omitting edit-mode pre-fill until the route is live).
+  - `materializeRows` is the single seam translating the wire shape (`BilateralHlosIndicatorsResponse`) into the FE view model (`IndicatorRow[]`). If backend later adds per-row `is_quantitative` / `disabled_reason` on `PrmsTocIndicator`, replace the derivation with direct reads — no other component touches the nested shape.
+- **Tests**: ~14 cases covering signal toggles, `materializeRows` correctness (flat-list output from nested input; `is_mapped` join against persisted), `aow_status` propagation, diff correctness (added/updated/removed buckets), stop-on-409, `failedKey` propagation on 400/5xx, empty `pairs[]` → empty rows, `no_aow_mappings` row keys use empty `area_of_work`.
 - **Done when**: service ≥ 90% statements; existing alignment-section + tag-visibility tests still pass.
 - **Relevant skills**: `angular-developer`, `error-handling-patterns`.
 
@@ -179,7 +184,7 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ### T-BIL-IM-05 — `HloSelectionModalComponent` shell + sidebar + table
 
-- **Status**: `pending — GATED on OQ-IM-2`
+- **Status**: `pending` *(UNGATED 2026-05-27 — was previously gated on OQ-IM-2; resolved via §8 ToC backend audit)*
 - **Size**: L
 - **Depends on**: T-BIL-IM-02, T-BIL-IM-04
 - **Discharges ACs**: REQ-BIL-IM-02, REQ-BIL-IM-03, REQ-BIL-IM-05.
@@ -190,15 +195,20 @@ T-BIL-IM-15 (constitutional docs update) — last
   - [`../figma-mockups/33563-137770-hlo-modal-3-items-selected.md`](../figma-mockups/33563-137770-hlo-modal-3-items-selected.md) — 3 items selected; per-AOW selection-count badge; per-row commit button.
 - **Summary**: Wide modal (1277×1113 per mockup) with:
   1. **Header**: title "High Level Outputs" + close (×).
-  2. **Left sidebar** (256 wide): selected SPs → expandable AOWs; active AOW highlighted (`Light Blue-100`); per-AOW selection-count badge bound to `hloModalSelection.size`.
-  3. **Main pane**: breadcrumb (`SP > AOW`), search input (debounced 300 ms), indicator table per active AOW with checkbox + per-row commit button + selection state (background `Light Blue-100`).
+  2. **Left sidebar** (256 wide): SPs derived from `hlosIndicators().pairs[].program` (already scoped to the result's CLARISA project mappings) → expandable AOWs from each pair's `area_of_work`. Active AOW highlighted (`Light Blue-100`); per-AOW selection-count badge bound to `hloModalSelection.size`.
+  3. **Main pane**: breadcrumb (`SP > AOW`), search input (debounced 300 ms, client-side filter over `indicatorRows()`), indicator table per active pair built from `outcomes[] ∪ outputs[]` via `materializeRows` + active-pair filter; selection state (background `Light Blue-100`) reflects `hloModalSelection`.
   4. **Footer**: `Selected → N items` counter (left) + Cancel + Confirm (right).
 - **Implementation notes**:
   - Imports: `CommonModule`, `FormsModule`, `InputTextModule`, `CheckboxModule`, `ButtonModule`, `BadgeModule`, `TooltipModule`, `SkeletonModule`.
-  - Empty states (one-liner per AC-14 / AC-05.3 / AC-05.4): catalog not synced; active AOW empty; search empty in active AOW.
-  - Search input syncs to `BilateralService.indicatorSearch` via a 300 ms debounced effect.
-  - **`data-testid`**: `hlo-modal-root`, `hlo-modal-sidebar`, `hlo-modal-aow-{leverCode}-{aowCode}`, `hlo-modal-aow-badge-{...}`, `hlo-modal-row-{leverCode}-{aowCode}-{indicatorCode}`, `hlo-modal-row-checkbox-{...}`, `hlo-modal-row-commit-{...}`, `hlo-modal-counter`, `hlo-modal-confirm`, `hlo-modal-cancel`.
-- **Tests**: ~10 cases — sidebar lists selected_levers; AOW expand toggles; active-AOW switch updates main pane; per-row commit toggles selection + counter + AOW badge; empty states; search debounce → fetch.
+  - **Data source**: the modal consumes `bilateralService.hlosIndicators()` (raw response) for the sidebar tree and `bilateralService.indicatorRows()` (derived flat view) for the main table. Never traverse `pairs[].outcomes[].indicators[]` directly in the template — go through the service.
+  - **`aow_status` handling** (per design.md §4.2.2):
+    - `'unmapped'` → blocking message in main pane; sidebar empty; Confirm disabled.
+    - `'no_aow_mappings'` → ship the **default (a)** UX from OQ-IM-10: flat list per SP with no AOW intermediate level. Use `area_of_work === ''` as the empty-AOW token for keys. Wire it explicitly even though OQ-IM-10 is non-gating — leaves nothing to redo if BA picks (a). Track in **T-BIL-IM-16** for any refinement once BA + designer confirm.
+    - `'has_aow'` → canonical SP → AOW → indicators tree.
+  - Other empty states (one-liner per AC-14 / AC-05.3 / AC-05.4): pairs `[]` (cache miss); active AOW has no indicators; search returns empty in active AOW.
+  - Search input syncs to `BilateralService.indicatorSearch` via a 300 ms debounced effect. Note: search is client-side (filters `indicatorRows()`); the backend endpoint doesn't accept a `search` param today.
+  - **`data-testid`**: `hlo-modal-root`, `hlo-modal-sidebar`, `hlo-modal-aow-{program}-{area_of_work}`, `hlo-modal-aow-badge-{...}`, `hlo-modal-row-{program}-{area_of_work}-{indicator_id}`, `hlo-modal-row-checkbox-{...}`, `hlo-modal-row-commit-{...}`, `hlo-modal-counter`, `hlo-modal-confirm`, `hlo-modal-cancel`, `hlo-modal-empty-unmapped`, `hlo-modal-empty-no-aow`, `hlo-modal-empty-pairs`.
+- **Tests**: ~12 cases — sidebar lists pairs[].program once each; AOW expand toggles; active-AOW switch updates main pane; per-row commit toggles selection + counter + AOW badge; `aow_status='unmapped'` blocks Confirm; `aow_status='no_aow_mappings'` renders flat-per-SP list with empty `area_of_work`; `pairs:[]` empty-state; search filters client-side (no fetch); 5-min cache means second-open within window shouldn't re-fetch (assert spy count = 1 unless explicit refresh).
 - **Done when**: Coverage ≥ 70% on the component; manual smoke matches `32471:131617` at 1440px; `ng build` clean.
 - **Relevant skills**: `angular-developer`, `frontend-design`, `ui-ux-pro-max`.
 
@@ -206,7 +216,7 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ### T-BIL-IM-06 — Disabled-indicator row with inline reason callout
 
-- **Status**: `pending` *(no extra backend deps once T-BIL-IM-01 lands — the `disabled_reason` field is part of the spec'd `IndicatorRow` shape)*
+- **Status**: `pending` *(partially blocked — see below)*
 - **Size**: S
 - **Depends on**: T-BIL-IM-05
 - **Discharges ACs**: REQ-BIL-IM-04.
@@ -215,11 +225,12 @@ T-BIL-IM-15 (constitutional docs update) — last
 - **Visual references**: [`../figma-mockups/33563-138613-hlo-modal-disabled-reason.md`](../figma-mockups/33563-138613-hlo-modal-disabled-reason.md) — disabled row state with 259×26 callout `This indicator cannot be mapped to this result because <reason>`.
 - **Summary**: When `IndicatorRow.disabled_reason !== null` OR (`is_stale=true && !is_mapped`), render the row greyed-out and non-interactive. Place the reason callout inline near the row.
 - **Implementation notes**:
-  - Reason text MUST be in the DOM (not hover-only) so screen readers announce it — bind via `aria-describedby="reason-{indicator_code}"`.
+  - **2026-05-27 caveat**: per [`./open-questions-for-ba.md` §8.3 #5–6](./open-questions-for-ba.md#83-cascading-impact-on-the-fe-design), the new `GET .../hlos-indicators` endpoint returns `PrmsTocIndicator` (raw PRMS shape) — it does NOT carry `disabled_reason` or `is_stale` per row. `IndicatorRow.disabled_reason` is therefore `null` for all rows until backend mirrors the safe-bundle `disabled_reason` field onto `PrmsTocIndicator` (or a sibling enrichment wrapper). `IndicatorRow.is_stale` is computed only on persisted `HloMapping` rows (the catalog row stays `false`). **Until the bonus fields land on the HLOs endpoint, this task can ship the rendering primitive but won't trigger in production data.** Coordinate with backend before merging — confirm the planned shape.
+  - Reason text MUST be in the DOM (not hover-only) so screen readers announce it — bind via `aria-describedby="reason-{indicator_id}"`.
   - Stale-but-unmapped uses the canonical stale copy: `"This indicator was retired in the upstream catalog. Existing mappings are preserved; new mappings are not accepted."` Otherwise the server-provided `disabled_reason` is used verbatim.
   - **`data-testid`**: `hlo-modal-row-disabled-{...}`, `hlo-modal-row-reason-{...}`.
-- **Tests**: 4 cases — disabled row not clickable, checkbox/commit non-interactive, reason in DOM with `aria-describedby`, stale-but-unmapped uses the canonical stale copy.
-- **Done when**: coverage ≥ 70% on the disabled-row branch; manual a11y check (keyboard focus reveals reason).
+- **Tests**: 4 cases — disabled row not clickable, checkbox/commit non-interactive, reason in DOM with `aria-describedby`, stale-but-unmapped uses the canonical stale copy. Use fixture rows with hand-crafted `disabled_reason` / `is_stale` values (since the live endpoint won't yet populate them).
+- **Done when**: coverage ≥ 70% on the disabled-row branch; manual a11y check (keyboard focus reveals reason). Document the backend-side gap in the PR description.
 - **Relevant skills**: `angular-developer`, `frontend-design`.
 
 ---
@@ -299,11 +310,16 @@ T-BIL-IM-15 (constitutional docs update) — last
   1. `<app-bilateral-action-card>` when `has_contribution=true && selected_levers.length >= 1 && pendingMappings.length === 0`.
   2. A "Manage HLO mappings" collapsed link when `pendingMappings.length > 0` (OQ-IM-7 — `tasks.md` §9 follow-up if design QA prefers the full card always).
   3. The HLO cards container — iterates `pendingMappings` grouped by `lever_code → aow_code` with the SP icon header + AOW uppercase subheader pattern.
-  4. Catalog-empty fallback: when `indicatorGroups` is fetched but every group's `indicators` is empty, the AI card body switches to "The Theory of Change catalog has not been synced yet…" (REQ-BIL-IM-14).
+  4. **`aow_status`-aware copy on the AI card** (per design.md §4.2.2):
+     - `aow_status === 'unmapped'` → AI card body: `"This result isn't linked to a CLARISA project yet. Contact the bilateral operations team to register the project mapping before mapping HLOs."` CTA disabled.
+     - `aow_status === 'no_aow_mappings'` → AI card body: `"The CLARISA project has Science Program mappings but no Area of Work breakdown. You can still pick HLOs — they'll be grouped by Science Program only."` CTA enabled.
+     - `pairs.length === 0` (cache miss / upstream error) → AI card body: `"The Theory of Change catalog is temporarily unavailable. Try again in a few minutes."` CTA disabled (REQ-BIL-IM-14 spirit, adapted to the new endpoint shape).
+     - `aow_status === 'has_aow'` → canonical mockup copy.
 - **Implementation notes**:
   - Hook AI card `(ctaClick)` to `hloSelectionModalContextService.setContext({...})` then `allModalsService.openModal('hloSelection')`.
+  - **Preload pattern**: trigger `bilateralService.getHlosIndicators(resultCode)` on alignment-form mount (not just on CTA click), so the user's first modal open avoids the upstream cache-miss latency (R-11). Reactive — fires once per resultCode, gated by an internal flag.
   - Grouping helper: pure function over `pendingMappings` that returns `{ lever, aows: { aow, mappings }[] }[]`. Add unit test for the grouping logic.
-- **Tests**: 6 cases — AI card visible only when has_contribution=true + levers exist + no mappings yet; collapsed link visible when mappings exist; CTA click opens modal with the right context; HLO cards rendered grouped SP → AOW; catalog-empty copy substitution; read-only hides the AI card + × buttons.
+- **Tests**: 8 cases — AI card visible only when has_contribution=true + levers exist + no mappings yet; collapsed link visible when mappings exist; CTA click opens modal with the right context; HLO cards rendered grouped SP → AOW; each `aow_status` branch surfaces the right copy + CTA enabled/disabled state; preload triggers `getHlosIndicators` on mount; read-only hides the AI card + × buttons.
 - **Done when**: coverage ≥ 70% on the new template branches; manual smoke from a Pool-Funding-eligible result.
 - **Relevant skills**: `angular-developer`, `frontend-design`, `ui-ux-pro-max`.
 
@@ -390,6 +406,29 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ---
 
+### T-BIL-IM-16 — `no_aow_mappings` empty-state UX
+
+- **Status**: `pending` *(non-gating — created 2026-05-27 to track OQ-IM-10)*
+- **Size**: S
+- **Depends on**: T-BIL-IM-05 (foundation), T-BIL-IM-10 (AI card copy)
+- **Discharges ACs**: OQ-IM-10 (new — design refinement once BA + designer answer).
+- **Touches**:
+  - `hlo-selection-modal.component.{html,scss,spec.ts}` *(refine)*
+  - `pool-funding-alignment.component.{html,spec.ts}` *(refine AI card copy if BA picks option ≠ (a))*
+- **Visual references**: none yet — pending designer pass.
+- **Summary**: Refine the empty-AOW UX once BA + designer answer OQ-IM-10 ([`./open-questions-for-ba.md` §4](./open-questions-for-ba.md#4-non-gating-open-questions-decide-during-design-not-blocking)). The §8 audit shows 28 of 31 TEST bilateral projects today carry `aow_status: 'no_aow_mappings'` — so this is potentially the dominant flow, not a corner case. T-BIL-IM-05 ships the **default (a)** (flat indicator list per SP with no AOW intermediate level). T-BIL-IM-16 picks up whichever variant BA picks:
+  - **(a) FE default — flat list per SP**: nothing to do; close as resolved-via-default.
+  - **(b) Show outcomes/outputs without AOW intermediate**: refactor the main pane to render `outcomes[] ∪ outputs[]` directly without the AOW header band; adjust selection key shape to drop `area_of_work`.
+  - **(c) Block the modal with a CTA**: replace the main pane with a centered "this result's CLARISA project needs AOW mappings…" message + a link/CTA to the bilateral operations team's intake (out of FE scope to wire the CTA target — escalate).
+- **Implementation notes**:
+  - When BA answers, capture the canonical copy in `tasks.md` §9 and update REQ-BIL-IM (likely a new -19 acceptance criterion) before refactoring.
+  - Add a telemetry dimension `aow_status` on `bilateral.hlo.modal.opened` so post-launch we can measure the production prevalence of each status value (data needed to validate the default was the right call).
+- **Tests**: ~4 cases — covers the chosen variant's render + interaction.
+- **Done when**: BA + designer sign-off; canonical copy in spec; visual matches the refined mockup (if (c)).
+- **Relevant skills**: `angular-developer`, `frontend-design`, `ui-ux-pro-max`.
+
+---
+
 ### T-BIL-IM-15 — Constitutional docs update
 
 - **Status**: `pending`
@@ -457,13 +496,16 @@ T-BIL-IM-15 (constitutional docs update) — last
 
 ## 9. Open items
 
-- **OI-IM-1 — Gating OQs unresolved**. OQ-IM-1 (body shape), OQ-IM-2 (AOW source), OQ-IM-3 (edit-mode GET) all need answers before Group B+ can start. Tracked in [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions). **2026-05-26 (early) update**: FE-side audit of the backend repo grounded all three in actual code and recorded FE-recommended paths (all Path A) in [`./open-questions-for-ba.md` §6](./open-questions-for-ba.md#6-backend-code-findings--2026-05-26-fe-side-audit--recommendations). **2026-05-26 (late) update — backend reply received**: snapshotted at [`../ari-backend-context/backend-response-to-fe.md`](../ari-backend-context/backend-response-to-fe.md); summary at [`./open-questions-for-ba.md` §7](./open-questions-for-ba.md#7-backend-reply--2026-05-26-received). Net result:
-  - **OQ-IM-3 ACCEPTED** by backend; ~½ day to ship as part of a "safe bundle" alongside `is_quantitative` + `disabled_reason`.
-  - **Bonus `is_stale` already shipped** on `IndicatorPanelIndicatorResponse:29` — FE can consume immediately.
-  - **OQ-IM-1 ESCALATED TO PO** — backend won't act without PO retiring R-BIL-031 + D5 + D12.
-  - **OQ-IM-2 ESCALATED TO BA** — backend needs 3 sub-answers on AOW (taxonomy reality / source / cardinality).
-  - **OQ-IM-4 reclassified as gating-once-Path-A-approved** by backend.
-  - **Fallback**: if PO/BA stalls beyond ~1 week, FE ships US3/US4 against the current polymorphic shape (Phase 1) and revisits simplification in Phase 2.
+- **OI-IM-1 — Gating OQs (updated 2026-05-27)**. OQ-IM-1 (body shape) + OQ-IM-3 (edit-mode GET) are the remaining gates. Tracked in [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions). History:
+  - **2026-05-26 (early)** — FE-side audit of the backend repo grounded all three in actual code, recommended Path A for each ([`./open-questions-for-ba.md` §6](./open-questions-for-ba.md#6-backend-code-findings--2026-05-26-fe-side-audit--recommendations)).
+  - **2026-05-26 (late)** — backend reply ([`../ari-backend-context/backend-response-to-fe.md`](../ari-backend-context/backend-response-to-fe.md), summary [`./open-questions-for-ba.md` §7](./open-questions-for-ba.md#7-backend-reply--2026-05-26-received)):
+    - **OQ-IM-3 ACCEPTED** by backend; ~½ day to ship as part of a "safe bundle" alongside `is_quantitative` + `disabled_reason`.
+    - **Bonus `is_stale` already shipped** on `IndicatorPanelIndicatorResponse:29` — but **note** (per §8 audit) this lives on a now-unused endpoint; staleness for the new flow comes from persisted `HloMapping.is_stale`.
+    - **OQ-IM-1 ESCALATED TO PO** — backend won't act without PO retiring R-BIL-031 + D5 + D12.
+    - **OQ-IM-2 escalated to BA** at that point — overtaken by the 2026-05-27 audit (see next bullet).
+    - **OQ-IM-4 reclassified as gating-once-Path-A-approved** by backend.
+  - **2026-05-27 — ToC backend audit** ([`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received)) **RESOLVES OQ-IM-2** by switching to the already-shipped `GET .../hlos-indicators` endpoint. New non-gating **OQ-IM-10** (`no_aow_mappings` UX) tracked as T-BIL-IM-16. Backend safe-bundle fields (`is_quantitative`, `disabled_reason`) need to mirror onto `PrmsTocIndicator` — coordinate before T-BIL-IM-09 starts.
+  - **Fallback**: if PO stalls on OQ-IM-1 beyond ~1 week, FE ships US3/US4 against the current polymorphic shape (Phase 1) and revisits simplification in Phase 2.
 - **OI-IM-2 — `app-info-banner` shared component**. The IP Rights / Pool funding alignment info-banner pattern is now duplicated; promoting it to `src/app/shared/components/info-banner/` is a worthwhile small follow-up. Not gated by anything — could be done as a parallel cleanup any time. (Flagged after the mockup audit on 2026-05-24.)
 - **OI-IM-3 — Backend sort on `pool-funding-contributor`**. The FE sends the right URL (`order-field=pool-funding-contributor`) but the backend doesn't visibly reorder rows on the `current-user=false` path. Backend team to verify the sort dispatcher includes this column. Not blocking; filter works.
 - **OI-IM-4 — CGSpace / MQAP for `knowledge_product`** (D9 partial Phase 2). Out of scope for the mockup-first design; reopen if the OQ-IM-1 resolution requires per-type forms.
@@ -476,12 +518,12 @@ T-BIL-IM-15 (constitutional docs update) — last
 | ID | Title | Size | Depends on | Gating OQ | Status |
 | --- | --- | --- | --- | --- | --- |
 | T-BIL-IM-RR-01 | Alignment-section mockup remediation (RR-A..I) | M | — | — | **completed** (2026-05-23 → 2026-05-24) |
-| T-BIL-IM-01 | Backend verification + interfaces + 5 ApiService methods | M | — | OQ-IM-1/2/3 | pending — GATED |
+| T-BIL-IM-01 | Backend verification + interfaces + 5 ApiService methods | M | — | OQ-IM-1 + OQ-IM-3 | pending — GATED |
 | T-BIL-IM-02 | `ModalName 'hloSelection'` + `HloSelectionModalContextService` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | pending — GATED |
-| T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | OQ-IM-2 | pending — GATED |
-| T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending |
+| T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | ~~OQ-IM-2~~ ungated 2026-05-27 | pending |
+| T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending *(partially blocked — `disabled_reason` not on new endpoint)* |
 | T-BIL-IM-07 | Modal session-state + Cancel-confirm dialog | S | T-BIL-IM-05 | — | pending |
 | T-BIL-IM-08 | `HloCardComponent` — header + target + reason + × | L | T-BIL-IM-04 | OQ-IM-1/3 | pending — GATED |
 | T-BIL-IM-09 | Quantitative contribution row (conditional) | S | T-BIL-IM-08 | OQ-IM-1 | pending — GATED |
@@ -491,3 +533,4 @@ T-BIL-IM-15 (constitutional docs update) — last
 | T-BIL-IM-13 | Telemetry events (Clarity) | S | T-BIL-IM-05, T-BIL-IM-10, T-BIL-IM-11 | — | pending |
 | T-BIL-IM-14 | AR.3 regression test (mappings don't block submission) | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-15 | Constitutional docs update | S | T-BIL-IM-10, T-BIL-IM-11, T-BIL-IM-13 | — | pending |
+| T-BIL-IM-16 | `no_aow_mappings` empty-state UX *(non-gating)* | S | T-BIL-IM-05, T-BIL-IM-10 | OQ-IM-10 | pending *(new — created 2026-05-27)* |
