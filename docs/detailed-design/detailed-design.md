@@ -146,6 +146,7 @@ The client should **never** parse a raw `T` — always go through `MainResponse<
 - `GET /projects`, `GET /contracts`, `GET /metadata`
 - `PATCH /agresso/contracts/:code/pool-funding-tag` — Center Admin / System Admin override of the bilateral Pool Funding tag (spec: [`../specs/bilateral-module/tag-visibility/`](../specs/bilateral-module/tag-visibility/)).
 - `GET /results/:resultCode/pool-funding-alignment`, `PATCH /results/:resultCode/pool-funding-alignment` — Pool Funding Alignment read + write (eligible bilateral results only; PATCH returns 409 once synced to PRMS; spec: [`../specs/bilateral-module/alignment-section/`](../specs/bilateral-module/alignment-section/)).
+- `GET /results/:resultCode/pool-funding-alignment/hlos-indicators` — **(backend live on `AC-1594-bilateral-module-v2`; FE consumer pending T-BIL-IM-01)** result-scoped HLOs + indicators tree (SP → AOW → outcome/output → indicator), pre-grouped via `pairs[]` with `aow_status` discriminator (`'unmapped' | 'no_aow_mappings' | 'has_aow'`). Sourced **live** from CLARISA + PRMS through a 5-min backend cache — not persisted in ARI. AOW comes through transitively from each result's `bilateral_project_mapping`. Replaces the originally planned catalog-wide indicators GET. Spec: [`../specs/bilateral-module/indicator-mapping/`](../specs/bilateral-module/indicator-mapping/); audit: [`../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md` §8](../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received).
 
 ### 4.4 Client contract rules
 
@@ -341,6 +342,7 @@ Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client
 - CLARISA endpoints stay stable across versions; client-side caching is safe.
 - Cognito region/userpool configuration is supplied via `environment*.ts` at build/deploy time.
 - WebSocket gateway is hosted on the same domain (or a CORS-permitted one) and uses transports compatible with `ngx-socket-io` 4.x.
+- *(2026-05-27 — applies once T-BIL-IM-01 ships)* The bilateral indicator-mapping flow assumes the backend's HLOs-indicators endpoint performs the upstream CLARISA + PRMS reads server-side with its own 5-min cache. The FE does **not** cache the response itself; every modal open re-hits the backend (cache hit ≈ a few ms; cache miss pays the upstream call cost on first open per result per 5-min window). If backend cache TTL changes, FE preload pattern in `PoolFundingAlignmentComponent` may need re-tuning.
 
 ### 11.4 Known technical debt / future work
 
@@ -349,3 +351,4 @@ Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client
 - No first-class error-reporting integration (Sentry-like).
 - No e2e suite; consider Playwright if the surface grows.
 - `ngsw-config.json` currently has no asset/data groups defined — service worker is effectively a no-op for offline.
+- *(2026-05-27)* Bilateral indicator-mapping's per-row enrichment fields — `is_quantitative`, `disabled_reason` — are derived client-side in `BilateralService.materializeRows()` because the backend's safe-bundle additions (per [`../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md` §7.1](../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md#71-backends-verdict-per-oq)) target `IndicatorPanelIndicatorResponse`, which the new flow does not consume. When backend mirrors the fields onto `PrmsTocIndicator` (or a sibling enrichment DTO), the derivation in `materializeRows()` should be replaced with direct reads — single seam, single PR.
