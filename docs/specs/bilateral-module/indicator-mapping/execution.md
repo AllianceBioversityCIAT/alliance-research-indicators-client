@@ -91,8 +91,36 @@
 
 ---
 
+### Entry 5 — Specification update (NOT a `/sdd-execute` run) — endpoint switch to T-15.12 hlos-indicators
+
+| Field | Value |
+| --- | --- |
+| Status | ✅ docs-only — no production code touched |
+| Dates | 2026-05-27 |
+| Method | Manual spec rewiring across the four spec files, triggered by a backend audit run from a sibling Claude Code session in the ARI backend repo (`alliance-research-indicators-main`, branch `AC-1594-bilateral-module-v2`). |
+| Commits | `49544273` (`open-questions-for-ba.md` §8 ToC backend audit + OQ-IM-10), `5fa5c4a4` (`design.md` + `tasks.md` rewire for the new endpoint), `ec658325` (`requirements.md` alignment + new REQ-BIL-IM-19). |
+| Files changed | `docs/specs/bilateral-module/indicator-mapping/open-questions-for-ba.md`, `design.md`, `tasks.md`, `requirements.md`. No code under `research-indicators/src/`. |
+| Why this entry exists | `/sdd-execute` consumers reading this log need to know that **the spec interpretation of OQ-IM-2 + the catalog GET endpoint shifted between Entry 4 and the next code execution**. Without this entry, the next contributor would read tasks T-BIL-IM-01 / -04 / -05 and not understand why the wire shape, signal names, and gating differ from earlier drafts. |
+| Decisions | <ul><li>**OQ-IM-2 RESOLVED** via existing backend ship (T-15.12 / commit `907993e7`). The backend already exposes a result-scoped `GET /api/v1/results/:resultCode/pool-funding-alignment/hlos-indicators` endpoint that returns the SP → AOW → outcome/output → indicator tree pre-grouped via `pairs[]`, sourced live from CLARISA + PRMS (5-min cache, not persisted). No backend AOW entity will be added; AOW is a CLARISA level-2 entity (`prefix=AOW`, parent SP) read transitively from each result's `bilateral_project_mapping`.</li><li>**Catalog wire shape**: planned `IndicatorGroupResponse` / `AreaOfWorkGroup` / wire-`IndicatorRow` types **withdrawn**. New types mirror the backend DTO (`BilateralHlosIndicatorsResponse`, `BilateralHlosPair`, `PrmsTocResult`, `PrmsTocIndicator`, `BilateralHlosAowStatus`). `IndicatorRow` reframed as a derived FE view-model computed via a private `materializeRows` helper on `BilateralService`.</li><li>**T-BIL-IM-05 ungated** (was previously chained on OQ-IM-2). T-BIL-IM-01 + T-BIL-IM-04 gating reduced to OQ-IM-1 + OQ-IM-3 (no OQ-IM-2 in the gate set).</li><li>**New non-gating OQ-IM-10** for the `no_aow_mappings` empty-state UX (28 of 31 TEST bilateral projects today carry this status — potentially the dominant flow). FE ships a graceful default (flat list per SP — see REQ-BIL-IM-19). Tracked as **T-BIL-IM-16** (new task).</li><li>**Per-row enrichment gap**: the bonus backend fields from §7.1 (`is_quantitative`, `disabled_reason`) target the now-unused `IndicatorPanelIndicatorResponse`, not `PrmsTocIndicator`. Backend needs to mirror them onto `PrmsTocIndicator` (or a sibling enrichment DTO) before T-BIL-IM-09 (Quantitative row) starts. Until then, FE derives `is_quantitative` from PRMS `type_name` inside `materializeRows`; `disabled_reason` stays `null`; `is_stale` is sourced from persisted `HloMapping.is_stale` only.</li><li>**Endpoint is result-scoped**, not catalog-wide — first modal open per result pays the upstream cache-miss cost. Preload pattern: trigger `getHlosIndicators` on alignment-form mount (added to T-BIL-IM-10).</li></ul> |
+| Issues encountered | One inconsistency self-introduced and self-fixed mid-pass: the §8.5 follow-up note initially said "T-BIL-IM-12, to be created" but T-BIL-IM-12 was already taken (lever-cascade refresh effect). Renamed to T-BIL-IM-16 in both `open-questions-for-ba.md` §8.5 and in the new task definition in `tasks.md` §4 / §10. |
+| Verification | No code, no tests, no `ng build`. Verified via `grep` sweeps across the four files for stale references to `IndicatorGroupResponse`, `GET_PoolFundingIndicators`, `OQ-IM-2`, `T-31`, "ToC catalog not yet synced" — each lingering reference either updated or explicitly preserved with a `2026-05-27` note explaining the change. |
+| What this unblocks for `/sdd-execute` | T-BIL-IM-05 can now start in parallel with OQ-IM-1 resolution (it was previously blocked behind OQ-IM-2). T-BIL-IM-01's interface work is also no longer blocked by OQ-IM-2; only OQ-IM-1 + OQ-IM-3 remain. Group A (T-BIL-IM-02 / -03 / -14 — done) is unaffected. T-BIL-IM-16 enters Group D as a non-gating sibling of T-BIL-IM-06 / -07. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
 
-**Status**: 4 of 16 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-02, T-BIL-IM-03, T-BIL-IM-14). The remaining 12 tasks all chain off the unresolved gating OQs (OQ-IM-1 contribution body shape, OQ-IM-2 AOW source, OQ-IM-3 edit-mode GET) — see [`./tasks.md` §9 OI-IM-1](./tasks.md#9-open-items) and [`./requirements.md` §12 Gating open questions](./requirements.md#12-assumptions--open-questions). No more independent work remains until those resolve.
+**Status (as of 2026-05-27)**: 4 of 17 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-02, T-BIL-IM-03, T-BIL-IM-14). Task count grew from 16 → 17 with the addition of T-BIL-IM-16 (non-gating empty-AOW UX refinement).
+
+**Remaining gates** (down from three to two on 2026-05-27 — see Entry 5):
+- **OQ-IM-1 — Contribution body shape** — escalated to PO. Gates T-BIL-IM-01, -04, -08, -09, -11.
+- **OQ-IM-3 — Edit-mode pre-fill GET** — accepted by backend, awaiting ship as part of the safe-bundle PR. Functionally gates T-BIL-IM-04, -08 until live.
+- ~~OQ-IM-2 — AOW data source~~ → RESOLVED 2026-05-27 via the existing T-15.12 endpoint.
+
+**Independent work still parked**:
+- T-BIL-IM-05 (HLO modal shell) is now ungated and can start as soon as T-BIL-IM-01 + T-BIL-IM-04 land (chained on the interface + service work, not on any OQ).
+- T-BIL-IM-16 (empty-AOW UX) is non-gating and can ship its default with T-BIL-IM-05; refinement waits on OQ-IM-10 from BA + designer.
+
+See [`./tasks.md` §9 OI-IM-1](./tasks.md#9-open-items) and [`./requirements.md` §12](./requirements.md#12-assumptions--open-questions) for full context.
