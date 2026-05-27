@@ -14,7 +14,7 @@
 | Proposal | [`../proposal.md`](../proposal.md) — approved 2026-05-19 |
 | Sibling spec (predecessor) | [`../tag-visibility/`](../tag-visibility/) — shipped 2026-05-20 (commit `2779b5fd`) |
 | Sibling spec (predecessor) | [`../alignment-section/`](../alignment-section/) — shipped 2026-05-23 (commit `17417fdd`) |
-| Status | **DRAFT — Phase 1 (`/sdd-specify`) — REWRITE 2026-05-23**. Initial draft was backend-handoff-first and diverged from the approved Figma mockups; this revision is mockup-first. Several open questions (§12) gate `/sdd-execute`. |
+| Status | **DRAFT — Phase 1 (`/sdd-specify`) — REWRITE 2026-05-23, ENDPOINT SWITCH 2026-05-27**. Initial draft was backend-handoff-first and diverged from the approved Figma mockups; the 2026-05-23 revision is mockup-first. The 2026-05-27 update wires the spec to the already-shipped backend `GET /api/v1/results/:resultCode/pool-funding-alignment/hlos-indicators` endpoint (T-15.12 / commit `907993e7`) per the ToC backend audit ([`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received)) — **OQ-IM-2 RESOLVED**, OQ-IM-1 + OQ-IM-3 remain gating, new non-gating OQ-IM-10 raised. |
 | Domain abbreviation | `BIL-IM` |
 | Primary visual reference | [`../figma-mockups/README.md`](../figma-mockups/README.md) + per-screen files |
 | Backend handoff | [`../ari-backend-context/frontend-handoff.md`](../ari-backend-context/frontend-handoff.md) — referenced where it agrees with the mockups |
@@ -44,6 +44,8 @@ Per the Figma mockup set:
 
 **This shape does not match the 5 polymorphic contribution payloads in [handoff §7](../ari-backend-context/frontend-handoff.md#7-type-specific-contribution-payloads-d12)** (capacity_sharing, knowledge_product, policy_change, innovation_development, NOOP). That conflict is the headline open question (**OQ-IM-1**) — production cannot ship until it is reconciled. Options range from "mockups supersede; backend changes its body shape" to "the mockup card maps onto one of the 5 types (likely NOOP)" — see §12.
 
+**Catalog read (2026-05-27 update).** The backend already exposes the SP → AOW → outcome/output → indicator tree via a result-scoped `GET /api/v1/results/:resultCode/pool-funding-alignment/hlos-indicators` endpoint (T-15.12 / commit `907993e7`), sourced live from CLARISA + PRMS with a 5-min cache. The FE consumes this single endpoint instead of the originally planned `GET .../indicators`. AOW is not modeled as an ARI entity — it comes through transitively from the CLARISA project mapped to the result. See [`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received).
+
 The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO cards + the read/write endpoints. PRMS push (`33356:11736` shows the synchronized state, deferred to US5) ships in a future spec.
 
 ---
@@ -51,7 +53,7 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 ## 3. Glossary
 
 - **HLO** — High-Level Output. The unit a user picks in the modal and maps to the result. The mockups treat "HLO" and "indicator" as roughly synonymous; downstream this aligns with the backend's `indicator_code`.
-- **AOW** — Area of Work. The intermediate grouping in the SP/AOW/HLO tree. Example: `AOW01 - Market Intelligence` under `SP01 - Breeding for Tomorrow`. **The backend handoff does not currently expose AOW**; this is **OQ-IM-2**.
+- **AOW** — Area of Work. The intermediate grouping in the SP/AOW/HLO tree. Example: `AOW01 - Market Intelligence` under `SP01 - Breeding for Tomorrow`. **Resolved 2026-05-27**: AOW is a real CGIAR ToC level-2 entity sourced live from CLARISA (`cgiar_entity_type_object.name === "Key Area of Work"`, level=2 under SP), not persisted in ARI. Surfaced via the result-scoped `GET .../hlos-indicators` endpoint as `pairs[].area_of_work`. Cardinality is 1:1 indicator → AOW (each PRMS ToC result lives inside one `(SP, AOW)` pair). See [`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received).
 - **AI card** — the "VIEW HIGH LEVEL OUTPUTS" prompt block introduced by `32471:129636`. Single-purpose: open the HLO modal. The button label "Upload file" in the mockup is a known typo (OQ-FIG-5).
 - **HLO card** — the dataview-style card that renders an HLO once mapped (`33356:11075` Frame 1171276358). One card per `(indicator_code, lever_code)` pair, grouped under its SP → AOW heading.
 - **Expected target** — catalog-sourced read-only field on each HLO card (e.g., `20 - NUMBER OF KNOWLEDGE PRODUCTS`).
@@ -71,15 +73,16 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 - **REQ-BIL-IM-02..07** — HLO selection modal: tree sidebar, indicator table, search, per-row commit, disabled-indicator reason, footer counter + Confirm/Cancel.
 - **REQ-BIL-IM-08..12** — Inline HLO cards: render grouped SP → AOW → HLO; Expected target (read-only); Quantitative contribution (conditional); Reason dropdown; remove via ×.
 - **REQ-BIL-IM-13** — Persist mappings via POST/PATCH/DELETE.
-- **REQ-BIL-IM-14** — "ToC catalog not yet synced" empty state (default until backend T-31 ships).
+- **REQ-BIL-IM-14** — `aow_status: 'unmapped'` + `pairs: []` empty / unavailable catalog states (updated 2026-05-27 — no longer driven by a missing T-31 sync; backend reads CLARISA + PRMS live).
 - **REQ-BIL-IM-15..18** — Read-only states inherited, 409 handling, lever-cascade refresh, stale-mapping behavior.
+- **REQ-BIL-IM-19** — `aow_status: 'no_aow_mappings'` flat-per-SP UX (new 2026-05-27; covers OQ-IM-10).
 - **NF-01..06** — performance, accessibility, bundle, theming, i18n-ready, coverage.
 
 ### 4.2 Out of scope
 
 - **PRMS-synchronized sidebar block** (mockup `33356:11736`) — that's US5, separate spec.
 - **W3 Registry sync UI** (US6; backend PENDING).
-- **SP ToC sync UI** (US7; backend PENDING). Without this, the indicators arrays come back empty today — the "ToC not yet synced" empty state is the v1 default in production.
+- **SP ToC sync UI** (US7; backend PENDING). *(Note 2026-05-27: the originally planned ToC-sync job is no longer the canonical default. The backend's T-15.12 endpoint reads CLARISA + PRMS live; the "ToC not yet synced" empty state is now driven by `aow_status: 'unmapped'` or `pairs: []` per REQ-BIL-IM-14, not by a missing sync job.)*
 - **Bulk indicator mapping** — one-by-one via the modal only.
 - **CGSpace / MQAP integration for knowledge products** — D9 partial Phase 2.
 - **`innovation_use` indicator type** — deferred per D5=C.
@@ -91,10 +94,10 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 
 - **Stack**: Angular 19 + PrimeNG 19 (PRD C-1). HLO modal + HLO cards are lazy-loaded standalone components (C-6).
 - **Auth**: Existing Cognito JWT + `jWtInterceptor` (C-2). Editability inherits from [`../alignment-section/`](../alignment-section/)'s `BilateralService.editable` computed.
-- **Controlled vocabularies**: CLARISA for any taxonomy that's CLARISA-owned (C-3). The ToC catalog (SP / AOW / HLO) is owned by an upstream sync (T-31) — not a new client taxonomy. Reason / Quantitative-contribution option lists are OQs (§12).
+- **Controlled vocabularies**: CLARISA for any taxonomy that's CLARISA-owned (C-3). The ToC catalog (SP / AOW / HLO) is sourced live from CLARISA + PRMS via the backend's T-15.12 endpoint — not a new client taxonomy and not via a separate sync job. Reason / Quantitative-contribution option lists are OQs (§12).
 - **Modals**: HLO modal routes through the existing `all-modals` host + `modal` wrapper. New `ModalName = 'hloSelection'`.
 - **State**: signals; extends `BilateralService` with HLO-modal selection state + mapping state.
-- **API**: extends `ApiService` with methods for the panel GET + per-mapping POST/PATCH/DELETE (and an edit-mode pre-fill GET, gated by **OQ-IM-3**).
+- **API**: extends `ApiService` with `GET_PoolFundingHlosIndicators` (result-scoped tree GET, live on `AC-1594-bilateral-module-v2`) + per-mapping POST/PATCH/DELETE (and an edit-mode pre-fill GET, gated by **OQ-IM-3**). No catalog-wide indicators GET — see §8 ToC backend audit.
 
 ---
 
@@ -122,7 +125,9 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
   - AC-01.1 — Card hidden when `formData().has_contribution !== true` OR `currentAlignment().selected_levers.length === 0`.
   - AC-01.2 — Card renders with illustration (left), uppercase title `VIEW HIGH LEVEL OUTPUTS`, body copy (per mockup, verbatim), green CTA button. **CTA button label resolved per OQ-FIG-5** — proposed copy: `View HLOs` (NOT the mockup's `Upload file` placeholder).
   - AC-01.3 — Clicking the CTA opens the HLO selection modal (REQ-BIL-IM-02).
-  - AC-01.4 — When at least one HLO is already mapped (`indicatorGroups` returns a non-empty list with `is_mapped=true` rows), the card collapses to a thin "Manage HLO mappings" link/button to save vertical space. *(Confirm with design QA — see OQ-IM-7.)*
+  - AC-01.4 — When at least one HLO is already mapped (`persistedMappings` is non-empty after joining against the result-scoped `hlosIndicators` tree), the card collapses to a thin "Manage HLO mappings" link/button to save vertical space. *(Confirm with design QA — see OQ-IM-7.)*
+  - AC-01.5 — When the backend returns `aow_status: 'unmapped'` (no `bilateral_project_mapping` for the result), the card body switches to: `"This result isn't linked to a CLARISA project yet. Contact the bilateral operations team to register the project mapping before mapping HLOs."` CTA disabled. *(Added 2026-05-27.)*
+  - AC-01.6 — When the backend returns `aow_status: 'no_aow_mappings'`, the card body switches to: `"The CLARISA project has Science Program mappings but no Area of Work breakdown. You can still pick HLOs — they'll be grouped by Science Program only."` CTA enabled. *(Added 2026-05-27 — see REQ-BIL-IM-19.)*
 
 ### REQ-BIL-IM-02 — *HLO selection modal opens with the SP/AOW tree sidebar*
 
@@ -130,10 +135,10 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 - **Visual reference**: [`../figma-mockups/32471-131617-hlo-modal-empty.md`](../figma-mockups/32471-131617-hlo-modal-empty.md).
 - **Acceptance criteria**:
   - AC-02.1 — Modal title: `High Level Outputs`. Close button (×) top-right.
-  - AC-02.2 — Sidebar lists every selected SP from `currentAlignment().selected_levers`. Each SP node is expandable; expanded state shows its AOWs.
+  - AC-02.2 — Sidebar lists every SP returned in `hlosIndicators().pairs[].program` (de-duplicated). This is automatically scoped to the result's CLARISA project mappings — no cross-reference with `currentAlignment().selected_levers` needed. Each SP node is expandable; expanded state shows its AOWs (each pair's `area_of_work`).
   - AC-02.3 — One AOW is "active" at a time (highlighted with `Light Blue-100` per design tokens). Clicking another AOW switches the right pane's contents.
   - AC-02.4 — Each AOW carries a small numeric badge showing the count of items already selected in that AOW within this modal session (e.g., `3` on `AOW01`). See `33563:137770`.
-  - AC-02.5 — **AOW data source** is **OQ-IM-2** — gated. If backend exposes AOW on indicators, group client-side. Otherwise the modal cannot render until backend exposes it.
+  - AC-02.5 — **AOW data source RESOLVED 2026-05-27**: backend provides AOW pre-grouped via `pairs[].area_of_work` from the `GET .../hlos-indicators` endpoint (T-15.12). The sidebar consumes `pairs[]` directly — no client-side regrouping. See §8 ToC backend audit.
 
 ### REQ-BIL-IM-03 — *HLO modal main pane shows the indicator table for the active AOW*
 
@@ -141,7 +146,7 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 - **Visual reference**: `32471:131617`, `33563:137770`.
 - **Acceptance criteria**:
   - AC-03.1 — Header breadcrumb shows `<SP name> > <AOW name>` (e.g., `Science Program 01 - Breeding for Tomorrow > AREA OF WORK 01 - MARKET INTELLIGENCE`).
-  - AC-03.2 — Search input (debounced 300 ms) filters indicators within the active AOW. Search is server-side (re-issues GET indicators with the query).
+  - AC-03.2 — Search input (debounced 300 ms) filters indicators within the active AOW. **Client-side filter** over the materialized `indicatorRows()` view — the `GET .../hlos-indicators` endpoint returns the full live tree and does not currently accept a `search` query param. If backend later adds server-side search, re-evaluate.
   - AC-03.3 — Each row shows: indicator code + name, target description (truncated to 2 lines + tooltip), status / metadata as the catalog provides. Final column set per design QA.
   - AC-03.4 — **Per-row commit button** (mockup label: `Button`, proposed final copy: `Add` / `Remove`) toggles the indicator in/out of the modal-session selection (parallel to checking the checkbox; both must be wired).
   - AC-03.5 — Row selected state uses a `Light Blue-100` background (per `33563:137770`).
@@ -161,10 +166,10 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 - **Statement**: Modal-internal search and AOW switching.
 - **Acceptance criteria**:
   - AC-05.1 — Search input debounced 300 ms.
-  - AC-05.2 — AOW selection in the sidebar updates the right pane without refetching the entire catalog (panel data is grouped by AOW server-side per OQ-IM-2).
-  - AC-05.3 — Empty AOW (no indicators returned) shows "No indicators in this Area of Work" inline.
+  - AC-05.2 — AOW selection in the sidebar updates the right pane from the already-materialized `indicatorRows()` view (one fetch per modal open — switching AOWs is a pure pivot over cached data).
+  - AC-05.3 — Empty AOW (active pair has no outcomes + outputs) shows "No indicators in this Area of Work" inline.
   - AC-05.4 — Empty search result shows "No indicators match \"<query>\" in this Area of Work".
-  - AC-05.5 — A "Clear filters" link resets the search and re-fetches.
+  - AC-05.5 — A "Clear filters" link resets the search (no refetch — search is client-side per AC-03.2).
 
 ### REQ-BIL-IM-06 — *HLO modal footer: selection counter + Confirm / Cancel*
 
@@ -247,14 +252,15 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
   - AC-13.5 — **Body shape per mutation is OQ-IM-1** (gating).
   - AC-13.6 — Stale-but-mapped HLOs allow Reason/Quantitative edits (PATCH accepted by server). New mappings to stale indicators rejected client-side (REQ-BIL-IM-04 covers the UI).
 
-### REQ-BIL-IM-14 — *"ToC catalog not yet synced" empty state*
+### REQ-BIL-IM-14 — *Empty / unavailable catalog states*
 
-- **Statement**: When the panel GET returns empty arrays for every SP / AOW, the HLO modal renders an explicit catalog-empty message instead of the tree.
+- **Statement**: When the `GET .../hlos-indicators` response carries `aow_status: 'unmapped'`, or `pairs: []` (PRMS cache miss / upstream error), the HLO modal renders an explicit message instead of the tree. *(Revised 2026-05-27 — the "catalog not yet synced" framing predates the live CLARISA + PRMS data path. The new endpoint returns real upstream data; emptiness is now driven by `aow_status` + PRMS availability, not by a missing ToC sync job.)*
 - **Acceptance criteria**:
-  - AC-14.1 — Modal main pane shows: "The Theory of Change catalog has not been synced yet. Indicators will appear here once the Science Program / Accelerator ToC sync runs."
-  - AC-14.2 — Sidebar lists SPs but each is non-expandable (no AOWs to show).
-  - AC-14.3 — Footer Confirm button disabled; only Cancel available.
-  - AC-14.4 — On the inline form, if no mappings exist AND catalog is empty, the AI card body explains the catalog state instead of teasing the modal.
+  - AC-14.1 — `aow_status: 'unmapped'` → Modal main pane shows: "This result isn't linked to a CLARISA project yet. Contact the bilateral operations team to register the project mapping before mapping HLOs." Sidebar empty; Confirm disabled.
+  - AC-14.2 — `pairs: []` (response succeeded but PRMS returned nothing — usually transient upstream issue) → Modal main pane shows: "The Theory of Change catalog is temporarily unavailable. Try again in a few minutes." Sidebar empty; Confirm disabled. Telemetry event fires for monitoring.
+  - AC-14.3 — Footer Confirm button disabled in both states; only Cancel available.
+  - AC-14.4 — On the inline form, the AI card body reflects the same condition (AC-01.5 / AC-01.6 cover the `aow_status` variants).
+  - AC-14.5 — `aow_status: 'no_aow_mappings'` is **not** an empty state — it's a structural variant handled by REQ-BIL-IM-19 (flat list per SP, not the SP → AOW tree).
 
 ### REQ-BIL-IM-15 — *Read-only states inherited from alignment-section*
 
@@ -288,6 +294,19 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 - **Acceptance criteria**:
   - AC-18.1 — `is_stale=true && is_mapped=true` → HLO card editable; Reason / Quantitative edits PATCH normally.
   - AC-18.2 — `is_stale=true && !is_mapped` → row in modal disabled with the stale reason (REQ-BIL-IM-04 path).
+  - AC-18.3 — *(2026-05-27 update)* `is_stale` is sourced from the persisted `HloMapping.is_stale` column on `ResultPoolFundingIndicatorMapping` (already shipped per [`./open-questions-for-ba.md` §7.1](./open-questions-for-ba.md#71-backends-verdict-per-oq)). The catalog rows returned by `GET .../hlos-indicators` (raw `PrmsTocIndicator` shape) do NOT carry per-row staleness. The FE joins the catalog rows with `persistedMappings` to compute the disabled-with-stale-reason state for already-mapped indicators that have been retired upstream.
+
+### REQ-BIL-IM-19 — *`aow_status: 'no_aow_mappings'` empty-AOW UX (new — added 2026-05-27)*
+
+- **Statement**: When the backend returns `aow_status: 'no_aow_mappings'` (the result's CLARISA project has SP-level mappings but no Area of Work breakdown), the modal renders the available indicators as a flat list per SP without an AOW intermediate level. The §8 ToC backend audit observed this on 28 of 31 TEST bilateral projects, so this may be the dominant flow in production — not a corner case.
+- **Tracked under**: OQ-IM-10 (non-gating) — see §12.
+- **Acceptance criteria**:
+  - AC-19.1 — Sidebar lists each SP from `pairs[].program` (de-duplicated). SPs are **not** expandable (no AOW level to expand into); clicking an SP activates it as the right-pane scope.
+  - AC-19.2 — Right pane lists all indicators returned for the active SP (union of `outcomes[].indicators[]` and `outputs[].indicators[]` across all `pairs[]` matching that SP, regardless of `area_of_work` value).
+  - AC-19.3 — Selection keys use empty string `''` as the AOW token: `(program, '', indicator_id)`. Persisted alongside `HloMapping` rows with `aow_code: ''`.
+  - AC-19.4 — Footer counter and Confirm/Cancel behavior unchanged.
+  - AC-19.5 — Inline HLO cards on the alignment form (REQ-BIL-IM-08) render without the AOW subheader when `aow_code === ''` — group by SP only.
+  - AC-19.6 — **Default UX** described above is option (a) of OQ-IM-10. If BA + designer pick (b) or (c) instead, T-BIL-IM-16 refines this requirement.
 
 ---
 
@@ -304,13 +323,13 @@ The work is intentionally bounded to US3 + US4: the HLO modal + the inline HLO c
 
 ## 8. Data inputs & outputs
 
-### 8.1 Inputs (REST) — current backend shape
+### 8.1 Inputs (REST) — current backend shape (updated 2026-05-27)
 
 | Endpoint | Service method | Used by | Notes |
 | --- | --- | --- | --- |
-| `GET /results/:resultCode/pool-funding-alignment/indicators?search=&indicator-type=` | `ApiService.GET_PoolFundingIndicators(resultCode, opts)` | `BilateralService.getIndicators` | Returns `IndicatorGroupResponse[]` grouped by **lever_code** today. **OQ-IM-2** — does the response include AOW grouping? If not, backend extension required. |
+| `GET /results/:resultCode/pool-funding-alignment/hlos-indicators` | `ApiService.GET_PoolFundingHlosIndicators(resultCode)` | `BilateralService.getHlosIndicators` | **T-15.12 — already shipped on `AC-1594-bilateral-module-v2` (commit `907993e7`).** Returns `MainResponse<BilateralHlosIndicatorsResponse>` — a result-scoped tree with `pairs[].program / .area_of_work / .outcomes[] / .outputs[] / .indicators[]`, plus `aow_status` and `clarisa_project`. Sourced live from CLARISA + PRMS, 5-min backend cache. No query params today. Replaces the previously planned catalog-wide `GET .../indicators`. |
 | `POST/PATCH/DELETE .../indicators/:indicatorCode/contribution?lever-code=...` | `ApiService.{POST,PATCH,DELETE}_PoolFundingContribution(...)` | `BilateralService.{create,update,delete}Contribution` | **OQ-IM-1** — body shape conflict between mockup ("Expected target / Quantitative / Why") and handoff (5 polymorphic types). |
-| `GET .../indicators/:indicatorCode/contribution?lever-code=...` (gated by OQ-IM-3) | `ApiService.GET_PoolFundingContribution(...)` | `BilateralService.getContribution` (edit pre-fill) | Needs backend confirmation. |
+| `GET .../indicators/:indicatorCode/contribution?lever-code=...` (gated by OQ-IM-3) | `ApiService.GET_PoolFundingContribution(...)` | `BilateralService.getContribution` (edit pre-fill) | **Backend ACCEPTED** ([§7.1](./open-questions-for-ba.md#71-backends-verdict-per-oq)) — ships ~½ day, bundled in the safe-bundle PR. |
 | (existing — depending on OQ-IM-4 / OQ-IM-5) | CLARISA lookups for Reason / Quantitative options | Form dropdowns | If catalog-driven, the catalog GET returns the option lists per indicator. |
 
 ### 8.2 Inputs (Socket.IO)
@@ -337,7 +356,7 @@ No new client-side persistence. Pending mappings live in the parent component un
 
 ## 9. Controlled vocabularies
 
-- ToC catalog (SP / AOW / HLO) owned by an upstream sync (T-31), not a client taxonomy.
+- **ToC catalog (SP / AOW / HLO)** — surfaced live from CLARISA + PRMS via the backend's T-15.12 endpoint (see §8.1). Not duplicated in ARI. AOW is a CLARISA level-2 entity (`prefix=AOW`, parent SP); HLOs are PRMS ToC results (OUTCOMEs + OUTPUTs). The originally referenced "T-31 ToC sync" is no longer needed — the backend reads the upstream directly.
 - Reason and Quantitative-contribution option lists — sources TBD (**OQ-IM-4**, **OQ-IM-5**). Both should ultimately live in the catalog response so the FE doesn't duplicate state.
 
 ---
@@ -378,7 +397,7 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 ### Assumptions
 
 - **A-1** — `bilateralService.editable` from [`../alignment-section/`](../alignment-section/) is the single source of truth for editability.
-- **A-2** — Production today renders the "ToC catalog not yet synced" empty state — backend T-31 has not shipped. This is the canonical default.
+- **A-2** — *(revised 2026-05-27)* The backend reads CLARISA + PRMS live via the T-15.12 endpoint, so production renders **real** ToC data when the result's CLARISA project carries level-1/level-2 mappings. Empty states are now driven by `aow_status` and `pairs[]` (see REQ-BIL-IM-14) — not by a missing ToC sync job. Sparse-AOW coverage is observed in TEST today (28 of 31 projects → `no_aow_mappings`); REQ-BIL-IM-19 covers the resulting UX.
 - **A-3** — The existing `all-modals` + `modal` wrappers can host a heavier modal layout (1277×1113 from the mockup). *(Verify during design — see OQ-IM-8.)*
 - **A-4** — `ModalName` can be extended; the modal-context pattern (`CreateResultManagementService`-style) is reusable.
 
@@ -391,10 +410,15 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 > - **Bonus `is_stale` already shipped** on the panel response DTO — FE can consume immediately. The audit was stale on this one.
 > - **Bonus `is_quantitative` + `disabled_reason` ACCEPTED** by backend, gated on BA seed list + reason taxonomy alignment.
 > - **OQ-IM-1 escalated to PO** — backend won't act without PO retiring R-BIL-031 + D5 + D12 (the per-type-payload requirement + its supporting decisions).
-> - **OQ-IM-2 escalated to BA** — backend needs 3 sub-answers (AOW taxonomy reality / source / cardinality) before implementing.
+> - **OQ-IM-2 escalated to BA** — overtaken by the 2026-05-27 ToC backend audit (see next bullet).
 > - **OQ-IM-4 reclassified as gating-once-OQ-IM-1-Path-A-approved** by backend (validation needs a finite enum). Provisional default `direct_contribution | aligned_with | reference_only | other`; FE's UX position recorded in [`./open-questions-for-ba.md` §7.4](./open-questions-for-ba.md#74-stars-open-follow-ups-where-the-fe-has-input).
 >
-> The OQs remain gating until PO + BA sign off. Fallback per backend §6 paragraph 4: if PO/BA stalls beyond ~1 week, FE can ship US3/US4 against the **current polymorphic shape** as a Phase-1 compromise and revisit simplification in Phase 2.
+> **2026-05-27 status update — ToC backend audit ([`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received))**:
+> - **OQ-IM-2 RESOLVED**: backend already ships `GET .../hlos-indicators` (T-15.12 / commit `907993e7`) returning the SP → AOW → outcome/output → indicator tree pre-grouped via `pairs[]`, sourced live from CLARISA + PRMS. AOW is not a first-class ARI entity (no migration planned) — comes through transitively from each result's CLARISA project mappings. 1:1 indicator → AOW cardinality. FE switches consumer to the new endpoint; planned `IndicatorGroupResponse` / `AreaOfWorkGroup` types are withdrawn.
+> - **New non-gating OQ-IM-10** raised for the `no_aow_mappings` empty-state UX (28 of 31 TEST projects today). Covered by **REQ-BIL-IM-19**; FE ships a graceful default (flat list per SP) without sign-off; designer + BA confirm later.
+> - **Safe-bundle coordination needed**: bonus fields (`is_quantitative`, `disabled_reason`) target the now-unused `IndicatorPanelIndicatorResponse`. Backend needs to mirror them onto `PrmsTocIndicator` (or a sibling enrichment DTO) before T-BIL-IM-09 starts.
+>
+> Remaining gates: OQ-IM-1 (PO) + OQ-IM-3 (already accepted, awaiting ship). Fallback per backend §6 paragraph 4: if PO stalls on OQ-IM-1 beyond ~1 week, FE can ship US3/US4 against the **current polymorphic shape** as a Phase-1 compromise and revisit simplification in Phase 2.
 
 - **OQ-IM-1 — Contribution body shape (HEADLINE).** Mockup card has 3 user-editable fields: **Expected target** (read-only), **Quantitative contribution** (conditional dropdown), **Why is this being reported?** (required dropdown). Backend handoff §7 specifies **5 polymorphic types** with completely different fields (`capacity_sharing.women/men/non_binary/has_unkown_using/...`, `knowledge_product.handle/licence/...`, etc.). These do not overlap. **Resolution paths**:
   - (a) Mockups supersede; backend re-issues a simplified contribution body (`{ quantitative_contribution?: number; reason_code: string }`). Treats the 5 polymorphic types as deferred / dead code.
@@ -403,11 +427,7 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
   - (d) Hybrid: send the mockup's three fields as a flat body alongside `indicator_type` discriminator; backend handlers accept-and-store but the contract is documented.
   - **Action required**: BA / backend team picks one path. Spec cannot finalize the form, the service shape, or the tests without this answer.
 
-- **OQ-IM-2 — AOW data source.** Mockup groups indicators **SP → AOW → HLO**. Backend handoff §4.4's `IndicatorGroupResponse[]` is grouped only by `lever_code` (SP), no AOW layer. **Resolution paths**:
-  - (a) Backend extends the GET to include `areas_of_work: { aow_code, aow_name, indicators: IndicatorRow[] }[]` per lever.
-  - (b) FE infers AOW from a code-prefix convention on `indicator_code` (e.g., `CR-HL01-001` → `HL01`). Fragile; needs BA buy-in.
-  - (c) AOW becomes a separate `GET .../areas-of-work` endpoint; FE joins client-side.
-  - **Action required**: confirm with backend team before T-BIL-IM-01 lands.
+- ~~OQ-IM-2 — AOW data source.~~ → **RESOLVED 2026-05-27 via §8 ToC backend audit.** Backend already ships the SP → AOW → outcome/output → indicator tree pre-grouped via `pairs[]` on the result-scoped `GET /api/v1/results/:resultCode/pool-funding-alignment/hlos-indicators` endpoint (T-15.12 / commit `907993e7`). AOW is a CLARISA level-2 entity (`prefix=AOW`, parent SP), not persisted in ARI — sourced live from CLARISA per result's `bilateral_project_mapping`. 1:1 indicator → AOW cardinality. No FE fallback needed; no backend AOW migration required. None of resolution paths (a)–(c) above apply; the answer is "the endpoint already exists." See [`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received).
 
 - **OQ-IM-3 — Edit-mode pre-fill source for existing mappings.** Does `GET .../contribution?lever-code=...` exist? Or does the panel GET embed the existing contribution body inline (`indicator.contribution?: ...`)? Carried forward from prior spec — **still gating**.
 
@@ -418,7 +438,12 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 - **OQ-IM-6 — `is_quantitative` flag source.** Mockup §5 implies it's on the indicator catalog. Confirm field name and visibility. *(Resolve in `design.md`.)*
 - **OQ-IM-7 — AI card behavior when mappings exist.** Collapse to a thin link/button, or keep full card? Confirm with design QA.
 - **OQ-IM-8 — Modal max-width.** 1277 px from the mockup is wider than typical `all-modals` content; confirm the wrapper supports it without shell changes.
-- **OQ-IM-9 — Disabled-indicator reason source.** Mockup `33563:138613` says reason is dynamic. Backend handoff doesn't currently expose a reason field on `IndicatorRow`. Likely a server-side validation message added to a new `reason: string | null` field on the row (or `validation_reason` to avoid collision).
+- **OQ-IM-9 — Disabled-indicator reason source.** Mockup `33563:138613` says reason is dynamic. Backend ACCEPTED a `disabled_reason: string | null` field in §7.1, but it targets the (now-unused) `IndicatorPanelIndicatorResponse`. **2026-05-27 follow-up**: backend needs to mirror the field onto `PrmsTocIndicator` (or a sibling enrichment DTO) for it to surface through the new `GET .../hlos-indicators` endpoint. Until then, `IndicatorRow.disabled_reason` is `null` for all rows from the new endpoint and the disabled-row UX (REQ-BIL-IM-04) won't trigger in production data.
+- **OQ-IM-10 *(new — 2026-05-27)* — `aow_status: 'no_aow_mappings'` empty-AOW UX.** Backend's T-15.12 endpoint returns three values for `aow_status`: `'unmapped'` (no CLARISA project mapping), `'no_aow_mappings'` (CLARISA project has SP mappings but no AOW breakdown), `'has_aow'` (canonical mockup case). The `no_aow_mappings` state appears on 28 of 31 TEST bilateral projects — potentially dominant in prod. Options:
+  - (a) **Flat list per SP** (no AOW intermediate level) — FE default per REQ-BIL-IM-19; ships without sign-off.
+  - (b) Surface outcomes/outputs without an AOW header band; selection keys drop `area_of_work`.
+  - (c) Block the modal with a "this result's CLARISA project needs AOW mappings…" CTA.
+  - **Action**: BA + designer pick a variant when convenient; T-BIL-IM-16 refines if ≠ (a). *(Non-gating: FE can ship (a) as default.)*
 - **OQ-FIG-5 — AI card CTA copy.** Mockup says `Upload file` — almost certainly a typo. Propose `View HLOs`. Confirm with designer.
 - **OQ-FIG-10 — Tab position in result sidebar.** Mockup `33356:11736` shows Pool Funding alignment positioned between "Contributions to indicators" and the submit area. The alignment-section spec already shipped with our chosen position — confirm whether to re-order.
 - Carried forward: D9 (partial KP support), D5 (`innovation_use` deferred), D13 (Innovation Package deferred), `ActionsService` action-toast extension (OI-AS-3 from alignment-section).
@@ -441,7 +466,9 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 - Sibling specs:
   - [`../tag-visibility/`](../tag-visibility/) — `BilateralService` facade origin.
   - [`../alignment-section/`](../alignment-section/) — `editable` computed + `currentAlignment` signal + 409-handling. **Foundations reused.**
-- Backend handoff: [`../ari-backend-context/frontend-handoff.md`](../ari-backend-context/frontend-handoff.md) §4.4, §4.5, §5, §6, §7 — **referenced where it agrees; conflicts with mockups documented under OQ-IM-1 / OQ-IM-2.**
+- Backend handoff: [`../ari-backend-context/frontend-handoff.md`](../ari-backend-context/frontend-handoff.md) §4.4, §4.5, §5, §6, §7 — **referenced where it agrees; conflicts with mockups documented under OQ-IM-1** (OQ-IM-2 was resolved by the 2026-05-27 ToC backend audit — see [`./open-questions-for-ba.md` §8](./open-questions-for-ba.md#8-toc-backend-audit--2026-05-27-received)).
+- Backend response to FE: [`../ari-backend-context/backend-response-to-fe.md`](../ari-backend-context/backend-response-to-fe.md) — 2026-05-26 reply.
+- **Open questions audit**: [`./open-questions-for-ba.md`](./open-questions-for-ba.md) — §8 ToC backend audit is the authoritative source for the 2026-05-27 endpoint switch.
 - Jira: [`../jira-us/AC-1439-us3-display-toc-indicators.md`](../jira-us/AC-1439-us3-display-toc-indicators.md), [`../jira-us/AC-1440-us4-map-results-indicators.md`](../jira-us/AC-1440-us4-map-results-indicators.md).
 
 ---
@@ -463,11 +490,12 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 | REQ-BIL-IM-11 | HLO card: Why is this being reported? reason dropdown | Editors | Functional |
 | REQ-BIL-IM-12 | Remove HLO mapping via × | Editors | Functional |
 | REQ-BIL-IM-13 | Persist mappings on alignment-form Save | Editors | Functional |
-| REQ-BIL-IM-14 | "ToC catalog not yet synced" empty state | All | Functional |
+| REQ-BIL-IM-14 | Empty / unavailable catalog states (`aow_status: 'unmapped'` / `pairs: []`) | All | Functional |
 | REQ-BIL-IM-15 | Read-only states inherited | All | Functional |
 | REQ-BIL-IM-16 | 409 Conflict handled gracefully | Editors | Functional |
 | REQ-BIL-IM-17 | Lever-cascade refresh | All | Functional |
 | REQ-BIL-IM-18 | Stale indicators behavior | All | Functional |
+| REQ-BIL-IM-19 | `aow_status: 'no_aow_mappings'` empty-AOW UX *(new 2026-05-27)* | All | Functional |
 | REQ-BIL-IM-NF-01 | Performance — modal ≤ 0.6 s; cards ≤ 1.5 s | All | Non-functional |
 | REQ-BIL-IM-NF-02 | Accessibility WCAG 2.1 AA (C-4) | All | Non-functional |
 | REQ-BIL-IM-NF-03 | Bundle budget — ≤ 60 KB lazy / ≤ 5 KB initial | All | Non-functional |
