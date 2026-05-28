@@ -1,0 +1,239 @@
+<div class="hlo-modal" data-testid="hlo-modal-root">
+
+  <!-- ===== LOADING SKELETON ===================================================== -->
+  @if (bilateralService.loadingHlos()) {
+    <div class="hlo-modal__skeleton">
+      <div class="hlo-modal__skeleton-sidebar">
+        @for (i of [1, 2, 3]; track i) {
+          <p-skeleton height="2rem" styleClass="mb-2" />
+        }
+      </div>
+      <div class="hlo-modal__skeleton-main">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <p-skeleton height="3rem" styleClass="mb-2" />
+        }
+      </div>
+    </div>
+  }
+
+  <!-- ===== UNMAPPED EMPTY STATE ================================================= -->
+  @if (!bilateralService.loadingHlos() && isUnmapped()) {
+    <div class="hlo-modal__empty hlo-modal__empty--unmapped" data-testid="hlo-modal-empty-unmapped">
+      <i class="pi pi-exclamation-triangle hlo-modal__empty-icon"></i>
+      <p class="hlo-modal__empty-text">
+        This result isn't linked to a CLARISA project yet. Contact the bilateral operations team to register the project mapping.
+      </p>
+    </div>
+  }
+
+  <!-- ===== PAIRS EMPTY STATE (catalog temporarily unavailable) ================== -->
+  @if (!bilateralService.loadingHlos() && !isUnmapped() && isPairsEmpty()) {
+    <div class="hlo-modal__empty hlo-modal__empty--pairs" data-testid="hlo-modal-empty-pairs">
+      <i class="pi pi-clock hlo-modal__empty-icon"></i>
+      <p class="hlo-modal__empty-text">
+        The Theory of Change catalog is temporarily unavailable. Try again in a few minutes.
+      </p>
+    </div>
+  }
+
+  <!-- ===== MAIN CONTENT (sidebar + pane) ======================================== -->
+  @if (!bilateralService.loadingHlos() && !isUnmapped() && !isPairsEmpty()) {
+    <div class="hlo-modal__body">
+
+      <!-- --- LEFT SIDEBAR ------------------------------------------------------- -->
+      <aside class="hlo-modal__sidebar" data-testid="hlo-modal-sidebar" aria-label="Science Programs and Areas of Work">
+        @for (group of sidebarGroups(); track group.program) {
+          <div class="hlo-modal__sp-group">
+
+            <!-- SP heading (toggle expand) -->
+            <button
+              type="button"
+              class="hlo-modal__sp-btn"
+              [attr.aria-expanded]="isSpExpanded(group.program)"
+              (click)="toggleSpExpanded(group.program)">
+              <span class="hlo-modal__sp-label">{{ group.program }}</span>
+              <i class="pi" [class.pi-angle-down]="isSpExpanded(group.program)" [class.pi-angle-right]="!isSpExpanded(group.program)"></i>
+            </button>
+
+            <!-- AOW entries -->
+            @if (isSpExpanded(group.program)) {
+              <ul class="hlo-modal__aow-list" role="list">
+                @for (aow of group.aows; track aow.aowKey) {
+                  <li>
+                    <button
+                      type="button"
+                      class="hlo-modal__aow-btn"
+                      [class.hlo-modal__aow-btn--active]="activeAowKey() === aow.aowKey"
+                      [attr.data-testid]="'hlo-modal-aow-' + aow.program + '-' + aow.area_of_work"
+                      (click)="setActiveAow(aow.aowKey, aow.program)">
+                      <span class="hlo-modal__aow-label">{{ aow.area_of_work || aow.program }}</span>
+                      @if (getAowBadgeCount(aow.aowKey) > 0) {
+                        <p-badge
+                          [value]="getAowBadgeCount(aow.aowKey).toString()"
+                          severity="info"
+                          [attr.data-testid]="'hlo-modal-aow-badge-' + aow.program + '-' + aow.area_of_work"
+                          [attr.aria-label]="getAowBadgeLabel(aow)" />
+                      }
+                    </button>
+                  </li>
+                }
+              </ul>
+
+              <!-- No-AOW note (when aow_status === 'no_aow_mappings') -->
+              @if (isNoAowMappings() && group.aows.length > 0 && group.aows[0].area_of_work === '') {
+                <p class="hlo-modal__no-aow-note" data-testid="hlo-modal-empty-no-aow">
+                  Indicators are grouped by Science Program only — no Area of Work breakdown is available.
+                </p>
+              }
+            }
+          </div>
+        }
+      </aside>
+
+      <!-- --- MAIN PANE ---------------------------------------------------------- -->
+      <section class="hlo-modal__main" aria-label="Indicator table">
+
+        @if (activeAowKey()) {
+          <!-- Breadcrumb -->
+          <div class="hlo-modal__breadcrumb" aria-label="Active selection breadcrumb">
+            <span class="hlo-modal__breadcrumb-sp">{{ getActiveProgramLabel() }}</span>
+            @if (getActiveAowLabel()) {
+              <i class="pi pi-angle-right hlo-modal__breadcrumb-sep" aria-hidden="true"></i>
+              <span class="hlo-modal__breadcrumb-aow">{{ getActiveAowLabel() }}</span>
+            }
+          </div>
+
+          <!-- Search -->
+          <div class="hlo-modal__search-wrap">
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-search"></i>
+              <input
+                pInputText
+                type="text"
+                class="w-full"
+                placeholder="Search indicators…"
+                [value]="searchInput()"
+                (input)="onSearchInput($event)"
+                aria-label="Search indicators" />
+            </span>
+          </div>
+
+          <!-- Indicator table -->
+          @if (!isActiveAowEmpty() && !isSearchEmpty()) {
+            <div class="hlo-modal__table" role="grid" aria-label="Indicators">
+              <!-- Table header -->
+              <div class="hlo-modal__table-header" role="row">
+                <span class="hlo-modal__col-select" role="columnheader" aria-label="Select">Select</span>
+                <span class="hlo-modal__col-name" role="columnheader">Indicator</span>
+                <span class="hlo-modal__col-type" role="columnheader">Type</span>
+                <span class="hlo-modal__col-target" role="columnheader">Expected target</span>
+                <span class="hlo-modal__col-action" role="columnheader" aria-label="Add to selection"></span>
+              </div>
+
+              <!-- Rows -->
+              @for (row of visibleRows(); track row.indicator_id) {
+                <div
+                  class="hlo-modal__row"
+                  [class.hlo-modal__row--selected]="isRowSelected(row)"
+                  [class.hlo-modal__row--disabled]="row.disabled_reason !== null"
+                  role="row"
+                  [attr.aria-selected]="isRowSelected(row)"
+                  [attr.data-testid]="'hlo-modal-row-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id">
+
+                  <!-- Checkbox cell -->
+                  <div class="hlo-modal__col-select" role="gridcell">
+                    <p-checkbox
+                      [binary]="true"
+                      [ngModel]="isRowSelected(row)"
+                      [disabled]="row.disabled_reason !== null"
+                      (ngModelChange)="toggleRowSelection(row)"
+                      [inputId]="'row-cb-' + row.indicator_id"
+                      [attr.data-testid]="'hlo-modal-row-checkbox-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id"
+                      [attr.aria-describedby]="row.disabled_reason ? 'reason-' + row.indicator_id : null" />
+                  </div>
+
+                  <!-- Indicator name cell -->
+                  <div class="hlo-modal__col-name" role="gridcell">
+                    <label [htmlFor]="'row-cb-' + row.indicator_id" class="hlo-modal__row-label">
+                      {{ row.indicator_name }}
+                    </label>
+                  </div>
+
+                  <!-- Type cell -->
+                  <div class="hlo-modal__col-type" role="gridcell">
+                    <span class="hlo-modal__indicator-type">{{ row.indicator_type }}</span>
+                  </div>
+
+                  <!-- Target cell -->
+                  <div class="hlo-modal__col-target" role="gridcell">
+                    <span class="hlo-modal__target-value">{{ row.target_description ?? '—' }}</span>
+                  </div>
+
+                  <!-- Commit button cell -->
+                  <div class="hlo-modal__col-action" role="gridcell">
+                    @if (!row.disabled_reason) {
+                      <button
+                        type="button"
+                        pButton
+                        [class]="isRowSelected(row) ? 'hlo-modal__commit-btn hlo-modal__commit-btn--selected p-button-sm' : 'hlo-modal__commit-btn p-button-sm'"
+                        (click)="toggleRowSelection(row)"
+                        [attr.data-testid]="'hlo-modal-row-commit-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id"
+                        [attr.aria-label]="isRowSelected(row) ? 'Remove ' + row.indicator_name : 'Add ' + row.indicator_name">
+                        <i [class]="isRowSelected(row) ? 'pi pi-check' : 'pi pi-plus'" aria-hidden="true"></i>
+                        <span>{{ isRowSelected(row) ? 'Added' : 'Add' }}</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Active AOW has zero rows -->
+          @if (isActiveAowEmpty()) {
+            <p class="hlo-modal__empty-inline">No indicators in this Area of Work.</p>
+          }
+
+          <!-- Search returns no results -->
+          @if (isSearchEmpty()) {
+            <p class="hlo-modal__empty-inline">
+              No indicators match &ldquo;{{ bilateralService.indicatorSearch() }}&rdquo; in this Area of Work.
+            </p>
+          }
+        } @else {
+          <!-- No active AOW selected yet -->
+          <p class="hlo-modal__empty-inline">Select an Area of Work from the sidebar to view indicators.</p>
+        }
+      </section>
+    </div>
+  }
+
+  <!-- ===== FOOTER =============================================================== -->
+  <footer class="hlo-modal__footer">
+    <div class="hlo-modal__counter" aria-live="polite" data-testid="hlo-modal-counter">
+      <span>Selected</span>
+      <i class="pi pi-arrow-right hlo-modal__counter-arrow" aria-hidden="true"></i>
+      <strong>{{ selectionCount() }} items</strong>
+    </div>
+
+    <div class="hlo-modal__footer-actions">
+      <button
+        type="button"
+        pButton
+        class="p-button-outlined p-button-secondary hlo-modal__cancel-btn"
+        (click)="cancel()"
+        data-testid="hlo-modal-cancel">
+        Cancel
+      </button>
+      <button
+        type="button"
+        pButton
+        class="p-button-primary hlo-modal__confirm-btn"
+        [disabled]="isConfirmDisabled()"
+        (click)="confirm()"
+        data-testid="hlo-modal-confirm">
+        Confirm
+      </button>
+    </div>
+  </footer>
+</div>

@@ -185,7 +185,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 
 ### T-BIL-IM-05 — `HloSelectionModalComponent` shell + sidebar + table
 
-- **Status**: `pending` *(UNGATED 2026-05-27 — was previously gated on OQ-IM-2; resolved via §8 ToC backend audit)*
+- **Status**: `completed` (2026-05-28) — see [`./execution.md`](./execution.md) Entry 8. Ships the `no_aow_mappings` default (a) inline, so T-BIL-IM-16's default behavior is delivered here.
 - **Size**: L
 - **Depends on**: T-BIL-IM-02, T-BIL-IM-04
 - **Discharges ACs**: REQ-BIL-IM-02, REQ-BIL-IM-03, REQ-BIL-IM-05.
@@ -523,7 +523,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 | T-BIL-IM-02 | `ModalName 'hloSelection'` + `HloSelectionModalContextService` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | `[~]` read slice done (2026-05-28); write surface gated |
-| T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | ~~OQ-IM-2~~ ungated 2026-05-27 | pending |
+| T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | ~~OQ-IM-2~~ ungated 2026-05-27 | **completed** (2026-05-28) |
 | T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending *(partially blocked — `disabled_reason` not on new endpoint)* |
 | T-BIL-IM-07 | Modal session-state + Cancel-confirm dialog | S | T-BIL-IM-05 | — | pending |
 | T-BIL-IM-08 | `HloCardComponent` — header + target + reason + × | L | T-BIL-IM-04 | OQ-IM-1/3 | pending — GATED |

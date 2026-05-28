@@ -144,6 +144,24 @@
 
 ---
 
+### Entry 8 — T-BIL-IM-05 — `HloSelectionModalComponent` shell + sidebar + table
+
+| Field | Value |
+| --- | --- |
+| Status | ✅ completed (PASS attempt 1 + a Leader-requested polish pass) |
+| Date | 2026-05-28 |
+| Method | `/sdd-execute` triad. The read-side ToC/HLO picker — fully ungated (OQ-IM-2 resolved 2026-05-27). |
+| Files changed | NEW `research-indicators/src/app/shared/components/all-modals/modals-content/hlo-selection-modal/hlo-selection-modal.component.{ts,html,scss,spec.ts}`; `all-modals.component.{ts,html}` (host wiring — import + `imports[]` + `<app-modal modalName="hloSelection">`, matching the `selectLinkedResults` sibling pattern). |
+| Implemented | Three-zone modal: header (`High Level Outputs` + ×), 256px SP→AOW sidebar (programs deduped, per-AOW `<p-badge>` selection counts), main pane (breadcrumb + 300ms-debounced client-side search over `indicator_name` synced to `indicatorSearch` + indicator table scoped to the active `(program, area_of_work)` pair via `indicatorRows()`), footer (`Selected → N items` counter `aria-live=polite` + Cancel/Confirm). Selection toggles `HloKeyString` in `hloModalSelection` immutably. Confirm → `commitModalSelection()` + close; Cancel → close (seed + discard-confirm deferred to T-BIL-IM-07). Consumes the service's derived `indicatorRows()` — never traverses `pairs[].outcomes[].indicators[]` in the template. On open, fetches via the context's `resultCode` guarded by `!hlosIndicators()` (5-min-cache respect). |
+| `aow_status` branches | `'unmapped'` → blocking copy + empty sidebar + Confirm disabled (`hlo-modal-empty-unmapped`); `'no_aow_mappings'` → **default (a)** flat-per-SP with `area_of_work===''` key token (`hlo-modal-empty-no-aow`) — **this delivers T-BIL-IM-16's default**; `'has_aow'` → canonical tree; `pairs:[]` → catalog-unavailable + Confirm disabled (`hlo-modal-empty-pairs`); plus active-AOW-empty + search-empty inline messages. |
+| Tokens / a11y | Active/selected highlight uses `var(--ac-light-blue-100)` (real token: light `#79d9ff` / dark `#4a708b`). Zero hex literals, no `isDarkMode()` color branching. Counter `aria-live`, AOW badge + close-button `aria-label`s, SP/AOW as native focusable `<button>`s (Tab/Enter — satisfies WCAG 2.1 AA keyboard operability). |
+| Reviewer verdict | **PASS** (attempt 1). No critical issues. Two "should-fix" warnings raised → fixed in the polish pass: (1) a `$any($event.target)` strict-template escape on the search input → replaced with `(input)="onSearchInput($event)"` + `(event.target as HTMLInputElement)` cast in the component; (2) the spec-required "5-min cache / second-open spy" test was missing → added (the guard itself already existed). |
+| Accepted divergences / hand-offs | <ul><li>**Arrow-key sidebar nav** (`design.md §9`) is NOT in T-BIL-IM-05's task criteria and is NOT a WCAG 2.1 AA requirement (native `<button>`s are Tab/Enter operable). Treated as an enhancement; not implemented. Spec inconsistency noted — track as a future polish if design insists.</li><li>**`aria-describedby="reason-{id}"`** on disabled-row checkboxes is intentional forward-wiring for **T-BIL-IM-06** (which adds the matching `id` reason callout). Harmless until then — `disabled_reason` is always `null` on the live endpoint (R-10). Handed off to T-BIL-IM-06.</li></ul> |
+| Verification (final) | • `npm run lint` → clean. • `npm run s-lint` → clean on new SCSS. • `npm run test -- hlo-selection-modal` → 25/25 pass; component coverage ≥ 70% floor met (80.5% stmts after fixups). • `npm run build` → clean (component `.scss` 4.86 kB, under the 8 kB error budget). |
+| ACs discharged | REQ-BIL-IM-02, REQ-BIL-IM-03, REQ-BIL-IM-05. Plus T-BIL-IM-16's `no_aow_mappings` default (a). |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
