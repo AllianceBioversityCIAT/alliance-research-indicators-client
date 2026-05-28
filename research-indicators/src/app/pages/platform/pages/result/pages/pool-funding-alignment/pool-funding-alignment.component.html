@@ -11,13 +11,21 @@
                aria-hidden="true"
                data-testid="pf-alignment-title-info-icon"></i>
           </div>
-          @if (isReadOnly()) {
+          @if (readOnlyCause() === 'synced') {
             <app-custom-tag
               statusId="pf-synced"
               [statusName]="SYNCED_BADGE_LABEL"
               [tooltip]="SYNCED_BANNER"
               [attr.aria-label]="SYNCED_BADGE_ARIA_LABEL"
               data-testid="pf-alignment-synced-badge">
+            </app-custom-tag>
+          } @else if (readOnlyCause() === 'prms-sourced') {
+            <app-custom-tag
+              statusId="pf-synced"
+              [statusName]="PRMS_SOURCED_BADGE_LABEL"
+              [tooltip]="PRMS_SOURCED_BANNER"
+              [attr.aria-label]="PRMS_SOURCED_BADGE_ARIA_LABEL"
+              data-testid="pf-alignment-prms-sourced-badge">
             </app-custom-tag>
           }
         </div>
@@ -28,13 +36,19 @@
           </section>
         }
 
-        @if (isReadOnly()) {
+        @if (readOnlyCause() === 'synced') {
           <div role="status" aria-live="polite"
                class="mb-6 p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm"
                data-testid="pf-alignment-synced-banner">
             {{ SYNCED_BANNER }}
           </div>
-        } @else if (!editable()) {
+        } @else if (readOnlyCause() === 'prms-sourced') {
+          <div role="status" aria-live="polite"
+               class="mb-6 p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm"
+               data-testid="pf-alignment-prms-sourced-banner">
+            {{ PRMS_SOURCED_BANNER }}
+          </div>
+        } @else if (readOnlyCause() === 'permission') {
           <div role="status" aria-live="polite"
                class="mb-6 p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm"
                data-testid="pf-alignment-readonly-banner">

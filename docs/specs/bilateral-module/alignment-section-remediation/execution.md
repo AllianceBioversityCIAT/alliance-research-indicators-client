@@ -63,4 +63,25 @@
 
 ---
 
+### T-BIL-ASR-02 — PRMS-sourced read-only differentiation
+
+**Status:** `complete` ✅ — PASS on attempt 1 (2026-05-27).
+**Requirements covered:** REQ-BIL-ASR-02 (AC-02.1 … AC-02.5).
+
+#### Attempt 1 — Implementer (resumed `impl-asr-01`)
+
+- **Files changed:** `pool-funding-alignment.component.{ts,html,spec.ts}`. (+213 / −12)
+- **Approach:** Added `isSyncedToPrms` + `readOnlyCause` computeds (`'synced' | 'prms-sourced' | 'permission' | null`; `is_read_only` short-circuits before `editable()`, per `tasks.md` derivation). New constants `PRMS_SOURCED_BADGE_LABEL='Owned by PRMS'`, `PRMS_SOURCED_BANNER`, `PRMS_SOURCED_BADGE_ARIA_LABEL`, `PRMS_SOURCED_409_DESCRIPTION`. Template branches badge + banner on `readOnlyCause()` (synced / prms-sourced / permission). The 409 refetch pre-existed (from T-01's commit); only the toast COPY was branched on the locked PRMS-sourced description — generic 409s keep the verbatim "Synced to PRMS" toast.
+- **`is_synced_to_prms`:** read off the alignment signal; `AlignmentResponse.is_synced_to_prms` already existed (no interface change).
+- **AC-02.5:** existing `[disabled]="!editable() || isReadOnly()"` + `[showSave]="editable() && !isReadOnly()"` bindings already disable inputs identically for all three causes — unchanged, verified.
+- **Tests:** added a full REQ-BIL-ASR-02 suite (readOnlyCause four-state derivation; AC-02.1/02.2/02.3/02.5/02.4 DOM + 409-refetch; non-PRMS 409 regression). Disambiguated two pre-existing "synced" DOM tests by adding `is_synced_to_prms: true` (baseAlignment had it false → would now resolve to 'prms-sourced'); strengthened them with prms-sourced-absent assertions.
+- **Verification:** `npm run test -- pool-funding-alignment bilateral.service` → **2 suites / 93 tests pass**; `npm run lint` clean; `npm run build` exit 0.
+- **Reviewer verdict (`rev-asr-01`): `STATUS: PASS`.** Claim-by-claim verified: derivation matches tasks.md; refetch pre-existed (only toast branched); AC-02.5 disabling structurally identical; the two modified tests are legitimate disambiguation (coverage increase); a11y parity (aria-label + role="status", `pf-synced` token, no new hex); T-01 picker chain untouched.
+
+#### A11y / tokens
+
+- New badge reuses `statusId="pf-synced"` (token color, dark+light parity per NF-ASR-04) + `[attr.aria-label]`; banner `role="status" aria-live="polite"` — parity with the synced badge/banner (NF-ASR-02). No new hex.
+
+---
+
 *(Summary section will be added when all tasks reach a terminal state.)*

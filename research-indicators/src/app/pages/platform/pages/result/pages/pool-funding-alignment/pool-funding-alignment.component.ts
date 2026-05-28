@@ -78,6 +78,13 @@ export default class PoolFundingAlignmentComponent {
   readonly READ_ONLY_BANNER = "You don't have permission to edit this section.";
   readonly SYNCED_BADGE_LABEL = 'Synced — read only';
   readonly SYNCED_BADGE_ARIA_LABEL = 'Pool Funding Alignment is synced and read only';
+  // REQ-BIL-ASR-02 — PRMS-sourced read-only differentiation. The result is owned
+  // by PRMS (is_read_only && !is_synced_to_prms), distinct from the synced cause.
+  readonly PRMS_SOURCED_BADGE_LABEL = 'Owned by PRMS';
+  readonly PRMS_SOURCED_BADGE_ARIA_LABEL = 'Pool Funding Alignment is owned by PRMS and read only';
+  readonly PRMS_SOURCED_BANNER = 'This result is owned by PRMS. Bilateral alignment is read-only in STAR.';
+  // Locked backend 409 description that signals the PRMS-sourced read-only cause.
+  readonly PRMS_SOURCED_409_DESCRIPTION = 'Result is PRMS-sourced; bilateral alignment is read-only in STAR';
   readonly INFO_BANNER = 'Select the High-Level Outputs (HLO) and related indicators this result contributes to.';
   readonly CONTRIBUTION_QUESTION = 'Does this result contribute to a Science Program or Accelerator?';
   readonly SP_PICKER_LABEL = 'Select the Science Program(s) this is related to';
@@ -97,6 +104,16 @@ export default class PoolFundingAlignmentComponent {
 
   readonly isReadOnly = computed(() => !!this.alignment()?.is_read_only);
   readonly eligible = computed(() => !!this.alignment()?.eligible);
+
+  // REQ-BIL-ASR-02 — distinguish WHY the section is read-only so the badge + banner
+  // copy can differ while inputs stay disabled identically (AC-02.5). `is_read_only`
+  // is now a union (R-BIL-071): synced-to-PRMS OR PRMS-sourced.
+  readonly isSyncedToPrms = computed(() => !!this.alignment()?.is_synced_to_prms);
+  readonly readOnlyCause = computed<'synced' | 'prms-sourced' | 'permission' | null>(() => {
+    if (this.isReadOnly()) return this.isSyncedToPrms() ? 'synced' : 'prms-sourced';
+    if (!this.editable()) return 'permission';
+    return null;
+  });
 
   // Per-result SP picker source + empty-state discriminators (REQ-BIL-ASR-01).
   readonly sciencePrograms = this.bilateralService.sciencePrograms;
@@ -252,12 +269,24 @@ export default class PoolFundingAlignmentComponent {
     }
 
     if (result.status === 409) {
+      // Refetch so the read-only flags refresh — `readOnlyCause` then resolves to
+      // the right cause ('prms-sourced' vs 'synced') and the matching banner renders
+      // (AC-02.4). Differentiate the toast copy by the locked PRMS-sourced 409 desc.
       await this.bilateralService.getAlignment(this.resultCode());
-      this.actions.showToast({
-        severity: 'warning',
-        summary: 'Synced to PRMS',
-        detail: 'This result was synced to PRMS. Your unsaved alignment changes were not applied.'
-      });
+      const isPrmsSourced = result.description === this.PRMS_SOURCED_409_DESCRIPTION;
+      this.actions.showToast(
+        isPrmsSourced
+          ? {
+              severity: 'warning',
+              summary: 'Owned by PRMS',
+              detail: 'This result is owned by PRMS. Bilateral alignment is read-only in STAR. Your changes were not applied.'
+            }
+          : {
+              severity: 'warning',
+              summary: 'Synced to PRMS',
+              detail: 'This result was synced to PRMS. Your unsaved alignment changes were not applied.'
+            }
+      );
       return;
     }
     // 5xx — global httpErrorInterceptor owns the toast; form state preserved for retry.

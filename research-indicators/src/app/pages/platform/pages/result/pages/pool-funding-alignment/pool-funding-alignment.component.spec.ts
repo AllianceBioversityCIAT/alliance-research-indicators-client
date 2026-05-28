@@ -643,14 +643,15 @@ describe('PoolFundingAlignmentComponent', () => {
   });
 
   describe('read-only DOM (banners + badge + Save visibility)', () => {
-    it('renders synced badge + synced banner when is_read_only=true; Save absent', () => {
-      currentAlignment.set({ ...baseAlignment, is_read_only: true });
+    it('renders synced badge + synced banner when is_read_only && is_synced_to_prms; Save absent', () => {
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: true });
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-banner"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-readonly-banner"]')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-prms-sourced-banner"]')).toBeNull();
     });
 
     it('renders read-only banner when !editable && !is_read_only; no synced badge', () => {
@@ -664,14 +665,15 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).toBeNull();
     });
 
-    it('synced wins when both is_read_only and !editable hold (precedence)', () => {
+    it('synced wins when both is_read_only (synced) and !editable hold (precedence)', () => {
       editable.set(false);
-      currentAlignment.set({ ...baseAlignment, is_read_only: true });
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: true });
       fixture.detectChanges();
 
       const root: HTMLElement = fixture.nativeElement;
       expect(root.querySelector('[data-testid="pf-alignment-synced-banner"]')).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-readonly-banner"]')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-prms-sourced-banner"]')).toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).not.toBeNull();
     });
 
@@ -683,7 +685,163 @@ describe('PoolFundingAlignmentComponent', () => {
       const root: HTMLElement = fixture.nativeElement;
       expect(root.querySelector('[data-testid="pf-alignment-synced-banner"]')).toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-readonly-banner"]')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-prms-sourced-banner"]')).toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-synced-badge"]')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-prms-sourced-badge"]')).toBeNull();
+    });
+  });
+
+  describe('PRMS-sourced read-only differentiation (REQ-BIL-ASR-02)', () => {
+    const queryReadOnlyDom = () => {
+      const root: HTMLElement = fixture.nativeElement;
+      return {
+        syncedBadge: root.querySelector('[data-testid="pf-alignment-synced-badge"]'),
+        prmsBadge: root.querySelector('[data-testid="pf-alignment-prms-sourced-badge"]'),
+        syncedBanner: root.querySelector('[data-testid="pf-alignment-synced-banner"]'),
+        prmsBanner: root.querySelector('[data-testid="pf-alignment-prms-sourced-banner"]'),
+        permissionBanner: root.querySelector('[data-testid="pf-alignment-readonly-banner"]'),
+        radioYes: root.querySelector('[data-testid="pf-alignment-radio-yes"]')
+      };
+    };
+
+    it('exposes the PRMS-sourced copy constants', () => {
+      expect(component.PRMS_SOURCED_BADGE_LABEL).toBe('Owned by PRMS');
+      expect(component.PRMS_SOURCED_BANNER).toBe('This result is owned by PRMS. Bilateral alignment is read-only in STAR.');
+      expect(component.PRMS_SOURCED_409_DESCRIPTION).toBe('Result is PRMS-sourced; bilateral alignment is read-only in STAR');
+    });
+
+    it('readOnlyCause derivation across the four states', () => {
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: true });
+      expect(component.readOnlyCause()).toBe('synced');
+
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: false });
+      expect(component.readOnlyCause()).toBe('prms-sourced');
+
+      editable.set(false);
+      currentAlignment.set({ ...baseAlignment, is_read_only: false, is_synced_to_prms: false });
+      expect(component.readOnlyCause()).toBe('permission');
+
+      editable.set(true);
+      currentAlignment.set({ ...baseAlignment, is_read_only: false, is_synced_to_prms: false });
+      expect(component.readOnlyCause()).toBeNull();
+    });
+
+    it('AC-02.1 — synced cause renders the synced badge + banner (unchanged), not the PRMS-sourced ones', () => {
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: true });
+      fixture.detectChanges();
+
+      const dom = queryReadOnlyDom();
+      expect(dom.syncedBadge).not.toBeNull();
+      expect(dom.syncedBanner).not.toBeNull();
+      expect(dom.prmsBadge).toBeNull();
+      expect(dom.prmsBanner).toBeNull();
+      expect(dom.permissionBanner).toBeNull();
+    });
+
+    it('AC-02.2 — PRMS-sourced cause renders the new "Owned by PRMS" badge + banner, not the synced ones', () => {
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: false });
+      fixture.detectChanges();
+
+      const dom = queryReadOnlyDom();
+      expect(dom.prmsBadge).not.toBeNull();
+      expect(dom.prmsBanner).not.toBeNull();
+      expect(dom.prmsBanner?.textContent).toContain('owned by PRMS');
+      expect(component.PRMS_SOURCED_BADGE_LABEL).toBe('Owned by PRMS');
+      expect(dom.syncedBadge).toBeNull();
+      expect(dom.syncedBanner).toBeNull();
+      expect(dom.permissionBanner).toBeNull();
+    });
+
+    it('AC-02.3 — permission cause renders the permission banner (unchanged), no badge', () => {
+      editable.set(false);
+      currentAlignment.set({ ...baseAlignment, is_read_only: false, is_synced_to_prms: false });
+      fixture.detectChanges();
+
+      const dom = queryReadOnlyDom();
+      expect(dom.permissionBanner).not.toBeNull();
+      expect(dom.syncedBanner).toBeNull();
+      expect(dom.prmsBanner).toBeNull();
+      expect(dom.syncedBadge).toBeNull();
+      expect(dom.prmsBadge).toBeNull();
+    });
+
+    it('AC-02.5 — inputs are disabled identically across synced, prms-sourced, and permission causes', () => {
+      // The template disables every editable control with `!editable() || isReadOnly()`.
+      // Assert that expression is truthy for all three read-only causes (and that
+      // canSave is blocked) so the disabled behavior is identical regardless of cause.
+      const inputsDisabled = () => !component.editable() || component.isReadOnly();
+
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: true });
+      expect(component.readOnlyCause()).toBe('synced');
+      expect(inputsDisabled()).toBe(true);
+      expect(component.canSave()).toBe(false);
+
+      currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: false });
+      expect(component.readOnlyCause()).toBe('prms-sourced');
+      expect(inputsDisabled()).toBe(true);
+      expect(component.canSave()).toBe(false);
+
+      editable.set(false);
+      currentAlignment.set({ ...baseAlignment, is_read_only: false, is_synced_to_prms: false });
+      expect(component.readOnlyCause()).toBe('permission');
+      expect(inputsDisabled()).toBe(true);
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('AC-02.4 — 409 with the PRMS-sourced description refetches and resolves to the prms-sourced banner', async () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 409,
+        description: 'Result is PRMS-sourced; bilateral alignment is read-only in STAR'
+      } as PatchAlignmentResult);
+      // Simulate the refetch landing the PRMS-sourced flags.
+      getAlignmentMock.mockClear();
+      getAlignmentMock.mockImplementation(async () => {
+        currentAlignment.set({ ...baseAlignment, is_read_only: true, is_synced_to_prms: false });
+        return currentAlignment();
+      });
+
+      await component.onSave();
+
+      expect(getAlignmentMock).toHaveBeenCalledWith('RES-001');
+      expect(component.readOnlyCause()).toBe('prms-sourced');
+      fixture.detectChanges();
+      const dom = queryReadOnlyDom();
+      expect(dom.prmsBanner).not.toBeNull();
+      expect(dom.syncedBanner).toBeNull();
+      expect(showToastMock).toHaveBeenCalledWith({
+        severity: 'warning',
+        summary: 'Owned by PRMS',
+        detail: 'This result is owned by PRMS. Bilateral alignment is read-only in STAR. Your changes were not applied.'
+      });
+    });
+
+    it('409 without the PRMS-sourced description keeps the existing "Synced to PRMS" toast (unchanged)', async () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 409,
+        description: 'Result was synced to PRMS'
+      } as PatchAlignmentResult);
+      getAlignmentMock.mockClear();
+      getAlignmentMock.mockResolvedValue({ ...baseAlignment, is_read_only: true, is_synced_to_prms: true });
+
+      await component.onSave();
+
+      expect(showToastMock).toHaveBeenCalledWith({
+        severity: 'warning',
+        summary: 'Synced to PRMS',
+        detail: 'This result was synced to PRMS. Your unsaved alignment changes were not applied.'
+      });
     });
   });
 

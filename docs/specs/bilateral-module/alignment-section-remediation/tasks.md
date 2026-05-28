@@ -49,7 +49,7 @@ All three can be done in parallel or bundled into one PR (they touch overlapping
 
 ### T-BIL-ASR-02 — PRMS-sourced read-only differentiation
 
-- **Status**: `pending`
+- **Status**: `complete` ✅ (PASS attempt 1, 2026-05-27 — see `execution.md`)
 - **Size**: S (~½ day)
 - **Discharges**: REQ-BIL-ASR-02.
 - **Touches**:
@@ -106,7 +106,7 @@ All three can be done in parallel or bundled into one PR (they touch overlapping
 | ID | Title | Size | Gating | Status |
 | --- | --- | --- | --- | --- |
 | T-BIL-ASR-01 | Per-result SP picker | S | none | complete ✅ |
-| T-BIL-ASR-02 | PRMS-sourced read-only differentiation | S | none | pending |
+| T-BIL-ASR-02 | PRMS-sourced read-only differentiation | S | none | complete ✅ |
 | T-BIL-ASR-03 | `unknown_sp_codes` 400 handler | S | none | pending |
 
 ---
