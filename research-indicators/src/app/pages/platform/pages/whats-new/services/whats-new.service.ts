@@ -125,12 +125,12 @@ export class WhatsNewService {
     this.releaseNotesApi.queryReleaseNotesPage(cursor).subscribe({
       next: res => {
         const merged = [...(this.notionData()?.results ?? []), ...(res.results ?? [])];
-        const sorted = merged.sort((a, b) => this.getSortDateTime(b) - this.getSortDateTime(a));
-        this.notionData.set({ results: sorted });
+        merged.sort((a, b) => this.getSortDateTime(b) - this.getSortDateTime(a));
+        this.notionData.set({ results: merged });
         this.releaseNotesHasMore = Boolean(res.has_more);
         this.releaseNotesNextCursor = res.next_cursor ?? null;
 
-        const loadedCount = sorted.length;
+        const loadedCount = merged.length;
         if (loadedCount < minimumCount && this.releaseNotesHasMore && this.releaseNotesNextCursor) {
           this.fetchNextReleaseNotesPage(minimumCount, trackLoadingFlag);
           return;
