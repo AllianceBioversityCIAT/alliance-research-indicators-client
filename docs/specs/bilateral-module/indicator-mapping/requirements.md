@@ -409,7 +409,7 @@ Guard composition reuses `BilateralService.editable` — no new permission logic
 > - **OQ-IM-3 ACCEPTED** by backend; ships in ~½ day bundled with bonuses. Body shape couples to OQ-IM-1's outcome — backend can ship now with the current polymorphic shape OR wait for OQ-IM-1 to simplify.
 > - **Bonus `is_stale` already shipped** on the panel response DTO — FE can consume immediately. The audit was stale on this one.
 > - **Bonus `is_quantitative` + `disabled_reason` ACCEPTED** by backend, gated on BA seed list + reason taxonomy alignment.
-> - **OQ-IM-1 escalated to PO** — backend won't act without PO retiring R-BIL-031 + D5 + D12 (the per-type-payload requirement + its supporting decisions).
+> - **OQ-IM-1 escalated to PO** — backend won't act without PO retiring **R-BIL-031** (the per-type-payload requirement). Per the 2026-05-27 decision brief ([`../ari-backend-context/po-decision-brief-OQ-IM-1.md`](../ari-backend-context/po-decision-brief-OQ-IM-1.md) §8), this is a **single** decision — D5 (innovation_use deferral) + D12 (typo preservation) become moot downstream consequences under Path A, not separate items the PO has to weigh. Decision brief ready to send; recommended decision-by 2026-06-03.
 > - **OQ-IM-2 escalated to BA** — overtaken by the 2026-05-27 ToC backend audit (see next bullet).
 > - **OQ-IM-4 reclassified as gating-once-OQ-IM-1-Path-A-approved** by backend (validation needs a finite enum). Provisional default `direct_contribution | aligned_with | reference_only | other`; FE's UX position recorded in [`./open-questions-for-ba.md` §7.4](./open-questions-for-ba.md#74-stars-open-follow-ups-where-the-fe-has-input).
 >

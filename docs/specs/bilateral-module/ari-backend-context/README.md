@@ -17,9 +17,11 @@ docs/specs/bilateral-module/
 ├── jira-us/               — user-story reference (Jira epic AC-1385)
 ├── prms-context/          — what PRMS already built and how STAR can reuse it
 ├── ari-backend-context/   — this corner: the live API the STAR client integrates against
-│   ├── README.md                  — you are here
-│   ├── frontend-handoff.md        — verbatim snapshot of the backend handoff (commit 7cb00e07)
-│   └── backend-response-to-fe.md  — 2026-05-26 backend reply to the indicator-mapping §6 audit (commit cfbeb8ec)
+│   ├── README.md                     — you are here
+│   ├── frontend-handoff.md           — verbatim snapshot of the backend handoff (commit 7cb00e07)
+│   ├── backend-response-to-fe.md     — 2026-05-26 backend reply to the indicator-mapping §6 audit (commit cfbeb8ec)
+│   ├── frontend-data-model.md        — 2026-05-27 backend model explainer: per-result SP picker (T-15.11) + AOW-derived HLO panel (T-15.12) (commit 48cc3e8c)
+│   └── po-decision-brief-OQ-IM-1.md  — 2026-05-27 path-agnostic PO one-pager for OQ-IM-1 (retire R-BIL-031 or affirm); ready to send upstream
 └── (no requirements.md/design.md/tasks.md yet — see §5)
 ```
 
@@ -111,3 +113,6 @@ The constitutional docs that bind these are listed in the root [`CLAUDE.md`](../
 | Date | Change | Snapshot commit | Author |
 | --- | --- | --- | --- |
 | 2026-05-19 | Initial import of the backend handoff into the STAR client repo as a new context corner. | `7cb00e07` | STAR (`AC-1594-bilateral-module`) |
+| 2026-05-26 | Added `backend-response-to-fe.md` — backend's structured reply to the indicator-mapping §6 audit. | `cfbeb8ec` | STAR (`AC-1594-bilateral-module`) |
+| 2026-05-27 | Added `frontend-data-model.md` — backend's model explainer for the per-result SP picker (T-15.11) + AOW-derived HLO panel (T-15.12). Authoritative reference for the FE immediate-wins remediation arc. | `48cc3e8c` | STAR (`AC-1594-bilateral-module`) |
+| 2026-05-27 | Added `po-decision-brief-OQ-IM-1.md` — path-agnostic PO one-pager for OQ-IM-1. Backend-drafted, uncommitted on the backend side at snapshot time. Recommended decision-by 2026-06-03. | *(uncommitted)* | STAR (`AC-1594-bilateral-module`) |
