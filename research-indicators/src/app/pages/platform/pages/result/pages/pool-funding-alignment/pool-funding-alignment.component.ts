@@ -73,6 +73,10 @@ export default class PoolFundingAlignmentComponent {
 
   readonly loadFailed = signal(false);
   readonly inlineErrors = signal<Record<string, string> | null>(null);
+  // REQ-BIL-ASR-03 — SP codes rejected by the last PATCH 400 (`unknown_sp_codes`).
+  // Drives both the inline message (via inlineErrors['sp_codes']) and the per-chip
+  // error highlight. Cleared on any selection change (AC-03.4).
+  readonly rejectedSpCodes = signal<string[]>([]);
 
   readonly SYNCED_BANNER = 'This result has been pushed to PRMS. Alignment can no longer be edited from STAR.';
   readonly READ_ONLY_BANNER = "You don't have permission to edit this section.";
@@ -91,6 +95,9 @@ export default class PoolFundingAlignmentComponent {
   readonly UNMAPPED_SP_MESSAGE =
     "This result isn't linked to a CLARISA project yet. Contact the bilateral operations team to register the project mapping.";
   readonly NO_SP_DEFINED_MESSAGE = 'The linked CLARISA project has no Science Programs defined.';
+  // REQ-BIL-ASR-03 — AC-03.3 inline message naming the rejected SP codes.
+  readonly REJECTED_SP_MESSAGE_PREFIX = 'These Science Programs are no longer valid for this result: ';
+  readonly REJECTED_SP_MESSAGE_SUFFIX = '. Remove them and save again.';
   readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
   readonly HLO_CARD_TITLE = 'VIEW HIGH LEVEL OUTPUTS';
   readonly HLO_CARD_BODY =
@@ -225,6 +232,35 @@ export default class PoolFundingAlignmentComponent {
       has_contribution: value,
       selected_sps: value === false ? [] : form.selected_sps
     }));
+    // Flipping to "No" clears the selection, so any rejected-code state is stale.
+    if (value === false) this.clearRejectedSpError();
+  }
+
+  // REQ-BIL-ASR-03 (AC-03.4) — any change to the SP selection clears the inline
+  // rejection error + chip highlight so the next save attempt starts clean.
+  onSpSelectionChange(): void {
+    this.clearRejectedSpError();
+  }
+
+  private clearRejectedSpError(): void {
+    if (this.rejectedSpCodes().length > 0) this.rejectedSpCodes.set([]);
+    const errors = this.inlineErrors();
+    if (errors?.['sp_codes']) {
+      const rest = { ...errors };
+      delete rest['sp_codes'];
+      this.inlineErrors.set(Object.keys(rest).length > 0 ? rest : null);
+    }
+  }
+
+  // REQ-BIL-ASR-03 (AC-03.2) — used by the chip template to apply error styling to
+  // chips whose code was rejected by the last PATCH 400.
+  isRejectedSp(code: string | null | undefined): boolean {
+    if (!code) return false;
+    return this.rejectedSpCodes().includes(code);
+  }
+
+  private buildRejectedSpMessage(codes: string[]): string {
+    return `${this.REJECTED_SP_MESSAGE_PREFIX}${codes.join(', ')}${this.REJECTED_SP_MESSAGE_SUFFIX}`;
   }
 
   onOpenHloSelector(): void {
@@ -239,6 +275,7 @@ export default class PoolFundingAlignmentComponent {
   async onSave(): Promise<void> {
     if (!this.canSave()) return;
     this.inlineErrors.set(null);
+    this.rejectedSpCodes.set([]);
 
     const form = this.formData();
     const body: UpdatePoolFundingAlignmentDto = {
@@ -264,6 +301,16 @@ export default class PoolFundingAlignmentComponent {
     }
 
     if (result.status === 400) {
+      // REQ-BIL-ASR-03 — rejected SP codes drive an inline picker error + chip
+      // highlight (no generic toast — already suppressed for /pool-funding-alignment).
+      if (result.unknownSpCodes && result.unknownSpCodes.length > 0) {
+        this.rejectedSpCodes.set([...result.unknownSpCodes]);
+        this.inlineErrors.set({
+          ...(result.fieldErrors ?? {}),
+          sp_codes: this.buildRejectedSpMessage(result.unknownSpCodes)
+        });
+        return;
+      }
       this.inlineErrors.set(result.fieldErrors ?? { _global: result.description || 'Validation failed' });
       return;
     }

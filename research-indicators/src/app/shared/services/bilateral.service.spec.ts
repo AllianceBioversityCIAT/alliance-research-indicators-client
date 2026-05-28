@@ -402,6 +402,89 @@ describe('BilateralService', () => {
       expect((result as { fieldErrors?: unknown }).fieldErrors).toBeUndefined();
     });
 
+    it('REQ-BIL-ASR-03 — 400 with unknown_sp_codes as STRINGIFIED-JSON errors → unknownSpCodes populated', async () => {
+      const errorsJson = JSON.stringify({ unknown_sp_codes: ['SP04', 'SP07'] });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue({
+        data: undefined,
+        status: 400,
+        description: 'Validation failed',
+        timestamp: '',
+        path: '',
+        successfulRequest: false,
+        errorDetail: { errors: errorsJson, detail: '', description: 'Validation failed' }
+      } as MainResponse<AlignmentResponse>);
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true, sp_codes: ['SP04', 'SP07'] });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04', 'SP07']
+      });
+      // unknown_sp_codes is an array → NOT captured by the string-valued fieldErrors path.
+      expect((result as { fieldErrors?: unknown }).fieldErrors).toBeUndefined();
+    });
+
+    it('REQ-BIL-ASR-03 — 400 with unknown_sp_codes as an OBJECT errors envelope → unknownSpCodes populated (tolerant of object shape)', async () => {
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue({
+        data: undefined,
+        status: 400,
+        description: 'Validation failed',
+        timestamp: '',
+        path: '',
+        successfulRequest: false,
+        // Live envelope may return `errors` as an object rather than stringified JSON.
+        errorDetail: { errors: { unknown_sp_codes: ['SP09'] } as unknown as string, detail: '', description: 'Validation failed' }
+      } as MainResponse<AlignmentResponse>);
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true, sp_codes: ['SP09'] });
+
+      expect((result as { unknownSpCodes?: string[] }).unknownSpCodes).toEqual(['SP09']);
+    });
+
+    it('REQ-BIL-ASR-03 — 400 with BOTH string-valued field errors and an unknown_sp_codes array → fieldErrors AND unknownSpCodes both surfaced (no regression)', async () => {
+      const errorsJson = JSON.stringify({ has_contribution: 'must be true or false', unknown_sp_codes: ['SP04'] });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue({
+        data: undefined,
+        status: 400,
+        description: 'Validation failed',
+        timestamp: '',
+        path: '',
+        successfulRequest: false,
+        errorDetail: { errors: errorsJson, detail: '', description: 'Validation failed' }
+      } as MainResponse<AlignmentResponse>);
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        // string-valued path still works exactly as before…
+        fieldErrors: { has_contribution: 'must be true or false' },
+        // …and the array is carried separately.
+        unknownSpCodes: ['SP04']
+      });
+    });
+
+    it('REQ-BIL-ASR-03 — 400 whose unknown_sp_codes array has no valid string entries → no unknownSpCodes key', async () => {
+      const errorsJson = JSON.stringify({ unknown_sp_codes: ['', 123, null] });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue({
+        data: undefined,
+        status: 400,
+        description: 'Validation failed',
+        timestamp: '',
+        path: '',
+        successfulRequest: false,
+        errorDetail: { errors: errorsJson, detail: '', description: 'Validation failed' }
+      } as MainResponse<AlignmentResponse>);
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect((result as { unknownSpCodes?: unknown }).unknownSpCodes).toBeUndefined();
+    });
+
     it('409 — returns ok:false with status 409 (component handles refetch)', async () => {
       mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(
         err<AlignmentResponse>(409, 'Result was synced to PRMS', undefined as unknown as AlignmentResponse)

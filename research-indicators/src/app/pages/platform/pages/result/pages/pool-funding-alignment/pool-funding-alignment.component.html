@@ -129,9 +129,13 @@
                 placeholder="Select Science Programs"
                 selectedItemsSurfaceColor="#FFFFFF"
                 [columnsOnXl]="true"
-                [disabled]="!editable() || isReadOnly()">
+                [disabled]="!editable() || isReadOnly()"
+                (selectEvent)="onSpSelectionChange()">
                 <ng-template #rows let-row>
-                  <span class="flex items-center gap-2 min-w-0">
+                  <span class="flex items-center gap-2 min-w-0"
+                        [class.pf-sp-chip-rejected]="isRejectedSp(row.code || row.official_code)"
+                        [attr.data-rejected]="isRejectedSp(row.code || row.official_code) ? 'true' : null"
+                        [attr.data-testid]="'pf-alignment-sp-chip-' + (row.code || row.official_code)">
                     <img [src]="'/sps/' + row.icon_key + '.png'"
                          [alt]="row.code + ' icon'"
                          class="rounded shrink-0 object-cover"

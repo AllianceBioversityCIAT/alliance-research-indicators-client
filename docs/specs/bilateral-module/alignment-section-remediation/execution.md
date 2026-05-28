@@ -84,4 +84,45 @@
 
 ---
 
-*(Summary section will be added when all tasks reach a terminal state.)*
+### T-BIL-ASR-03 — `unknown_sp_codes` 400 handler
+
+**Status:** `complete` ✅ — PASS on attempt 1 (2026-05-27).
+**Requirements covered:** REQ-BIL-ASR-03 (AC-03.1 … AC-03.4).
+
+#### Attempt 1 — Implementer (resumed `impl-asr-01`)
+
+- **Files changed:** `bilateral.service.{ts,spec.ts}`, `pool-funding-alignment.component.{ts,html,scss,spec.ts}`. (+338 / −4)
+- **Approach:** Added a SEPARATE, envelope-tolerant `extractUnknownSpCodes` (the shipped `extractFieldErrors` keeps only string-valued entries from stringified-JSON, so it drops the array — R-1). It accepts `errorDetail.errors` as a stringified-JSON string OR an already-parsed object, reads `unknown_sp_codes`, keeps non-empty strings. New `unknownSpCodes?: string[]` on the `PatchAlignmentResult` ok:false variant (spread only when present). `extractFieldErrors` left **byte-for-byte unchanged**.
+- **Component:** `rejectedSpCodes` signal + `isRejectedSp()` + `buildRejectedSpMessage()`; 400 handler takes the `unknownSpCodes` branch (merges any `fieldErrors`, sets `inlineErrors['sp_codes']` to the AC-03.3 message) only when the array is non-empty, else falls through to the unchanged `fieldErrors` path. Chip highlight via `[class.pf-sp-chip-rejected]` in the picker's `#rows` slot (shared `MultiselectComponent` untouched). `(selectEvent)="onSpSelectionChange()"` + contribution-flip-to-No clear `rejectedSpCodes` + the `sp_codes` inline error surgically (AC-03.4); `onSave()` resets up front.
+- **SCSS:** `.pf-sp-chip-rejected` uses `var(--ac-red-1)` (light `#cf0808` / dark `#ff4d4d` in `colors.scss`) — no hex literal, dark/light parity (NF-ASR-04).
+- **A11y (NF-ASR-02):** the inline `sp_codes` error keeps `role="alert" aria-live="polite"`; it renders inside the T-01 `@else if (showSpPicker())` block — visible in exactly the state where a rejected-code 400 can occur.
+- **Verification:** `npm run test -- pool-funding-alignment bilateral.service` → **2 suites / 105 tests pass**; `npm run lint` clean; `npm run build` exit 0.
+- **Reviewer verdict (`rev-asr-01`): `STATUS: PASS`.** Verified: `extractFieldErrors` unchanged; tolerant separate extractor; no regression on the existing 400 path (combined + non-unknown tests); highlight scoped to `#rows` with the token (no hex); surgical clear-on-change; `role="alert"` parity; T-01 + T-02 untouched.
+
+#### Follow-up notes (non-blocking)
+
+- `ErrorResponse.errors` is still typed `string` (`responses.interface.ts:17`); the parser reads it as `unknown` so it works at runtime for either shape. If the live envelope is confirmed to be an object, widen to `string | Record<string, unknown>` for type honesty — pre-existing structural gap, not introduced here.
+- Project-wide `s-lint` reports 358 pre-existing SCSS failures; the new `.pf-sp-chip-rejected` rule adds **zero** new violations.
+
+---
+
+## 3. Summary — all tasks complete
+
+| Task | Status | Attempts | Commit |
+| --- | --- | --- | --- |
+| T-BIL-ASR-01 — Per-result SP picker | ✅ complete | 2 (FAIL→PASS) | `f0c05711` |
+| T-BIL-ASR-02 — PRMS-sourced read-only | ✅ complete | 1 (PASS) | `194d7e02` |
+| T-BIL-ASR-03 — `unknown_sp_codes` 400 handler | ✅ complete | 1 (PASS) | *(this commit)* |
+
+**Requirements delivered:** REQ-BIL-ASR-01, -02, -03 (all ACs) + NF-ASR-01…04.
+
+**Spec corrections during execution:** AC-01.6 icon path → `/sps/{icon_key}.png` (Pivot Record under T-01; resolved validation R-3).
+
+**Outstanding (carry to PR / follow-up — none blocking):**
+- **R-6 / LIVE-VERIFY:** confirm the live response shapes on `AC-1594-bilateral-module-v2` (per-result SP endpoint envelope + the `unknown_sp_codes` 400 envelope: stringified-JSON vs object). The implementation tolerates both; the backend session should confirm which.
+- **R-5:** pre-existing `selectedItemsSurfaceColor="#FFFFFF"` hex literal (token-map later).
+- **R-7:** confirm full-suite coverage floors in CI (scoped runs can't).
+- **Type honesty:** optionally widen `ErrorResponse.errors` if the live envelope is an object.
+- **Icon assets:** if the backend later provisions `/assets/result-framework-reporting/SPs-Icons/`, revisit AC-01.6.
+
+**PR:** bundle all three commits (`f0c05711`, `194d7e02`, + T-03) into one PR per `tasks.md` §4. Title: `fix(bilateral-module/alignment-section): consume per-result SP picker + PRMS-sourced read-only + unknown_sp_codes validation`.

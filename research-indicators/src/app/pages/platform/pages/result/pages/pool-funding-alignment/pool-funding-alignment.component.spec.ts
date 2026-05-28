@@ -845,6 +845,158 @@ describe('PoolFundingAlignmentComponent', () => {
     });
   });
 
+  describe('unknown_sp_codes 400 handler (REQ-BIL-ASR-03)', () => {
+    const dirtyFormWith = (codes: string[]) => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: codes.map(c => sp(c)) }));
+    };
+
+    it('AC-03.1/AC-03.3 — 400 with unknownSpCodes → inline sp_codes error naming the codes, no toast', async () => {
+      dirtyFormWith(['SP04', 'SP07']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04', 'SP07']
+      } as PatchAlignmentResult);
+
+      await component.onSave();
+
+      expect(component.inlineErrors()?.['sp_codes']).toBe(
+        'These Science Programs are no longer valid for this result: SP04, SP07. Remove them and save again.'
+      );
+      expect(component.rejectedSpCodes()).toEqual(['SP04', 'SP07']);
+      expect(showToastMock).not.toHaveBeenCalled();
+    });
+
+    it('AC-03.1 — the inline sp_codes error renders in the DOM with role="alert"', async () => {
+      dirtyFormWith(['SP04']);
+      // The inline error lives inside the picker branch — render it.
+      mappingStatus.set('mapped');
+      sciencePrograms.set([
+        { code: 'SP04', name: 'X', category: null, color: null, icon_key: 'SP04', allocation: 50 }
+      ]);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04']
+      } as PatchAlignmentResult);
+
+      await component.onSave();
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const inline = root.querySelector('[data-testid="pf-alignment-error-sp_codes"]');
+      expect(inline).not.toBeNull();
+      expect(inline?.getAttribute('role')).toBe('alert');
+      expect(inline?.textContent).toContain('SP04');
+    });
+
+    it('AC-03.2 — isRejectedSp returns true only for rejected codes (drives the chip highlight)', async () => {
+      dirtyFormWith(['SP04', 'SP09']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04']
+      } as PatchAlignmentResult);
+
+      await component.onSave();
+
+      expect(component.isRejectedSp('SP04')).toBe(true);
+      expect(component.isRejectedSp('SP09')).toBe(false);
+      expect(component.isRejectedSp(null)).toBe(false);
+      expect(component.isRejectedSp(undefined)).toBe(false);
+    });
+
+    it('AC-03.4 — changing the selection clears the inline error AND the highlight', async () => {
+      dirtyFormWith(['SP04', 'SP07']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04', 'SP07']
+      } as PatchAlignmentResult);
+      await component.onSave();
+      expect(component.rejectedSpCodes()).toEqual(['SP04', 'SP07']);
+      expect(component.inlineErrors()?.['sp_codes']).toBeDefined();
+
+      component.onSpSelectionChange();
+
+      expect(component.rejectedSpCodes()).toEqual([]);
+      expect(component.inlineErrors()?.['sp_codes']).toBeUndefined();
+    });
+
+    it('AC-03.4 — flipping contribution to "No" also clears the rejection state', async () => {
+      dirtyFormWith(['SP04']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04']
+      } as PatchAlignmentResult);
+      await component.onSave();
+      expect(component.rejectedSpCodes()).toEqual(['SP04']);
+
+      component.onContributionChange(false);
+
+      expect(component.rejectedSpCodes()).toEqual([]);
+      expect(component.inlineErrors()?.['sp_codes']).toBeUndefined();
+    });
+
+    it('clearRejectedSpError preserves non-sp_codes inline errors', async () => {
+      dirtyFormWith(['SP04']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        fieldErrors: { has_contribution: 'invalid' },
+        unknownSpCodes: ['SP04']
+      } as PatchAlignmentResult);
+      await component.onSave();
+      expect(component.inlineErrors()).toEqual({ has_contribution: 'invalid', sp_codes: expect.any(String) });
+
+      component.onSpSelectionChange();
+
+      expect(component.inlineErrors()).toEqual({ has_contribution: 'invalid' });
+    });
+
+    it('NO REGRESSION — non-unknown_sp_codes 400 still uses the existing fieldErrors path (no rejectedSpCodes)', async () => {
+      dirtyFormWith(['SP01']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        fieldErrors: { has_contribution: 'invalid', sp_codes: 'at least one required' }
+      } as PatchAlignmentResult);
+
+      await component.onSave();
+
+      expect(component.inlineErrors()).toEqual({
+        has_contribution: 'invalid',
+        sp_codes: 'at least one required'
+      });
+      expect(component.rejectedSpCodes()).toEqual([]);
+      expect(showToastMock).not.toHaveBeenCalled();
+    });
+
+    it('a fresh save clears any prior rejection state before the new request resolves', async () => {
+      dirtyFormWith(['SP04']);
+      component.rejectedSpCodes.set(['STALE']);
+      patchAlignmentMock.mockResolvedValue({
+        ok: true,
+        data: { ...baseAlignment, has_contribution: true, selected_science_programs: [{ code: 'SP04', name: 'X' }] }
+      } as PatchAlignmentResult);
+
+      await component.onSave();
+
+      expect(component.rejectedSpCodes()).toEqual([]);
+    });
+  });
+
   describe('per-result SP picker (REQ-BIL-ASR-01)', () => {
     const spOption: PoolFundingScienceProgram = {
       code: 'SP09',

@@ -17,7 +17,17 @@ export type PatchTagResult =
 
 export type PatchAlignmentResult =
   | { ok: true; data: AlignmentResponse }
-  | { ok: false; status: number; description: string; fieldErrors?: Record<string, string> };
+  | {
+      ok: false;
+      status: number;
+      description: string;
+      fieldErrors?: Record<string, string>;
+      // REQ-BIL-ASR-03 — SP codes the backend rejected because they aren't in the
+      // result's per-result list (400 `errors.unknown_sp_codes: string[]`). Carried
+      // separately from the string-valued `fieldErrors` so the component can both
+      // surface an inline message and highlight the offending chips.
+      unknownSpCodes?: string[];
+    };
 
 @Injectable({ providedIn: 'root' })
 export class BilateralService {
@@ -133,15 +143,43 @@ export class BilateralService {
         return { ok: true, data: res.data };
       }
       const fieldErrors = this.extractFieldErrors(res?.errorDetail);
+      const unknownSpCodes = this.extractUnknownSpCodes(res?.errorDetail);
       return {
         ok: false,
         status: res?.status ?? 0,
         description: res?.errorDetail?.description ?? '',
-        ...(fieldErrors ? { fieldErrors } : {})
+        ...(fieldErrors ? { fieldErrors } : {}),
+        ...(unknownSpCodes ? { unknownSpCodes } : {})
       };
     } finally {
       this.savingAlignment.set(false);
     }
+  }
+
+  // REQ-BIL-ASR-03 — pull `unknown_sp_codes: string[]` out of the 400 envelope.
+  // The shipped `extractFieldErrors` can't (it parses only stringified-JSON and keeps
+  // only string-valued entries, dropping arrays), so this is a separate, tolerant
+  // extractor. It accepts `errorDetail.errors` as EITHER a stringified-JSON string
+  // OR an already-parsed object (the typed shape is `string`, but the live envelope
+  // shape is being confirmed — see spec LIVE-VERIFY), and keeps only string entries
+  // of the `unknown_sp_codes` array.
+  private extractUnknownSpCodes(errorDetail: ErrorResponse | undefined): string[] | undefined {
+    const raw: unknown = errorDetail?.errors;
+    let parsed: unknown = raw;
+    if (typeof raw === 'string') {
+      const trimmed = raw.trim();
+      if (!trimmed.startsWith('{')) return undefined;
+      try {
+        parsed = JSON.parse(trimmed);
+      } catch {
+        return undefined;
+      }
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return undefined;
+    const value = (parsed as Record<string, unknown>)['unknown_sp_codes'];
+    if (!Array.isArray(value)) return undefined;
+    const codes = value.filter((c): c is string => typeof c === 'string' && c.trim().length > 0);
+    return codes.length > 0 ? codes : undefined;
   }
 
   private extractFieldErrors(errorDetail: ErrorResponse | undefined): Record<string, string> | undefined {

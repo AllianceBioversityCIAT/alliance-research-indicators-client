@@ -1,3 +1,13 @@
 :host {
   display: block;
 }
+
+// REQ-BIL-ASR-03 (AC-03.2) — error highlight for SP chips the backend rejected
+// (unknown_sp_codes). Token-based (var(--ac-red-1) has light + dark variants), no
+// hex literal. Applied on the chip content wrapper inside the picker's #rows slot.
+.pf-sp-chip-rejected {
+  border-radius: 6px;
+  padding: 2px 6px;
+  border: 1px solid var(--ac-red-1);
+  color: var(--ac-red-1);
+}
