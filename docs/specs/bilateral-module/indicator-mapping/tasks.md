@@ -164,6 +164,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 - **Status**: `pending — GATED on OQ-IM-1 + OQ-IM-3`
 - **Size**: M
 - **Depends on**: T-BIL-IM-01
+- **Status**: `[~] read slice complete (2026-05-28)` — HLO read state + modal-selection surface landed (`hlosIndicators`/`persistedMappings`/`pendingMappings`/`hloModalSelection`/`loadingHlos`/`savingMappings`/`indicatorSearch` signals, `indicatorRows` computed, `getHlosIndicators`, `loadModalSelection`/`commit`/`cancel`, `updateMappingField`/`removeMapping`, `materializeRows`/`deriveIndicatorType`/`composeTarget`/`inferQuantitative`/`materializeMappings`). The write surface (`saveMappings`/`bodyOf`/`getContribution`/`getMappings`/`diff`/`SaveMappingsResult`) remains **GATED on OQ-IM-1/-3**.
 - **Discharges ACs**: enables AC-12 / AC-13 / AC-14 / AC-16 / AC-17 — every mutation-bearing requirement.
 - **Touches**:
   - `src/app/shared/services/bilateral.service.ts` *(extend)*
@@ -521,7 +522,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 | T-BIL-IM-01 | Backend verification + interfaces + 5 ApiService methods | M | — | OQ-IM-1 + OQ-IM-3 | `[~]` read slice done (2026-05-28); contribution methods still gated |
 | T-BIL-IM-02 | `ModalName 'hloSelection'` + `HloSelectionModalContextService` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | **completed** (2026-05-24) |
-| T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | pending — GATED |
+| T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | `[~]` read slice done (2026-05-28); write surface gated |
 | T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | ~~OQ-IM-2~~ ungated 2026-05-27 | pending |
 | T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending *(partially blocked — `disabled_reason` not on new endpoint)* |
 | T-BIL-IM-07 | Modal session-state + Cancel-confirm dialog | S | T-BIL-IM-05 | — | pending |

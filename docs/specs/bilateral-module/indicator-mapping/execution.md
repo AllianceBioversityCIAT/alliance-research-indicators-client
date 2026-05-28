@@ -125,6 +125,25 @@
 
 ---
 
+### Entry 7 — T-BIL-IM-04 (READ SLICE) — `BilateralService` HLO read + modal-selection surface
+
+| Field | Value |
+| --- | --- |
+| Status | `[~]` read slice ✅ PASS (attempt 2) — write surface deferred (OQ-IM-1/-3 gate) |
+| Date | 2026-05-28 |
+| Method | `/sdd-execute` triad. Read-side slice of T-BIL-IM-04. |
+| Implementer attempts | 2 (attempt 1 FAIL on one finding → attempt 2 PASS) |
+| Files changed | `research-indicators/src/app/shared/services/bilateral.service.ts` (+200, additive), `bilateral.service.spec.ts` (+331, 20 new cases), `research-indicators/src/app/testing/fixtures/bilateral.fixtures.ts` (NEW — `bilateralHlosIndicatorsResponseMock` / `bilateralHlosNoAowResponseMock` / `persistedMappingMock`). |
+| Implemented | Signals `hlosIndicators` / `persistedMappings` / `pendingMappings` / `hloModalSelection` / `loadingHlos` / `savingMappings` / `indicatorSearch`; `indicatorRows` computed; `getHlosIndicators`; modal lifecycle `loadModalSelection` / `commitModalSelection` / `cancelModalSelection`; per-card `updateMappingField` / `removeMapping`; private seam `materializeRows` / `deriveIndicatorType` / `composeTarget` / `inferQuantitative` / `materializeMappings` / `keyOf`. |
+| Deferred (gated) | `saveMappings`, `bodyOf`, `getContribution`, `getMappings`, `diff()`, `SaveMappingsResult` — depend on OQ-IM-1 (contribution body shape) + OQ-IM-3 (edit-mode GET). Documented with an inline gate comment. |
+| Key decisions / live-shape honoring | <ul><li>`deriveIndicatorType` keys off the live `PrmsTocResult.category` ('OUTCOME'→'outcome', 'OUTPUT'→'output', default 'outcome'), NOT the design §4.4.1 draft's `result_level_id` (which is optional+nullable on the live DTO).</li><li>`getHlosIndicators` reads `res.data` (the real `MainResponse<T>` envelope field), not the §4.4.1 pseudocode's `res.response`. Gated on `res?.successfulRequest`; try/finally resets `loadingHlos`; **no catalog fallback** on failure (prior signal left intact).</li><li>`materializeRows` null-guards `pair.outcomes`/`pair.outputs`/`toc.indicators` (all optional/absent on the live wire shape).</li><li>`composeTarget` coerces both string and number `target_value_sum`; `inferQuantitative` is a temporary unit-of-measure heuristic until the backend safe bundle ships a wire `is_quantitative` (R-10 / OQ-IM-6).</li><li>`materializeMappings` preserves `reason_code`/`quantitative_contribution`/`is_stale` on surviving keys, defaults new keys to null/false, drops keys that don't resolve to a known catalog row; `lever_name` resolves from `currentAlignment().selected_levers` (code fallback); `aow_name` falls back to `aow_code` (PRMS ships no AOW name).</li></ul> |
+| Attempt 1 — Reviewer FAIL | One finding: `savingMappings` signal absent. The design §4.3 state-boundary table + tasks §T-BIL-IM-04 Summary both list it; downstream T-BIL-IM-08/-10 read `bilateralService.savingMappings` and declare T-BIL-IM-04 as their state dependency. (Leader had scoped it out as "only used by the gated `saveMappings`" — Reviewer correctly held it to the declared state contract.) |
+| Attempt 2 — fix + Reviewer PASS | Added `readonly savingMappings = signal(false);` (one line, no logic — reserved for the gated write surface) + one extra spec case asserting `getHlosIndicators` preserves `aow_status` onto the signal (non-`has_aow` passthrough). Delta confirmed to be exactly the prescribed fix with zero collateral; the rest of the diff was already PASS byte-for-byte in attempt 1. |
+| Verification (final) | • `npm run lint` → All files pass linting. <br>• `npm run test -- bilateral.service` → 52/52 pass; `bilateral.service.ts` 97.32% statements / 100% functions / 98.75% lines (≥90% floor; no regression on the 32 prior alignment-section / science-program / tag cases). <br>• `npm run build` → clean (within C-5 budget). |
+| ACs enabled | The read + modal-selection half of AC-12/-13/-14/-17. The mutation half (AC-16 Save/409) stays gated. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.

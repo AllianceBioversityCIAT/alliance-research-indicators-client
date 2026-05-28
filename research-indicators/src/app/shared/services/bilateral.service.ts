@@ -3,8 +3,16 @@ import { ApiService } from './api.service';
 import { AgressoContractRow, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
 import {
   AlignmentResponse,
+  BilateralHlosIndicatorsResponse,
+  HloKeyString,
+  HloMapping,
+  HloModalSelectionKey,
+  IndicatorRow,
+  IndicatorType,
   PoolFundingMappingStatus,
   PoolFundingScienceProgram,
+  PrmsTocIndicator,
+  PrmsTocResult,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import { RolesService } from './cache/roles.service';
@@ -57,6 +65,26 @@ export class BilateralService {
     if (this.rolesService.canAccessCenterAdmin()) return true;
     return this.currentResultService.isCurrentUserOwner();
   });
+
+  // --- Indicator-mapping state (T-BIL-IM-04 — read + modal-selection surface) -
+  // @sdd-spec docs/specs/bilateral-module/indicator-mapping
+  // Result-scoped HLOs + indicators tree (T-15.12 endpoint). Null until first fetch.
+  readonly hlosIndicators = signal<BilateralHlosIndicatorsResponse | null>(null);
+  // What the server currently has for this result (seed source for is_mapped joins).
+  readonly persistedMappings = signal<HloMapping[]>([]);
+  // Working copy — mutated by modal Confirm and per-card edits; diffed on Save.
+  readonly pendingMappings = signal<HloMapping[]>([]);
+  // Modal-session draft set of selection keys (Confirm writes back to pendingMappings).
+  readonly hloModalSelection = signal<Set<HloKeyString>>(new Set());
+  readonly loadingHlos = signal(false);
+  // Save-in-flight UX gate. Stays false until the gated saveMappings write surface lands (OQ-IM-1).
+  readonly savingMappings = signal(false);
+  // Modal client-side search input. The endpoint returns the full live tree (no search param).
+  readonly indicatorSearch = signal('');
+
+  // Derived flat view: IndicatorRow[] joined against persistedMappings for is_mapped.
+  // Components consume this instead of walking pairs[].outcomes[].indicators[] themselves.
+  readonly indicatorRows = computed<IndicatorRow[]>(() => this.materializeRows(this.hlosIndicators(), this.persistedMappings()));
 
   async getContract(code: string): Promise<AgressoContractRow | null> {
     this.loadingContract.set(true);
@@ -196,5 +224,177 @@ export class BilateralService {
     } catch {
       return undefined;
     }
+  }
+
+  // --- Indicator-mapping reads + modal-selection surface (T-BIL-IM-04) --------
+
+  // Result-scoped HLOs + indicators tree. NO catalog fallback on failure — on a
+  // non-2xx the prior `hlosIndicators` value is left untouched (the modal then
+  // surfaces its empty/blocking states from the existing tree, not from a refetch).
+  async getHlosIndicators(resultCode: string): Promise<BilateralHlosIndicatorsResponse | null> {
+    this.loadingHlos.set(true);
+    try {
+      const res = await this.api.GET_PoolFundingHlosIndicators(resultCode);
+      if (res?.successfulRequest) {
+        this.hlosIndicators.set(res.data);
+      }
+      return res?.successfulRequest ? res.data : null;
+    } finally {
+      this.loadingHlos.set(false);
+    }
+  }
+
+  // Stable Set/diff key for a selection. `area_of_work` may be '' under no_aow_mappings.
+  private keyOf(k: { lever_code: string; aow_code: string; indicator_code: string }): HloKeyString {
+    return `${k.lever_code}|${k.aow_code}|${k.indicator_code}`;
+  }
+
+  // Modal open: seed the in-session draft from the current pending set.
+  loadModalSelection(): void {
+    this.hloModalSelection.set(new Set(this.pendingMappings().map(m => this.keyOf(m))));
+  }
+
+  // Modal Confirm: materialize the draft set back into HloMapping rows.
+  commitModalSelection(): void {
+    this.pendingMappings.set(this.materializeMappings(this.hloModalSelection()));
+  }
+
+  // Modal Cancel / ×: discard the draft. pendingMappings is intentionally untouched;
+  // the stale hloModalSelection is re-seeded on the next loadModalSelection().
+  cancelModalSelection(): void {
+    // no-op on pendingMappings (discard semantics)
+  }
+
+  // Per-card edit: patch a single pending mapping selected by its composite key.
+  updateMappingField(key: HloModalSelectionKey, patch: Partial<HloMapping>): void {
+    const k = this.keyOf(key);
+    this.pendingMappings.update(list => list.map(m => (this.keyOf(m) === k ? { ...m, ...patch } : m)));
+  }
+
+  // Per-card removal: drop the matching pending mapping.
+  removeMapping(key: HloModalSelectionKey): void {
+    const k = this.keyOf(key);
+    this.pendingMappings.update(list => list.filter(m => this.keyOf(m) !== k));
+  }
+
+  // --- Gated on OQ-IM-1 / OQ-IM-3 (PO decision + edit-mode GET pending) -------
+  // The write surface (`saveMappings`, `bodyOf`, `getContribution`, `getMappings`,
+  // the `diff()` helper, and the `SaveMappingsResult` type) is intentionally NOT
+  // implemented here: it depends on the contribution body shape (OQ-IM-1) and the
+  // edit-mode pre-fill route (OQ-IM-3), neither of which is locked. See tasks.md
+  // §T-BIL-IM-04 + design.md §4.4.1.
+
+  // --- Private derivation helpers (the single wire→view seam) -----------------
+
+  // Flatten BilateralHlosIndicatorsResponse → IndicatorRow[], joining is_mapped
+  // against the persisted set. Null-guards the live wire shape: `pair.outcomes` /
+  // `pair.outputs` and each `toc.indicators` are all optional/absent in practice.
+  private materializeRows(hlos: BilateralHlosIndicatorsResponse | null, persisted: HloMapping[]): IndicatorRow[] {
+    if (!hlos) return [];
+    const persistedKeys = new Set(persisted.map(m => this.keyOf(m)));
+    const rows: IndicatorRow[] = [];
+    for (const pair of hlos.pairs ?? []) {
+      const tocResults = [...(pair.outcomes ?? []), ...(pair.outputs ?? [])];
+      for (const toc of tocResults) {
+        const indicatorType = this.deriveIndicatorType(toc);
+        for (const ind of toc.indicators ?? []) {
+          const indicator_code = String(ind.indicator_id);
+          const key = `${pair.program}|${pair.area_of_work}|${indicator_code}`;
+          rows.push({
+            indicator_id: ind.indicator_id,
+            composite_code: pair.composite_code,
+            program: pair.program,
+            area_of_work: pair.area_of_work,
+            toc_result_id: toc.toc_result_id,
+            indicator_type: indicatorType,
+            indicator_name: ind.indicator_description,
+            target_description: this.composeTarget(ind.target_value_sum, ind.unit_messurament),
+            // Temporary derivation — replaced by the wire `is_quantitative` flag once
+            // the backend safe bundle mirrors it onto PrmsTocIndicator (OQ-IM-6).
+            is_quantitative: this.inferQuantitative(ind),
+            is_mapped: persistedKeys.has(key),
+            is_stale: false,
+            disabled_reason: null
+          });
+        }
+      }
+    }
+    return rows;
+  }
+
+  // Discriminate OUTCOME vs OUTPUT off the live `category` field (case-insensitive).
+  // The design's older draft keyed off `result_level_id`, but `category` is the
+  // correct live discriminator (`result_level_id` is optional + nullable on the DTO).
+  private deriveIndicatorType(toc: PrmsTocResult): IndicatorType {
+    switch ((toc.category ?? '').toUpperCase()) {
+      case 'OUTCOME':
+        return 'outcome';
+      case 'OUTPUT':
+        return 'output';
+      default:
+        return 'outcome';
+    }
+  }
+
+  // Compose the read-only "Expected target" display from PRMS sum + unit. Handles
+  // both string and number `value` (live `target_value_sum` is string | number | null).
+  private composeTarget(value: string | number | null | undefined, unit: string | null | undefined): string | null {
+    if (value === null || value === undefined) return null;
+    const valueText = String(value).trim();
+    if (valueText.length === 0) return null;
+    const unitText = (unit ?? '').trim();
+    return unitText.length > 0 ? `${valueText} ${unitText}` : valueText;
+  }
+
+  // Temporary heuristic until OQ-IM-6 ships a wire `is_quantitative` flag: an
+  // indicator is treated as quantitative when it carries a non-empty unit of measure.
+  private inferQuantitative(ind: PrmsTocIndicator): boolean {
+    return (ind.unit_messurament ?? '').trim().length > 0;
+  }
+
+  // Convert a Set of selection keys back into HloMapping rows by joining against the
+  // derived indicatorRows() for display metadata. Preserves quantitative_contribution
+  // + reason_code + is_stale from any existing pendingMappings entry with the same key;
+  // new keys get null/false defaults. Keys that don't resolve to a known row are dropped.
+  private materializeMappings(keys: Set<HloKeyString>): HloMapping[] {
+    const rows = this.indicatorRows();
+    const rowByKey = new Map<HloKeyString, IndicatorRow>();
+    for (const row of rows) {
+      rowByKey.set(`${row.program}|${row.area_of_work}|${String(row.indicator_id)}`, row);
+    }
+    const existingByKey = new Map<HloKeyString, HloMapping>();
+    for (const m of this.pendingMappings()) {
+      existingByKey.set(this.keyOf(m), m);
+    }
+
+    const alignment = this.currentAlignment();
+    const leverNameOf = (leverCode: string): string =>
+      alignment?.selected_levers?.find(l => l.lever_code === leverCode)?.lever_name ?? leverCode;
+    const resultCode = this.hlosIndicators()?.result_code ?? alignment?.result_code ?? '';
+
+    const mappings: HloMapping[] = [];
+    for (const key of keys) {
+      const row = rowByKey.get(key);
+      if (!row) continue; // drop keys that don't resolve to a known catalog row
+      const indicator_code = String(row.indicator_id);
+      const existing = existingByKey.get(key);
+      mappings.push({
+        result_code: resultCode,
+        lever_code: row.program,
+        lever_name: leverNameOf(row.program),
+        aow_code: row.area_of_work,
+        // PRMS ships no AOW display name today — fall back to the code.
+        aow_name: row.area_of_work,
+        indicator_code,
+        indicator_name: row.indicator_name,
+        indicator_type: row.indicator_type,
+        is_stale: existing?.is_stale ?? false,
+        is_quantitative: row.is_quantitative,
+        target_description: row.target_description,
+        quantitative_contribution: existing?.quantitative_contribution ?? null,
+        reason_code: existing?.reason_code ?? null
+      });
+    }
+    return mappings;
   }
 }
