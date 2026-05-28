@@ -75,3 +75,134 @@ export interface PoolFundingSciencePrograms {
   clarisa_project: PoolFundingClarisaProject | null;
   science_programs: PoolFundingScienceProgram[];
 }
+
+// --- Result-scoped HLOs + indicators read shape (T-15.12 / T-BIL-IM-01) ------
+// The PRMS + HLOs shapes below mirror the live backend DTO at
+// `src/domain/entities/bilateral/dto/bilateral-hlos-indicators.response.dto.ts`
+// (commit 907993e7) and its `src/domain/tools/prms-toc/dto/prms-toc.types.ts`
+// import — copied field-for-field (including the upstream misspelling
+// `unit_messurament`) so the FE compiler enforces parity with the contract.
+// Endpoint: GET /v1/results/:resultCode/pool-funding-alignment/hlos-indicators
+// @sdd-spec docs/specs/bilateral-module/indicator-mapping
+
+export interface PrmsTocCenter {
+  center_id: string;
+  center_acronym: string;
+  center_name: string;
+}
+
+export interface PrmsTocIndicatorTarget {
+  toc_indicator_target_id: string;
+  year: string;
+  target_value: string;
+  number_target: string;
+}
+
+export interface PrmsTocTargetsByCenter {
+  targets?: PrmsTocIndicatorTarget[];
+  centers?: PrmsTocCenter[];
+}
+
+export interface PrmsTocIndicator {
+  indicator_id: string;
+  indicator_description: string;
+  toc_result_indicator_id?: string;
+  related_node_id?: string;
+  unit_messurament?: string | null;
+  type_value?: string | null;
+  type_name?: string | null;
+  location?: string | null;
+  target_value_sum?: string | number | null;
+  actual_achieved_value_sum?: string | number | null;
+  number_target?: string | null;
+  target_date?: string | null;
+  target_value?: string | null;
+  progress_percentage?: string | null;
+  result_level_id?: number | null;
+  result_type_id?: number | null;
+  result_type_name?: string | null;
+  targets_by_center?: PrmsTocTargetsByCenter | Record<string, never>;
+}
+
+export type PrmsTocResultCategory = 'OUTCOME' | 'OUTPUT' | string;
+
+export interface PrmsTocResult {
+  toc_result_id: number;
+  category: PrmsTocResultCategory;
+  result_title: string;
+  related_node_id?: string | null;
+  result_level_id?: number | null;
+  indicators?: PrmsTocIndicator[];
+}
+
+export type BilateralHlosAowStatus = 'unmapped' | 'no_aow_mappings' | 'has_aow';
+
+export interface BilateralHlosPair {
+  program: string; // SP code, e.g. "SP01"
+  area_of_work: string; // AOW code, e.g. "AOW06"
+  composite_code: string; // `${program}-${area_of_work}`
+  outcomes: PrmsTocResult[];
+  outputs: PrmsTocResult[];
+  metadata: { total: number; outcomes: number; outputs: number };
+}
+
+export interface BilateralHlosIndicatorsResponse {
+  result_code: string;
+  mapping_status: 'mapped' | 'unmapped';
+  aow_status: BilateralHlosAowStatus;
+  clarisa_project: { id: number; short_name: string } | null;
+  pairs: BilateralHlosPair[];
+}
+
+// Derived FE view-model (NOT a wire type). Computed by materializeRows in T-BIL-IM-04.
+export type IndicatorType = 'output' | 'outcome' | '2030-outcome';
+
+export interface IndicatorRow {
+  indicator_id: string | number;
+  composite_code: string;
+  program: string;
+  area_of_work: string;
+  toc_result_id: string | number;
+  indicator_type: IndicatorType;
+  indicator_name: string;
+  target_description: string | null;
+  is_quantitative: boolean;
+  is_mapped: boolean;
+  is_stale: boolean;
+  disabled_reason: string | null;
+}
+
+// Persisted mapping (the user's selected HLO + contribution body). The contribution-value
+// fields are intentionally loose optionals here — the POST/PATCH body shape (ContributionBody)
+// is gated on OQ-IM-1 and is NOT defined in this task.
+export interface HloMapping {
+  result_code: string;
+  lever_code: string; // === BilateralHlosPair.program
+  lever_name: string;
+  aow_code: string; // === BilateralHlosPair.area_of_work
+  aow_name: string;
+  indicator_code: string; // String(PrmsTocIndicator.indicator_id)
+  indicator_name: string;
+  indicator_type: IndicatorType;
+  is_stale: boolean;
+  is_quantitative: boolean;
+  target_description: string | null;
+  quantitative_contribution?: number | string | null; // value shape gated by OQ-IM-1/-5
+  reason_code: string | null; // gated by OQ-IM-1/-4
+}
+
+export interface MappingResponse {
+  result_code: string;
+  lever_code: string;
+  aow_code: string;
+  indicator_code: string;
+  is_stale: boolean;
+}
+
+export interface HloModalSelectionKey {
+  lever_code: string;
+  aow_code: string;
+  indicator_code: string;
+}
+
+export type HloKeyString = string; // `lever_code|aow_code|indicator_code`

@@ -255,6 +255,45 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment/science-programs', {});
     });
 
+    it('should call GET_PoolFundingHlosIndicators with the per-result /hlos-indicators suffix and numeric code', () => {
+      const resultCode = '19792';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_PoolFundingHlosIndicators(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment/hlos-indicators', {});
+    });
+
+    it('should strip the STAR- prefix from the resultCode for GET_PoolFundingHlosIndicators', () => {
+      const resultCode = 'STAR-19792';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_PoolFundingHlosIndicators(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment/hlos-indicators', {});
+    });
+
+    it('should resolve the MainResponse<BilateralHlosIndicatorsResponse> envelope for GET_PoolFundingHlosIndicators', async () => {
+      const envelope = {
+        data: {
+          result_code: 'STAR-19792',
+          mapping_status: 'mapped',
+          aow_status: 'has_aow',
+          clarisa_project: { id: 7, short_name: 'PRJ-7' },
+          pairs: []
+        },
+        status: 200,
+        description: 'OK',
+        successfulRequest: true,
+        errorDetail: { errors: '', detail: '', description: '' }
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue(envelope);
+
+      const result = await service.GET_PoolFundingHlosIndicators('19792');
+
+      expect(result).toEqual(envelope);
+    });
+
     it('should leave GET_SciencePrograms (catalog-wide) untouched (AC-01.5)', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 

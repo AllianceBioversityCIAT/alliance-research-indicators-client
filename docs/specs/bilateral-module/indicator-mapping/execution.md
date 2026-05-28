@@ -108,11 +108,28 @@
 
 ---
 
+### Entry 6 — T-BIL-IM-01 (READ SLICE) — interfaces + `GET_PoolFundingHlosIndicators`
+
+| Field | Value |
+| --- | --- |
+| Status | `[~]` read slice ✅ PASS (attempt 1) — contribution methods + `ContributionBody` deferred (OQ-IM-1 gate) |
+| Date | 2026-05-28 |
+| Method | `/sdd-execute bilateral-module/indicator-mapping` — JCSPECS Leader → Implementer → Reviewer triad. Reduced to the **read-side** slice deliberately: the write-side (4 contribution endpoints + `ContributionBody` + `bodyOf`) stays gated on OQ-IM-1 (PO decision, recommended 2026-06-03). |
+| Implementer attempts | 1 |
+| Files changed | `research-indicators/src/app/shared/interfaces/bilateral/pool-funding-alignment.interface.ts` (+131 — PRMS/HLOs wire types + derived `IndicatorRow` / `HloMapping` / selection-key types), `research-indicators/src/app/shared/services/api.service.ts` (+8 — `GET_PoolFundingHlosIndicators` via `bilateralPath`), `research-indicators/src/app/shared/services/api.service.spec.ts` (+39 — 3 cases). |
+| Pre-flight reconciliation (key finding) | The live backend DTO **differs from the `design.md` §2.1 paraphrase**. Verified against the live files on `AC-1594-bilateral-module-v2` (`dto/bilateral-hlos-indicators.response.dto.ts` + `tools/prms-toc/dto/prms-toc.types.ts`). Honored the live shape over the paraphrase (design §2.1's own stated intent is "copy the DTO verbatim"): `PrmsTocResult` carries a `category: 'OUTCOME'\|'OUTPUT'` discriminator (the design planned to derive type from `result_level_id`, which is actually optional+nullable — `category` is the correct seam for `deriveIndicatorType` in T-BIL-IM-04); `PrmsTocResult.indicators?` is OPTIONAL (→ `materializeRows` must null-guard); `PrmsTocIndicator.indicator_id` is `string`; `target_value_sum?: string\|number\|null` and `progress_percentage?: string\|null` (→ `composeTarget` must coerce). Misspelling `unit_messurament` preserved verbatim. Backend-internal `PrmsTocMetadata`/`PrmsTocPayload`/`PrmsTocEnvelope` correctly excluded (not on the response DTO surface). |
+| Decisions | <ul><li>**Read/write split** — the full T-BIL-IM-01 lists 5 ApiService methods; only the read-only `GET_PoolFundingHlosIndicators` landed. The 4 contribution methods + `ContributionBody` are intentionally absent (OQ-IM-1 gate), documented by a comment near `HloMapping`. This split is the one §7.5 sequencing already anticipated ("FE picks up T-BIL-IM-01 partial").</li><li>**Reused `bilateralPath()`** (STAR- strip + `v1/` prefix) instead of the raw `results/${...}` URL in design §3.1 — that snippet predates the helper consolidation from the alignment-section remediation. Matches the sibling `GET_PoolFundingSciencePrograms`.</li><li>**Test convention** — matched the file's established `mockToPromiseService.get` jest-mock pattern rather than `HttpTestingController` (tasks §5 names the latter, but the whole `api.service.spec.ts` uses the mock). Consistency with the file wins.</li></ul> |
+| Verification | • `npm run lint` → All files pass linting. <br>• `npm run test -- api.service` → 186/186 pass (incl. 3 new: suffix URL, STAR- strip, `MainResponse<BilateralHlosIndicatorsResponse>` envelope). <br>• `npm run build` → clean (Initial 1.10 MB, within C-5 budget; only pre-existing unrelated `.scss` budget warnings). |
+| Reviewer verdict | **PASS** (attempt 1). Wire-shape exact (all 17 `PrmsTocIndicator` fields, all 6 `PrmsTocResult` fields, full `BilateralHlosPair` / `BilateralHlosIndicatorsResponse`); correct `bilateralPath()` reuse; additive-only; deferral of contribution surface correctly documented; 3 substantive (non-vacuous) tests. |
+| ACs discharged | Enables every downstream functional REQ that consumes the HLOs tree (typing only). The contribution-mutation REQs stay gated. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
 
-**Status (as of 2026-05-27)**: 4 of 17 tasks complete (T-BIL-IM-RR-01, T-BIL-IM-02, T-BIL-IM-03, T-BIL-IM-14). Task count grew from 16 → 17 with the addition of T-BIL-IM-16 (non-gating empty-AOW UX refinement).
+**Status (as of 2026-05-28)**: 4 of 17 tasks complete + T-BIL-IM-01 read slice landed (write-side gated). The read-side ToC/HLO integration arc (T-BIL-IM-01 read → -04 read → -05 → -07 / -06 / -16) is in active execution; the contribution write-side (T-BIL-IM-08/-09/-11) remains gated on OQ-IM-1.
 
 **Remaining gates** (down from three to two on 2026-05-27 — see Entry 5):
 - **OQ-IM-1 — Contribution body shape** — escalated to PO. Gates T-BIL-IM-01, -04, -08, -09, -11.

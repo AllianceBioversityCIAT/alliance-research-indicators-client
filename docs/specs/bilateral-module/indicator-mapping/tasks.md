@@ -92,7 +92,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 
 ### T-BIL-IM-01 — Backend verification + interfaces + 5 ApiService methods
 
-- **Status**: `pending — GATED on OQ-IM-1 + OQ-IM-3`
+- **Status**: `[~] read slice complete (2026-05-28)` — the `BilateralHlosIndicatorsResponse` family + derived `IndicatorRow` / `HloMapping` types + `GET_PoolFundingHlosIndicators` landed (mirrored verbatim from the live backend DTO). The **4 contribution methods + `ContributionBody`** remain **GATED on OQ-IM-1** (and edit-mode `GET .../contribution` on OQ-IM-3).
 - **Size**: M
 - **Depends on**: none (other than the two remaining gating OQs answered)
 - **Discharges ACs**: enables every functional REQ (typing only).
@@ -518,7 +518,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 | ID | Title | Size | Depends on | Gating OQ | Status |
 | --- | --- | --- | --- | --- | --- |
 | T-BIL-IM-RR-01 | Alignment-section mockup remediation (RR-A..I) | M | — | — | **completed** (2026-05-23 → 2026-05-24) |
-| T-BIL-IM-01 | Backend verification + interfaces + 5 ApiService methods | M | — | OQ-IM-1 + OQ-IM-3 | pending — GATED |
+| T-BIL-IM-01 | Backend verification + interfaces + 5 ApiService methods | M | — | OQ-IM-1 + OQ-IM-3 | `[~]` read slice done (2026-05-28); contribution methods still gated |
 | T-BIL-IM-02 | `ModalName 'hloSelection'` + `HloSelectionModalContextService` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | pending — GATED |

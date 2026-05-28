@@ -74,6 +74,7 @@ import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { PoolFundingTagPatchBody, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
 import {
   AlignmentResponse,
+  BilateralHlosIndicatorsResponse,
   PoolFundingSciencePrograms,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
@@ -680,6 +681,13 @@ export class ApiService {
   // method stays for display-only contexts). No query params; scoping is server-side.
   GET_PoolFundingSciencePrograms = (resultCode: string): Promise<MainResponse<PoolFundingSciencePrograms>> => {
     return this.TP.get(this.bilateralPath(resultCode, '/science-programs'), {});
+  };
+
+  // Result-scoped HLOs + indicators tree (SP → AOW → outcome/output → indicator),
+  // sourced live from CLARISA + PRMS via the backend's 5-min cache (T-15.12, live on
+  // AC-1594-bilateral-module-v2). Read-only; no query params today.
+  GET_PoolFundingHlosIndicators = (resultCode: string): Promise<MainResponse<BilateralHlosIndicatorsResponse>> => {
+    return this.TP.get(this.bilateralPath(resultCode, '/hlos-indicators'), {});
   };
 
   PATCH_PoolFundingAlignment = (
