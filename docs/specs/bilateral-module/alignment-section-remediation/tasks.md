@@ -66,7 +66,7 @@ All three can be done in parallel or bundled into one PR (they touch overlapping
   - On PATCH 409 with description `"Result is PRMS-sourced; bilateral alignment is read-only in STAR"` → after the existing refetch, `readOnlyCause` will naturally resolve to `'prms-sourced'` from the refreshed flags. Verify the refetched payload sets `is_synced_to_prms=false`.
   - Reuse the existing `pf-synced` STATUS_COLOR_MAP entry or add a sibling only if the design needs a different color (check with design; default: reuse).
 - **Tests**: each `readOnlyCause` branch renders the right badge + banner; inputs disabled in all read-only causes; 409 PRMS-sourced description → prms-sourced banner after refetch.
-- **Done when**: lint + tests + build clean; manual smoke on a PRMS-sourced result (if a fixture exists) or a mocked `is_read_only=true, is_synced_to_prms=false` payload.
+- **Done when**: lint + tests + build clean; manual smoke on a PRMS-sourced result (if a fixture exists) or a mocked `is_read_only=true, is_synced_to_prms=false` payload. **A11y (NF-ASR-02)**: the new "Owned by PRMS" badge + banner carry `role`/`aria-label` parity with the existing synced badge/banner (dark + light per NF-ASR-04).
 - **Relevant skills**: `angular-developer`, `frontend-design`.
 
 ---
@@ -77,16 +77,17 @@ All three can be done in parallel or bundled into one PR (they touch overlapping
 - **Size**: S (~½ day)
 - **Discharges**: REQ-BIL-ASR-03.
 - **Touches**:
-  - `bilateral.service.ts` — in `patchAlignment` error mapping, extract `errorDetail.errors.unknown_sp_codes: string[]` into `fieldErrors` (or a dedicated `unknownSpCodes` field on `PatchAlignmentResult`).
+  - `bilateral.service.ts` — **extend the field-error extraction** so `errorDetail.errors.unknown_sp_codes: string[]` reaches the caller. The existing `extractFieldErrors` (`:117-131`) keeps only **string-valued** entries from a **stringified-JSON** `errors`, so it drops the array as-is. Either special-case `unknown_sp_codes` (join the array into a message string) or add a dedicated `unknownSpCodes?: string[]` on `PatchAlignmentResult`. This is NOT a no-op key-wire (see requirements REQ-BIL-ASR-03 "Current state").
+  - `shared/interfaces/responses.interface.ts` — **possibly** widen `ErrorResponse.errors` (currently typed `string`) if the live envelope returns `errors` as an object rather than a stringified JSON string. Decide after the live-shape check.
   - `pool-funding-alignment.component.{ts,html}` — surface the rejected codes inline + highlight the offending SP chips.
   - `.spec.ts`.
 - **Implementation notes**:
   - The URL-scoped 400 toast suppression for `/pool-funding-alignment` already exists (detailed-design §6.3) — so the generic toast won't fire; we own the inline message.
   - Message copy (AC-03.3): `"These Science Programs are no longer valid for this result: {codes}. Remove them and save again."`
   - Chip highlight: add an error class on chips whose `code` is in `unknown_sp_codes`. Clear on selection change (AC-03.4).
-  - Confirm the exact error envelope path against Swagger / a live 400 before wiring (`errorDetail.errors.unknown_sp_codes` vs `errorDetail.errors[].unknown_sp_codes` — verify the shape; the backend doc says `errors.unknown_sp_codes: string[]`).
-- **Tests**: 400 with `unknown_sp_codes` → inline error + highlighted chips; message names the codes; selection change clears the error; non-`unknown_sp_codes` 400 still handled by the existing path.
-- **Done when**: lint + tests + build clean; manual smoke by submitting a stale SP code (or mocked 400).
+  - **Confirm the exact error envelope FIRST** against Swagger / a live 400 on `AC-1594-bilateral-module-v2`: (a) is `errors` a stringified JSON string or an object? (b) is the field `errors.unknown_sp_codes` vs `errors[].unknown_sp_codes`? (c) is the value `string[]`? The backend doc says `errors.unknown_sp_codes: string[]`. The answer determines whether `ErrorResponse.errors` needs widening and how `extractFieldErrors` is extended.
+- **Tests**: 400 with `unknown_sp_codes` (array value) → inline error + highlighted chips; message names the codes; selection change clears the error; non-`unknown_sp_codes` 400 still handled by the existing path; existing string-valued `fieldErrors` path still works (no regression on the parser change).
+- **Done when**: lint + tests + build clean; manual smoke by submitting a stale SP code (or mocked 400). **A11y (NF-ASR-02)**: the inline SP-error container uses `role="alert"` so the rejection is announced.
 - **Relevant skills**: `angular-developer`, `error-handling-patterns`.
 
 ---
