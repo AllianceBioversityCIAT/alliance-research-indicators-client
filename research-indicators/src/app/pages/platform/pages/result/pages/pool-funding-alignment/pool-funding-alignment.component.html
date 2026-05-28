@@ -91,50 +91,64 @@
 
         @if (formData().has_contribution === true) {
           <section class="mb-6" data-testid="pf-alignment-levers-section">
-            <app-multiselect
-              [label]="SP_PICKER_LABEL"
-              [isRequired]="true"
-              [signal]="formData"
-              signalOptionValue="selected_sps"
-              optionLabel="name"
-              optionValue="official_code"
-              serviceName="sciencePrograms"
-              placeholder="Select Science Programs"
-              selectedItemsSurfaceColor="#FFFFFF"
-              [columnsOnXl]="true"
-              [disabled]="!editable() || isReadOnly()">
-              <ng-template #rows let-row>
-                <span class="flex items-center gap-2 min-w-0">
-                  <img [src]="'/sps/' + row.official_code + '.png'"
-                       [alt]="row.official_code + ' icon'"
-                       class="rounded shrink-0 object-cover"
-                       [style.background]="row.color || 'transparent'"
-                       style="width:24px;height:24px;"
-                       loading="lazy" />
-                  <span class="truncate text-[var(--ac-primary-blue-500)] text-[14px]"
-                        style="font-family: 'Barlow', sans-serif;">
-                    <strong>{{ row.official_code }}</strong> - {{ row.name }}
+            @if (isUnmapped()) {
+              <div role="status" aria-live="polite"
+                   class="p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm"
+                   data-testid="pf-alignment-unmapped-message">
+                {{ UNMAPPED_SP_MESSAGE }}
+              </div>
+            } @else if (hasNoSciencePrograms()) {
+              <div role="status" aria-live="polite"
+                   class="p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm"
+                   data-testid="pf-alignment-no-sps-message">
+                {{ NO_SP_DEFINED_MESSAGE }}
+              </div>
+            } @else if (showSpPicker()) {
+              <app-multiselect
+                [label]="SP_PICKER_LABEL"
+                [isRequired]="true"
+                [signal]="formData"
+                signalOptionValue="selected_sps"
+                optionLabel="name"
+                optionValue="official_code"
+                serviceName="bilateralSciencePrograms"
+                placeholder="Select Science Programs"
+                selectedItemsSurfaceColor="#FFFFFF"
+                [columnsOnXl]="true"
+                [disabled]="!editable() || isReadOnly()">
+                <ng-template #rows let-row>
+                  <span class="flex items-center gap-2 min-w-0">
+                    <img [src]="'/sps/' + row.icon_key + '.png'"
+                         [alt]="row.code + ' icon'"
+                         class="rounded shrink-0 object-cover"
+                         [style.background]="row.color || 'transparent'"
+                         style="width:24px;height:24px;"
+                         loading="lazy" />
+                    <span class="truncate text-[var(--ac-primary-blue-500)] text-[14px]"
+                          style="font-family: 'Barlow', sans-serif;">
+                      <strong>{{ row.code }} — {{ row.allocation }}%</strong> - {{ row.name }}
+                    </span>
                   </span>
-                </span>
-              </ng-template>
-              <ng-template #item let-row>
-                <span class="flex items-center gap-2 min-w-0">
-                  <img [src]="'/sps/' + row.official_code + '.png'"
-                       [alt]="row.official_code + ' icon'"
-                       class="rounded shrink-0 object-cover"
-                       [style.background]="row.color || 'transparent'"
-                       style="width:24px;height:24px;"
-                       loading="lazy" />
-                  <span class="truncate text-[var(--ac-grey-800)] text-[14px]"
-                        style="font-family: 'Barlow', sans-serif;">
-                    <strong>{{ row.official_code }}</strong> - {{ row.name }}
+                </ng-template>
+                <ng-template #item let-row>
+                  <span class="flex items-center gap-2 min-w-0">
+                    <img [src]="'/sps/' + row.icon_key + '.png'"
+                         [alt]="row.code + ' icon'"
+                         class="rounded shrink-0 object-cover"
+                         [style.background]="row.color || 'transparent'"
+                         style="width:24px;height:24px;"
+                         loading="lazy" />
+                    <span class="truncate text-[var(--ac-grey-800)] text-[14px]"
+                          style="font-family: 'Barlow', sans-serif;">
+                      <strong>{{ row.code }} — {{ row.allocation }}%</strong> - {{ row.name }}
+                    </span>
                   </span>
-                </span>
-              </ng-template>
-            </app-multiselect>
-            @if (inlineErrors()?.['sp_codes']; as msg) {
-              <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
-                     data-testid="pf-alignment-error-sp_codes">{{ msg }}</small>
+                </ng-template>
+              </app-multiselect>
+              @if (inlineErrors()?.['sp_codes']; as msg) {
+                <small role="alert" aria-live="polite" class="block mt-1 text-red-700"
+                       data-testid="pf-alignment-error-sp_codes">{{ msg }}</small>
+              }
             }
           </section>
 

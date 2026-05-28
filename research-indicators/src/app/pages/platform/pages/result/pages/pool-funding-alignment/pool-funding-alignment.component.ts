@@ -81,6 +81,9 @@ export default class PoolFundingAlignmentComponent {
   readonly INFO_BANNER = 'Select the High-Level Outputs (HLO) and related indicators this result contributes to.';
   readonly CONTRIBUTION_QUESTION = 'Does this result contribute to a Science Program or Accelerator?';
   readonly SP_PICKER_LABEL = 'Select the Science Program(s) this is related to';
+  readonly UNMAPPED_SP_MESSAGE =
+    "This result isn't linked to a CLARISA project yet. Contact the bilateral operations team to register the project mapping.";
+  readonly NO_SP_DEFINED_MESSAGE = 'The linked CLARISA project has no Science Programs defined.';
   readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
   readonly HLO_CARD_TITLE = 'VIEW HIGH LEVEL OUTPUTS';
   readonly HLO_CARD_BODY =
@@ -94,6 +97,22 @@ export default class PoolFundingAlignmentComponent {
 
   readonly isReadOnly = computed(() => !!this.alignment()?.is_read_only);
   readonly eligible = computed(() => !!this.alignment()?.eligible);
+
+  // Per-result SP picker source + empty-state discriminators (REQ-BIL-ASR-01).
+  readonly sciencePrograms = this.bilateralService.sciencePrograms;
+  readonly mappingStatus = this.bilateralService.mappingStatus;
+  readonly loadingSciencePrograms = this.bilateralService.loadingSciencePrograms;
+  // AC-01.2 — unmapped: picker empty + contact-ops message; no 13-SP fallback.
+  readonly isUnmapped = computed(() => this.mappingStatus() === 'unmapped');
+  // AC-01.3 — mapped but the CLARISA project carries no SPs (distinct message).
+  readonly hasNoSciencePrograms = computed(() => this.mappingStatus() === 'mapped' && this.sciencePrograms().length === 0);
+  // Single named gate for the picker (used directly in the template). Renders only
+  // once the per-result source has resolved (mappingStatus non-null) AND the
+  // project is mapped with ≥1 SP. The null guard prevents an empty-picker flash
+  // while getSciencePrograms is still in flight.
+  readonly showSpPicker = computed(
+    () => this.mappingStatus() !== null && !this.isUnmapped() && !this.hasNoSciencePrograms()
+  );
 
   readonly showHloSection = computed(() => {
     const form = this.formData();
@@ -142,6 +161,10 @@ export default class PoolFundingAlignmentComponent {
         return;
       }
       this.seedFromServer(alignment);
+      // Picker options are per-result (REQ-BIL-ASR-01): only fetch once the
+      // alignment confirms the result is eligible. The picker endpoint is only
+      // reachable on eligible results (pitfall 4).
+      void this.bilateralService.getSciencePrograms(resultCode);
       this.clarityService?.trackEvent('bilateral.alignment.viewed', {
         result_code: alignment.result_code,
         eligible: alignment.eligible,

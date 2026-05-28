@@ -50,6 +50,7 @@ export type ControlListServices =
   | 'applicationOptions'
   | 'levers'
   | 'sciencePrograms'
+  | 'bilateralSciencePrograms'
   | 'leverStrategicOutcomes'
   | 'leverSdgTargets'
   | 'clarisaSdgTargets'

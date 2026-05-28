@@ -7,7 +7,7 @@ import { CurrentResultService } from './cache/current-result.service';
 import { FindContracts, FindContractsResponse } from '@shared/interfaces/find-contracts.interface';
 import { MainResponse } from '@shared/interfaces/responses.interface';
 import { PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
-import { AlignmentResponse } from '@interfaces/bilateral/pool-funding-alignment.interface';
+import { AlignmentResponse, PoolFundingSciencePrograms } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
 describe('BilateralService', () => {
   let service: BilateralService;
@@ -16,6 +16,7 @@ describe('BilateralService', () => {
     PATCH_PoolFundingTag: jest.Mock;
     GET_PoolFundingAlignment: jest.Mock;
     PATCH_PoolFundingAlignment: jest.Mock;
+    GET_PoolFundingSciencePrograms: jest.Mock;
   };
   let canAccessCenterAdminSignal: ReturnType<typeof signal<boolean>>;
   let isCurrentUserOwnerSignal: ReturnType<typeof signal<boolean>>;
@@ -25,7 +26,8 @@ describe('BilateralService', () => {
       GET_FindContracts: jest.fn(),
       PATCH_PoolFundingTag: jest.fn(),
       GET_PoolFundingAlignment: jest.fn(),
-      PATCH_PoolFundingAlignment: jest.fn()
+      PATCH_PoolFundingAlignment: jest.fn(),
+      GET_PoolFundingSciencePrograms: jest.fn()
     };
     canAccessCenterAdminSignal = signal<boolean>(false);
     isCurrentUserOwnerSignal = signal<boolean>(false);
@@ -250,6 +252,89 @@ describe('BilateralService', () => {
       await expect(service.getAlignment('RES-001')).rejects.toThrow('network down');
 
       expect(service.loadingAlignment()).toBe(false);
+    });
+  });
+
+  describe('getSciencePrograms (REQ-BIL-ASR-01)', () => {
+    const mapped: PoolFundingSciencePrograms = {
+      result_code: '19792',
+      mapping_status: 'mapped',
+      clarisa_project: { id: 1, short_name: 'T-PJ-003262-...' },
+      science_programs: [
+        { code: 'SP09', name: 'Scaling for Impact', category: 'Scaling programs', color: '#ec4899', icon_key: 'SP09', allocation: 25 },
+        { code: 'SP10', name: 'Gender Equality and Inclusion', category: 'Accelerators', color: '#8b5cf6', icon_key: 'SP10', allocation: 75 }
+      ]
+    };
+
+    it('mapped + SPs — sets sciencePrograms + mappingStatus, toggles loading, calls per-result endpoint with the numeric code', async () => {
+      let loadingDuringCall = false;
+      mockApi.GET_PoolFundingSciencePrograms.mockImplementation(() => {
+        loadingDuringCall = service.loadingSciencePrograms();
+        return Promise.resolve(ok<PoolFundingSciencePrograms>(mapped));
+      });
+
+      const result = await service.getSciencePrograms('STAR-19792');
+
+      expect(loadingDuringCall).toBe(true);
+      expect(service.loadingSciencePrograms()).toBe(false);
+      expect(mockApi.GET_PoolFundingSciencePrograms).toHaveBeenCalledWith('STAR-19792');
+      expect(service.mappingStatus()).toBe('mapped');
+      expect(service.sciencePrograms()).toEqual(mapped.science_programs);
+      expect(result).toEqual(mapped.science_programs);
+    });
+
+    it('unmapped — empty list + mappingStatus "unmapped" (no fallback to the 13-SP catalog, pitfall 1)', async () => {
+      mockApi.GET_PoolFundingSciencePrograms.mockResolvedValue(
+        ok<PoolFundingSciencePrograms>({
+          result_code: '19792',
+          mapping_status: 'unmapped',
+          clarisa_project: null,
+          science_programs: []
+        })
+      );
+
+      const result = await service.getSciencePrograms('19792');
+
+      expect(service.mappingStatus()).toBe('unmapped');
+      expect(service.sciencePrograms()).toEqual([]);
+      expect(result).toEqual([]);
+    });
+
+    it('mapped + empty list — keeps mappingStatus "mapped" with an empty list (distinct from unmapped)', async () => {
+      mockApi.GET_PoolFundingSciencePrograms.mockResolvedValue(
+        ok<PoolFundingSciencePrograms>({
+          result_code: '19792',
+          mapping_status: 'mapped',
+          clarisa_project: { id: 1, short_name: 'T-PJ-003262-...' },
+          science_programs: []
+        })
+      );
+
+      await service.getSciencePrograms('19792');
+
+      expect(service.mappingStatus()).toBe('mapped');
+      expect(service.sciencePrograms()).toEqual([]);
+    });
+
+    it('unsuccessful request — clears list + status to null, no catalog fallback', async () => {
+      mockApi.GET_PoolFundingSciencePrograms.mockResolvedValue(
+        err<PoolFundingSciencePrograms>(404, 'not found', undefined as unknown as PoolFundingSciencePrograms)
+      );
+
+      const result = await service.getSciencePrograms('NONE');
+
+      expect(service.sciencePrograms()).toEqual([]);
+      expect(service.mappingStatus()).toBeNull();
+      expect(result).toEqual([]);
+      expect(service.loadingSciencePrograms()).toBe(false);
+    });
+
+    it('rejection — loadingSciencePrograms resets to false (defensive try/finally)', async () => {
+      mockApi.GET_PoolFundingSciencePrograms.mockRejectedValue(new Error('network down'));
+
+      await expect(service.getSciencePrograms('19792')).rejects.toThrow('network down');
+
+      expect(service.loadingSciencePrograms()).toBe(false);
     });
   });
 

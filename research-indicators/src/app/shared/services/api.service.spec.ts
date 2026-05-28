@@ -236,6 +236,32 @@ describe('ApiService', () => {
         {}
       );
     });
+
+    it('should call GET_PoolFundingSciencePrograms with the per-result /science-programs suffix and numeric code', () => {
+      const resultCode = '19792';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_PoolFundingSciencePrograms(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment/science-programs', {});
+    });
+
+    it('should strip the STAR- prefix from the resultCode for GET_PoolFundingSciencePrograms', () => {
+      const resultCode = 'STAR-19792';
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_PoolFundingSciencePrograms(resultCode);
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment/science-programs', {});
+    });
+
+    it('should leave GET_SciencePrograms (catalog-wide) untouched (AC-01.5)', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_SciencePrograms();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/science-programs', {});
+    });
   });
 
   describe('POST methods', () => {

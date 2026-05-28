@@ -58,7 +58,7 @@ The Pool Funding Alignment section shipped (commits through `fc56e0b1`). Since t
   - AC-01.3 — `mapping_status: "mapped"` with an empty `science_programs[]` → "The linked CLARISA project has no Science Programs defined." (distinct from unmapped).
   - AC-01.4 — Numeric `resultCode`: strip the `STAR-` prefix before calling (the route param is `(\d+)`). Reuse the existing strip helper from the alignment-section work.
   - AC-01.5 — The catalog-wide `GET_SciencePrograms` stays available for **display-only** contexts (badges, summary lists). This requirement only changes the **picker** source.
-  - AC-01.6 — SP chips render `code — allocation%` (e.g. `SP09 — 25%`) and the icon from `icon_key` (`/assets/result-framework-reporting/SPs-Icons/{icon_key}.png`).
+  - AC-01.6 — SP chips render `code — allocation%` (e.g. `SP09 — 25%`) and the icon resolved from `icon_key` at **`/sps/{icon_key}.png`** (the existing, provisioned asset path — `research-indicators/public/sps/` holds all 13 SP PNGs; `icon_key === code` in current backend fixtures). **Spec-corrected 2026-05-27 (resolves validation R-3):** the backend `frontend-data-model.md` §3.3 documents an aspirational path `/assets/result-framework-reporting/SPs-Icons/{icon_key}.png`, but that directory is **not provisioned in this repo** — using it 404s every icon and regresses the working picker. If those assets are ever added under `public/assets/result-framework-reporting/SPs-Icons/`, switch back and re-confirm with the backend team.
   - AC-01.7 — On PATCH, `sp_codes` continues to send the selected `code[]` (unchanged write contract).
 
 ### REQ-BIL-ASR-02 — PRMS-sourced read-only differentiation

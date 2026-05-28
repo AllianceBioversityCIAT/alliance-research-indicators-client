@@ -72,7 +72,11 @@ import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { PoolFundingTagPatchBody, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
-import { AlignmentResponse, UpdatePoolFundingAlignmentDto } from '@interfaces/bilateral/pool-funding-alignment.interface';
+import {
+  AlignmentResponse,
+  PoolFundingSciencePrograms,
+  UpdatePoolFundingAlignmentDto
+} from '@interfaces/bilateral/pool-funding-alignment.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
@@ -669,6 +673,13 @@ export class ApiService {
 
   GET_PoolFundingAlignment = (resultCode: string): Promise<MainResponse<AlignmentResponse>> => {
     return this.TP.get(this.bilateralPath(resultCode), {});
+  };
+
+  // Per-result SP picker source — scoped to the result's mapped CLARISA project.
+  // Replaces the catalog-wide GET_SciencePrograms as the picker source (the catalog
+  // method stays for display-only contexts). No query params; scoping is server-side.
+  GET_PoolFundingSciencePrograms = (resultCode: string): Promise<MainResponse<PoolFundingSciencePrograms>> => {
+    return this.TP.get(this.bilateralPath(resultCode, '/science-programs'), {});
   };
 
   PATCH_PoolFundingAlignment = (

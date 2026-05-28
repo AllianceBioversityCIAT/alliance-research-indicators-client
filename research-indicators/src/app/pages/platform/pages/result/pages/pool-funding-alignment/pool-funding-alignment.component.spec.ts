@@ -13,7 +13,7 @@ import { ClarityService } from '@shared/services/clarity.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { HloSelectionModalContextService } from '@shared/services/cache/hlo-selection-modal-context.service';
-import { AlignmentResponse } from '@interfaces/bilateral/pool-funding-alignment.interface';
+import { AlignmentResponse, PoolFundingMappingStatus, PoolFundingScienceProgram } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
 describe('PoolFundingAlignmentComponent', () => {
   let component: PoolFundingAlignmentComponent;
@@ -22,7 +22,10 @@ describe('PoolFundingAlignmentComponent', () => {
   let loadingAlignment: ReturnType<typeof signal<boolean>>;
   let savingAlignment: ReturnType<typeof signal<boolean>>;
   let editable: ReturnType<typeof signal<boolean>>;
+  let sciencePrograms: ReturnType<typeof signal<PoolFundingScienceProgram[]>>;
+  let mappingStatus: ReturnType<typeof signal<PoolFundingMappingStatus | null>>;
   let getAlignmentMock: jest.Mock;
+  let getScienceProgramsMock: jest.Mock;
   let patchAlignmentMock: jest.Mock;
   let routerNavigate: jest.Mock;
   let showToastMock: jest.Mock;
@@ -51,7 +54,10 @@ describe('PoolFundingAlignmentComponent', () => {
     loadingAlignment = signal<boolean>(false);
     savingAlignment = signal<boolean>(false);
     editable = signal<boolean>(true);
+    sciencePrograms = signal<PoolFundingScienceProgram[]>([]);
+    mappingStatus = signal<PoolFundingMappingStatus | null>(null);
     getAlignmentMock = jest.fn().mockResolvedValue(null);
+    getScienceProgramsMock = jest.fn().mockResolvedValue([]);
     patchAlignmentMock = jest.fn();
     routerNavigate = jest.fn().mockResolvedValue(true);
     showToastMock = jest.fn();
@@ -66,7 +72,10 @@ describe('PoolFundingAlignmentComponent', () => {
       loadingAlignment,
       savingAlignment,
       editable,
+      sciencePrograms,
+      mappingStatus,
       getAlignment: getAlignmentMock,
+      getSciencePrograms: getScienceProgramsMock,
       patchAlignment: patchAlignmentMock
     };
 
@@ -137,7 +146,10 @@ describe('PoolFundingAlignmentComponent', () => {
             loadingAlignment: signal(false),
             savingAlignment: signal(false),
             editable: signal(true),
-            getAlignment: altGet
+            sciencePrograms: signal<PoolFundingScienceProgram[]>([]),
+            mappingStatus: signal<PoolFundingMappingStatus | null>(null),
+            getAlignment: altGet,
+            getSciencePrograms: jest.fn().mockResolvedValue([])
           }
         },
         { provide: CacheService, useValue: altCache },
@@ -304,7 +316,10 @@ describe('PoolFundingAlignmentComponent', () => {
               loadingAlignment: signal(false),
               savingAlignment: signal(false),
               editable: signal(true),
+              sciencePrograms: signal<PoolFundingScienceProgram[]>([]),
+              mappingStatus: signal<PoolFundingMappingStatus | null>(null),
               getAlignment: altGet,
+              getSciencePrograms: jest.fn().mockResolvedValue([]),
               patchAlignment: jest.fn()
             }
           },
@@ -672,6 +687,154 @@ describe('PoolFundingAlignmentComponent', () => {
     });
   });
 
+  describe('per-result SP picker (REQ-BIL-ASR-01)', () => {
+    const spOption: PoolFundingScienceProgram = {
+      code: 'SP09',
+      name: 'Scaling for Impact',
+      category: 'Scaling programs',
+      color: '#ec4899',
+      icon_key: 'SP09',
+      allocation: 25
+    };
+
+    const showPickerSection = () => {
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+    };
+
+    it('fetches the per-result SPs on init once the alignment loads (eligible)', async () => {
+      TestBed.resetTestingModule();
+      const altGet = jest.fn().mockResolvedValue({
+        result_code: 'RES-001',
+        eligible: true,
+        has_pool_funding_alignment_eligible: true,
+        has_contribution: null,
+        selected_science_programs: [],
+        selected_levers: [],
+        is_synced_to_prms: false,
+        is_read_only: false
+      } as AlignmentResponse);
+      const altGetSps = jest.fn().mockResolvedValue([]);
+      await TestBed.configureTestingModule({
+        imports: [PoolFundingAlignmentComponent, HttpClientTestingModule],
+        providers: [
+          {
+            provide: BilateralService,
+            useValue: {
+              currentAlignment: signal<AlignmentResponse | null>(null),
+              loadingAlignment: signal(false),
+              savingAlignment: signal(false),
+              editable: signal(true),
+              sciencePrograms: signal<PoolFundingScienceProgram[]>([]),
+              mappingStatus: signal<PoolFundingMappingStatus | null>(null),
+              getAlignment: altGet,
+              getSciencePrograms: altGetSps,
+              patchAlignment: jest.fn()
+            }
+          },
+          {
+            provide: CacheService,
+            useValue: {
+              currentResultId: signal(123),
+              getCurrentNumericResultId: () => 123,
+              currentMetadata: signal({}),
+              currentResultIsLoading: signal(false),
+              isSidebarCollapsed: () => false,
+              hasSmallScreen: () => false,
+              showSectionHeaderActions: () => false
+            }
+          },
+          { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? 'RES-001' : null) } } } },
+          { provide: Router, useValue: { navigate: jest.fn().mockResolvedValue(true) } },
+          { provide: ActionsService, useValue: { showToast: jest.fn() } },
+          { provide: WebsocketService, useValue: { listen: jest.fn().mockReturnValue(new Subject().asObservable()) } },
+          { provide: ClarityService, useValue: { trackEvent: jest.fn() } },
+          { provide: AllModalsService, useValue: { openModal: jest.fn() } },
+          { provide: HloSelectionModalContextService, useValue: { setContext: jest.fn(), clear: jest.fn(), context: signal(null) } }
+        ],
+        schemas: [NO_ERRORS_SCHEMA]
+      }).compileComponents();
+      TestBed.createComponent(PoolFundingAlignmentComponent);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(altGetSps).toHaveBeenCalledWith('RES-001');
+    });
+
+    it('AC-01.2 — unmapped renders the contact-ops message and does NOT render the picker (no 13-SP fallback)', () => {
+      showPickerSection();
+      mappingStatus.set('unmapped');
+      sciencePrograms.set([]);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const unmapped = root.querySelector('[data-testid="pf-alignment-unmapped-message"]');
+      expect(unmapped).not.toBeNull();
+      expect(unmapped?.textContent).toContain('Contact the bilateral operations team');
+      expect(root.querySelector('app-multiselect')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-no-sps-message"]')).toBeNull();
+      expect(component.isUnmapped()).toBe(true);
+      expect(component.showSpPicker()).toBe(false);
+    });
+
+    it('AC-01.3 — mapped + empty SP list renders the no-SPs message (distinct from unmapped) and hides the picker', () => {
+      showPickerSection();
+      mappingStatus.set('mapped');
+      sciencePrograms.set([]);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const noSps = root.querySelector('[data-testid="pf-alignment-no-sps-message"]');
+      expect(noSps).not.toBeNull();
+      expect(noSps?.textContent).toContain('no Science Programs defined');
+      expect(root.querySelector('[data-testid="pf-alignment-unmapped-message"]')).toBeNull();
+      expect(root.querySelector('app-multiselect')).toBeNull();
+      expect(component.hasNoSciencePrograms()).toBe(true);
+      expect(component.showSpPicker()).toBe(false);
+    });
+
+    it('AC-01.1/AC-01.6 — mapped + SPs renders the picker bound to the per-result control-list source', () => {
+      showPickerSection();
+      mappingStatus.set('mapped');
+      sciencePrograms.set([spOption]);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      const picker = root.querySelector('app-multiselect');
+      expect(picker).not.toBeNull();
+      expect(picker?.getAttribute('serviceName')).toBe('bilateralSciencePrograms');
+      expect(picker?.getAttribute('optionValue')).toBe('official_code');
+      expect(root.querySelector('[data-testid="pf-alignment-unmapped-message"]')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-no-sps-message"]')).toBeNull();
+      expect(component.showSpPicker()).toBe(true);
+    });
+
+    it('AC-01.6 — chip label exposes "code — allocation%" formatting + icon resolves from /sps/{icon_key}.png', () => {
+      mappingStatus.set('mapped');
+      sciencePrograms.set([spOption]);
+
+      const sp = component.sciencePrograms()[0];
+      expect(`${sp.code} — ${sp.allocation}%`).toBe('SP09 — 25%');
+      // Icon source path: the existing /sps/ assets (NOT the non-existent
+      // result-framework-reporting/SPs-Icons path) — keyed by icon_key.
+      expect(`/sps/${sp.icon_key}.png`).toBe('/sps/SP09.png');
+    });
+
+    it('Issue 3 — null mappingStatus (loading/initial) renders neither empty-state nor the picker (no empty flash)', () => {
+      showPickerSection();
+      mappingStatus.set(null);
+      sciencePrograms.set([]);
+      fixture.detectChanges();
+
+      const root: HTMLElement = fixture.nativeElement;
+      expect(component.showSpPicker()).toBe(false);
+      expect(root.querySelector('app-multiselect')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-unmapped-message"]')).toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-no-sps-message"]')).toBeNull();
+    });
+  });
+
   describe('real-time reconcile via Socket.IO (AC-11.x)', () => {
     it('subscribes to result.pool-funding-alignment.changed on init', () => {
       expect(listenMock).toHaveBeenCalledWith('result.pool-funding-alignment.changed');
@@ -758,7 +921,10 @@ describe('PoolFundingAlignmentComponent', () => {
               loadingAlignment: signal(false),
               savingAlignment: signal(false),
               editable: signal(true),
+              sciencePrograms: signal<PoolFundingScienceProgram[]>([]),
+              mappingStatus: signal<PoolFundingMappingStatus | null>(null),
               getAlignment: altGet,
+              getSciencePrograms: jest.fn().mockResolvedValue([]),
               patchAlignment: jest.fn()
             }
           },
