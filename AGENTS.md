@@ -27,6 +27,10 @@ Scoped guides for specific subtrees. Read them in addition to the constitutional
 |-------|-------|
 | [`research-indicators/src/CLAUDE.md`](./research-indicators/src/CLAUDE.md) | Day-to-day coding contract for the Angular SPA source — folder layout, path aliases, where new code goes, conventions, tests, commands |
 
+### Execution triad (`.agents/`)
+
+The JCSPECS multi-agent loop used by `/sdd-execute` reads its personas from [`.agents/`](./.agents/): `leader.md` (orchestrator), `implementer.md` (coding contract), `reviewer.md` (read-only spec-conformance audit). They are tailored to this repo — verification via `npm run test` / `npm run lint` / `npm run build` from `research-indicators/`, the `abc-*`/`atc-*`/`rs-*`/`fs-*` token system, and the C-1…C-6 hard rules. Don't invent execution personas inline — extend these.
+
 ---
 
 ## How module specs are organized
