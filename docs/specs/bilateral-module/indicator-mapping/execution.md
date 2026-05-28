@@ -196,11 +196,35 @@
 
 ---
 
+### Entry 11 — T-BIL-IM-16 — `no_aow_mappings` empty-state UX (default a)
+
+| Field | Value |
+| --- | --- |
+| Status | `[~]` default (a) delivered (no separate code pass) |
+| Date | 2026-05-28 |
+| Method | Resolved-via-default. The FE default (a) was implemented + reviewed as part of T-BIL-IM-05 (Entry 8): when `aow_status === 'no_aow_mappings'` the modal renders a flat indicator list per SP using `area_of_work === ''` as the key token, with an `hlo-modal-empty-no-aow` note; covered by T-05 spec test #7. Per the task's own definition, option (a) is "nothing to do; close as resolved-via-default." No Implementer/Reviewer pass was run because there was no additional code to write. |
+| Parked | Variants (b) (outcomes/outputs without an AOW band) and (c) (block + CTA) await **OQ-IM-10** sign-off from BA + designer (non-gating). The `aow_status` telemetry dimension on `bilateral.hlo.modal.opened` lands with T-BIL-IM-13. |
+| ACs | OQ-IM-10 default behavior. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
 
-**Status (as of 2026-05-28)**: 4 of 17 tasks complete + T-BIL-IM-01 read slice landed (write-side gated). The read-side ToC/HLO integration arc (T-BIL-IM-01 read → -04 read → -05 → -07 / -06 / -16) is in active execution; the contribution write-side (T-BIL-IM-08/-09/-11) remains gated on OQ-IM-1.
+**Status (as of 2026-05-28)** — the read-side ToC/HLO integration arc is complete and committed. **Tasks done: 8 full + 2 read-slices + 1 default.**
+- Previously shipped: T-BIL-IM-RR-01, -02, -03, -14.
+- This arc (2026-05-28, commits `112dc10a` / `13211e50` / `37a1b831` / `9f0c53f6` / `af687677`): **T-BIL-IM-01 (read slice)**, **T-BIL-IM-04 (read slice)**, **T-BIL-IM-05** (HLO selection modal — the SP→AOW→HLO picker), **T-BIL-IM-07** (modal session-state + Cancel-confirm), **T-BIL-IM-06** (disabled-row primitive), **T-BIL-IM-16** (no_aow default a).
+
+**Still gated on OQ-IM-1 (contribution body shape — PO, recommended decision-by 2026-06-03):**
+- T-BIL-IM-08 (HLO card editable reason/quantitative), T-BIL-IM-09 (quantitative row), T-BIL-IM-11 (Save diff DELETE→POST→PATCH). Plus the write-side methods deferred in T-BIL-IM-01 (4 contribution endpoints + `ContributionBody`) and T-BIL-IM-04 (`saveMappings`/`bodyOf`/`getContribution`/`getMappings`).
+
+**Unblocked but not yet done (next natural step):**
+- T-BIL-IM-10 read portion — mount the AI card into the alignment tab + wire the CTA to open the modal + preload `getHlosIndicators` on mount + aow_status-aware card copy. (The HLO-cards-rendering portion of T-10 depends on the gated T-08.) This is what makes the modal *reachable* in the running app.
+- T-BIL-IM-12 (lever-cascade refresh effect) depends on T-10.
+- T-BIL-IM-13 (telemetry), T-BIL-IM-15 (constitutional docs) — last.
+
+The read/data/modal layer is fully built, tested (lint + ~99% project coverage maintained), and builds clean. The contribution write-side + the end-to-end mount await the PO's OQ-IM-1 decision.
 
 **Remaining gates** (down from three to two on 2026-05-27 — see Entry 5):
 - **OQ-IM-1 — Contribution body shape** — escalated to PO. Gates T-BIL-IM-01, -04, -08, -09, -11.

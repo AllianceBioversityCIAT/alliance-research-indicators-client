@@ -409,7 +409,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 
 ### T-BIL-IM-16 — `no_aow_mappings` empty-state UX
 
-- **Status**: `pending` *(non-gating — created 2026-05-27 to track OQ-IM-10)*
+- **Status**: `[~] default (a) shipped via T-BIL-IM-05 (2026-05-28)` — the flat indicator list per SP with the empty-`area_of_work` key token + the `hlo-modal-empty-no-aow` note are live and tested in the modal. Variants **(b)** (outcomes/outputs without an AOW band) and **(c)** (block with a CTA) remain parked on **OQ-IM-10** (BA + designer, non-gating). The `aow_status` telemetry dimension on `bilateral.hlo.modal.opened` lands with T-BIL-IM-13 (telemetry). See [`./execution.md`](./execution.md) Entry 11.
 - **Size**: S
 - **Depends on**: T-BIL-IM-05 (foundation), T-BIL-IM-10 (AI card copy)
 - **Discharges ACs**: OQ-IM-10 (new — design refinement once BA + designer answer).
@@ -534,4 +534,4 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 | T-BIL-IM-13 | Telemetry events (Clarity) | S | T-BIL-IM-05, T-BIL-IM-10, T-BIL-IM-11 | — | pending |
 | T-BIL-IM-14 | AR.3 regression test (mappings don't block submission) | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-15 | Constitutional docs update | S | T-BIL-IM-10, T-BIL-IM-11, T-BIL-IM-13 | — | pending |
-| T-BIL-IM-16 | `no_aow_mappings` empty-state UX *(non-gating)* | S | T-BIL-IM-05, T-BIL-IM-10 | OQ-IM-10 | pending *(new — created 2026-05-27)* |
+| T-BIL-IM-16 | `no_aow_mappings` empty-state UX *(non-gating)* | S | T-BIL-IM-05, T-BIL-IM-10 | OQ-IM-10 | `[~]` default (a) shipped via T-05 (2026-05-28); variants parked on OQ-IM-10 |
