@@ -10,6 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { BilateralService } from '@services/bilateral.service';
 import { HloSelectionModalContextService } from '@services/cache/hlo-selection-modal-context.service';
+import { ActionsService } from '@services/actions.service';
 import { BilateralHlosPair, HloKeyString, IndicatorRow } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
 // @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05)
@@ -51,8 +52,23 @@ export class HloSelectionModalComponent implements OnDestroy {
   readonly allModalsService = inject(AllModalsService);
   readonly bilateralService = inject(BilateralService);
   readonly hloSelectionModalContextService = inject(HloSelectionModalContextService);
+  readonly actionsService = inject(ActionsService);
+
+  // --- Cancel-confirm dialog copy (i18n-extractable) --------------------------
+  // T-BIL-IM-07: stored as constants so copy changes are a single-line diff.
+  private readonly DISCARD_CONFIRM_TITLE = 'Discard your selection changes?';
+  private readonly DISCARD_CONFIRM_MESSAGE = 'Discard your selection changes?';
+  private readonly DISCARD_CONFIRM_LABEL = 'Discard';
+  private readonly DISCARD_CANCEL_LABEL = 'Keep editing';
 
   // --- Component-local signals -------------------------------------------------
+
+  /**
+   * Snapshot of the seeded selection captured at modal-open time (T-BIL-IM-07).
+   * Used by Cancel to detect whether the in-modal draft has drifted from the
+   * seed so we only show the discard-confirm dialog when something actually changed.
+   */
+  private snapshotOnOpen: ReadonlySet<HloKeyString> = new Set();
 
   /** Currently active sidebar AOW key. Null while nothing is selected yet. */
   readonly activeAowKey = signal<AowKey | null>(null);
@@ -170,8 +186,12 @@ export class HloSelectionModalComponent implements OnDestroy {
     if (context?.resultCode && !this.bilateralService.hlosIndicators()) {
       await this.bilateralService.getHlosIndicators(context.resultCode);
     }
-    // Seed modal selection from current pending mappings (T-BIL-IM-07 seeds here)
+    // Seed modal selection from current pending mappings (T-BIL-IM-07)
     this.bilateralService.loadModalSelection();
+
+    // Capture an immutable snapshot of the seeded selection for Cancel diffing.
+    // loadModalSelection() has just synchronously written hloModalSelection — read it now.
+    this.snapshotOnOpen = new Set(this.bilateralService.hloModalSelection());
 
     // Auto-expand first SP and set the first AOW as active
     const groups = this.sidebarGroups();
@@ -275,9 +295,47 @@ export class HloSelectionModalComponent implements OnDestroy {
     this.close();
   }
 
-  /** Cancel: close modal without committing (seed/discard T-BIL-IM-07 is a separate task). */
+  /**
+   * Cancel / ×: if the in-modal draft differs from the seeded snapshot, show a
+   * confirm dialog. If no changes were made, close immediately.
+   * T-BIL-IM-07.
+   */
   cancel(): void {
-    this.close();
+    if (!this.selectionDiffersFromSnapshot()) {
+      this.close();
+      return;
+    }
+
+    this.actionsService.showGlobalAlert({
+      severity: 'warning',
+      summary: this.DISCARD_CONFIRM_TITLE,
+      detail: this.DISCARD_CONFIRM_MESSAGE,
+      confirmCallback: {
+        label: this.DISCARD_CONFIRM_LABEL,
+        event: () => {
+          // Discard: close without committing. hloModalSelection is stale but
+          // harmless — it will be re-seeded on the next modal open.
+          this.close();
+        }
+      },
+      cancelCallback: {
+        label: this.DISCARD_CANCEL_LABEL
+        // No event needed — the alert dismisses itself, modal stays open.
+      }
+    });
+  }
+
+  /**
+   * Returns true when the current hloModalSelection differs from snapshotOnOpen.
+   * Equal iff same size AND every key in the current set is present in the snapshot.
+   */
+  private selectionDiffersFromSnapshot(): boolean {
+    const current = this.bilateralService.hloModalSelection();
+    if (current.size !== this.snapshotOnOpen.size) return true;
+    for (const key of current) {
+      if (!this.snapshotOnOpen.has(key)) return true;
+    }
+    return false;
   }
 
   private close(): void {

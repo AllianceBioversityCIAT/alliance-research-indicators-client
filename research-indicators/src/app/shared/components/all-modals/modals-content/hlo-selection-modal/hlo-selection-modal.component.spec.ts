@@ -1,9 +1,10 @@
-// @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05)
+// @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05, T-BIL-IM-07)
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { HloSelectionModalComponent } from './hlo-selection-modal.component';
 import { AllModalsService } from '@services/cache/all-modals.service';
 import { BilateralService } from '@services/bilateral.service';
 import { HloSelectionModalContextService } from '@services/cache/hlo-selection-modal-context.service';
+import { ActionsService } from '@services/actions.service';
 import { signal } from '@angular/core';
 import {
   bilateralHlosIndicatorsResponseMock,
@@ -75,6 +76,13 @@ function buildContextServiceMock(resultCode = 'TEST-001') {
   };
 }
 
+function buildActionsServiceMock() {
+  return {
+    showGlobalAlert: jest.fn(),
+    showToast: jest.fn()
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -85,18 +93,21 @@ describe('HloSelectionModalComponent', () => {
   let bilateralMock: ReturnType<typeof buildBilateralServiceMock>;
   let allModalsMock: ReturnType<typeof buildAllModalsServiceMock>;
   let contextMock: ReturnType<typeof buildContextServiceMock>;
+  let actionsMock: ReturnType<typeof buildActionsServiceMock>;
 
   async function createComponent(overrides: Parameters<typeof buildBilateralServiceMock>[0] = {}): Promise<void> {
     bilateralMock = buildBilateralServiceMock(overrides);
     allModalsMock = buildAllModalsServiceMock();
     contextMock = buildContextServiceMock();
+    actionsMock = buildActionsServiceMock();
 
     await TestBed.configureTestingModule({
       imports: [HloSelectionModalComponent, NoopAnimationsModule],
       providers: [
         { provide: BilateralService, useValue: bilateralMock },
         { provide: AllModalsService, useValue: allModalsMock },
-        { provide: HloSelectionModalContextService, useValue: contextMock }
+        { provide: HloSelectionModalContextService, useValue: contextMock },
+        { provide: ActionsService, useValue: actionsMock }
       ]
     }).compileComponents();
 
@@ -446,5 +457,139 @@ describe('HloSelectionModalComponent', () => {
     await (component as unknown as { onModalOpened: () => Promise<void> }).onModalOpened();
 
     expect(bilateralMock.getHlosIndicators).not.toHaveBeenCalled();
+  });
+
+  // ==========================================================================
+  // T-BIL-IM-07 — Modal session-state + Cancel-confirm dialog
+  // ==========================================================================
+
+  // --------------------------------------------------------------------------
+  // 19. Modal open seeds the selection from pendingMappings and captures snapshot
+  // --------------------------------------------------------------------------
+  it('T-BIL-IM-07: modal open calls loadModalSelection and captures a snapshot', async () => {
+    const seededKey: HloKeyString = 'SP01|AOW06|5001';
+
+    await createComponent({ hlosIndicators: bilateralHlosIndicatorsResponseMock });
+
+    // Simulate what the real loadModalSelection would do: write keys into hloModalSelection.
+    // In the test the mock is a no-op, so we mimic the side-effect manually before calling
+    // onModalOpened so the snapshot captures the post-seed state.
+    bilateralMock.loadModalSelection.mockImplementation(() => {
+      bilateralMock.hloModalSelection.set(new Set([seededKey]));
+    });
+
+    // Simulate modal open
+    await (component as unknown as { onModalOpened: () => Promise<void> }).onModalOpened();
+
+    // loadModalSelection must have been called (it seeds hloModalSelection from pendingMappings)
+    expect(bilateralMock.loadModalSelection).toHaveBeenCalled();
+
+    // The snapshot must reflect exactly what hloModalSelection held after loadModalSelection ran
+    const snapshot = (component as unknown as { snapshotOnOpen: ReadonlySet<HloKeyString> }).snapshotOnOpen;
+    expect(snapshot.has(seededKey)).toBe(true);
+    expect(snapshot.size).toBe(1);
+  });
+
+  // --------------------------------------------------------------------------
+  // 20. Cancel with NO draft changes closes immediately (no confirm dialog shown)
+  // --------------------------------------------------------------------------
+  it('T-BIL-IM-07: Cancel with no changes closes modal immediately without showing confirm dialog', async () => {
+    await createComponent({ hlosIndicators: bilateralHlosIndicatorsResponseMock });
+
+    // Seed snapshot to match the current empty selection
+    await (component as unknown as { onModalOpened: () => Promise<void> }).onModalOpened();
+
+    // Selection has not changed since open — snapshot equals current
+    component.cancel();
+    fixture.detectChanges();
+
+    // Modal closed without a confirm dialog
+    expect(actionsMock.showGlobalAlert).not.toHaveBeenCalled();
+    expect(allModalsMock.closeModal).toHaveBeenCalledWith('hloSelection');
+  });
+
+  // --------------------------------------------------------------------------
+  // 21. Cancel WITH draft changes shows the confirm dialog
+  // --------------------------------------------------------------------------
+  it('T-BIL-IM-07: Cancel with draft changes shows the discard confirm dialog', async () => {
+    await createComponent({ hlosIndicators: bilateralHlosIndicatorsResponseMock });
+
+    // Set an empty snapshot (as if opened with no pending mappings)
+    await (component as unknown as { onModalOpened: () => Promise<void> }).onModalOpened();
+    // Ensure snapshot is empty
+    (component as unknown as { snapshotOnOpen: Set<HloKeyString> }).snapshotOnOpen = new Set();
+
+    // Now add a row to the in-modal selection (simulates user clicking "Add")
+    const row: import('@interfaces/bilateral/pool-funding-alignment.interface').IndicatorRow = {
+      indicator_id: '5001', program: 'SP01', area_of_work: 'AOW06',
+      indicator_name: 'Test indicator', composite_code: 'SP01-AOW06',
+      toc_result_id: 1001, indicator_type: 'outcome',
+      target_description: null, is_quantitative: false,
+      is_mapped: false, is_stale: false, disabled_reason: null
+    };
+    component.toggleRowSelection(row);
+    fixture.detectChanges();
+
+    component.cancel();
+    fixture.detectChanges();
+
+    // The confirm dialog must have been shown — modal is NOT yet closed
+    expect(actionsMock.showGlobalAlert).toHaveBeenCalledTimes(1);
+    const alertArg = actionsMock.showGlobalAlert.mock.calls[0][0] as import('@shared/interfaces/global-alert.interface').GlobalAlert;
+    expect(alertArg.summary).toBe('Discard your selection changes?');
+    expect(alertArg.detail).toBe('Discard your selection changes?');
+    expect(alertArg.confirmCallback?.label).toBe('Discard');
+    expect(alertArg.cancelCallback?.label).toBe('Keep editing');
+    // Modal must NOT have been closed yet
+    expect(allModalsMock.closeModal).not.toHaveBeenCalled();
+  });
+
+  // --------------------------------------------------------------------------
+  // 22. Discard in the confirm dialog closes the modal (does NOT call commitModalSelection)
+  // --------------------------------------------------------------------------
+  it('T-BIL-IM-07: Discard callback in the confirm dialog closes the modal without committing', async () => {
+    await createComponent({ hlosIndicators: bilateralHlosIndicatorsResponseMock });
+
+    // Open with empty snapshot then add a row to create a diff
+    await (component as unknown as { onModalOpened: () => Promise<void> }).onModalOpened();
+    (component as unknown as { snapshotOnOpen: Set<HloKeyString> }).snapshotOnOpen = new Set();
+
+    const row: import('@interfaces/bilateral/pool-funding-alignment.interface').IndicatorRow = {
+      indicator_id: '5001', program: 'SP01', area_of_work: 'AOW06',
+      indicator_name: 'Test indicator', composite_code: 'SP01-AOW06',
+      toc_result_id: 1001, indicator_type: 'outcome',
+      target_description: null, is_quantitative: false,
+      is_mapped: false, is_stale: false, disabled_reason: null
+    };
+    component.toggleRowSelection(row);
+    fixture.detectChanges();
+
+    component.cancel();
+    fixture.detectChanges();
+
+    // Extract and fire the Discard callback
+    const alertArg = actionsMock.showGlobalAlert.mock.calls[0][0] as import('@shared/interfaces/global-alert.interface').GlobalAlert;
+    alertArg.confirmCallback?.event?.();
+    fixture.detectChanges();
+
+    // Modal must be closed and commitModalSelection must NOT have been called
+    expect(allModalsMock.closeModal).toHaveBeenCalledWith('hloSelection');
+    expect(bilateralMock.commitModalSelection).not.toHaveBeenCalled();
+  });
+
+  // --------------------------------------------------------------------------
+  // 23. Confirm still calls commitModalSelection + closes (T-BIL-IM-07 verify)
+  // --------------------------------------------------------------------------
+  it('T-BIL-IM-07: Confirm commits selection and closes modal', async () => {
+    await createComponent({ hlosIndicators: bilateralHlosIndicatorsResponseMock });
+    fixture.detectChanges();
+
+    component.confirm();
+    fixture.detectChanges();
+
+    expect(bilateralMock.commitModalSelection).toHaveBeenCalledTimes(1);
+    expect(allModalsMock.closeModal).toHaveBeenCalledWith('hloSelection');
+    // No discard dialog shown on Confirm
+    expect(actionsMock.showGlobalAlert).not.toHaveBeenCalled();
   });
 });

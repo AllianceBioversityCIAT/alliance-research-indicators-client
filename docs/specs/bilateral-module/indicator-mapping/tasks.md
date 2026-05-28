@@ -238,7 +238,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 
 ### T-BIL-IM-07 — Modal session-state + Cancel-confirm dialog
 
-- **Status**: `pending`
+- **Status**: `completed` (2026-05-28) — see [`./execution.md`](./execution.md) Entry 9.
 - **Size**: S
 - **Depends on**: T-BIL-IM-05
 - **Discharges ACs**: REQ-BIL-IM-06, REQ-BIL-IM-07.
@@ -525,7 +525,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 | T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | `[~]` read slice done (2026-05-28); write surface gated |
 | T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | ~~OQ-IM-2~~ ungated 2026-05-27 | **completed** (2026-05-28) |
 | T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending *(partially blocked — `disabled_reason` not on new endpoint)* |
-| T-BIL-IM-07 | Modal session-state + Cancel-confirm dialog | S | T-BIL-IM-05 | — | pending |
+| T-BIL-IM-07 | Modal session-state + Cancel-confirm dialog | S | T-BIL-IM-05 | — | **completed** (2026-05-28) |
 | T-BIL-IM-08 | `HloCardComponent` — header + target + reason + × | L | T-BIL-IM-04 | OQ-IM-1/3 | pending — GATED |
 | T-BIL-IM-09 | Quantitative contribution row (conditional) | S | T-BIL-IM-08 | OQ-IM-1 | pending — GATED |
 | T-BIL-IM-10 | Mount AI card + HLO cards into alignment tab | M | T-BIL-IM-03, T-BIL-IM-05, T-BIL-IM-08 | — | pending |

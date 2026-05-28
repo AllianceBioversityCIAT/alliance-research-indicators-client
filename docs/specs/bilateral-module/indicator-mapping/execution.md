@@ -162,6 +162,22 @@
 
 ---
 
+### Entry 9 — T-BIL-IM-07 — Modal session-state + Cancel-confirm dialog
+
+| Field | Value |
+| --- | --- |
+| Status | ✅ completed (PASS attempt 1) |
+| Date | 2026-05-28 |
+| Method | `/sdd-execute` triad. Extends `HloSelectionModalComponent`. |
+| Files changed | `hlo-selection-modal.component.{ts,spec.ts}` (extend). |
+| Implemented | On open: `loadModalSelection()` seeds `hloModalSelection` from `pendingMappings`, then `snapshotOnOpen = new Set(hloModalSelection())` captured post-seed. Cancel/×: `selectionDiffersFromSnapshot()` (equal iff same size + every current key in snapshot) → no diff closes immediately; diff shows an `ActionsService.showGlobalAlert` confirm ("Discard your selection changes?") whose Discard callback `close()`s **without** committing and whose "Keep editing" callback leaves the modal open. Confirm unchanged (`commitModalSelection()` + close). Copy stored as `private readonly DISCARD_CONFIRM_*` constants. |
+| Reuse | `ActionsService.showGlobalAlert(GlobalAlert)` — the same shared API `result-sidebar.component.ts` uses; shape (severity/summary/detail/confirmCallback.{label,event}/cancelCallback.label) verified against `global-alert.interface.ts`. No ad-hoc dialog. |
+| Reviewer verdict | **PASS** (attempt 1). Diff comparator correct (no false-equal/false-differ edge), modal not closed before user confirms, Discard does not commit. Two cosmetic warnings **accepted as non-blocking**: (1) `DISCARD_CONFIRM_TITLE`/`_MESSAGE` hold the same string (both required because `GlobalAlert` needs `summary` + `detail`); (2) suggestion to add `T-BIL-IM-07` to the component's `@sdd-spec` comment. Neither affects correctness/tests/contract. |
+| Verification | • `npm run lint` → clean. • `npm run test -- hlo-selection-modal` → 30/30 pass (5 new: seed+snapshot, cancel-no-change closes, cancel-with-change shows alert + modal not closed, Discard closes without commit, Confirm commits+closes). • `npm run build` → clean. |
+| ACs discharged | REQ-BIL-IM-06, REQ-BIL-IM-07. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.
