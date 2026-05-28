@@ -217,7 +217,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 
 ### T-BIL-IM-06 — Disabled-indicator row with inline reason callout
 
-- **Status**: `pending` *(partially blocked — see below)*
+- **Status**: `completed` (2026-05-28) — rendering primitive shipped + resolves T-05's forward-wired `aria-describedby`. Won't trigger on live data until the backend mirrors `disabled_reason`/per-row `is_stale` onto the HLOs endpoint (tests use hand-crafted fixture rows). See [`./execution.md`](./execution.md) Entry 10.
 - **Size**: S
 - **Depends on**: T-BIL-IM-05
 - **Discharges ACs**: REQ-BIL-IM-04.
@@ -229,7 +229,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
   - **2026-05-27 caveat**: per [`./open-questions-for-ba.md` §8.3 #5–6](./open-questions-for-ba.md#83-cascading-impact-on-the-fe-design), the new `GET .../hlos-indicators` endpoint returns `PrmsTocIndicator` (raw PRMS shape) — it does NOT carry `disabled_reason` or `is_stale` per row. `IndicatorRow.disabled_reason` is therefore `null` for all rows until backend mirrors the safe-bundle `disabled_reason` field onto `PrmsTocIndicator` (or a sibling enrichment wrapper). `IndicatorRow.is_stale` is computed only on persisted `HloMapping` rows (the catalog row stays `false`). **Until the bonus fields land on the HLOs endpoint, this task can ship the rendering primitive but won't trigger in production data.** Coordinate with backend before merging — confirm the planned shape.
   - Reason text MUST be in the DOM (not hover-only) so screen readers announce it — bind via `aria-describedby="reason-{indicator_id}"`.
   - Stale-but-unmapped uses the canonical stale copy: `"This indicator was retired in the upstream catalog. Existing mappings are preserved; new mappings are not accepted."` Otherwise the server-provided `disabled_reason` is used verbatim.
-  - **`data-testid`**: `hlo-modal-row-disabled-{...}`, `hlo-modal-row-reason-{...}`.
+  - **`data-testid`**: `hlo-modal-row-disabled-{...}` (exposed via a separate `data-testid-disabled` attribute so it doesn't clobber the row's primary `data-testid`), `hlo-modal-row-reason-{...}`.
 - **Tests**: 4 cases — disabled row not clickable, checkbox/commit non-interactive, reason in DOM with `aria-describedby`, stale-but-unmapped uses the canonical stale copy. Use fixture rows with hand-crafted `disabled_reason` / `is_stale` values (since the live endpoint won't yet populate them).
 - **Done when**: coverage ≥ 70% on the disabled-row branch; manual a11y check (keyboard focus reveals reason). Document the backend-side gap in the PR description.
 - **Relevant skills**: `angular-developer`, `frontend-design`.
@@ -524,7 +524,7 @@ T-BIL-IM-16 (no_aow_mappings empty-state UX) — needs T-BIL-IM-05; non-gating
 | T-BIL-IM-03 | `BilateralActionCardComponent` | S | — | — | **completed** (2026-05-24) |
 | T-BIL-IM-04 | Extend `BilateralService` with indicator + mapping state | M | T-BIL-IM-01 | OQ-IM-1/3 | `[~]` read slice done (2026-05-28); write surface gated |
 | T-BIL-IM-05 | `HloSelectionModalComponent` shell + sidebar + table | L | T-BIL-IM-02, T-BIL-IM-04 | ~~OQ-IM-2~~ ungated 2026-05-27 | **completed** (2026-05-28) |
-| T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | pending *(partially blocked — `disabled_reason` not on new endpoint)* |
+| T-BIL-IM-06 | Disabled-indicator row with reason callout | S | T-BIL-IM-05 | — | **completed** (2026-05-28) — primitive (inert on live data until backend ships the field) |
 | T-BIL-IM-07 | Modal session-state + Cancel-confirm dialog | S | T-BIL-IM-05 | — | **completed** (2026-05-28) |
 | T-BIL-IM-08 | `HloCardComponent` — header + target + reason + × | L | T-BIL-IM-04 | OQ-IM-1/3 | pending — GATED |
 | T-BIL-IM-09 | Quantitative contribution row (conditional) | S | T-BIL-IM-08 | OQ-IM-1 | pending — GATED |

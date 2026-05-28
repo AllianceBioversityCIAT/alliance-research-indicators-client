@@ -178,6 +178,24 @@
 
 ---
 
+### Entry 10 — T-BIL-IM-06 — Disabled-indicator row + inline reason callout
+
+| Field | Value |
+| --- | --- |
+| Status | ✅ completed (PASS attempt 1) — rendering primitive (inert on live data; see caveat) |
+| Date | 2026-05-28 |
+| Method | `/sdd-execute` triad. Extends `HloSelectionModalComponent`. |
+| Files changed | `hlo-selection-modal.component.{ts,html,scss,spec.ts}` (extend). |
+| Implemented | `isRowDisabled(row)` = `disabled_reason !== null \|\| (is_stale && !is_mapped)`; `rowReasonText(row)` = server `disabled_reason` verbatim → else canonical stale copy (`STALE_DISABLED_REASON` constant, char-for-char per §7.4) → else null. `toggleRowSelection` early-returns on disabled; checkbox + commit button both `[disabled]="isRowDisabled(row)"`; row greys via `.hlo-modal__row--disabled` (opacity + `pointer-events:none`, token-based). Reason callout is in-DOM (`role="note"`, `id="reason-{indicator_id}"`, sibling to the row so `pointer-events:none` doesn't suppress it) with `data-testid="hlo-modal-row-reason-{…}"`; the disabled row exposes `hlo-modal-row-disabled-{…}` via a separate `data-testid-disabled` attribute (so it doesn't clobber the primary row `data-testid`). |
+| Resolves T-05 hand-off | The checkbox `aria-describedby` was broadened from T-05's `disabled_reason`-only gate to `rowReasonText(row) ? 'reason-'+id : null`, so it now references the callout for BOTH server-reason and stale-but-unmapped rows — the previously dangling reference is fully resolved. |
+| Caveat (per tasks §T-BIL-IM-06) | The live `GET .../hlos-indicators` endpoint carries neither per-row `disabled_reason` nor `is_stale` — both are always null/false in production today. This task ships the primitive only; it won't trigger on live data until the backend mirrors the safe-bundle field onto `PrmsTocIndicator` (R-10). Tests exercise it with hand-crafted fixture rows. |
+| Tokens | Callout uses `var(--ac-grey-100/200/700)` + `var(--ac-orange-1)` (all real, light+dark). Zero hex literals; no `isDarkMode()` branching. |
+| Reviewer verdict | **PASS** (attempt 1). No critical/warnings. Stale copy literal char-for-char; stale-but-mapped correctly NOT disabled (preserved for the T-08 card flow); selection blocked at three barriers; callout in-DOM + aria wired. Two non-blocking suggestions (document `data-testid-disabled` in tasks.md — done; optional future DOM-attribute assertion on the PrimeNG-rendered input). |
+| Verification | • `npm run lint` → clean. • `npm run s-lint` → clean. • `npm run test -- hlo-selection-modal` → 46/46 pass (13 new `it` blocks across the 4 spec cases). • `npm run build` → clean (component `.scss` 5.27 kB, under the 8 kB error budget). |
+| ACs discharged | REQ-BIL-IM-04. |
+
+---
+
 ## 3. Summary
 
 > Filled in once every task in [`./tasks.md`](./tasks.md) is `completed`.

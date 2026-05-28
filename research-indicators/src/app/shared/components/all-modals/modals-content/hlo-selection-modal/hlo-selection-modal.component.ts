@@ -13,7 +13,7 @@ import { HloSelectionModalContextService } from '@services/cache/hlo-selection-m
 import { ActionsService } from '@services/actions.service';
 import { BilateralHlosPair, HloKeyString, IndicatorRow } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
-// @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05)
+// @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05, T-BIL-IM-06)
 
 /** Stable compound key identifying a sidebar AOW entry. */
 type AowKey = string; // `${program}|${area_of_work}`
@@ -60,6 +60,12 @@ export class HloSelectionModalComponent implements OnDestroy {
   private readonly DISCARD_CONFIRM_MESSAGE = 'Discard your selection changes?';
   private readonly DISCARD_CONFIRM_LABEL = 'Discard';
   private readonly DISCARD_CANCEL_LABEL = 'Keep editing';
+
+  // --- Disabled-row copy (T-BIL-IM-06) ----------------------------------------
+  // Canonical stale-but-unmapped reason text. Used verbatim when the server does
+  // NOT supply a disabled_reason but the row is stale and not yet mapped.
+  private readonly STALE_DISABLED_REASON =
+    'This indicator was retired in the upstream catalog. Existing mappings are preserved; new mappings are not accepted.';
 
   // --- Component-local signals -------------------------------------------------
 
@@ -246,6 +252,33 @@ export class HloSelectionModalComponent implements OnDestroy {
     }, 300);
   }
 
+  // --- Disabled-row helpers (T-BIL-IM-06) -------------------------------------
+
+  /**
+   * A row is disabled when the server marks it explicitly (disabled_reason !== null)
+   * OR when it has been retired in the upstream catalog but has not yet been mapped
+   * by this result (is_stale=true AND !is_mapped). A stale row that IS already mapped
+   * is preserved as an existing mapping — the disable guard does not apply to it
+   * because the card-removal flow (T-BIL-IM-08) handles that surface instead.
+   */
+  isRowDisabled(row: IndicatorRow): boolean {
+    return row.disabled_reason !== null || (row.is_stale && !row.is_mapped);
+  }
+
+  /**
+   * Returns the human-readable reason text for a disabled row, or null if the row
+   * is not disabled. Preference order:
+   *   1. server-supplied disabled_reason (rendered verbatim)
+   *   2. stale-but-unmapped → STALE_DISABLED_REASON constant
+   */
+  rowReasonText(row: IndicatorRow): string | null {
+    if (!this.isRowDisabled(row)) return null;
+    if (row.is_stale && !row.is_mapped && !row.disabled_reason) {
+      return this.STALE_DISABLED_REASON;
+    }
+    return row.disabled_reason;
+  }
+
   // --- Row selection -----------------------------------------------------------
 
   isRowSelected(row: IndicatorRow): boolean {
@@ -253,7 +286,8 @@ export class HloSelectionModalComponent implements OnDestroy {
   }
 
   toggleRowSelection(row: IndicatorRow): void {
-    if (row.disabled_reason) return;
+    // T-BIL-IM-06: block selection for any disabled row (server reason OR stale+unmapped).
+    if (this.isRowDisabled(row)) return;
     const key = this.rowKey(row);
     this.bilateralService.hloModalSelection.update(set => {
       const next = new Set(set);

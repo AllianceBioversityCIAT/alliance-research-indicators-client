@@ -135,21 +135,22 @@
                 <div
                   class="hlo-modal__row"
                   [class.hlo-modal__row--selected]="isRowSelected(row)"
-                  [class.hlo-modal__row--disabled]="row.disabled_reason !== null"
+                  [class.hlo-modal__row--disabled]="isRowDisabled(row)"
                   role="row"
                   [attr.aria-selected]="isRowSelected(row)"
-                  [attr.data-testid]="'hlo-modal-row-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id">
+                  [attr.data-testid]="'hlo-modal-row-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id"
+                  [attr.data-testid-disabled]="isRowDisabled(row) ? 'hlo-modal-row-disabled-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id : null">
 
                   <!-- Checkbox cell -->
                   <div class="hlo-modal__col-select" role="gridcell">
                     <p-checkbox
                       [binary]="true"
                       [ngModel]="isRowSelected(row)"
-                      [disabled]="row.disabled_reason !== null"
+                      [disabled]="isRowDisabled(row)"
                       (ngModelChange)="toggleRowSelection(row)"
                       [inputId]="'row-cb-' + row.indicator_id"
                       [attr.data-testid]="'hlo-modal-row-checkbox-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id"
-                      [attr.aria-describedby]="row.disabled_reason ? 'reason-' + row.indicator_id : null" />
+                      [attr.aria-describedby]="rowReasonText(row) ? 'reason-' + row.indicator_id : null" />
                   </div>
 
                   <!-- Indicator name cell -->
@@ -171,20 +172,33 @@
 
                   <!-- Commit button cell -->
                   <div class="hlo-modal__col-action" role="gridcell">
-                    @if (!row.disabled_reason) {
-                      <button
-                        type="button"
-                        pButton
-                        [class]="isRowSelected(row) ? 'hlo-modal__commit-btn hlo-modal__commit-btn--selected p-button-sm' : 'hlo-modal__commit-btn p-button-sm'"
-                        (click)="toggleRowSelection(row)"
-                        [attr.data-testid]="'hlo-modal-row-commit-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id"
-                        [attr.aria-label]="isRowSelected(row) ? 'Remove ' + row.indicator_name : 'Add ' + row.indicator_name">
-                        <i [class]="isRowSelected(row) ? 'pi pi-check' : 'pi pi-plus'" aria-hidden="true"></i>
-                        <span>{{ isRowSelected(row) ? 'Added' : 'Add' }}</span>
-                      </button>
-                    }
+                    <button
+                      type="button"
+                      pButton
+                      [class]="isRowSelected(row) ? 'hlo-modal__commit-btn hlo-modal__commit-btn--selected p-button-sm' : 'hlo-modal__commit-btn p-button-sm'"
+                      [disabled]="isRowDisabled(row)"
+                      (click)="toggleRowSelection(row)"
+                      [attr.data-testid]="'hlo-modal-row-commit-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id"
+                      [attr.aria-label]="isRowSelected(row) ? 'Remove ' + row.indicator_name : 'Add ' + row.indicator_name">
+                      <i [class]="isRowSelected(row) ? 'pi pi-check' : 'pi pi-plus'" aria-hidden="true"></i>
+                      <span>{{ isRowSelected(row) ? 'Added' : 'Add' }}</span>
+                    </button>
                   </div>
                 </div>
+
+                <!-- T-BIL-IM-06: Inline reason callout — in-DOM (not hover-only) for screen readers.
+                     Rendered when rowReasonText() is non-null. The aria-describedby on the checkbox
+                     above points at this id, so screen readers announce the reason on focus. -->
+                @if (rowReasonText(row)) {
+                  <div
+                    class="hlo-modal__row-reason"
+                    [id]="'reason-' + row.indicator_id"
+                    role="note"
+                    [attr.data-testid]="'hlo-modal-row-reason-' + row.program + '-' + row.area_of_work + '-' + row.indicator_id">
+                    <i class="pi pi-info-circle hlo-modal__row-reason-icon" aria-hidden="true"></i>
+                    <span class="hlo-modal__row-reason-text">{{ rowReasonText(row) }}</span>
+                  </div>
+                }
               }
             </div>
           }

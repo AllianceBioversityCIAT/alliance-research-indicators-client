@@ -1,7 +1,7 @@
 // HloSelectionModalComponent — scoped styles
 // Tokens: var(--ac-*) only — no hex literals.
 // Active/selected highlight: --ac-light-blue-100 (#79d9ff)
-// @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05)
+// @sdd-spec docs/specs/bilateral-module/indicator-mapping (T-BIL-IM-05, T-BIL-IM-06)
 
 .hlo-modal {
   display: flex;
@@ -195,11 +195,40 @@
       }
     }
 
-    // Disabled row
+    // Disabled row — T-BIL-IM-06.
+    // Reduced opacity communicates non-interactivity without encoding color as hex.
+    // pointer-events: none prevents accidental hover/click; the row reason callout
+    // (.hlo-modal__row-reason) sits outside this grid row so it remains reachable.
     &--disabled {
-      opacity: 0.5;
+      opacity: 0.55;
       cursor: not-allowed;
       pointer-events: none;
+    }
+  }
+
+  // ---- Reason callout (T-BIL-IM-06) -----------------------------------------
+  // In-DOM (not hover-only) so screen readers announce via aria-describedby.
+  // Sits below its corresponding row in document order.
+  &__row-reason {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.375rem;
+    padding: 0.3125rem 0.75rem 0.5rem;
+    background-color: var(--ac-grey-100);
+    border-bottom: 1px solid var(--ac-grey-200);
+    border-left: 3px solid var(--ac-orange-1);
+
+    &-icon {
+      font-size: 0.75rem;
+      color: var(--ac-orange-1);
+      margin-top: 0.1rem;
+      flex-shrink: 0;
+    }
+
+    &-text {
+      font-size: 0.75rem;
+      color: var(--ac-grey-700);
+      line-height: 1.5;
     }
   }
 
