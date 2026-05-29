@@ -3,6 +3,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
   OnInit,
   ViewChild,
@@ -29,10 +30,12 @@ import { ServiceLocatorService } from '@shared/services/service-locator.service'
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { CreateResultManagementService } from '../all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { environment } from '../../../../environments/environment';
+import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'alliance-navbar',
-  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, S3ImageUrlPipe],
+  imports: [ButtonModule, BadgeModule, ChipModule, RouterLink, RouterLinkActive, AvatarModule, AvatarGroupModule, S3ImageUrlPipe, TooltipModule],
   templateUrl: './alliance-navbar.component.html',
   styleUrl: './alliance-navbar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -55,6 +58,7 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
   private searchDebounceTimeout: any;
   showDropdown = false;
   createResultManagementService = inject(CreateResultManagementService);
+  whatsNewService = inject(WhatsNewService);
   private readonly cdr = inject(ChangeDetectorRef);
   private isProjectsOrDetailActiveFlag = false;
 
@@ -69,9 +73,16 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
     return this.isProjectsOrDetailActiveFlag;
   }
 
-  constructor(private readonly renderer: Renderer2) {}
+  constructor(private readonly renderer: Renderer2) {
+    effect(() => {
+      this.whatsNewService.hasUnreadReleaseNotes();
+      this.whatsNewService.notionDataLoading();
+      this.cdr.markForCheck();
+    });
+  }
 
   ngOnInit() {
+    this.whatsNewService.getWhatsNewPages();
     this.service = this.serviceLocator.getService('openSearchResult');
     const updateActiveFlag = (url: string) => {
       this.isProjectsOrDetailActiveFlag = url.startsWith('/projects') || url.startsWith('/project-detail/');
@@ -98,8 +109,13 @@ export class AllianceNavbarComponent implements OnInit, AfterViewInit, OnDestroy
     }
 
     this.renderer.listen('document', 'click', (event: Event) => {
-      if (this.showDropdown && this.dropdownRef && !this.dropdownRef.nativeElement.contains(event.target)) {
+      if (!this.showDropdown) return;
+      const target = event.target as Node;
+      const insideDropdown = this.dropdownRef?.nativeElement?.contains(target);
+      const insideToggle = this.elementRef.nativeElement.querySelector('[dropdown-button]')?.contains(target);
+      if (!insideDropdown && !insideToggle) {
         this.showDropdown = false;
+        this.cdr.markForCheck();
       }
     });
   }

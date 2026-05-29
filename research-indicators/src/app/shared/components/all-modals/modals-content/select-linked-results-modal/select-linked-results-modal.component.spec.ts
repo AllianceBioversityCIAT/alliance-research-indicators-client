@@ -869,12 +869,12 @@ describe('SelectLinkedResultsModalComponent', () => {
     it('should build project detail URL', () => {
       const urlTree = {} as any;
       router.createUrlTree.mockReturnValue(urlTree);
-      router.serializeUrl.mockReturnValue('/project-detail/AGR-1/project-results');
+      router.serializeUrl.mockReturnValue('/project-detail/AGR-1');
 
       const href = component.getProjectHref('AGR-1');
 
-      expect(router.createUrlTree).toHaveBeenCalledWith(['/project-detail', 'AGR-1', 'project-results']);
-      expect(href).toBe('/project-detail/AGR-1/project-results');
+      expect(router.createUrlTree).toHaveBeenCalledWith(['/project-detail', 'AGR-1']);
+      expect(href).toBe('/project-detail/AGR-1');
     });
   });
 

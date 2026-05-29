@@ -1572,63 +1572,65 @@ describe('AllianceNavbarComponent', () => {
   it('should cover all branches by using a more realistic renderer mock - final attempt', () => {
     const fixture = TestBed.createComponent(AllianceNavbarComponent);
     const comp = fixture.componentInstance;
-    
-    // Mock the navbar element
+
     const mockNavbar = document.createElement('div');
     mockNavbar.id = 'navbar';
-    jest.spyOn(comp.elementRef.nativeElement, 'querySelector').mockReturnValue(mockNavbar);
-    
-    // Set up a more realistic renderer mock
+
+    const mockToggleBtn = document.createElement('div');
+    mockToggleBtn.setAttribute('dropdown-button', '');
+
+    jest.spyOn(comp.elementRef.nativeElement, 'querySelector').mockImplementation((selector: string) => {
+      if (selector === '#navbar') return mockNavbar;
+      if (selector === '[dropdown-button]') return mockToggleBtn;
+      return null;
+    });
+
     let capturedHandler: any;
     const mockRenderer2 = {
-      listen: jest.fn().mockImplementation((target, event, handler) => {
+      listen: jest.fn().mockImplementation((target: any, event: any, handler: any) => {
         if (target === 'document' && event === 'click') {
           capturedHandler = handler;
         }
         return () => {};
       })
     };
-    
-    // Replace the renderer with our mock
+
     comp.renderer = mockRenderer2 as any;
-    
-    // Call ngAfterViewInit to set up the listener
     comp.ngAfterViewInit();
-    
-    // Test all possible combinations systematically
-    const testCases = [
-      // Case 1: showDropdown = false, dropdownRef = null, contains = false
-      { showDropdown: false, dropdownRef: null, contains: false, expected: false },
-      // Case 2: showDropdown = false, dropdownRef = null, contains = true  
-      { showDropdown: false, dropdownRef: null, contains: true, expected: false },
-      // Case 3: showDropdown = false, dropdownRef = exists, contains = false
-      { showDropdown: false, dropdownRef: { nativeElement: { contains: jest.fn().mockReturnValue(false) } }, contains: false, expected: false },
-      // Case 4: showDropdown = false, dropdownRef = exists, contains = true
-      { showDropdown: false, dropdownRef: { nativeElement: { contains: jest.fn().mockReturnValue(true) } }, contains: true, expected: false },
-      // Case 5: showDropdown = true, dropdownRef = null, contains = false
-      { showDropdown: true, dropdownRef: null, contains: false, expected: true },
-      // Case 6: showDropdown = true, dropdownRef = null, contains = true
-      { showDropdown: true, dropdownRef: null, contains: true, expected: true },
-      // Case 7: showDropdown = true, dropdownRef = exists, contains = true
-      { showDropdown: true, dropdownRef: { nativeElement: { contains: jest.fn().mockReturnValue(true) } }, contains: true, expected: true },
-      // Case 8: showDropdown = true, dropdownRef = exists, contains = false
-      { showDropdown: true, dropdownRef: { nativeElement: { contains: jest.fn().mockReturnValue(false) } }, contains: false, expected: false }
-    ];
-    
-    testCases.forEach((testCase, index) => {
-      // Reset component state
-      comp.showDropdown = testCase.showDropdown;
-      comp.dropdownRef = testCase.dropdownRef;
-      
-      // Execute the click handler
-      if (capturedHandler) {
-        const mockEvent = { target: document.createElement('div') } as any;
-        capturedHandler(mockEvent);
-        
-        // Verify the result
-        expect(comp.showDropdown).toBe(testCase.expected);
-      }
-    });
+
+    const outsideEl = document.createElement('div');
+    const insideDropdownEl = document.createElement('div');
+    const insideToggleEl = document.createElement('div');
+    mockToggleBtn.appendChild(insideToggleEl);
+
+    // Case: showDropdown false → early return, stays false
+    comp.showDropdown = false;
+    capturedHandler({ target: outsideEl });
+    expect(comp.showDropdown).toBe(false);
+
+    // Case: showDropdown true, click inside dropdown → stays open
+    comp.showDropdown = true;
+    comp.dropdownRef = { nativeElement: { contains: jest.fn().mockReturnValue(true) } } as any;
+    capturedHandler({ target: insideDropdownEl });
+    expect(comp.showDropdown).toBe(true);
+
+    // Case: showDropdown true, click inside toggle button → stays open
+    comp.showDropdown = true;
+    comp.dropdownRef = { nativeElement: { contains: jest.fn().mockReturnValue(false) } } as any;
+    capturedHandler({ target: insideToggleEl });
+    expect(comp.showDropdown).toBe(true);
+
+    // Case: showDropdown true, click outside both → closes
+    comp.showDropdown = true;
+    comp.dropdownRef = { nativeElement: { contains: jest.fn().mockReturnValue(false) } } as any;
+    capturedHandler({ target: outsideEl });
+    expect(comp.showDropdown).toBe(false);
+
+    // Case: showDropdown true, dropdownRef null, click outside toggle → closes
+    comp.showDropdown = true;
+    comp.dropdownRef = null as any;
+    capturedHandler({ target: outsideEl });
+    expect(comp.showDropdown).toBe(false);
   });
 
 });

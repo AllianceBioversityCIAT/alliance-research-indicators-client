@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, signal, WritableSignal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
-import AboutIndicatorsComponent from '../../../about-indicators/about-indicators.component';
 import { RouterLink } from '@angular/router';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { GreenChecks } from '@shared/interfaces/get-green-checks.interface';
@@ -11,15 +10,12 @@ import { STATUS_COLOR_MAP } from '@shared/constants/status-colors';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { Result, ResultFilter } from '@shared/interfaces/result/result.interface';
 import { normalizeSnapshotYears } from '@shared/interfaces/result/map-v2-result-list-item';
-import {
-  RESULT_ENTRY_SOURCE_QUERY,
-  RESULT_ENTRY_SOURCE_VALUE_HOME
-} from '@shared/constants/result-entry-source';
+import { RESULT_ENTRY_SOURCE_QUERY, RESULT_ENTRY_SOURCE_VALUE_HOME } from '@shared/constants/result-entry-source';
 import { CacheService } from '@shared/services/cache/cache.service';
 
 @Component({
   selector: 'app-my-latest-results',
-  imports: [AboutIndicatorsComponent, FormatDatePipe, CustomTagComponent, RouterLink],
+  imports: [FormatDatePipe, CustomTagComponent, RouterLink],
   templateUrl: './my-latest-results.component.html',
   styleUrl: './my-latest-results.component.scss'
 })
@@ -133,11 +129,7 @@ export class MyLatestResultsComponent implements OnInit {
   /** PRMS / TIP / AICCRA open the result information modal instead of in-app routing. */
   opensResultInformationModal(result: Result): boolean {
     const platform = result.platform_code;
-    return (
-      platform === PLATFORM_CODES.PRMS ||
-      platform === PLATFORM_CODES.TIP ||
-      platform === PLATFORM_CODES.AICCRA
-    );
+    return platform === PLATFORM_CODES.PRMS || platform === PLATFORM_CODES.TIP || platform === PLATFORM_CODES.AICCRA;
   }
 
   getStarResultRouterLink(result: Result): string[] {
@@ -194,5 +186,4 @@ export class MyLatestResultsComponent implements OnInit {
     }
     this.allModalsService.selectedResultForInfo.set(null);
   }
-
 }

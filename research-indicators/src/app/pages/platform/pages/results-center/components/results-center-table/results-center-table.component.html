@@ -142,7 +142,7 @@
             @if (primaryContractId) {
             <a (keydown.enter)="$event.stopPropagation()"
               class="project-link cursor-pointer hover:text-blue-800 hover:underline transition-colors duration-200"
-              [routerLink]="['/project-detail', primaryContractId, 'project-results']"
+              [routerLink]="['/project-detail', primaryContractId]"
               [queryParams]="resultEntryQueryParamsForNavigation()" (click)="$event.stopPropagation()">
               {{ primaryContractId }}
             </a>

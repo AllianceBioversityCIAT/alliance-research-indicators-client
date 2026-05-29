@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, Input, signal, OnInit } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { WasmService, ProcessResult } from '../../services/go/wasm.service';
@@ -11,6 +11,7 @@ import { OicrDownloadService } from '@shared/services/oicr-download.service';
   templateUrl: './download-oicr-template.component.html'
 })
 export class DownloadOicrTemplateComponent implements OnInit {
+  @Input() onlyIcon = false;
   wasm = inject(WasmService);
   oicrDownloadService = inject(OicrDownloadService);
   processing = signal(false);

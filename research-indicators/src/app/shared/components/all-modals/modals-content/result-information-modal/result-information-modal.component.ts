@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
@@ -11,7 +11,7 @@ import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 
 @Component({
   selector: 'app-result-information-modal',
-  imports: [CommonModule, ButtonModule, TooltipModule, DatePipe, S3ImageUrlPipe, CustomTagComponent],
+  imports: [CommonModule, ButtonModule, TooltipModule, S3ImageUrlPipe, CustomTagComponent],
   templateUrl: './result-information-modal.component.html'
 })
 export class ResultInformationModalComponent {

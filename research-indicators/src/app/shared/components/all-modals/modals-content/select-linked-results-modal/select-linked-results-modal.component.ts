@@ -177,7 +177,7 @@ export class SelectLinkedResultsModalComponent implements OnDestroy {
   }
 
   getProjectHref(contractId: string): string {
-    const tree = this.router.createUrlTree(['/project-detail', contractId, 'project-results']);
+    const tree = this.router.createUrlTree(['/project-detail', contractId]);
     return this.router.serializeUrl(tree);
   }
 
