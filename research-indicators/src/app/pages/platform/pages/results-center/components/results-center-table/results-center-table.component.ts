@@ -219,6 +219,14 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     return severityMap[status];
   }
 
+  onTableRowClick(event: MouseEvent, result: Result): void {
+    const target = event.target as Element | null;
+    if (target?.closest('[data-public-link-action]')) {
+      return;
+    }
+    this.openResult(result);
+  }
+
   openResult(result: Result) {
     if (
       result.platform_code === PLATFORM_CODES.PRMS ||
@@ -353,6 +361,10 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     }
 
     if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
+      return;
+    }
+
+    if (target.closest('[data-public-link-action]')) {
       return;
     }
 

@@ -78,7 +78,7 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-result>
-        <tr (keydown.enter)="openResult(result)" (click)="openResult(result)"
+        <tr (keydown.enter)="openResult(result)" (click)="onTableRowClick($event, result)"
           [attr.data-result-id]="result.result_official_code" [attr.data-platform]="result.platform_code"
           class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
           @for (column of getVisibleColumns(); track column.field) {
@@ -139,7 +139,7 @@
           } @else if (column.field === 'public_link') {
           <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()">
             @if (result.public_link) {
-            <button type="button" (click)="openPublicLink(result.public_link); $event.stopPropagation()"
+            <button type="button" data-public-link-action (click)="openPublicLink(result.public_link); $event.stopPropagation()"
               [pTooltip]="result.public_link" tooltipPosition="left"
               [attr.aria-label]="'Open public link for ' + result.result_official_code"
               class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9]">
