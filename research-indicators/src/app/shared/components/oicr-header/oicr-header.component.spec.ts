@@ -232,6 +232,43 @@ describe('OicrHeaderComponent', () => {
       expect(c.shouldShowWorkflow()).toBe(false);
     });
   });
+
+  describe('handle link button', () => {
+    it('showHandleLinkButton should be true when published and cgspace_link is set', () => {
+      component.showDownload = true;
+      component.data = { status_id: '14' } as OicrHeaderData;
+      component.cgspaceLink = 'https://hdl.handle.net/10568/182058';
+      fixture.detectChanges();
+      expect(component.showHandleLinkButton()).toBe(true);
+      expect(component.showDownloadTemplate()).toBe(false);
+    });
+
+    it('showHandleLinkButton should be false when not published', () => {
+      component.showDownload = true;
+      component.data = { status_id: '11' } as OicrHeaderData;
+      component.cgspaceLink = 'https://hdl.handle.net/10568/182058';
+      fixture.detectChanges();
+      expect(component.showHandleLinkButton()).toBe(false);
+      expect(component.showDownloadTemplate()).toBe(true);
+    });
+
+    it('showDownloadTemplate should be false when published even without link', () => {
+      component.showDownload = true;
+      component.data = { status_id: '14' } as OicrHeaderData;
+      component.cgspaceLink = null;
+      fixture.detectChanges();
+      expect(component.showHandleLinkButton()).toBe(false);
+      expect(component.showDownloadTemplate()).toBe(false);
+    });
+
+    it('openHandleLink should open cgspace link in a new tab', () => {
+      const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+      component.cgspaceLink = 'https://hdl.handle.net/10568/182058';
+      component.openHandleLink();
+      expect(openSpy).toHaveBeenCalledWith('https://hdl.handle.net/10568/182058', '_blank', 'noopener,noreferrer');
+      openSpy.mockRestore();
+    });
+  });
 });
 
 
