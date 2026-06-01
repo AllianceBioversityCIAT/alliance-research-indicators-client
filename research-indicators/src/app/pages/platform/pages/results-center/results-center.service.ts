@@ -161,6 +161,16 @@ export class ResultsCenterService {
       maxWidth: 'max-w-[110px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
+    },
+    {
+      field: 'public_link',
+      path: 'public_link',
+      header: 'Link',
+      minWidth: 'min-w-[90px]',
+      maxWidth: 'max-w-[100px]',
+      filter: true,
+      hideFilterIf: () => true,
+      getValue: (result: Result) => result.public_link ?? 'None'
     }
   ]);
 
