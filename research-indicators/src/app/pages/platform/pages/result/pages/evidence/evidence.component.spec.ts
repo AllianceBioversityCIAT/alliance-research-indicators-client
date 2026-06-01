@@ -188,6 +188,27 @@ describe('EvidenceComponent', () => {
     expect(spyPatch).not.toHaveBeenCalled();
   });
 
+  it('isCgspaceLinkFormatInvalid should be false when link is empty', () => {
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '   ' });
+    expect(component.isCgspaceLinkFormatInvalid()).toBe(false);
+  });
+
+  it('isCgspaceLinkInvalid and isCgspaceLinkFormatInvalid should be false for non-OICR indicators', () => {
+    cache.currentMetadata = jest.fn(() => ({ indicator_id: 1, status_id: 4 }));
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '' });
+    expect(component.isCgspaceLinkInvalid()).toBe(false);
+    expect(component.isCgspaceLinkFormatInvalid()).toBe(false);
+  });
+
+  it('isCgspaceLinkFormatInvalid should be true for invalid handle URL on OICR', () => {
+    component.body.set({
+      evidence: [new Evidence()],
+      notable_references: [],
+      cgspace_link: 'https://invalid.example/handle/1'
+    });
+    expect(component.isCgspaceLinkFormatInvalid()).toBe(true);
+  });
+
   it('should include cgspace_link in PATCH payload for OICR', async () => {
     component.body.set({
       evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],

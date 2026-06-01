@@ -268,6 +268,26 @@ describe('OicrHeaderComponent', () => {
       expect(openSpy).toHaveBeenCalledWith('https://hdl.handle.net/10568/182058', '_blank', 'noopener,noreferrer');
       openSpy.mockRestore();
     });
+
+    it('cgspacePublicationHref should return empty string when link is null', () => {
+      component.cgspaceLink = null;
+      fixture.detectChanges();
+      expect(component.cgspacePublicationHref()).toBe('');
+    });
+
+    it('cgspacePublicationHref should trim whitespace from link', () => {
+      component.cgspaceLink = '  https://hdl.handle.net/10568/182058  ';
+      fixture.detectChanges();
+      expect(component.cgspacePublicationHref()).toBe('https://hdl.handle.net/10568/182058');
+    });
+
+    it('openHandleLink should no-op when href is empty', () => {
+      const openSpy = jest.spyOn(window, 'open').mockImplementation(() => null);
+      component.cgspaceLink = null;
+      component.openHandleLink();
+      expect(openSpy).not.toHaveBeenCalled();
+      openSpy.mockRestore();
+    });
   });
 });
 
