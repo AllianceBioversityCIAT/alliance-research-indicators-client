@@ -6,7 +6,7 @@
         [badge]="resultsCenterService.countTableFiltersSelected()"
         [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()" [showClear]="true"
         [searchValue]="this.resultsCenterService.searchInput()"
-        [searchPlaceholder]="'Find a result by code, title or creator'" (searchChange)="setSearchInputFilter($event)"
+        [searchPlaceholder]="'Find a result by code, title, creator or public link'" (searchChange)="setSearchInputFilter($event)"
         (apply)="showFiltersSidebar()" (clear)="this.resultsCenterService.clearAllFilters()">
       </app-search-export-controls>
 
@@ -135,6 +135,19 @@
               </div>
               }
             </div>
+          </td>
+          } @else if (column.field === 'public_link') {
+          <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()">
+            @if (result.public_link) {
+            <button type="button" (click)="openPublicLink(result.public_link); $event.stopPropagation()"
+              [pTooltip]="result.public_link" tooltipPosition="top"
+              [attr.aria-label]="'Open public link for ' + result.result_official_code"
+              class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9] hover:text-[#1689CA]">
+              <i class="pi pi-external-link !text-[16px]"></i>
+            </button>
+            } @else {
+            <span class="text-gray-500">None</span>
+            }
           </td>
           } @else if (column.field === 'project') {
           <td class="project-cell">
