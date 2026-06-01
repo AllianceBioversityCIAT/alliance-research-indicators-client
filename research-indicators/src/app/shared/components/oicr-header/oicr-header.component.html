@@ -82,9 +82,11 @@
     }
     @if (showHandleLinkButton()) {
     <div class="xl:hidden pt-2.5">
-      <p-button label="Handle link" variant="outlined" size="small" (onClick)="openHandleLink()">
+      <p-button label="CGSpace link" variant="outlined" size="small" (onClick)="openHandleLink()">
         <ng-template pTemplate="icon">
-          <i class="pi pi-external-link text-[#035BA9] !text-[14px]"></i>
+          <div>
+            <i class="pi pi-external-link !text-[13px]" style="color: #035BA9"></i>
+          </div>
         </ng-template>
       </p-button>
     </div>
@@ -98,9 +100,11 @@
   }
   @if (showHandleLinkButton()) {
   <div class="xl:min-w-[200px] hidden xl:flex ml-4 shrink-0 items-center">
-    <p-button label="Handle link" variant="outlined" size="small" (onClick)="openHandleLink()">
+    <p-button label="CGSpace link" variant="outlined" size="small" (onClick)="openHandleLink()">
       <ng-template pTemplate="icon">
-        <i class="pi pi-external-link text-[#035BA9] !text-[14px]"></i>
+        <div>
+          <i class="pi pi-external-link !text-[13px]" style="color: #035BA9"></i>
+        </div>
       </ng-template>
     </p-button>
   </div>
