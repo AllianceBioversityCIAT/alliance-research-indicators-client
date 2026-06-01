@@ -75,7 +75,8 @@
       status_id: getStatusIdAsString(),
       status_config: cache.currentMetadata().result_status
     }" [showTag]="this.createResultManagementService.editingOicr()"
-    [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
+    [showDownload]="this.createResultManagementService.editingOicr()"
+    [cgspaceLink]="createResultManagementService.createOicrBody().cgspace_link ?? null"></app-oicr-header>
   }
 
   <div class="px-5 flex flex-col mx-10 mt-8">
