@@ -177,7 +177,7 @@ describe('ResultsCenterService', () => {
 
       const publicLinkColumn = columns.find(col => col.field === 'public_link');
       expect(publicLinkColumn).toBeDefined();
-      expect(publicLinkColumn?.header).toBe('Public link');
+      expect(publicLinkColumn?.header).toBe('Link');
       expect(publicLinkColumn?.filter).toBe(true);
       expect(publicLinkColumn?.hideFilterIf?.()).toBe(true);
       expect(columns[columns.length - 1].field).toBe('public_link');
