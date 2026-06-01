@@ -1,7 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
@@ -13,10 +11,13 @@ import { FormHeaderComponent } from '@shared/components/form-header/form-header.
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { OtherReferenceItemComponent, OtherReferenceItemData } from '../oicr-details/components/other-reference-item/other-reference-item.component';
+import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+
+const CGSPACE_HANDLE_URL_PATTERN = /^https:\/\/hdl\.handle\.net\/.+/;
 
 @Component({
   selector: 'app-evidence',
-  imports: [ButtonModule, FormHeaderComponent, NavigationButtonsComponent, FormsModule, InputTextModule, EvidenceItemComponent, OtherReferenceItemComponent],
+  imports: [ButtonModule, FormHeaderComponent, NavigationButtonsComponent, InputComponent, EvidenceItemComponent, OtherReferenceItemComponent],
   templateUrl: './evidence.component.html'
 })
 export default class EvidenceComponent {
@@ -72,7 +73,38 @@ export default class EvidenceComponent {
     }
   }
 
+  isCgspaceLinkInvalid(): boolean {
+    if (this.cache.currentMetadata().indicator_id !== 5) return false;
+    const link = this.body().cgspace_link?.trim();
+    return !link;
+  }
+
+  isCgspaceLinkFormatInvalid(): boolean {
+    if (this.cache.currentMetadata().indicator_id !== 5) return false;
+    const link = this.body().cgspace_link?.trim();
+    if (!link) return false;
+    return !CGSPACE_HANDLE_URL_PATTERN.test(link);
+  }
+
   async saveData(page?: 'next' | 'back'): Promise<void> {
+    if (this.submission.isEditableStatus() && this.isCgspaceLinkInvalid()) {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Evidence',
+        detail: 'CGspace link is required'
+      });
+      return;
+    }
+
+    if (this.submission.isEditableStatus() && this.isCgspaceLinkFormatInvalid()) {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Evidence',
+        detail: 'CGspace link must start with https://hdl.handle.net/'
+      });
+      return;
+    }
+
     this.setLoading(true);
     try {
       if (this.submission.isEditableStatus()) {
@@ -121,11 +153,18 @@ export default class EvidenceComponent {
       link: item.link
     }));
 
-    return {
+    const payload: PatchResultEvidences = {
       ...snapshot,
       evidence: snapshot.evidence,
       notable_references: notableReferences
     };
+
+    if (this.cache.currentMetadata().indicator_id === 5) {
+      const link = snapshot.cgspace_link?.trim();
+      payload.cgspace_link = link || null;
+    }
+
+    return payload;
   }
 
   private syncOtherReferencesFromApi(references?: NotableReference[]): void {

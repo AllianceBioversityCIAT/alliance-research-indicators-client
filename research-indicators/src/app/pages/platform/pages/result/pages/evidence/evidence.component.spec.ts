@@ -77,6 +77,10 @@ describe('EvidenceComponent', () => {
     cache = TestBed.inject(CacheService);
     submission = TestBed.inject(SubmissionService);
     fixture.detectChanges();
+    component.body.update(body => ({
+      ...body,
+      cgspace_link: 'https://hdl.handle.net/10568/182058'
+    }));
   });
 
   it('should create', () => {
@@ -145,12 +149,57 @@ describe('EvidenceComponent', () => {
   });
 
   it('should save data and show toast if editable', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: 'https://hdl.handle.net/10568/1'
+    });
     const spyToast = jest.spyOn(actions, 'showToast');
     const spyGetData = jest.spyOn(component, 'getData');
     submission.isEditableStatus.mockReturnValue(true);
     await component.saveData();
     expect(spyToast).toHaveBeenCalled();
     expect(spyGetData).toHaveBeenCalled();
+  });
+
+  it('should block save for OICR when cgspace link has invalid format', async () => {
+    component.body.set({
+      evidence: [new Evidence()],
+      notable_references: [],
+      cgspace_link: 'https://cgspace.cgiar.org/handle/10568/1'
+    });
+    const spyToast = jest.spyOn(actions, 'showToast');
+    const spyPatch = jest.spyOn(api, 'PATCH_ResultEvidences');
+    submission.isEditableStatus.mockReturnValue(true);
+    await component.saveData();
+    expect(spyToast).toHaveBeenCalledWith(
+      expect.objectContaining({ severity: 'error', detail: 'CGspace link must start with https://hdl.handle.net/' })
+    );
+    expect(spyPatch).not.toHaveBeenCalled();
+  });
+
+  it('should block save for OICR when cgspace link is missing', async () => {
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '' });
+    const spyToast = jest.spyOn(actions, 'showToast');
+    const spyPatch = jest.spyOn(api, 'PATCH_ResultEvidences');
+    submission.isEditableStatus.mockReturnValue(true);
+    await component.saveData();
+    expect(spyToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', detail: 'CGspace link is required' }));
+    expect(spyPatch).not.toHaveBeenCalled();
+  });
+
+  it('should include cgspace_link in PATCH payload for OICR', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: '  https://hdl.handle.net/10568/1  '
+    });
+    submission.isEditableStatus.mockReturnValue(true);
+    await component.saveData();
+    expect(api.PATCH_ResultEvidences).toHaveBeenCalledWith(
+      123,
+      expect.objectContaining({ cgspace_link: 'https://hdl.handle.net/10568/1' })
+    );
   });
 
   it('should navigate to back page (links-to-result when indicator_id is 5)', async () => {
