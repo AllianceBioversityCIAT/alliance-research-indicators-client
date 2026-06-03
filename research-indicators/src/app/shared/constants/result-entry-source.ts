@@ -3,7 +3,7 @@ export const RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER = 'results-center';
 /** User opened the result from the Home dashboard (e.g. My latest results). */
 export const RESULT_ENTRY_SOURCE_VALUE_HOME = 'home';
 
-/** Navigating from published OICR modal "Editar" into the full result form (skip modal resolver). */
+/** Navigating from published OICR modal "Edit" into the full result form (skip modal resolver). */
 export const OICR_FULL_EDIT_QUERY = 'oicrFullEdit';
 export const OICR_FULL_EDIT_VALUE = '1';
 
