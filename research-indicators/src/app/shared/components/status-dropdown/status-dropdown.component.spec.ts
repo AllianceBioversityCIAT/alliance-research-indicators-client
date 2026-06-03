@@ -3,6 +3,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { StatusDropdownComponent } from './status-dropdown.component';
 import { ApiService } from '@shared/services/api.service';
 import { CacheService } from '@shared/services/cache/cache.service';
+import { SubmissionService } from '@shared/services/submission.service';
 import { GetNextStep } from '@shared/interfaces/get-next-step.interface';
 import { MainResponse } from '@shared/interfaces/responses.interface';
 
@@ -11,8 +12,12 @@ describe('StatusDropdownComponent', () => {
   let fixture: ComponentFixture<StatusDropdownComponent>;
   let mockApiService: jest.Mocked<ApiService>;
   let mockCacheService: jest.Mocked<CacheService>;
+  let mockSubmissionService: { meetsStatusChangeValidationRequirements: jest.Mock };
 
   beforeEach(async () => {
+    mockSubmissionService = {
+      meetsStatusChangeValidationRequirements: jest.fn().mockReturnValue(true)
+    };
     mockApiService = {
       GET_NextStep: jest.fn()
     } as unknown as jest.Mocked<ApiService>;
@@ -27,7 +32,8 @@ describe('StatusDropdownComponent', () => {
       imports: [StatusDropdownComponent, HttpClientTestingModule],
       providers: [
         { provide: ApiService, useValue: mockApiService },
-        { provide: CacheService, useValue: mockCacheService }
+        { provide: CacheService, useValue: mockCacheService },
+        { provide: SubmissionService, useValue: mockSubmissionService }
       ]
     }).compileComponents();
 
@@ -225,7 +231,78 @@ describe('StatusDropdownComponent', () => {
     });
   });
 
+  describe('status change validation', () => {
+    it('should disable option when validation is required and requirements are not met', async () => {
+      mockSubmissionService.meetsStatusChangeValidationRequirements.mockReturnValue(false);
+      component.statusId = 13;
+      mockApiService.GET_NextStep.mockResolvedValue({
+        successfulRequest: true,
+        data: [
+          {
+            result_status_id: 14,
+            id: 14,
+            name: 'Published',
+            transition_direction: 'forward',
+            is_status_change_validation_required: true
+          }
+        ]
+      } as MainResponse<GetNextStep>);
+      await component.loadNextSteps();
+      const published = component.getAvailableStatuses()[0];
+      expect(component.isStatusOptionDisabled(published)).toBe(true);
+      expect(component.getStatusOptionTooltip(published)).toContain('green checks');
+    });
+
+    it('should enable option when validation is not required', async () => {
+      mockSubmissionService.meetsStatusChangeValidationRequirements.mockReturnValue(false);
+      component.statusId = 13;
+      mockApiService.GET_NextStep.mockResolvedValue({
+        successfulRequest: true,
+        data: [
+          {
+            result_status_id: 12,
+            id: 12,
+            name: 'Science Edition',
+            transition_direction: 'backward',
+            is_status_change_validation_required: false
+          }
+        ]
+      } as MainResponse<GetNextStep>);
+      await component.loadNextSteps();
+      const option = component.getAvailableStatuses()[0];
+      expect(component.isStatusOptionDisabled(option)).toBe(false);
+    });
+
+    it('should enable option when validation is required and requirements are met', async () => {
+      mockSubmissionService.meetsStatusChangeValidationRequirements.mockReturnValue(true);
+      component.statusId = 13;
+      mockApiService.GET_NextStep.mockResolvedValue({
+        successfulRequest: true,
+        data: [
+          {
+            result_status_id: 14,
+            id: 14,
+            name: 'Published',
+            is_status_change_validation_required: true
+          }
+        ]
+      } as MainResponse<GetNextStep>);
+      await component.loadNextSteps();
+      expect(component.isStatusOptionDisabled(component.getAvailableStatuses()[0])).toBe(false);
+    });
+  });
+
   describe('selectStatus', () => {
+    it('should not emit when option is disabled by validation', async () => {
+      mockSubmissionService.meetsStatusChangeValidationRequirements.mockReturnValue(false);
+      component.availableStatuses.set([
+        { id: 14, name: 'Published', is_status_change_validation_required: true }
+      ]);
+      const emitSpy = jest.spyOn(component.statusChange, 'emit');
+      component.selectStatus(14, new Event('click'));
+      expect(emitSpy).not.toHaveBeenCalled();
+    });
+
     it('should emit statusChange event and close dropdown', () => {
       component.isOpen.set(true);
       const event = new Event('click');

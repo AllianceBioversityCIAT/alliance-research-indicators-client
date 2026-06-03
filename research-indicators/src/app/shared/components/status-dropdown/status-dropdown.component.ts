@@ -3,10 +3,13 @@ import { CommonModule } from '@angular/common';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { ApiService } from '@shared/services/api.service';
 import { NextStepOption, GetNextStep } from '@shared/interfaces/get-next-step.interface';
+import { SubmissionService, STATUS_CHANGE_VALIDATION_TOOLTIP } from '@shared/services/submission.service';
+import { isStatusChangeValidationRequired } from '@shared/utils/status-workflow.util';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-status-dropdown',
-  imports: [CommonModule],
+  imports: [CommonModule, TooltipModule],
   templateUrl: './status-dropdown.component.html'
 })
 export class StatusDropdownComponent implements OnInit, OnChanges {
@@ -15,7 +18,9 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
   @Output() statusChange = new EventEmitter<number>();
   cache = inject(CacheService);
   api = inject(ApiService);
+  submissionService = inject(SubmissionService);
   isOpen = signal(false);
+  readonly statusChangeValidationTooltip = STATUS_CHANGE_VALIDATION_TOOLTIP;
   
   availableStatuses = signal<NextStepOption[]>([]);
   isLoading = signal(false);
@@ -52,29 +57,11 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
       
       if (response.successfulRequest && response.data) {
         if (Array.isArray(response.data)) {
-          this.availableStatuses.set(response.data.map(item => ({
-            id: item.result_status_id || item.id,
-            result_status_id: item.result_status_id,
-            name: item.name,
-            direction: item.direction,
-            transition_direction: item.transition_direction,
-            icon: item.icon
-          })));
+          this.availableStatuses.set(response.data.map(item => this.mapNextStepOption(item)));
         } else if (response.data.available_statuses) {
-          this.availableStatuses.set(response.data.available_statuses.map((item: NextStepOption) => ({
-            ...item,
-            id: item.result_status_id || item.id,
-            result_status_id: item.result_status_id
-          })));
+          this.availableStatuses.set(response.data.available_statuses.map((item: NextStepOption) => this.mapNextStepOption(item)));
         } else if (response.data.data && Array.isArray(response.data.data)) {
-          this.availableStatuses.set(response.data.data.map(item => ({
-            id: item.result_status_id || item.id,
-            result_status_id: item.result_status_id,
-            name: item.name,
-            direction: item.direction,
-            transition_direction: item.transition_direction,
-            icon: item.icon
-          })));
+          this.availableStatuses.set(response.data.data.map(item => this.mapNextStepOption(item)));
         } else {
           const options = this.buildOptionsFromResponse(response.data);
           this.availableStatuses.set(options);
@@ -124,6 +111,32 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
     return options;
   }
 
+  private mapNextStepOption(item: NextStepOption): NextStepOption {
+    return {
+      ...item,
+      id: item.result_status_id || item.id,
+      result_status_id: item.result_status_id,
+      name: item.name,
+      direction: item.direction,
+      transition_direction: item.transition_direction,
+      icon: item.icon,
+      is_status_change_validation_required: isStatusChangeValidationRequired(item.is_status_change_validation_required)
+        ? true
+        : undefined
+    };
+  }
+
+  isStatusOptionDisabled(status: NextStepOption): boolean {
+    if (!isStatusChangeValidationRequired(status.is_status_change_validation_required)) {
+      return false;
+    }
+    return !this.submissionService.meetsStatusChangeValidationRequirements();
+  }
+
+  getStatusOptionTooltip(status: NextStepOption): string {
+    return this.isStatusOptionDisabled(status) ? this.statusChangeValidationTooltip : '';
+  }
+
   getAvailableStatuses(): NextStepOption[] {
     const statuses = this.availableStatuses();
     return [...statuses].sort((a, b) => {
@@ -143,6 +156,10 @@ export class StatusDropdownComponent implements OnInit, OnChanges {
 
   selectStatus(statusId: number, event: Event) {
     event.stopPropagation();
+    const status = this.availableStatuses().find(s => s.id === statusId);
+    if (status && this.isStatusOptionDisabled(status)) {
+      return;
+    }
     this.statusChange.emit(statusId);
     this.isOpen.set(false);
   }
