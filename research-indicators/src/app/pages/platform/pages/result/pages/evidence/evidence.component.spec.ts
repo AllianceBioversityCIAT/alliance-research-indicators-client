@@ -162,35 +162,43 @@ describe('EvidenceComponent', () => {
     expect(spyGetData).toHaveBeenCalled();
   });
 
-  it('should block save for OICR when cgspace link has invalid format', async () => {
+  it('should save OICR when cgspace link is not a handle.net URL', async () => {
     component.body.set({
-      evidence: [new Evidence()],
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
       notable_references: [],
       cgspace_link: 'https://cgspace.cgiar.org/handle/10568/1'
     });
     const spyToast = jest.spyOn(actions, 'showToast');
-    const spyPatch = jest.spyOn(api, 'PATCH_ResultEvidences');
     submission.isEditableStatus.mockReturnValue(true);
     await component.saveData();
-    expect(spyToast).toHaveBeenCalledWith(
-      expect.objectContaining({ severity: 'error', detail: 'CGspace link must start with https://hdl.handle.net/' })
+    expect(api.PATCH_ResultEvidences).toHaveBeenCalledWith(
+      123,
+      expect.objectContaining({ cgspace_link: 'https://cgspace.cgiar.org/handle/10568/1' })
     );
-    expect(spyPatch).not.toHaveBeenCalled();
+    expect(spyToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
   });
 
-  it('should block save for OICR when cgspace link is missing', async () => {
-    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '' });
+  it('should save OICR when cgspace link is empty', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: ''
+    });
     const spyToast = jest.spyOn(actions, 'showToast');
-    const spyPatch = jest.spyOn(api, 'PATCH_ResultEvidences');
     submission.isEditableStatus.mockReturnValue(true);
     await component.saveData();
-    expect(spyToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'error', detail: 'CGspace link is required' }));
-    expect(spyPatch).not.toHaveBeenCalled();
+    expect(api.PATCH_ResultEvidences).toHaveBeenCalledWith(123, expect.objectContaining({ cgspace_link: null }));
+    expect(spyToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
   });
 
   it('isCgspaceLinkFormatInvalid should be false when link is empty', () => {
     component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '   ' });
     expect(component.isCgspaceLinkFormatInvalid()).toBe(false);
+  });
+
+  it('isCgspaceLinkInvalid should be true when OICR has empty cgspace link', () => {
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '   ' });
+    expect(component.isCgspaceLinkInvalid()).toBe(true);
   });
 
   it('isCgspaceLinkInvalid and isCgspaceLinkFormatInvalid should be false for non-OICR indicators', () => {

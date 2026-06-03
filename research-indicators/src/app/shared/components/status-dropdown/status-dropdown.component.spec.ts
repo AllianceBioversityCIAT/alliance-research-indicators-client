@@ -273,6 +273,27 @@ describe('StatusDropdownComponent', () => {
       expect(component.isStatusOptionDisabled(option)).toBe(false);
     });
 
+    it('getStatusOptionTooltip returns empty string when option is not disabled', () => {
+      expect(component.getStatusOptionTooltip({ id: 12, name: 'Science Edition' })).toBe('');
+    });
+
+    it('should map is_status_change_validation_required as undefined when API sends false', async () => {
+      component.statusId = 4;
+      mockApiService.GET_NextStep.mockResolvedValue({
+        successfulRequest: true,
+        data: [
+          {
+            result_status_id: 12,
+            id: 12,
+            name: 'Science Edition',
+            is_status_change_validation_required: false
+          }
+        ]
+      } as MainResponse<GetNextStep>);
+      await component.loadNextSteps();
+      expect(component.availableStatuses()[0].is_status_change_validation_required).toBeUndefined();
+    });
+
     it('should enable option when validation is required and requirements are met', async () => {
       mockSubmissionService.meetsStatusChangeValidationRequirements.mockReturnValue(true);
       component.statusId = 13;
