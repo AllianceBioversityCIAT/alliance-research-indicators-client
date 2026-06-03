@@ -19,6 +19,8 @@ describe('resultExistsResolver', () => {
   let rolesService: any;
 
   beforeEach(() => {
+    jest.clearAllMocks();
+
     const metadataServiceMock = {
       update: jest.fn()
     };
@@ -76,6 +78,7 @@ describe('resultExistsResolver', () => {
     currentResultService = TestBed.inject(CurrentResultService);
     cacheService = TestBed.inject(CacheService);
     rolesService = TestBed.inject(RolesService);
+    rolesService.isAdmin = jest.fn().mockReturnValue(false);
   });
 
   it('should return true when metadata service update succeeds', async () => {
@@ -670,35 +673,94 @@ describe('resultExistsResolver', () => {
     expect(result).toBe(false);
   });
 
-  it('should return false and open modal when validateOpenResult returns true and status_id is Published (14)', async () => {
-    // Arrange
+  it('should return false and open modal when published OICR (14) and user is admin', async () => {
     const id = 123;
     route.paramMap.get = jest.fn().mockReturnValue(id.toString());
-    metadataService.update = jest.fn().mockResolvedValue({ 
+    route.queryParamMap.get = jest.fn().mockReturnValue(null);
+    metadataService.update = jest.fn().mockResolvedValue({
       canOpen: true,
-      indicator_id: 1,
+      indicator_id: 5,
       status_id: 14,
       result_official_code: 3,
       result_contract_id: 456,
       result_title: 'Test Project'
     });
     currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    rolesService.isAdmin = jest.fn().mockReturnValue(true);
     router.url = '/some-other-path';
-    cacheService.dataCache = jest.fn().mockReturnValue({
-      user: {
-        user_role_list: [{ role_id: 9 }] // Admin user
-      }
-    });
 
-    // Act
     const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
 
-    // Assert
-    expect(metadataService.update).toHaveBeenCalledWith(id, 'STAR');
-    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(1, 14);
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(5, 14);
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 14, 3, 'project');
+    expect(result).toBe(false);
+  });
+
+  it('should return false and open modal when published OICR has oicrFullEdit but user is not admin', async () => {
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    route.queryParamMap.get = jest.fn((key: string) => (key === 'oicrFullEdit' ? '1' : null));
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 5,
+      status_id: 14,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    rolesService.isAdmin = jest.fn().mockReturnValue(false);
+    router.url = '/some-other-path';
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 14, 3, 'project');
+    expect(result).toBe(false);
+  });
+
+  it('should return true without modal when published OICR and oicrFullEdit query from modal Editar', async () => {
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    route.queryParamMap.get = jest.fn((key: string) => (key === 'oicrFullEdit' ? '1' : null));
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 5,
+      status_id: 14,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    rolesService.isAdmin = jest.fn().mockReturnValue(true);
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(currentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
+
+  it('should return false and open modal when published OICR (14) and user is not admin', async () => {
+    const id = 123;
+    route.paramMap.get = jest.fn().mockReturnValue(id.toString());
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 5,
+      status_id: 14,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    rolesService.isAdmin = jest.fn().mockReturnValue(false);
+    router.url = '/some-other-path';
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(currentResultService.validateOpenResult).toHaveBeenCalledWith(5, 14);
     expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
     expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
-    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 14, 3, 'project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(5, 14, 3, 'project');
     expect(result).toBe(false);
   });
 

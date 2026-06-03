@@ -6,6 +6,8 @@ import { CacheService } from '../../../../../shared/services/cache/cache.service
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { RolesService } from '@shared/services/cache/roles.service';
 import {
+  OICR_FULL_EDIT_QUERY,
+  OICR_FULL_EDIT_VALUE,
   RESULT_ENTRY_SOURCE_QUERY,
   RESULT_ENTRY_SOURCE_VALUE_HOME,
   RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
@@ -70,6 +72,13 @@ async function tryOpenOicrEditorFromResolver(
   }
 
   const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
+  const openingFullFormFromModal =
+    route.queryParamMap.get(OICR_FULL_EDIT_QUERY) === OICR_FULL_EDIT_VALUE && rolesService.isAdmin();
+
+  if (openingFullFormFromModal || (isDraft && rolesService.isAdmin())) {
+    return true;
+  }
+
   if (!isDraft || (isDraft && !rolesService.isAdmin())) {
     const from = route.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY);
     const fromResultsCenter = from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
