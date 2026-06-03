@@ -838,4 +838,24 @@ describe('resultExistsResolver', () => {
     expect(router.navigate).not.toHaveBeenCalled();
     expect(result).toBe(true);
   });
+
+  it('should return true when OICR draft skips modal branch and tryOpenOicrEditor resolves undefined', async () => {
+    route.paramMap.get = jest.fn().mockReturnValue('123');
+    route.queryParamMap.get = jest.fn().mockReturnValue(null);
+    metadataService.update = jest.fn().mockResolvedValue({
+      canOpen: true,
+      indicator_id: 5,
+      status_id: 12,
+      result_official_code: 3,
+      result_contract_id: 456,
+      result_title: 'Test Project'
+    });
+    currentResultService.validateOpenResult = jest.fn().mockReturnValue(true);
+    rolesService.isAdmin = jest.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+
+    const result = await runInInjectionContext(injector, () => resultExistsResolver(route, { url: '', root: {} as any }));
+
+    expect(currentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
+    expect(result).toBe(true);
+  });
 });

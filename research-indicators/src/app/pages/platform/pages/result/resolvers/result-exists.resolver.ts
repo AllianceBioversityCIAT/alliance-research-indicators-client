@@ -105,5 +105,6 @@ async function tryOpenOicrEditorFromResolver(
     );
     return false;
   }
-  return true;
+
+  return undefined;
 }
