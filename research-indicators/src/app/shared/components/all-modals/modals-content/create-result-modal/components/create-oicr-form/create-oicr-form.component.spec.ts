@@ -30,6 +30,7 @@ describe('CreateOicrFormComponent', () => {
   let mockActionsService: any;
   let mockRouter: any;
   let mockElementRef: any;
+  let mockRolesService: { isAdmin: jest.Mock };
 
   beforeEach(async () => {
     mockCreateResultManagementService = {
@@ -147,7 +148,7 @@ describe('CreateOicrFormComponent', () => {
       list: signal([])
     };
 
-    const mockRolesService = {
+    mockRolesService = {
       isAdmin: jest.fn().mockReturnValue(false)
     };
 
@@ -2802,6 +2803,61 @@ describe('CreateOicrFormComponent', () => {
       // Should not throw error
       expect(component.elementRef.nativeElement.querySelector).toHaveBeenCalledWith('#test-section');
       expect(component.elementRef.nativeElement.querySelector).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('published OICR full edit', () => {
+    it('showEditPublishedOicrButton is true for admin editing published OICR', () => {
+      mockCreateResultManagementService.editingOicr.set(true);
+      mockCreateResultManagementService.statusId.set(14);
+      mockRolesService.isAdmin.mockReturnValue(true);
+      expect(component.showEditPublishedOicrButton()).toBe(true);
+    });
+
+    it('showEditPublishedOicrButton is false for non-admin', () => {
+      mockCreateResultManagementService.editingOicr.set(true);
+      mockCreateResultManagementService.statusId.set(14);
+      mockRolesService.isAdmin.mockReturnValue(false);
+      expect(component.showEditPublishedOicrButton()).toBe(false);
+    });
+
+    it('showEditPublishedOicrButton is false when status is not published', () => {
+      mockCreateResultManagementService.editingOicr.set(true);
+      mockCreateResultManagementService.statusId.set(10);
+      mockRolesService.isAdmin.mockReturnValue(true);
+      expect(component.showEditPublishedOicrButton()).toBe(false);
+    });
+
+    it('openFullOicrEdit does nothing without result code', async () => {
+      mockCreateResultManagementService.currentRequestedResultCode.set(null);
+      await component.openFullOicrEdit();
+      expect(mockRouter.navigate).not.toHaveBeenCalled();
+    });
+
+    it('openFullOicrEdit closes modal and navigates to STAR oicr-details', async () => {
+      mockRouter.navigate = jest.fn().mockResolvedValue(true);
+      mockCreateResultManagementService.currentRequestedResultCode.set(11809);
+      mockCreateResultManagementService.resultCreationEntryContext.set('results-center');
+
+      await component.openFullOicrEdit();
+
+      expect(mockCreateResultManagementService.editingOicr()).toBe(false);
+      expect(mockAllModalsService.closeModal).toHaveBeenCalledWith('createResult');
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/result', 'STAR-11809', 'oicr-details'], {
+        queryParams: { oicrFullEdit: '1', from: 'results-center' }
+      });
+    });
+
+    it('openFullOicrEdit navigates with oicrFullEdit for project context', async () => {
+      mockRouter.navigate = jest.fn().mockResolvedValue(true);
+      mockCreateResultManagementService.currentRequestedResultCode.set(42);
+      mockCreateResultManagementService.resultCreationEntryContext.set('project');
+
+      await component.openFullOicrEdit();
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/result', 'STAR-42', 'oicr-details'], {
+        queryParams: { oicrFullEdit: '1' }
+      });
     });
   });
 });

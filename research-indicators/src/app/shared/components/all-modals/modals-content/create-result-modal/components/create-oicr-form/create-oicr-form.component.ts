@@ -54,7 +54,14 @@ import { RolesService } from '@shared/services/cache/roles.service';
 import { ProjectResultsTableService } from '@shared/components/project-results-table/project-results-table.service';
 import { OicrHeaderComponent } from '@shared/components/oicr-header/oicr-header.component';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
-import { isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
+import {
+  isResultsCenterEntryFromUrl,
+  OICR_FULL_EDIT_QUERY,
+  OICR_FULL_EDIT_VALUE,
+  RESULT_ENTRY_SOURCE_QUERY,
+  RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER
+} from '@shared/constants/result-entry-source';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { AccordionModule } from 'primeng/accordion';
 import { SubmissionService } from '@shared/services/submission.service';
@@ -170,6 +177,15 @@ export class CreateOicrFormComponent implements OnInit {
       Number(this.createResultManagementService.createOicrBody().step_three.geo_scope_id),
       this.createResultManagementService.createOicrBody().step_three.countries
     )
+  );
+
+  private readonly publishedStatusId = 14;
+
+  showEditPublishedOicrButton = computed(
+    () =>
+      this.createResultManagementService.editingOicr() &&
+      this.createResultManagementService.statusId() === this.publishedStatusId &&
+      this.rolesService.isAdmin()
   );
 
   currentContract = computed(() => {
@@ -526,6 +542,27 @@ export class CreateOicrFormComponent implements OnInit {
     this.createResultManagementService.setModalTitle('Create A Result');
     this.createResultManagementService.resultPageStep.set(0);
     this.createResultManagementService.setStatusId(null);
+  }
+
+  async openFullOicrEdit(): Promise<void> {
+    const resultCode = this.createResultManagementService.currentRequestedResultCode();
+    if (!resultCode) {
+      return;
+    }
+
+    const queryParams: Record<string, string> = {
+      [OICR_FULL_EDIT_QUERY]: OICR_FULL_EDIT_VALUE
+    };
+    if (this.createResultManagementService.resultCreationEntryContext() === 'results-center') {
+      queryParams[RESULT_ENTRY_SOURCE_QUERY] = RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
+    }
+
+    this.createResultManagementService.editingOicr.set(false);
+    this.allModalsService.closeModal('createResult');
+
+    await this.router.navigate(['/result', `${PLATFORM_CODES.STAR}-${resultCode}`, 'oicr-details'], {
+      queryParams
+    });
   }
 
   isGeoScopeId(value: number | string): boolean {

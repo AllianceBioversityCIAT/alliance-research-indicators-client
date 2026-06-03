@@ -13,6 +13,16 @@
   </button>
 </ng-template>
 
+<ng-template #editPublishedOicr>
+  @if (showEditPublishedOicrButton()) {
+  <button type="button" (click)="openFullOicrEdit()"
+    class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] bg-[#035BA9] text-white px-4 py-2 rounded-[13px] text-[15px]">
+    <i class="pi pi-pencil !text-[12px]"></i>
+    Editar
+  </button>
+  }
+</ng-template>
+
 <ng-template #createButton>
   @if (this.createResultManagementService.statusId() !== 10 && this.createResultManagementService.statusId() !== 15 &&
   this.createResultManagementService.statusId() !== 11 && this.createResultManagementService.statusId() !== 12 &&
@@ -189,7 +199,10 @@
       </div>
 
       <div class="w-full flex justify-between">
-        <ng-container *ngTemplateOutlet="next"></ng-container>
+        <div class="flex gap-3">
+          <ng-container *ngTemplateOutlet="next"></ng-container>
+        </div>
+        <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
         <ng-container *ngTemplateOutlet="createButton"></ng-container>
       </div>
     </div>
@@ -276,6 +289,7 @@
           <ng-container *ngTemplateOutlet="previous"></ng-container>
           <ng-container *ngTemplateOutlet="next"></ng-container>
         </div>
+        <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
         <ng-container *ngTemplateOutlet="createButton"></ng-container>
       </div>
     </div>
@@ -394,6 +408,7 @@
           <ng-container *ngTemplateOutlet="previous"></ng-container>
           <ng-container *ngTemplateOutlet="next"></ng-container>
         </div>
+        <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
         <ng-container *ngTemplateOutlet="createButton"></ng-container>
       </div>
     </div>
@@ -414,7 +429,10 @@
       </div>
 
       <div class="w-full flex justify-between">
-        <ng-container *ngTemplateOutlet="previous"></ng-container>
+        <div class="flex gap-3">
+          <ng-container *ngTemplateOutlet="previous"></ng-container>
+        </div>
+        <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
         <ng-container *ngTemplateOutlet="createButton"></ng-container>
       </div>
     </div>
