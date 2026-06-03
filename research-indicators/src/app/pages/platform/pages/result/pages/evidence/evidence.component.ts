@@ -87,24 +87,6 @@ export default class EvidenceComponent {
   }
 
   async saveData(page?: 'next' | 'back'): Promise<void> {
-    if (this.submission.isEditableStatus() && this.isCgspaceLinkInvalid()) {
-      this.actions.showToast({
-        severity: 'error',
-        summary: 'Evidence',
-        detail: 'CGspace link is required'
-      });
-      return;
-    }
-
-    if (this.submission.isEditableStatus() && this.isCgspaceLinkFormatInvalid()) {
-      this.actions.showToast({
-        severity: 'error',
-        summary: 'Evidence',
-        detail: 'CGspace link must start with https://hdl.handle.net/'
-      });
-      return;
-    }
-
     this.setLoading(true);
     try {
       if (this.submission.isEditableStatus()) {
@@ -179,5 +161,4 @@ export default class EvidenceComponent {
 
     this.otherReferences.set([]);
   }
-
 }
