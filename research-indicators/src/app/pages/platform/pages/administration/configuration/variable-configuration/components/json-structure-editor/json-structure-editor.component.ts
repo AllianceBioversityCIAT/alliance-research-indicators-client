@@ -52,21 +52,6 @@ export class JsonStructureEditorComponent {
   formatLabel = formatJsonFieldLabel;
 
   constructor() {
-    effect(
-      () => {
-        const parentValues = this.values();
-
-        for (const node of this.leafNodes()) {
-          const body = this.fieldBody(node.pathKey, node.valueType);
-          const next = this.normalizeFromParent(parentValues[node.pathKey], node.valueType);
-          if (body().value !== next) {
-            body.set({ value: next });
-          }
-        }
-      },
-      { allowSignalWrites: true }
-    );
-
     effect(() => {
       for (const node of this.leafNodes()) {
         if (node.valueType === 'boolean' || node.valueType === 'null') {
@@ -90,6 +75,21 @@ export class JsonStructureEditorComponent {
         this.fieldChange.emit({ pathKey: node.pathKey, value: coerced });
       }
     });
+
+    effect(
+      () => {
+        const parentValues = this.values();
+
+        for (const node of this.leafNodes()) {
+          const body = this.fieldBody(node.pathKey, node.valueType);
+          const next = this.normalizeFromParent(parentValues[node.pathKey], node.valueType);
+          if (body().value !== next) {
+            body.set({ value: next });
+          }
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   fieldBody(pathKey: string, valueType: JsonLeafType | 'unsupported'): WritableSignal<{ value: JsonLeafValue }> {
