@@ -74,6 +74,13 @@ import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
+import {
+  AppConfigCategoriesResponse,
+  AppConfigListItem,
+  AppConfigListQuery,
+  AppConfigListResponse,
+  UpdateAppConfigDto
+} from '@shared/interfaces/app-config.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -366,6 +373,31 @@ export class ApiService {
   GET_ConfigurationByKey = (key: string): Promise<MainResponse<ConfigurationByKeyResponse>> => {
     const url = () => `configuration/${encodeURIComponent(key)}`;
     return this.TP.get(url(), {});
+  };
+
+  GET_AppConfigList = (query: AppConfigListQuery = {}): Promise<MainResponse<AppConfigListResponse>> => {
+    const url = () => {
+      const params = new URLSearchParams();
+      const search = query.search?.trim();
+      if (search) params.set('search', search);
+      if (query.category) params.set('category', query.category);
+      if (query.subcategory) params.set('subcategory', query.subcategory);
+      if (query.sortField) params.set('sort-field', query.sortField);
+      if (query.sortOrder) params.set('sort-order', query.sortOrder);
+      const qs = params.toString();
+      return qs ? `configuration?${qs}` : 'configuration';
+    };
+    return this.TP.get(url(), {});
+  };
+
+  GET_AppConfigCategories = (): Promise<MainResponse<AppConfigCategoriesResponse>> => {
+    const url = () => 'configuration/categories-and-subcategories';
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_AppConfigByKey = (key: string, body: UpdateAppConfigDto): Promise<MainResponse<AppConfigListItem>> => {
+    const url = () => `configuration/${encodeURIComponent(key)}`;
+    return this.TP.patch(url(), body, {});
   };
 
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
