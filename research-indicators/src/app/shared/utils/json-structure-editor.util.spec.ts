@@ -1,8 +1,10 @@
 import {
   applyFlatValuesToJson,
   buildJsonEditorTree,
+  cloneJsonTemplate,
   flattenJsonLeaves,
-  formatJsonFieldLabel
+  formatJsonFieldLabel,
+  getJsonLeafType
 } from '@shared/utils/json-structure-editor.util';
 
 const DATE_FORMAT = {
@@ -86,5 +88,51 @@ describe('json-structure-editor.util', () => {
   it('formats field labels from camelCase keys', () => {
     expect(formatJsonFieldLabel('monthName')).toBe('Month Name');
     expect(formatJsonFieldLabel('twoDigitDay')).toBe('Two Digit Day');
+  });
+
+  it('classifies leaf types and treats unsupported values as string leaves in the tree', () => {
+    expect(getJsonLeafType(null)).toBe('null');
+    expect(getJsonLeafType(true)).toBe('boolean');
+    expect(getJsonLeafType(1)).toBe('number');
+    expect(getJsonLeafType('x')).toBe('string');
+    expect(getJsonLeafType([])).toBe('unsupported');
+
+    const tree = buildJsonEditorTree({ odd: [] as unknown as Record<string, unknown> });
+    expect(tree[0].type).toBe('leaf');
+    if (tree[0].type === 'leaf') {
+      expect(tree[0].valueType).toBe('string');
+    }
+  });
+
+  it('skips arrays when flattening leaves', () => {
+    const flat = flattenJsonLeaves({ items: [1, 2], name: 'x' });
+    expect(flat).toEqual({ name: 'x' });
+    expect(flattenJsonLeaves(null)).toEqual({});
+    expect(flattenJsonLeaves({ empty: undefined })).toEqual({ empty: null });
+  });
+
+  it('deep-clones templates via cloneJsonTemplate', () => {
+    const source = { nested: { value: 1 } };
+    const clone = cloneJsonTemplate(source);
+    (clone.nested as { value: number }).value = 2;
+    expect(source.nested.value).toBe(1);
+  });
+
+  it('coerces number, boolean, and null leaves when applying flat values', () => {
+    const template = { count: 5, flag: false, nullable: null as null, label: 'ok' };
+
+    expect(applyFlatValuesToJson(template, { count: 10 }).count).toBe(10);
+    expect(applyFlatValuesToJson(template, { count: '' }).count).toBe(5);
+    expect(applyFlatValuesToJson(template, { count: 'not-a-number' }).count).toBe(5);
+    expect(applyFlatValuesToJson(template, { count: null }).count).toBe(5);
+
+    expect(applyFlatValuesToJson(template, { flag: true }).flag).toBe(true);
+    expect(applyFlatValuesToJson(template, { flag: 'TRUE' }).flag).toBe(true);
+    expect(applyFlatValuesToJson(template, { flag: 'false' }).flag).toBe(false);
+
+    expect(applyFlatValuesToJson(template, { nullable: '' }).nullable).toBeNull();
+    expect(applyFlatValuesToJson(template, { nullable: 'x' }).nullable).toBe('x');
+
+    expect(applyFlatValuesToJson(template, { label: null }).label).toBe('');
   });
 });
