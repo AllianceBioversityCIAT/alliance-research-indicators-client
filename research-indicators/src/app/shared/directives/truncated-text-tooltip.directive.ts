@@ -1,4 +1,4 @@
-import { AfterViewInit, Directive, ElementRef, Input, OnDestroy, inject } from '@angular/core';
+import { AfterViewInit, Directive, ElementRef, OnDestroy, effect, inject, input } from '@angular/core';
 import { Tooltip } from 'primeng/tooltip';
 
 @Directive({
@@ -15,19 +15,21 @@ export class TruncatedTextTooltipDirective implements AfterViewInit, OnDestroy {
   private readonly elementRef = inject(ElementRef<HTMLElement>);
   private readonly tooltip = inject(Tooltip);
 
-  private tooltipText = '';
+  readonly appTruncatedTooltip = input('', {
+    transform: (value: string | null | undefined): string => value ?? ''
+  });
+
   private readonly onMouseEnterCapture = (): void => {
     this.syncTooltipState();
   };
 
-  @Input('appTruncatedTooltip')
-  set appTruncatedTooltip(value: string) {
-    this.tooltipText = value ?? '';
-    this.setTooltipContent(this.tooltipText);
+  constructor() {
+    effect(() => {
+      this.setTooltipContent(this.appTruncatedTooltip());
+    });
   }
 
   ngAfterViewInit(): void {
-    this.setTooltipContent(this.tooltipText);
     this.setTooltipDisabled(true);
     this.elementRef.nativeElement.addEventListener('mouseenter', this.onMouseEnterCapture, true);
   }
@@ -49,7 +51,7 @@ export class TruncatedTextTooltipDirective implements AfterViewInit, OnDestroy {
 
   private syncTooltipState(): void {
     const element = this.elementRef.nativeElement;
-    const text = this.tooltipText?.trim();
+    const text = this.appTruncatedTooltip().trim();
 
     if (!text || text === '—') {
       this.setTooltipDisabled(true);
