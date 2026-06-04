@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
 import { centerAdminGuard } from '@guards/center-admin.guard';
+import { appConfigurationGuard } from '@guards/app-configuration.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 
 const createResultData = () => ({
@@ -244,6 +245,18 @@ export const routes: Routes = [
         canMatch: [centerAdminGuard],
         data: {
           title: 'SDG Management',
+          isLoggedIn: true
+        }
+      },
+      {
+        path: 'administration/configuration/variables',
+        loadComponent: () =>
+          import('@platform/pages/administration/configuration/variable-configuration/variable-configuration.component').then(
+            m => m.default
+          ),
+        canMatch: [appConfigurationGuard],
+        data: {
+          title: 'Configuration variables',
           isLoggedIn: true
         }
       }

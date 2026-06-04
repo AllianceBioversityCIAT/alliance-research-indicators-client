@@ -9,6 +9,7 @@ import { AskForHelpModalComponent } from './modals-content/ask-for-help-modal/as
 import { ResultInformationModalComponent } from './modals-content/result-information-modal/result-information-modal.component';
 import { AddContactPersonModalComponent } from './modals-content/add-contact-person-modal/add-contact-person-modal.component';
 import { SelectLinkedResultsModalComponent } from './modals-content/select-linked-results-modal/select-linked-results-modal.component';
+import { EditEnvironmentVariableModalComponent } from './modals-content/edit-environment-variable-modal/edit-environment-variable-modal.component';
 
 @Component({
   selector: 'app-all-modals',
@@ -20,7 +21,8 @@ import { SelectLinkedResultsModalComponent } from './modals-content/select-linke
     AskForHelpModalComponent,
     ResultInformationModalComponent,
     AddContactPersonModalComponent,
-    SelectLinkedResultsModalComponent
+    SelectLinkedResultsModalComponent,
+    EditEnvironmentVariableModalComponent
   ],
   templateUrl: './all-modals.component.html'
 })
