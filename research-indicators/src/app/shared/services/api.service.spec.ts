@@ -635,6 +635,51 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/BULK_UPLOAD.EMBED_INFO.URL', {});
     });
 
+    it('should call GET_AppConfigList without query string when query is empty', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      await service.GET_AppConfigList();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration', {});
+    });
+
+    it('should call GET_AppConfigList with encoded query params', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      await service.GET_AppConfigList({
+        search: '  term  ',
+        category: 'EMAIL',
+        subcategory: 'SMTP',
+        sortField: 'key',
+        sortOrder: 'DESC'
+      });
+
+      const url = (mockToPromiseService.get as jest.Mock).mock.calls[0][0] as string;
+      expect(url).toContain('configuration?');
+      expect(url).toContain('search=term');
+      expect(url).toContain('category=EMAIL');
+      expect(url).toContain('subcategory=SMTP');
+      expect(url).toContain('sort-field=key');
+      expect(url).toContain('sort-order=DESC');
+    });
+
+    it('should call GET_AppConfigCategories', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      await service.GET_AppConfigCategories();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('configuration/categories-and-subcategories', {});
+    });
+
+    it('should call PATCH_AppConfigByKey with encoded key', async () => {
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+      const body = { simple_value: 'updated' };
+
+      await service.PATCH_AppConfigByKey('APP.FEATURE', body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('configuration/APP.FEATURE', body, {});
+    });
+
     it('should call GET_UserStaff', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
