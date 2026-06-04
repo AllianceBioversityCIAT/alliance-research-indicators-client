@@ -23,7 +23,8 @@ describe('AllianceSidebarComponent', () => {
       openModal: jest.fn()
     } as unknown as AllModalsService;
     const mockRolesService = {
-      canAccessCenterAdmin: jest.fn().mockReturnValue(false)
+      canAccessCenterAdmin: jest.fn().mockReturnValue(false),
+      canAccessAppConfiguration: jest.fn().mockReturnValue(false)
     } as unknown as RolesService;
     const mockActionsService = {
       logOut: jest.fn()
@@ -179,21 +180,18 @@ describe('AllianceSidebarComponent', () => {
 
   it('should switch flyout to a different group when another group id is toggled while open', () => {
     const cache = TestBed.inject(CacheService) as { isSidebarCollapsed: jest.Mock };
+    const roles = TestBed.inject(RolesService) as {
+      canAccessCenterAdmin: jest.Mock;
+      canAccessAppConfiguration: jest.Mock;
+    };
     cache.isSidebarCollapsed.mockReturnValue(true);
+    roles.canAccessCenterAdmin.mockReturnValue(true);
+    roles.canAccessAppConfiguration.mockReturnValue(true);
     component.administrationFlyoutGroupId.set('center-admin');
-    component.administrationGroups = [
-      ...component.administrationGroups,
-      {
-        id: 'other-admin',
-        label: 'Other',
-        icon: 'pi-user',
-        children: [{ label: 'Child', link: '/other', icon: 'pi-link' }]
-      }
-    ];
     const ev = { stopPropagation: jest.fn() } as unknown as Event;
-    component.toggleAdministrationFlyout('other-admin', ev);
+    component.toggleAdministrationFlyout('system-admin', ev);
     expect(ev.stopPropagation).toHaveBeenCalled();
-    expect(component.administrationFlyoutGroupId()).toBe('other-admin');
+    expect(component.administrationFlyoutGroupId()).toBe('system-admin');
   });
 });
 
@@ -242,7 +240,13 @@ describe('AllianceSidebarComponent coverage (document listener + destroy)', () =
         },
         { provide: CacheService, useValue: mockCache },
         { provide: AllModalsService, useValue: { openModal: jest.fn() } },
-        { provide: RolesService, useValue: { canAccessCenterAdmin: jest.fn().mockReturnValue(true) } },
+        {
+          provide: RolesService,
+          useValue: {
+            canAccessCenterAdmin: jest.fn().mockReturnValue(true),
+            canAccessAppConfiguration: jest.fn().mockReturnValue(false)
+          }
+        },
         { provide: ActionsService, useValue: { logOut: jest.fn() } }
       ]
     }).compileComponents();
