@@ -40,7 +40,8 @@ export class VariableConfigurationJsonRowComponent {
   }
 
   fieldValue(pathKey: string): JsonLeafValue {
-    return this.values()[pathKey] ?? '';
+    const raw = this.values()[pathKey];
+    return raw === undefined ? '' : raw;
   }
 
   onStringChange(pathKey: string, value: string): void {
