@@ -70,13 +70,16 @@ export class VariableConfigurationService {
   readonly jsonDrafts = signal<Record<string, JsonRowDraft>>({});
 
   constructor() {
-    effect(() => {
-      const isOpen = this.allModals.isModalOpen('editEnvironmentVariable').isOpen;
-      if (this.editModalWasOpen && !isOpen) {
-        this.resetEditState();
-      }
-      this.editModalWasOpen = isOpen;
-    });
+    effect(
+      () => {
+        const isOpen = this.allModals.isModalOpen('editEnvironmentVariable').isOpen;
+        if (this.editModalWasOpen && !isOpen) {
+          this.resetEditState();
+        }
+        this.editModalWasOpen = isOpen;
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   syncDraftsFromActive(): void {
