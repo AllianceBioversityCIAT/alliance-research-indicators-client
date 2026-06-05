@@ -65,7 +65,7 @@ async function tryOpenOicrEditorFromResolver(
   rolesService: RolesService,
   meta: OicrResolverMetadata
 ): Promise<boolean | undefined> {
-  const { indicator_id, status_id, result_official_code, result_contract_id, result_title } = meta;
+  const { indicator_id, status_id } = meta;
 
   if (!currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
     return undefined;
@@ -115,11 +115,6 @@ export async function redirectAndOpenOicrEditModal(
     creationContext = 'project';
   }
 
-  await currentResultService.openEditRequestdOicrsModal(
-    indicator_id ?? 0,
-    status_id ?? 0,
-    result_official_code ?? 0,
-    creationContext
-  );
+  await currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0, creationContext);
   return false;
 }
