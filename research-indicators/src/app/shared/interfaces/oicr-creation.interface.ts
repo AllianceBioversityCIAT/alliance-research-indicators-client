@@ -9,6 +9,7 @@ export interface OicrCreation {
   step_three: StepThree;
   step_four: StepFour;
   base_information: BaseInformation;
+  cgspace_link?: string | null;
 }
 
 export interface BaseInformation {

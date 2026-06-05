@@ -6,8 +6,9 @@
         [badge]="resultsCenterService.countTableFiltersSelected()"
         [showOverlayDot]="!!resultsCenterService.countTableFiltersSelected()" [showClear]="true"
         [searchValue]="this.resultsCenterService.searchInput()"
-        [searchPlaceholder]="'Find a result by code, title or creator'" (searchChange)="setSearchInputFilter($event)"
-        (apply)="showFiltersSidebar()" (clear)="this.resultsCenterService.clearAllFilters()">
+        [searchPlaceholder]="'Find a result by code, title, creator or public link'"
+        (searchChange)="setSearchInputFilter($event)" (apply)="showFiltersSidebar()"
+        (clear)="this.resultsCenterService.clearAllFilters()">
       </app-search-export-controls>
 
       <div class="flex items-center gap-5">
@@ -21,9 +22,8 @@
         }
 
         <app-filters-action-buttons [showExportButton]="true" [exportLabel]="'Export metadata results'"
-          [isExportLoading]="isExporting()"
-          [showViewToggleButtons]="false" [showConfigButton]="true" (config)="showConfiguratiosnSidebar()"
-          (export)="exportTable()">
+          [isExportLoading]="isExporting()" [showViewToggleButtons]="false" [showConfigButton]="true"
+          (config)="showConfiguratiosnSidebar()" (export)="exportTable()">
         </app-filters-action-buttons>
       </div>
     </div>
@@ -78,7 +78,7 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="body" let-result>
-        <tr (keydown.enter)="openResult(result)" (click)="openResult(result)"
+        <tr (keydown.enter)="openResult(result)" (click)="onTableRowClick($event, result)"
           [attr.data-result-id]="result.result_official_code" [attr.data-platform]="result.platform_code"
           class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px] xl:text-[16px]">
           @for (column of getVisibleColumns(); track column.field) {
@@ -135,6 +135,20 @@
               </div>
               }
             </div>
+          </td>
+          } @else if (column.field === 'public_link') {
+          <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()"
+            (keydown.enter)="$event.stopPropagation()">
+            @if (result.public_link) {
+            <button type="button" data-public-link-action (click)="openPublicLink(result.public_link); $event.stopPropagation()"
+              [pTooltip]="result.public_link" tooltipPosition="left"
+              [attr.aria-label]="'Open public link for ' + result.result_official_code"
+              class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9]">
+              <i class="pi pi-external-link !text-[16px]"></i>
+            </button>
+            } @else {
+            <span>None</span>
+            }
           </td>
           } @else if (column.field === 'project') {
           <td class="project-cell">

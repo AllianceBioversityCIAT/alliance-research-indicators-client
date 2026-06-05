@@ -13,6 +13,16 @@
   </button>
 </ng-template>
 
+<ng-template #editPublishedOicr>
+  @if (showEditPublishedOicrButton()) {
+  <button type="button" (click)="openFullOicrEdit()"
+    class="flex cursor-pointer items-center gap-2 border-2 font-medium border-[#035BA9] bg-[#035BA9] text-white px-4 py-2 rounded-[13px] text-[15px]">
+    <i class="pi pi-pencil !text-[12px]"></i>
+    Edit all OICR metadata
+  </button>
+  }
+</ng-template>
+
 <ng-template #createButton>
   @if (this.createResultManagementService.statusId() !== 10 && this.createResultManagementService.statusId() !== 15 &&
   this.createResultManagementService.statusId() !== 11 && this.createResultManagementService.statusId() !== 12 &&
@@ -75,7 +85,8 @@
       status_id: getStatusIdAsString(),
       status_config: cache.currentMetadata().result_status
     }" [showTag]="this.createResultManagementService.editingOicr()"
-    [showDownload]="this.createResultManagementService.editingOicr()"></app-oicr-header>
+    [showDownload]="this.createResultManagementService.editingOicr()"
+    [cgspaceLink]="createResultManagementService.createOicrBody().cgspace_link ?? null"></app-oicr-header>
   }
 
   <div class="px-5 flex flex-col mx-10 mt-8">
@@ -187,9 +198,14 @@
         </app-oicr-form-fields>
       </div>
 
-      <div class="w-full flex justify-between">
-        <ng-container *ngTemplateOutlet="next"></ng-container>
-        <ng-container *ngTemplateOutlet="createButton"></ng-container>
+      <div class="w-full flex justify-between items-center">
+        <div class="flex gap-3">
+          <ng-container *ngTemplateOutlet="next"></ng-container>
+        </div>
+        <div class="flex gap-3 items-center">
+          <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
       </div>
     </div>
     }
@@ -270,12 +286,15 @@
         </div>
       </div>
 
-      <div class="w-full flex justify-between pt-4">
+      <div class="w-full flex justify-between items-center pt-4">
         <div class="flex gap-3">
           <ng-container *ngTemplateOutlet="previous"></ng-container>
           <ng-container *ngTemplateOutlet="next"></ng-container>
         </div>
-        <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        <div class="flex gap-3 items-center">
+          <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
       </div>
     </div>
     }
@@ -388,12 +407,15 @@
         </div>
       </div>
 
-      <div class="w-full flex justify-between">
+      <div class="w-full flex justify-between items-center">
         <div class="flex gap-3">
           <ng-container *ngTemplateOutlet="previous"></ng-container>
           <ng-container *ngTemplateOutlet="next"></ng-container>
         </div>
-        <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        <div class="flex gap-3 items-center">
+          <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
       </div>
     </div>
     }
@@ -412,9 +434,14 @@
         </div>
       </div>
 
-      <div class="w-full flex justify-between">
-        <ng-container *ngTemplateOutlet="previous"></ng-container>
-        <ng-container *ngTemplateOutlet="createButton"></ng-container>
+      <div class="w-full flex justify-between items-center">
+        <div class="flex gap-3">
+          <ng-container *ngTemplateOutlet="previous"></ng-container>
+        </div>
+        <div class="flex gap-3 items-center">
+          <ng-container *ngTemplateOutlet="editPublishedOicr"></ng-container>
+          <ng-container *ngTemplateOutlet="createButton"></ng-container>
+        </div>
       </div>
     </div>
     }

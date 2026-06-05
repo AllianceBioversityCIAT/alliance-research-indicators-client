@@ -67,6 +67,17 @@ export class ResultSidebarComponent {
       }));
   });
 
+  private readonly publishedOicrStatusId = 14;
+
+  showOicrStatusDropdown = computed(() => {
+    const meta = this.cache.currentMetadata();
+    return (
+      this.roles.isAdmin() &&
+      meta.indicator_id === 5 &&
+      meta.status_id !== this.publishedOicrStatusId
+    );
+  });
+
   getResultChildQueryParams(): Record<string, string> {
     const m = this.route.snapshot.queryParamMap;
     const o: Record<string, string> = {};

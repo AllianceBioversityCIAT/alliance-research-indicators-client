@@ -477,6 +477,43 @@ describe('ResultsCenterTableComponent', () => {
     expect(processSpy).not.toHaveBeenCalled();
   });
 
+  it('processRowClick should return early when clicking public link action', () => {
+    mockModals.isAnyModalOpen.mockReturnValue(false);
+    const tableElement = document.createElement('div');
+    const tbody = document.createElement('tbody');
+    const row = document.createElement('tr');
+    const td = document.createElement('td');
+    const button = document.createElement('button');
+    button.setAttribute('data-public-link-action', '');
+    td.appendChild(button);
+    tbody.appendChild(row);
+    row.appendChild(td);
+    tableElement.appendChild(tbody);
+    (component as any).dt2 = {
+      first: 0,
+      value: [mockResult],
+      el: { nativeElement: tableElement }
+    } as any;
+    const handleSpy = jest.spyOn(component as any, 'handleRowClickResult');
+    (component as any).processRowClick(button, new MouseEvent('click'));
+    expect(handleSpy).not.toHaveBeenCalled();
+  });
+
+  it('onTableRowClick should not open result when clicking public link action', () => {
+    const openSpy = jest.spyOn(component, 'openResult');
+    const button = document.createElement('button');
+    button.setAttribute('data-public-link-action', '');
+    component.onTableRowClick({ target: button } as MouseEvent, mockResult);
+    expect(openSpy).not.toHaveBeenCalled();
+  });
+
+  it('onTableRowClick should open result for normal row clicks', () => {
+    const openSpy = jest.spyOn(component, 'openResult');
+    const td = document.createElement('td');
+    component.onTableRowClick({ target: td } as MouseEvent, mockResult);
+    expect(openSpy).toHaveBeenCalledWith(mockResult);
+  });
+
   it('processRowClick should open PRMS modal and prevent default', () => {
     mockModals.isAnyModalOpen.mockReturnValue(false);
     const tableElement = document.createElement('div');

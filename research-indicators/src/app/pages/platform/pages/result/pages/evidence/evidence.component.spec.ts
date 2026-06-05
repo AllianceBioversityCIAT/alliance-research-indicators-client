@@ -77,6 +77,10 @@ describe('EvidenceComponent', () => {
     cache = TestBed.inject(CacheService);
     submission = TestBed.inject(SubmissionService);
     fixture.detectChanges();
+    component.body.update(body => ({
+      ...body,
+      cgspace_link: 'https://hdl.handle.net/10568/182058'
+    }));
   });
 
   it('should create', () => {
@@ -145,12 +149,86 @@ describe('EvidenceComponent', () => {
   });
 
   it('should save data and show toast if editable', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: 'https://hdl.handle.net/10568/1'
+    });
     const spyToast = jest.spyOn(actions, 'showToast');
     const spyGetData = jest.spyOn(component, 'getData');
     submission.isEditableStatus.mockReturnValue(true);
     await component.saveData();
     expect(spyToast).toHaveBeenCalled();
     expect(spyGetData).toHaveBeenCalled();
+  });
+
+  it('should save OICR when cgspace link is not a handle.net URL', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: 'https://cgspace.cgiar.org/handle/10568/1'
+    });
+    const spyToast = jest.spyOn(actions, 'showToast');
+    submission.isEditableStatus.mockReturnValue(true);
+    await component.saveData();
+    expect(api.PATCH_ResultEvidences).toHaveBeenCalledWith(
+      123,
+      expect.objectContaining({ cgspace_link: 'https://cgspace.cgiar.org/handle/10568/1' })
+    );
+    expect(spyToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
+  });
+
+  it('should save OICR when cgspace link is empty', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: ''
+    });
+    const spyToast = jest.spyOn(actions, 'showToast');
+    submission.isEditableStatus.mockReturnValue(true);
+    await component.saveData();
+    expect(api.PATCH_ResultEvidences).toHaveBeenCalledWith(123, expect.objectContaining({ cgspace_link: null }));
+    expect(spyToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }));
+  });
+
+  it('isCgspaceLinkFormatInvalid should be false when link is empty', () => {
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '   ' });
+    expect(component.isCgspaceLinkFormatInvalid()).toBe(false);
+  });
+
+  it('isCgspaceLinkInvalid should be true when OICR has empty cgspace link', () => {
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '   ' });
+    expect(component.isCgspaceLinkInvalid()).toBe(true);
+  });
+
+  it('isCgspaceLinkInvalid and isCgspaceLinkFormatInvalid should be false for non-OICR indicators', () => {
+    cache.currentMetadata = jest.fn(() => ({ indicator_id: 1, status_id: 4 }));
+    component.body.set({ evidence: [new Evidence()], notable_references: [], cgspace_link: '' });
+    expect(component.isCgspaceLinkInvalid()).toBe(false);
+    expect(component.isCgspaceLinkFormatInvalid()).toBe(false);
+  });
+
+  it('isCgspaceLinkFormatInvalid should be true for invalid handle URL on OICR', () => {
+    component.body.set({
+      evidence: [new Evidence()],
+      notable_references: [],
+      cgspace_link: 'https://invalid.example/handle/1'
+    });
+    expect(component.isCgspaceLinkFormatInvalid()).toBe(true);
+  });
+
+  it('should include cgspace_link in PATCH payload for OICR', async () => {
+    component.body.set({
+      evidence: [{ evidence_url: 'url', evidence_description: 'desc', is_active: true, result_evidence_id: null, result_id: null, evidence_role_id: null, is_private: false }],
+      notable_references: [],
+      cgspace_link: '  https://hdl.handle.net/10568/1  '
+    });
+    submission.isEditableStatus.mockReturnValue(true);
+    await component.saveData();
+    expect(api.PATCH_ResultEvidences).toHaveBeenCalledWith(
+      123,
+      expect.objectContaining({ cgspace_link: 'https://hdl.handle.net/10568/1' })
+    );
   });
 
   it('should navigate to back page (links-to-result when indicator_id is 5)', async () => {

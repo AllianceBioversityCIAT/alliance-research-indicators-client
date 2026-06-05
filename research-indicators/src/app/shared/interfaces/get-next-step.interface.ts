@@ -5,7 +5,8 @@ export interface NextStepOption {
   transition_direction?: 'forward' | 'backward' | 'unknown';
   icon?: 'reject' | 'postpone';
   result_status_id?: number;
-  [key: string]: string | number | undefined;
+  is_status_change_validation_required?: boolean;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface SequenceItem {
@@ -19,4 +20,3 @@ export interface GetNextStep {
   special_transitions?: Record<number, NextStepOption[]>;
   available_statuses?: NextStepOption[];
 }
-

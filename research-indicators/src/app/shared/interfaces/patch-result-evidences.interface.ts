@@ -1,6 +1,7 @@
 export class PatchResultEvidences {
   evidence: Evidence[] = [];
   notable_references: NotableReference[] = [];
+  cgspace_link: string | null = null;
 }
 
 export class Evidence {

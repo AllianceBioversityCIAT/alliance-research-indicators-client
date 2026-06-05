@@ -21,6 +21,8 @@ import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-
 import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
+import { TooltipModule } from 'primeng/tooltip';
+import { openPublicLink } from '@shared/utils/public-link.util';
 @Component({
   selector: 'app-results-center-table',
   imports: [
@@ -32,6 +34,7 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
     TagModule,
     MenuModule,
     RouterLink,
+    TooltipModule,
     CustomTagComponent,
     FiltersActionButtonsComponent,
     SearchExportControlsComponent,
@@ -43,6 +46,7 @@ import { CreateResultManagementService } from '@shared/components/all-modals/mod
 export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   readonly statusTagMaxWidth = '140px';
   readonly isExporting = signal(false);
+  readonly openPublicLink = openPublicLink;
 
   resultsCenterService = inject(ResultsCenterService);
   private readonly router = inject(Router);
@@ -215,6 +219,14 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     return severityMap[status];
   }
 
+  onTableRowClick(event: MouseEvent, result: Result): void {
+    const target = event.target as Element | null;
+    if (target?.closest('[data-public-link-action]')) {
+      return;
+    }
+    this.openResult(result);
+  }
+
   openResult(result: Result) {
     if (
       result.platform_code === PLATFORM_CODES.PRMS ||
@@ -349,6 +361,10 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     }
 
     if (target.closest('thead') || target.closest('th') || target.tagName.toLowerCase() === 'th') {
+      return;
+    }
+
+    if (target.closest('[data-public-link-action]')) {
       return;
     }
 
