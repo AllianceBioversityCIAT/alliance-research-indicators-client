@@ -3,7 +3,7 @@ import { runInInjectionContext } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { resultExistsResolver } from './result-exists.resolver';
+import { resultExistsResolver, redirectAndOpenOicrEditModal } from './result-exists.resolver';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
 import { CurrentResultService } from '@shared/services/cache/current-result.service';
 import { CacheService } from '@shared/services/cache/cache.service';
@@ -857,5 +857,112 @@ describe('resultExistsResolver', () => {
 
     expect(currentResultService.openEditRequestdOicrsModal).not.toHaveBeenCalled();
     expect(result).toBe(true);
+  });
+});
+
+describe('redirectAndOpenOicrEditModal', () => {
+  let router: { navigate: jest.Mock; url: string };
+  let route: { queryParamMap: { get: jest.Mock } };
+  let currentResultService: { openEditRequestdOicrsModal: jest.Mock };
+  let cacheService: { projectResultsSearchValue: { set: jest.Mock } };
+
+  const meta = {
+    indicator_id: 1,
+    status_id: 2,
+    result_official_code: 3,
+    result_contract_id: 456,
+    result_title: 'Test Project'
+  };
+
+  beforeEach(() => {
+    router = {
+      navigate: jest.fn().mockResolvedValue(true),
+      url: '/some-other-path'
+    };
+    route = {
+      queryParamMap: {
+        get: jest.fn().mockReturnValue(null)
+      }
+    };
+    currentResultService = {
+      openEditRequestdOicrsModal: jest.fn().mockResolvedValue(undefined)
+    };
+    cacheService = {
+      projectResultsSearchValue: {
+        set: jest.fn()
+      }
+    };
+  });
+
+  it('should navigate to project-detail, set search cache, open modal with project context', async () => {
+    const result = await redirectAndOpenOicrEditModal(
+      route as any,
+      router as any,
+      cacheService as any,
+      currentResultService as any,
+      meta
+    );
+
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('Test Project');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'project');
+    expect(result).toBe(false);
+  });
+
+  it('should navigate to results-center and open modal with results-center context', async () => {
+    route.queryParamMap.get = jest.fn((key: string) => (key === 'from' ? 'results-center' : null));
+
+    const result = await redirectAndOpenOicrEditModal(
+      route as any,
+      router as any,
+      cacheService as any,
+      currentResultService as any,
+      meta
+    );
+
+    expect(router.navigate).toHaveBeenCalledWith(['/results-center']);
+    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, 'results-center');
+    expect(result).toBe(false);
+  });
+
+  it('should navigate to home and open modal without creation context', async () => {
+    route.queryParamMap.get = jest.fn((key: string) => (key === 'from' ? 'home' : null));
+
+    const result = await redirectAndOpenOicrEditModal(
+      route as any,
+      router as any,
+      cacheService as any,
+      currentResultService as any,
+      meta
+    );
+
+    expect(router.navigate).toHaveBeenCalledWith(['/home']);
+    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(1, 2, 3, undefined);
+    expect(result).toBe(false);
+  });
+
+  it('should skip cache update when already on project-detail', async () => {
+    router.url = '/project-detail/456';
+
+    await redirectAndOpenOicrEditModal(route as any, router as any, cacheService as any, currentResultService as any, meta);
+
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', 456]);
+    expect(cacheService.projectResultsSearchValue.set).not.toHaveBeenCalled();
+  });
+
+  it('should default nullish metadata values when opening modal', async () => {
+    await redirectAndOpenOicrEditModal(route as any, router as any, cacheService as any, currentResultService as any, {
+      indicator_id: null,
+      status_id: undefined,
+      result_official_code: null,
+      result_contract_id: null,
+      result_title: null
+    });
+
+    expect(router.navigate).toHaveBeenCalledWith(['/project-detail', null]);
+    expect(cacheService.projectResultsSearchValue.set).toHaveBeenCalledWith('');
+    expect(currentResultService.openEditRequestdOicrsModal).toHaveBeenCalledWith(0, 0, 0, 'project');
   });
 });
