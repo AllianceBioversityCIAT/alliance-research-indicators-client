@@ -17,6 +17,11 @@
     table-layout: fixed;
   }
 
+  .p-datatable-thead > tr > th {
+    padding-top: 16px !important;
+    padding-bottom: 16px !important;
+  }
+
   th,
   td {
     box-sizing: border-box;
