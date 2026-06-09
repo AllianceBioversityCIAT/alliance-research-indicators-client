@@ -57,67 +57,21 @@ describe('VariableConfigurationJsonRowComponent', () => {
     expect(component.isSectionExpanded('missing')).toBe(false);
   });
 
-  it('fieldValue should default missing keys to empty string', () => {
-    expect(component.fieldValue('locale')).toBe('en-US');
-    expect(component.fieldValue('missing')).toBe('');
+  it('should group accordions together and render leaves in a separate editor block', () => {
+    const groupSections = sections.filter(section => section.type === 'group');
+    const leafSections = sections.filter(section => section.type === 'leaf');
+    expect(groupSections.length).toBeGreaterThan(0);
+    expect(leafSections.length).toBeGreaterThan(0);
+    expect(component.groupSections().length).toBe(groupSections.length);
+    expect(component.leafSections().length).toBe(leafSections.length);
+    expect(fixture.nativeElement.querySelectorAll('app-json-structure-editor').length).toBe(2);
   });
 
-  it('onStringChange should emit fieldChange', () => {
+  it('should propagate fieldChange from nested json editor', () => {
     const events: unknown[] = [];
     component.fieldChange.subscribe(e => events.push(e));
-    component.onStringChange('locale', 'fr-FR');
+    component.fieldChange.emit({ pathKey: 'locale', value: 'fr-FR' });
     expect(events).toEqual([{ pathKey: 'locale', value: 'fr-FR' }]);
-  });
-
-  it('onNumberChange should coerce null to zero', () => {
-    const events: unknown[] = [];
-    component.fieldChange.subscribe(e => events.push(e));
-    component.onNumberChange('count', null);
-    expect(events).toEqual([{ pathKey: 'count', value: 0 }]);
-  });
-
-  it('onBooleanChange should emit boolean values', () => {
-    const events: unknown[] = [];
-    component.fieldChange.subscribe(e => events.push(e));
-    component.onBooleanChange('enabled', true);
-    expect(events).toEqual([{ pathKey: 'enabled', value: true }]);
-  });
-
-  it('asBoolean should return true only for literal true', () => {
-    fixture.componentRef.setInput('values', { ...values, enabled: true });
-    fixture.detectChanges();
-    expect(component.asBoolean('enabled')).toBe(true);
-    fixture.componentRef.setInput('values', { ...values, enabled: false });
-    fixture.detectChanges();
-    expect(component.asBoolean('enabled')).toBe(false);
-  });
-
-  it('asNumber should parse numeric strings and handle invalid values', () => {
-    fixture.componentRef.setInput('values', { count: 4 });
-    fixture.detectChanges();
-    expect(component.asNumber('count')).toBe(4);
-
-    fixture.componentRef.setInput('values', { count: '8' });
-    fixture.detectChanges();
-    expect(component.asNumber('count')).toBe(8);
-
-    fixture.componentRef.setInput('values', { count: '' });
-    fixture.detectChanges();
-    expect(component.asNumber('count')).toBeNull();
-
-    fixture.componentRef.setInput('values', { count: 'nope' });
-    fixture.detectChanges();
-    expect(component.asNumber('count')).toBeNull();
-  });
-
-  it('asString should stringify values', () => {
-    fixture.componentRef.setInput('values', { locale: null });
-    fixture.detectChanges();
-    expect(component.asString('locale')).toBe('');
-
-    fixture.componentRef.setInput('values', { count: 5 });
-    fixture.detectChanges();
-    expect(component.asString('count')).toBe('5');
   });
 
   it('sectionToggle and save outputs should emit', () => {

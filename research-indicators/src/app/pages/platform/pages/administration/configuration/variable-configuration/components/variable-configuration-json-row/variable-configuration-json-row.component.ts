@@ -1,8 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { CheckboxModule } from 'primeng/checkbox';
-import { InputNumberModule } from 'primeng/inputnumber';
+import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
 import { AppConfigListItem } from '@shared/interfaces/app-config.interface';
 import { JsonStructureEditorComponent } from '../json-structure-editor/json-structure-editor.component';
 import {
@@ -14,7 +10,7 @@ import {
 @Component({
   selector: 'app-variable-configuration-json-row',
   standalone: true,
-  imports: [FormsModule, InputTextModule, CheckboxModule, InputNumberModule, JsonStructureEditorComponent],
+  imports: [JsonStructureEditorComponent],
   templateUrl: './variable-configuration-json-row.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -26,7 +22,6 @@ export class VariableConfigurationJsonRowComponent {
   readonly disabled = input(false);
   readonly saving = input(false);
   readonly dirty = input(false);
-  readonly saveError = input<string | null>(null);
   readonly showActions = input(true);
 
   readonly sectionToggle = output<string>();
@@ -35,42 +30,13 @@ export class VariableConfigurationJsonRowComponent {
 
   formatLabel = formatJsonFieldLabel;
 
+  readonly groupSections = computed(() => this.sections().filter(section => section.type === 'group'));
+
+  readonly leafSections = computed(() =>
+    this.sections().filter((section): section is JsonEditorNode & { type: 'leaf' } => section.type === 'leaf')
+  );
+
   isSectionExpanded(sectionKey: string): boolean {
     return this.expandedSections()[sectionKey] === true;
-  }
-
-  fieldValue(pathKey: string): JsonLeafValue {
-    const raw = this.values()[pathKey];
-    return raw === undefined ? '' : raw;
-  }
-
-  onStringChange(pathKey: string, value: string): void {
-    this.fieldChange.emit({ pathKey, value });
-  }
-
-  onNumberChange(pathKey: string, value: number | null): void {
-    this.fieldChange.emit({ pathKey, value: value ?? 0 });
-  }
-
-  onBooleanChange(pathKey: string, value: boolean): void {
-    this.fieldChange.emit({ pathKey, value });
-  }
-
-  asBoolean(pathKey: string): boolean {
-    return this.fieldValue(pathKey) === true;
-  }
-
-  asNumber(pathKey: string): number | null {
-    const value = this.fieldValue(pathKey);
-    if (typeof value === 'number') return value;
-    if (value === '' || value == null) return null;
-    const parsed = Number(value);
-    return Number.isNaN(parsed) ? null : parsed;
-  }
-
-  asString(pathKey: string): string {
-    const value = this.fieldValue(pathKey);
-    if (value == null) return '';
-    return String(value);
   }
 }
