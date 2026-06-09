@@ -8,7 +8,7 @@
       </p>
     </div>
 
-    <div class="flex flex-col gap-[8px] pt-0.5">
+    <div class="flex flex-col gap-[3px] pt-0.5">
       <div class="grid w-full grid-cols-1 gap-[12px] md:grid-cols-2 lg:grid-cols-3">
         <div class="flex w-full min-w-0 flex-col">
           <app-input label="Category" [signal]="service.editForm" optionValue="category"
@@ -32,16 +32,15 @@
 
       @if (service.editingUsesJson()) {
       <div class="flex w-full flex-col gap-2 -mt-1">
-        <span class="label mb-0">Structured value</span>
+        <span class="mb-0 text-[15px] !font-[700] text-[#173F6F]">Structured value</span>
         <p class="-mt-2 text-[14px] font-[400] text-[#777C83]">
           Edit field values by section. Object names and structure cannot be changed.
         </p>
-        <div class="flex flex-col gap-3 pt-1">
+        <div class="flex flex-col pt-1">
           <app-variable-configuration-json-row [row]="item" [sections]="service.jsonSections(item.key)"
             [values]="service.jsonValues(item.key)" [expandedSections]="service.modalJsonSections()"
             [disabled]="!roles.canEditAppConfiguration()" [dirty]="service.isJsonRowDirty(item.key)"
-            [saving]="service.saving()" [saveError]="service.jsonRowSaveError()" [showActions]="false"
-            (sectionToggle)="service.toggleModalJsonSection($event)"
+            [saving]="service.saving()" [showActions]="false" (sectionToggle)="service.toggleModalJsonSection($event)"
             (fieldChange)="service.onJsonFieldChange(item.key, $event)" />
         </div>
       </div>
@@ -50,17 +49,6 @@
         <app-input label="Value" [signal]="service.editForm" optionValue="simple_value"
           [disabled]="!roles.canEditAppConfiguration()" placeholder="Enter value" />
       </div>
-      }
-
-      @if (service.saveError() && !service.editingUsesJson()) {
-      <p class="m-0 rounded-md border border-[#F5C6CB] bg-[#FCE8E8] px-3 py-2 text-[14px] font-[400] text-[#721C24]">
-        {{ service.saveError() }}
-      </p>
-      }
-      @if (service.jsonRowSaveError() && service.editingUsesJson()) {
-      <p class="m-0 rounded-md border border-[#F5C6CB] bg-[#FCE8E8] px-3 py-2 text-[14px] font-[400] text-[#721C24]">
-        {{ service.jsonRowSaveError() }}
-      </p>
       }
 
       <div class="flex justify-end gap-[14px] pt-5 pb-2">

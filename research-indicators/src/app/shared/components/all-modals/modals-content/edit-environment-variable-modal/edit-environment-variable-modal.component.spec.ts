@@ -54,8 +54,6 @@ describe('EditEnvironmentVariableModalComponent', () => {
             modalJsonSections: signal({}),
             isJsonRowDirty: () => false,
             saving: signal(false),
-            saveError: signal(null),
-            jsonRowSaveError: signal(null),
             closeEdit: jest.fn(),
             toggleModalJsonSection: jest.fn(),
             onJsonFieldChange: jest.fn()
