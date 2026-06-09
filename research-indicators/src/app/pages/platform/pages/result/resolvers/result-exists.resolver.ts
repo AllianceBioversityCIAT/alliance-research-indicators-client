@@ -65,46 +65,56 @@ async function tryOpenOicrEditorFromResolver(
   rolesService: RolesService,
   meta: OicrResolverMetadata
 ): Promise<boolean | undefined> {
-  const { indicator_id, status_id, result_official_code, result_contract_id, result_title } = meta;
+  const { indicator_id, status_id } = meta;
 
   if (!currentResultService.validateOpenResult(indicator_id ?? 0, status_id ?? 0)) {
     return undefined;
   }
 
   const isDraft = (status_id ?? 0) === 10 || (status_id ?? 0) === 12 || (status_id ?? 0) === 13;
-  const openingFullFormFromModal =
-    route.queryParamMap.get(OICR_FULL_EDIT_QUERY) === OICR_FULL_EDIT_VALUE && rolesService.isAdmin();
+  const openingFullFormFromModal = route.queryParamMap.get(OICR_FULL_EDIT_QUERY) === OICR_FULL_EDIT_VALUE && rolesService.isAdmin();
 
   if (openingFullFormFromModal || (isDraft && rolesService.isAdmin())) {
     return true;
   }
 
   if (!isDraft || (isDraft && !rolesService.isAdmin())) {
-    const from = route.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY);
-    const fromResultsCenter = from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
-    const fromHome = from === RESULT_ENTRY_SOURCE_VALUE_HOME;
-    if (fromResultsCenter) {
-      await router.navigate(['/results-center']);
-    } else if (fromHome) {
-      await router.navigate(['/home']);
-    } else {
-      await router.navigate(['/project-detail', result_contract_id]);
-      if (!router.url.includes('/project-detail/')) cacheService.projectResultsSearchValue.set(result_title ?? '');
-    }
-    let creationContext: 'results-center' | 'project' | undefined;
-    if (fromResultsCenter) {
-      creationContext = 'results-center';
-    } else if (!fromHome) {
-      creationContext = 'project';
-    }
-    await currentResultService.openEditRequestdOicrsModal(
-      indicator_id ?? 0,
-      status_id ?? 0,
-      result_official_code ?? 0,
-      creationContext
-    );
-    return false;
+    return redirectAndOpenOicrEditModal(route, router, cacheService, currentResultService, meta);
   }
 
   return undefined;
+}
+
+export async function redirectAndOpenOicrEditModal(
+  route: ActivatedRouteSnapshot,
+  router: Router,
+  cacheService: CacheService,
+  currentResultService: CurrentResultService,
+  meta: OicrResolverMetadata
+): Promise<false> {
+  const { indicator_id, status_id, result_official_code, result_contract_id, result_title } = meta;
+  const from = route.queryParamMap.get(RESULT_ENTRY_SOURCE_QUERY);
+  const fromResultsCenter = from === RESULT_ENTRY_SOURCE_VALUE_RESULTS_CENTER;
+  const fromHome = from === RESULT_ENTRY_SOURCE_VALUE_HOME;
+
+  if (fromResultsCenter) {
+    await router.navigate(['/results-center']);
+  } else if (fromHome) {
+    await router.navigate(['/home']);
+  } else {
+    await router.navigate(['/project-detail', result_contract_id]);
+    if (!router.url.includes('/project-detail/')) {
+      cacheService.projectResultsSearchValue.set(result_title ?? '');
+    }
+  }
+
+  let creationContext: 'results-center' | 'project' | undefined;
+  if (fromResultsCenter) {
+    creationContext = 'results-center';
+  } else if (!fromHome) {
+    creationContext = 'project';
+  }
+
+  await currentResultService.openEditRequestdOicrsModal(indicator_id ?? 0, status_id ?? 0, result_official_code ?? 0, creationContext);
+  return false;
 }

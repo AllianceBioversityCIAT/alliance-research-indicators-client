@@ -128,7 +128,7 @@
             </div>
           </td>
           } @else if (column.field === 'public_link') {
-          <td (click)="$event.stopPropagation()">
+          <td (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
             @if (result.public_link) {
             <button type="button" data-public-link-action (click)="openPublicLink(result.public_link); $event.stopPropagation()"
               [pTooltip]="result.public_link" tooltipPosition="left"
