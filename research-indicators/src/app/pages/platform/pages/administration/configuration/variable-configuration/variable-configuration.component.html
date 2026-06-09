@@ -17,11 +17,6 @@
           </p>
         </div>
 
-        @if (service.saveSuccess()) {
-        <p class="rounded border border-[#B8E0C8] bg-[#EEF8F1] px-3 py-2 text-sm text-[#1B5E20]">Configuration saved
-          successfully.</p>
-        }
-
         <div class="flex flex-col mb-3">
           <div class="flex flex-col px-5 py-4 bg-white">
             <div class="flex items-center justify-between w-full">
@@ -181,7 +176,7 @@
                   @if (roles.canEditAppConfiguration()) {
                   <td class="variable-config-actions-col" [style]="fixedColumnStyle(columnWidths.actions)">
                     <div class="flex items-center justify-center">
-                      <button type="button" (click)="openEdit(row)" aria-label="Edit variable" tooltip="Edit variable"
+                      <button type="button" (click)="openEdit(row)" aria-label="Edit variable" pTooltip="Edit variable"
                         tooltipPosition="top"
                         class="inline-flex h-[27px] w-[27px] cursor-pointer items-center justify-center rounded-[8px] bg-[#D9E1EB] p-[2px] hover:bg-[#D9E1EB] transition-colors duration-150">
                         <i class="pi pi-pencil !text-[12px] text-[#035BA9]"></i>

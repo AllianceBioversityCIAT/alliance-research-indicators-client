@@ -1,19 +1,19 @@
 <div class="input-container flex flex-col" [class.gap-4]="depth() === 0" [class.gap-3]="depth() > 0">
   @for (node of nodes(); track node.pathKey) {
   @if (node.type === 'group') {
-  <section class="flex flex-col gap-3 py-3 ">
+  <section class="flex flex-col gap-3 py-1">
     <h3 class="m-0 text-[14px] font-[700] capitalize px-2.5 text-[#173F6F]">
       {{ formatLabel(node.key) }}
     </h3>
-    <app-json-structure-editor [nodes]="node.children" [values]="values()" [disabled]="disabled()" [depth]="depth() + 1"
-      (fieldChange)="fieldChange.emit($event)" class="pb-2.5" />
+    <app-json-structure-editor [nodes]="node.children" [values]="values()" [disabled]="disabled()"
+      (fieldChange)="fieldChange.emit($event)" class="pb-1 px-2.5" />
     <div class="border-t border-[#eef1f3] bg-white pt-2"> </div>
   </section>
   }
   }
 
   @if (nonBooleanLeafNodes().length || booleanLeafNodes().length) {
-  <div class="flex flex-col gap-3" [style.margin-left.px]="depth() * 10">
+  <div class="flex flex-col gap-1 pr-2.5" [style.margin-left.px]="depth() * 10">
     @if (nonBooleanLeafNodes().length) {
     <div class="grid w-full grid-cols-1 gap-[12px] md:grid-cols-2 lg:grid-cols-3">
       @for (node of nonBooleanLeafNodes(); track node.pathKey) {

@@ -1,5 +1,6 @@
 import { effect, Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
+import { ActionsService } from '@shared/services/actions.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { RolesService } from '@shared/services/cache/roles.service';
 import {
@@ -37,6 +38,7 @@ export class VariableConfigurationService {
   private static readonly EMPTY_JSON_SECTIONS: JsonEditorNode[] = [];
 
   private readonly api = inject(ApiService);
+  private readonly actions = inject(ActionsService);
   private readonly allModals = inject(AllModalsService);
   private readonly roles = inject(RolesService);
   private loadInFlight = false;
@@ -66,7 +68,6 @@ export class VariableConfigurationService {
   readonly editingItem = signal<AppConfigListItem | null>(null);
   readonly editForm = signal<UpdateAppConfigDto>({});
   readonly modalJsonSections = signal<Record<string, boolean>>({});
-  readonly jsonRowSaveError = signal<string | null>(null);
   readonly jsonDrafts = signal<Record<string, JsonRowDraft>>({});
 
   constructor() {
@@ -156,10 +157,21 @@ export class VariableConfigurationService {
     try {
       await this.api.PATCH_AppConfigByKey(key, body);
       this.saveSuccess.set(true);
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Configuration',
+        detail: 'Data saved successfully'
+      });
       await this.loadList();
       return true;
     } catch {
-      this.saveError.set('Failed to save configuration. Please check your values and try again.');
+      const errorMessage = 'Failed to save configuration. Please check your values and try again.';
+      this.saveError.set(errorMessage);
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Error',
+        detail: errorMessage
+      });
       return false;
     } finally {
       this.saving.set(false);
@@ -190,7 +202,6 @@ export class VariableConfigurationService {
   openEdit(row: AppConfigListItem): void {
     this.saveError.set(null);
     this.saveSuccess.set(false);
-    this.jsonRowSaveError.set(null);
     this.editingItem.set(row);
     this.editForm.set({
       description: row.description ?? '',
@@ -199,13 +210,7 @@ export class VariableConfigurationService {
       subcategory: row.subcategory ?? ''
     });
 
-    if (this.isJsonConfig(row)) {
-      const sections = this.jsonSections(row.key);
-      const firstGroup = sections.find(section => section.type === 'group');
-      this.modalJsonSections.set(firstGroup ? { [firstGroup.key]: true } : {});
-    } else {
-      this.modalJsonSections.set({});
-    }
+    this.modalJsonSections.set({});
 
     this.allModals.openModal('editEnvironmentVariable');
   }
@@ -235,7 +240,6 @@ export class VariableConfigurationService {
         }
       };
     });
-    this.jsonRowSaveError.set(null);
   }
 
   async saveEdit(): Promise<void> {
@@ -258,8 +262,6 @@ export class VariableConfigurationService {
       if (ok) {
         this.syncJsonDrafts(this.items());
         this.closeEdit();
-      } else {
-        this.jsonRowSaveError.set(this.saveError() ?? 'Failed to save configuration.');
       }
       return;
     }
@@ -332,6 +334,5 @@ export class VariableConfigurationService {
   private resetEditState(): void {
     this.editingItem.set(null);
     this.modalJsonSections.set({});
-    this.jsonRowSaveError.set(null);
   }
 }

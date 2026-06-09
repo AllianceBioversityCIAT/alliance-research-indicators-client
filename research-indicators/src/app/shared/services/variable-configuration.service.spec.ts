@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { VariableConfigurationService, UNCategorized_FILTER } from './variable-configuration.service';
 import { ApiService } from '@shared/services/api.service';
+import { ActionsService } from '@shared/services/actions.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { AppConfigListItem } from '@shared/interfaces/app-config.interface';
@@ -19,6 +20,7 @@ describe('VariableConfigurationService', () => {
     isModalOpen: jest.Mock;
   };
   let canEditAppConfiguration: jest.Mock;
+  let showToast: jest.Mock;
 
   const simpleRow: AppConfigListItem = {
     key: 'simple.key',
@@ -59,11 +61,13 @@ describe('VariableConfigurationService', () => {
       isModalOpen: jest.fn().mockReturnValue({ isOpen: false })
     };
     canEditAppConfiguration = jest.fn().mockReturnValue(true);
+    showToast = jest.fn();
 
     TestBed.configureTestingModule({
       providers: [
         VariableConfigurationService,
         { provide: ApiService, useValue: api },
+        { provide: ActionsService, useValue: { showToast } },
         { provide: AllModalsService, useValue: allModals },
         {
           provide: RolesService,
@@ -210,6 +214,11 @@ describe('VariableConfigurationService', () => {
     expect(api.PATCH_AppConfigByKey).toHaveBeenCalledWith('test.key', { simple_value: 'x' });
     expect(api.GET_AppConfigList).toHaveBeenCalled();
     expect(service.saveSuccess()).toBe(true);
+    expect(showToast).toHaveBeenCalledWith({
+      severity: 'success',
+      summary: 'Configuration',
+      detail: 'Data saved successfully'
+    });
   });
 
   it('patchItem returns false and sets saveError on failure', async () => {
@@ -217,6 +226,11 @@ describe('VariableConfigurationService', () => {
     const ok = await service.patchItem('test.key', { simple_value: 'x' });
     expect(ok).toBe(false);
     expect(service.saveError()).toContain('Failed to save');
+    expect(showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to save configuration. Please check your values and try again.'
+    });
   });
 
   it('json helpers reflect draft state and labels', () => {
@@ -253,12 +267,11 @@ describe('VariableConfigurationService', () => {
     expect(allModals.openModal).toHaveBeenCalledWith('editEnvironmentVariable');
   });
 
-  it('openEdit expands first json group section', () => {
+  it('openEdit keeps all json accordion sections collapsed', () => {
     service.syncJsonDrafts([jsonRow]);
     service.openEdit(jsonRow);
     expect(service.editingUsesJson()).toBe(true);
-    const expanded = service.modalJsonSections();
-    expect(Object.values(expanded).some(Boolean)).toBe(true);
+    expect(service.modalJsonSections()).toEqual({});
   });
 
   it('toggleModalJsonSection flips section state', () => {
@@ -273,7 +286,6 @@ describe('VariableConfigurationService', () => {
     service.onJsonFieldChange('json.key', { pathKey: 'locale', value: 'fr-FR' });
     expect(service.jsonValues('json.key').locale).toBe('fr-FR');
     expect(service.isJsonRowDirty('json.key')).toBe(true);
-    expect(service.jsonRowSaveError()).toBeNull();
   });
 
   it('onJsonFieldChange is a no-op without draft', () => {
@@ -308,12 +320,16 @@ describe('VariableConfigurationService', () => {
     expect(service.editingItem()).toBeNull();
   });
 
-  it('saveEdit sets jsonRowSaveError when json patch fails', async () => {
+  it('saveEdit shows error toast and keeps modal open when json patch fails', async () => {
     api.PATCH_AppConfigByKey.mockRejectedValueOnce(new Error('fail'));
     service.syncJsonDrafts([jsonRow]);
     service.openEdit(jsonRow);
     await service.saveEdit();
-    expect(service.jsonRowSaveError()).toContain('Failed to save');
+    expect(showToast).toHaveBeenCalledWith({
+      severity: 'error',
+      summary: 'Error',
+      detail: 'Failed to save configuration. Please check your values and try again.'
+    });
     expect(service.editingItem()).toEqual(jsonRow);
   });
 
@@ -453,15 +469,6 @@ describe('VariableConfigurationService', () => {
     expect(service.jsonDrafts()).toBe(draftsRef);
   });
 
-  it('saveEdit sets default json error message when saveError is cleared', async () => {
-    jest.spyOn(service, 'patchItem').mockResolvedValue(false);
-    service.syncJsonDrafts([jsonRow]);
-    service.openEdit(jsonRow);
-    service.saveError.set(null);
-    await service.saveEdit();
-    expect(service.jsonRowSaveError()).toBe('Failed to save configuration.');
-  });
-
   it('resets edit state when edit modal closes', () => {
     const isOpen = signal(false);
     allModals.isModalOpen.mockImplementation(() => ({ isOpen: isOpen() }));
@@ -470,6 +477,7 @@ describe('VariableConfigurationService', () => {
       providers: [
         VariableConfigurationService,
         { provide: ApiService, useValue: api },
+        { provide: ActionsService, useValue: { showToast } },
         { provide: AllModalsService, useValue: allModals },
         { provide: RolesService, useValue: { canEditAppConfiguration } }
       ]
