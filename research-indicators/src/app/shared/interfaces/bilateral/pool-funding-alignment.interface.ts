@@ -20,6 +20,7 @@ export interface AlignmentResponse {
   justification?: string;
   is_synced_to_prms: boolean;
   is_read_only: boolean;
+  toc_alignments?: SavedTocAlignment[];
 }
 
 export interface UpdatePoolFundingAlignmentDto {
@@ -27,6 +28,7 @@ export interface UpdatePoolFundingAlignmentDto {
   sp_codes?: string[];
   lever_codes?: string[];
   justification?: string;
+  toc_alignments?: TocAlignmentWriteDto[];
 }
 
 export interface AlignmentChangedEvent {
@@ -206,3 +208,89 @@ export interface HloModalSelectionKey {
 }
 
 export type HloKeyString = string; // `lever_code|aow_code|indicator_code`
+
+// --- ToC mapping v2 wire types (reshaped `hlos-indicators` catalog) ----------
+// Mirrors `docs/specs/bilateral-module/toc-mapping-v2/backend-handoff.md` §4
+// field-for-field (frozen FE wire contract): catalog read, PATCH write
+// extension, and the `toc_alignments` read-back on the alignment envelope.
+// The modal-era PRMS/HLOs types above remain until T-BIL-TM2-05 deletes them.
+// @sdd-spec docs/specs/bilateral-module/toc-mapping-v2
+
+export type TocLevel = 'OUTPUT' | 'OUTCOME' | 'EOI';
+
+export interface TocCatalogIndicator {
+  indicator_id: number;
+  indicator_description: string;
+  unit_of_measurement: string | null; // backend renames upstream `unit_messurament`
+  type_value: string | null; // retained for the future type filter (A-4/OQ-1)
+  target_value: string | null; // backend-resolved for target_year
+  target_year: number; // 2026 this cycle
+}
+
+export interface TocCatalogResult {
+  toc_result_id: number;
+  title: string;
+  description: string | null;
+  aow_code: string | null; // null for EOI (REQ-BIL-TM2-05)
+  indicators: TocCatalogIndicator[];
+}
+
+export interface TocCatalogLevelGroup {
+  level: TocLevel;
+  toc_results: TocCatalogResult[];
+}
+
+export interface TocCatalogSp {
+  sp_code: string;
+  levels: TocCatalogLevelGroup[];
+}
+
+export interface BilateralTocCatalogResponse {
+  result_code: string;
+  mapping_status: PoolFundingMappingStatus;
+  clarisa_project: PoolFundingClarisaProject | null;
+  result_type: string; // backend-owned enum key
+  allowed_levels: TocLevel[]; // [] ⇒ hide cascade (REQ-BIL-TM2-04 AC-04.3)
+  version_locked: boolean; // REQ-BIL-TM2-09
+  catalogs: TocCatalogSp[];
+}
+
+export interface TocAlignmentSnapshot {
+  // survives upstream catalog drift (AC-08.4)
+  toc_result_title: string;
+  aow_code: string | null;
+  indicator_description: string;
+  unit_of_measurement: string | null;
+  target_value: string | null;
+  target_year: number;
+}
+
+export interface SavedTocAlignment {
+  sp_code: string;
+  aligns_with_toc: boolean;
+  level?: TocLevel;
+  toc_result_id?: number;
+  indicator_id?: number;
+  quantitative_contribution?: number | null;
+  snapshot?: TocAlignmentSnapshot;
+  is_stale?: boolean; // catalog item no longer resolvable
+}
+
+export interface TocAlignmentWriteDto {
+  sp_code: string;
+  aligns_with_toc: boolean;
+  level?: TocLevel;
+  toc_result_id?: number;
+  indicator_id?: number;
+  quantitative_contribution?: number;
+}
+
+// Derived FE view-model (NOT a wire type) — per-SP draft for the inline cascade.
+export interface SpAlignmentDraft {
+  sp_code: string;
+  aligns_with_toc: boolean | null; // per-SP Yes/No (null until answered)
+  level: TocLevel | null;
+  toc_result_id: number | null;
+  indicator_id: number | null;
+  quantitative_contribution: number | null;
+}

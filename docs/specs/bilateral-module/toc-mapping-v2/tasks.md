@@ -37,7 +37,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-01 — *Wire DTOs + shared fixtures*
 
-- **Status**: `pending`
+- **Status**: `completed` — PASS attempt 1, 2026-06-09 (see [`./execution.md`](./execution.md))
 - **Size**: S
 - **Depends on**: none
 - **Discharges ACs**: none directly (foundation for all)

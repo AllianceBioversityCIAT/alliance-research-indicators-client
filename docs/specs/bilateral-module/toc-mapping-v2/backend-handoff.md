@@ -202,7 +202,7 @@ Saved alignments ride the existing **`GET /api/v1/results/:resultCode/pool-fundi
     "aligns_with_toc": true,
     "level": "OUTPUT",
     "toc_result_id": 5187,
-    "indicator_id": 5972,
+    "indicator_id": 5973,
     "quantitative_contribution": 3,
     "snapshot": {                       // denormalized at save time (§3.4) — render-safe under catalog drift
       "toc_result_title": "HLO1.AOW1.IO1 Steer to impact",
