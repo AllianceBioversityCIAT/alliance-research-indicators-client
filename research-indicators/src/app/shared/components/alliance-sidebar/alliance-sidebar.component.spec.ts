@@ -213,7 +213,7 @@ describe('AllianceSidebarComponent', () => {
       'button.admin-parent--collapsed'
     ) as HTMLButtonElement | null;
     const img = button?.querySelector('img.admin-collapsed-group-img') as HTMLImageElement | null;
-    expect(button?.style.getPropertyValue('--admin-icon-size')).toBe('16px');
+    expect(button?.style.getPropertyValue('--admin-icon-size')).toBe(group?.iconSize);
     expect(img).toBeTruthy();
     expect(img?.getAttribute('src')).toContain('icons/graph.svg');
   });
