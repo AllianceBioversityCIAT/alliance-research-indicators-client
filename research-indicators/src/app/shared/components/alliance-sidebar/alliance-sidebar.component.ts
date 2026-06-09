@@ -69,13 +69,14 @@ export class AllianceSidebarComponent implements OnInit, AfterViewInit, OnDestro
       groups.push({
         id: 'system-admin',
         label: 'System admin',
-        icon: 'pi-database',
+        s3Image: 'icons/graph.svg',
+        iconSize: '15.5px',
         children: [
           {
             label: 'Environment variables',
             link: '/administration/configuration/variables',
-            icon: 'pi-sliders-h',
-            iconSize: '14px'
+            icon: 'pi-database',
+            iconSize: '13px'
           }
         ]
       });

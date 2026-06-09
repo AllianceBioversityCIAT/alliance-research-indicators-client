@@ -193,6 +193,30 @@ describe('AllianceSidebarComponent', () => {
     expect(ev.stopPropagation).toHaveBeenCalled();
     expect(component.administrationFlyoutGroupId()).toBe('system-admin');
   });
+
+  it('should render system admin s3 group icon in collapsed sidebar', () => {
+    const cache = TestBed.inject(CacheService) as { isSidebarCollapsed: jest.Mock };
+    const roles = TestBed.inject(RolesService) as {
+      canAccessCenterAdmin: jest.Mock;
+      canAccessAppConfiguration: jest.Mock;
+    };
+    cache.isSidebarCollapsed.mockReturnValue(true);
+    roles.canAccessCenterAdmin.mockReturnValue(false);
+    roles.canAccessAppConfiguration.mockReturnValue(true);
+    fixture.componentRef.injector.get(ChangeDetectorRef).markForCheck();
+    fixture.detectChanges();
+
+    const group = component.administrationGroups().find(g => g.id === 'system-admin');
+    expect(group?.s3Image).toBe('icons/graph.svg');
+
+    const button = fixture.nativeElement.querySelector(
+      'button.admin-parent--collapsed'
+    ) as HTMLButtonElement | null;
+    const img = button?.querySelector('img.admin-collapsed-group-img') as HTMLImageElement | null;
+    expect(button?.style.getPropertyValue('--admin-icon-size')).toBe('16px');
+    expect(img).toBeTruthy();
+    expect(img?.getAttribute('src')).toContain('icons/graph.svg');
+  });
 });
 
 describe('AllianceSidebarComponent coverage (document listener + destroy)', () => {

@@ -151,6 +151,19 @@
       }
     }
 
+    button.admin-parent--collapsed {
+      .admin-collapsed-group-img {
+        width: var(--admin-icon-size, 14px) !important;
+        height: var(--admin-icon-size, 14px) !important;
+        max-width: none !important;
+        max-height: none !important;
+      }
+
+      .admin-collapsed-group-icon {
+        font-size: var(--admin-icon-size, 14px) !important;
+      }
+    }
+
     .admin-collapsed-nested-img {
       display: block;
       width: 14px;
@@ -302,6 +315,13 @@
 
   .administration-block {
     align-self: stretch;
+
+    .admin-group-img,
+    .admin-collapsed-group-img {
+      display: block;
+      flex-shrink: 0;
+      object-fit: contain;
+    }
 
     .admin-parent {
       font: inherit;
