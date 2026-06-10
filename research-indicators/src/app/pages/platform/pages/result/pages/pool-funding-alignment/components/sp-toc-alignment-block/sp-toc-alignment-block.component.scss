@@ -108,3 +108,17 @@
     font-weight: 500;
   }
 }
+
+// Quantitative contribution is a short number, not a full-width text field.
+// PrimeNG renders the input outside this component's view, so pierce
+// encapsulation to constrain the host + inner input width.
+/* stylelint-disable selector-pseudo-element-no-unknown, selector-class-pattern */
+:host ::ng-deep .sp-toc-block__number {
+  width: 9rem;
+  max-width: 100%;
+
+  .p-inputnumber-input {
+    width: 100%;
+  }
+}
+/* stylelint-enable selector-pseudo-element-no-unknown, selector-class-pattern */

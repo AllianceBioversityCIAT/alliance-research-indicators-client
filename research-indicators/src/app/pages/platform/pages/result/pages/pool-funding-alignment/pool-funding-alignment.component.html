@@ -132,26 +132,28 @@
                 [disabled]="!editable() || isReadOnly()"
                 (selectEvent)="onSpSelectionChange()">
                 <ng-template #rows let-row>
+                  @let chipCode = row.code || row.official_code;
+                  @let chipSp = findScienceProgram(chipCode);
                   <span class="flex items-center gap-2 min-w-0"
-                        [class.pf-sp-chip-rejected]="isRejectedSp(row.code || row.official_code)"
-                        [attr.data-rejected]="isRejectedSp(row.code || row.official_code) ? 'true' : null"
-                        [attr.data-testid]="'pf-alignment-sp-chip-' + (row.code || row.official_code)">
-                    <img [src]="'/sps/' + row.icon_key + '.png'"
-                         [alt]="row.code + ' icon'"
+                        [class.pf-sp-chip-rejected]="isRejectedSp(chipCode)"
+                        [attr.data-rejected]="isRejectedSp(chipCode) ? 'true' : null"
+                        [attr.data-testid]="'pf-alignment-sp-chip-' + chipCode">
+                    <img [src]="'/sps/' + (chipSp?.icon_key || chipCode) + '.png'"
+                         [alt]="chipCode + ' icon'"
                          class="rounded shrink-0 object-cover"
-                         [style.background]="row.color || 'transparent'"
+                         [style.background]="(chipSp?.color || row.color) || 'transparent'"
                          style="width:24px;height:24px;"
                          loading="lazy" />
                     <span class="truncate text-[var(--ac-primary-blue-500)] text-[14px]"
                           style="font-family: 'Barlow', sans-serif;">
-                      <strong>{{ row.code }} — {{ row.allocation }}%</strong> - {{ row.name }}
+                      <strong>{{ chipCode }} — {{ chipSp?.allocation ?? '—' }}%</strong> - {{ row.name }}
                     </span>
                   </span>
                 </ng-template>
                 <ng-template #item let-row>
                   <span class="flex items-center gap-2 min-w-0">
-                    <img [src]="'/sps/' + row.icon_key + '.png'"
-                         [alt]="row.code + ' icon'"
+                    <img [src]="'/sps/' + (row.icon_key || row.code || row.official_code) + '.png'"
+                         [alt]="(row.code || row.official_code) + ' icon'"
                          class="rounded shrink-0 object-cover"
                          [style.background]="row.color || 'transparent'"
                          style="width:24px;height:24px;"

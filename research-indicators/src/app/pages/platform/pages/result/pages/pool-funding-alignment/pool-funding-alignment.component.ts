@@ -18,6 +18,7 @@ import { SpTocAlignmentBlockComponent } from './components/sp-toc-alignment-bloc
 import {
   AlignmentChangedEvent,
   AlignmentResponse,
+  PoolFundingScienceProgram,
   SavedTocAlignment,
   SpAlignmentDraft,
   TocLevel,
@@ -450,6 +451,14 @@ export default class PoolFundingAlignmentComponent {
   isRejectedSp(code: string | null | undefined): boolean {
     if (!code) return false;
     return this.rejectedSpCodes().includes(code);
+  }
+
+  // Selected-chip enrichment: the form's selected value carries only
+  // official_code/name/color, so resolve the full SP (code, allocation,
+  // icon_key) from the loaded science-programs list for the chip display.
+  findScienceProgram(code: string | null | undefined): PoolFundingScienceProgram | undefined {
+    if (!code) return undefined;
+    return this.sciencePrograms().find(sp => sp.code === code);
   }
 
   private buildRejectedSpMessage(codes: string[]): string {
