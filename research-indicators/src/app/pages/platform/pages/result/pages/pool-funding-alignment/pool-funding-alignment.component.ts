@@ -226,7 +226,7 @@ export default class PoolFundingAlignmentComponent {
   // explicitly stale, or whose toc_result_id no longer resolves in the live catalog.
   readonly staleSnapshots = computed<SavedTocAlignment[]>(() => {
     const saved = this.alignment()?.toc_alignments ?? [];
-    return saved.filter(a => a.aligns_with_toc && !!a.snapshot && this.isStaleSaved(a));
+    return saved.filter(a => a.aligns_with_toc && this.isStaleSaved(a));
   });
 
   constructor() {
@@ -599,10 +599,10 @@ export default class PoolFundingAlignmentComponent {
     };
   }
 
-  // AC-08.4 — a saved alignment is stale when flagged, or its toc_result_id no longer
-  // resolves in the live catalog for its SP/level.
+  // AC-08.4 — a saved "Yes" alignment is stale when its toc_result_id no longer
+  // resolves in the live catalog for its SP/level (staleness is catalog-derived;
+  // the flat backend read-back never carries an `is_stale` flag — decision D-10).
   private isStaleSaved(saved: SavedTocAlignment): boolean {
-    if (saved.is_stale) return true;
     if (!saved.aligns_with_toc || saved.toc_result_id == null) return false;
     const catalog = this.bilateralService.catalogForSp(saved.sp_code);
     if (!catalog) return true;

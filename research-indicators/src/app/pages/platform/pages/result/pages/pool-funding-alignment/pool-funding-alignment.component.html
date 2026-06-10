@@ -195,19 +195,15 @@
                       {{ STALE_SNAPSHOT_TAG }}
                     </span>
                   </div>
-                  @if (stale.snapshot; as snap) {
-                    <div class="text-[13px] text-[var(--ac-grey-700)] flex flex-col gap-1">
-                      <span>
-                        @if (snap.aow_code) { <strong>{{ snap.aow_code }}</strong> — }{{ snap.toc_result_title }}
-                      </span>
-                      <span>{{ snap.indicator_description }}</span>
-                      <span>
-                        {{ snap.unit_of_measurement || '—' }} ·
-                        Target ({{ snap.target_year }}): {{ snap.target_value ?? '—' }} ·
-                        Contribution: {{ stale.quantitative_contribution ?? '—' }}
-                      </span>
-                    </div>
-                  }
+                  <div class="text-[13px] text-[var(--ac-grey-700)] flex flex-col gap-1">
+                    <span>{{ stale.toc_result_title }}</span>
+                    <span>{{ stale.indicator_description }}</span>
+                    <span>
+                      {{ stale.unit_of_measurement || '—' }} ·
+                      Target ({{ stale.target_year }}): {{ stale.target_value ?? '—' }} ·
+                      Contribution: {{ stale.quantitative_contribution ?? '—' }}
+                    </span>
+                  </div>
                 </div>
               }
 

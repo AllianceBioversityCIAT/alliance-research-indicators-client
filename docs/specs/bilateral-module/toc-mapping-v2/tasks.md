@@ -124,7 +124,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-06 — *LIVE-VERIFY on testing env + demo prep*
 
-- **Status**: `pending`
+- **Status**: `in-progress` — static contract verification done 2026-06-10 (D-10); live smoke pending backend deploy to testing (see [`./execution.md`](./execution.md))
 - **Size**: S
 - **Depends on**: T-BIL-TM2-04 · backend proxy deployed to testing
 - **Discharges ACs**: re-runs AC-04.1/04.2, AC-05.1, AC-07.1, AC-08.1, AC-09.1 against live data

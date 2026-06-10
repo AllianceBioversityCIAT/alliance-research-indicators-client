@@ -67,27 +67,27 @@ export interface BilateralTocCatalogResponse {
 ### 2.2 Saved alignments (pre-fill read + write body)
 
 ```ts
-export interface TocAlignmentSnapshot {                 // survives upstream catalog drift (AC-08.4)
-  toc_result_title: string;
-  aow_code: string | null;
-  indicator_description: string;
-  unit_of_measurement: string | null;
-  target_value: string | null;
-  target_year: number;
-}
-
+// RECONCILED 2026-06-10 to the backend's implemented FLAT shape (D-10) —
+// backend `TocAlignmentReadbackResponse` (T-07). Display/snapshot fields are
+// flat on the row (NO `snapshot` wrapper), and there is NO `aow_code` and NO
+// `is_stale` on the wire. Always present; null on "No" rows + when a field
+// is absent. Staleness is derived FE-side from catalog resolution (AC-08.4).
 export interface SavedTocAlignment {
   sp_code: string;
   aligns_with_toc: boolean;
-  level?: TocLevel;
-  toc_result_id?: number;
-  indicator_id?: number;
-  quantitative_contribution?: number | null;
-  snapshot?: TocAlignmentSnapshot;
-  is_stale?: boolean;                                   // catalog item no longer resolvable
+  level: TocLevel | null;
+  toc_result_id: number | null;
+  indicator_id: number | null;
+  quantitative_contribution: number | null;
+  // Flat display snapshot (survives upstream catalog drift, AC-08.4):
+  toc_result_title: string | null;
+  indicator_description: string | null;
+  unit_of_measurement: string | null;
+  target_value: string | null;
+  target_year: number | null;
 }
 
-// AlignmentResponse gains:   toc_alignments?: SavedTocAlignment[]
+// AlignmentResponse gains:   toc_alignments: SavedTocAlignment[]  (always present, [] when none)
 // UpdatePoolFundingAlignmentDto gains:   toc_alignments?: TocAlignmentWriteDto[]
 export interface TocAlignmentWriteDto {
   sp_code: string;
@@ -99,7 +99,7 @@ export interface TocAlignmentWriteDto {
 }
 ```
 
-> **Contract note (relay to backend):** the handoff §4 froze the catalog read + PATCH write; the `toc_alignments` **read** array on `GET …/pool-funding-alignment` (shape above, snapshot included) is the one surface added by this design — append it to `backend-handoff.md` §4 and confirm with the backend session before live-verify (T-08).
+> **Contract note (RESOLVED 2026-06-10, D-10):** the `toc_alignments` **read** array on `GET …/pool-funding-alignment` was the one surface this design added unconfirmed. The backend implemented it (T-07, `TocAlignmentReadbackResponse`) with the snapshot fields **flat** on the row — no `snapshot` wrapper, no `aow_code`, no `is_stale`. The FE was reconciled to that flat shape; the catalog read (`BilateralTocCatalogResponse`) and PATCH write (`TocAlignmentWriteDto`) were verified contract-identical to the backend. See decision **D-10**.
 
 ### 2.3 FE view-model (not wire)
 
@@ -225,6 +225,7 @@ Clarity events: keep `bilateral.alignment.viewed` / `bilateral.alignment.saved` 
 - **2026-06-09 — D-8 Signals + FormsModule custom fields, not a reactive `FormGroup`.** Deviates from the global "reactive forms" preference to stay consistent with the shipped page component it extends; recorded here per template rule (global doc untouched — page-level consistency wins for an in-place rework).
 - **2026-06-10 — D-8a Cascade selects use raw `p-select`/`p-radiobutton`, not the wrapped `custom-fields/*`.** Amends D-8 / §4.5. Discovered during T-BIL-TM2-03: the wrapped `app-select` and `app-radio-button` source their options **only** from a registered `ControlListServices` via `ServiceLocatorService` (`[options]="optionsSig()"`) — they have no static/local-options input, so they structurally cannot render the per-SP, cascade-dependent **in-memory** catalog options (Level → HLO → Indicator) that arrive on the `BilateralTocCatalogResponse` payload. Resolution (approved by spec owner 2026-06-10): the block uses raw PrimeNG `p-select` (with `[options]`, `[filter]="true"`) and `p-radiobutton`, **styled to match** via the section's `styles/custom-prime-force-styles.scss` + `var(--ac-*)` tokens — the established codebase precedent for local-option selects (`result/pages/innovation-details/components/{actor-item,organization-item}`). Scope is bounded to the new block's cascade fields; D-8's intent (visual consistency with the shipped page, no `FormGroup`) is preserved. Rejected alternative: adding a static-options mode to the shared wrapped fields — far larger blast radius across every app-wide consumer.
 - **2026-06-09 — D-9 Quantitative contribution required when the per-SP answer is Yes** (OQ-6 default; flips to optional via one validator constant if BA disagrees).
+- **2026-06-10 — D-10 Read-back snapshot reconciled to the backend's FLAT shape (T-06 contract verification).** The backend implemented its `toc-mapping-v2` spec (T-01–T-08 on `AC-1594-bilateral-module-v2`). A static cross-repo contract check found: the **catalog read** (`BilateralTocCatalogResponse` ↔ backend `BilateralHlosIndicatorsResponse`) and the **PATCH write body** (`TocAlignmentWriteDto` ↔ `TocAlignmentInputDto`) are contract-identical; the **read-back** array diverged. This design (§2.2) had frozen `SavedTocAlignment` with a NESTED `snapshot` object plus `aow_code` + `is_stale` — explicitly flagged as the one surface to confirm with the backend. The backend (T-07 `TocAlignmentReadbackResponse`) instead emits the snapshot fields **flat** on the row, with **no `snapshot` wrapper, no `aow_code`, no `is_stale`**. Resolution (spec owner, 2026-06-10): adopt the backend flat shape on the FE — flatten `SavedTocAlignment`, drop `TocAlignmentSnapshot`/`aow_code`/`is_stale`, and derive AC-08.4 staleness purely from catalog non-resolution (the FE already did this as a fallback). Impact was narrow: `draftsFromSaved` reads only top-level fields, so pre-fill + the entire core flow were already contract-clean; only the stale read-only sub-view needed the reshape. Rejected alternative: ask the backend to nest the snapshot — backend already shipped + tested T-07/T-08, and the FE design owned this surface as unconfirmed. The remaining T-06 step is the live smoke test once the backend is deployed to testing env.
 
 ## 12. Testing strategy
 

@@ -123,25 +123,26 @@ export interface BilateralTocCatalogResponse {
   catalogs: TocCatalogSp[];
 }
 
-export interface TocAlignmentSnapshot {
-  // survives upstream catalog drift (AC-08.4)
-  toc_result_title: string;
-  aow_code: string | null;
-  indicator_description: string;
-  unit_of_measurement: string | null;
-  target_value: string | null;
-  target_year: number;
-}
-
+/**
+ * Saved ToC alignment read-back (rides `AlignmentResponse.toc_alignments`).
+ * FLAT shape matching the backend `TocAlignmentReadbackResponse` (decision D-10,
+ * design.md §2.2 + §11): the snapshot display fields live on the row itself —
+ * NO `snapshot` wrapper, NO `aow_code`, NO `is_stale`. Backend always sends all
+ * fields; they are `null` on "No" rows / when absent. Staleness is derived FE-side
+ * by re-resolving `toc_result_id` against the live catalog.
+ */
 export interface SavedTocAlignment {
   sp_code: string;
   aligns_with_toc: boolean;
-  level?: TocLevel;
-  toc_result_id?: number;
-  indicator_id?: number;
-  quantitative_contribution?: number | null;
-  snapshot?: TocAlignmentSnapshot;
-  is_stale?: boolean; // catalog item no longer resolvable
+  level: TocLevel | null;
+  toc_result_id: number | null;
+  indicator_id: number | null;
+  quantitative_contribution: number | null;
+  toc_result_title: string | null;
+  indicator_description: string | null;
+  unit_of_measurement: string | null;
+  target_value: string | null;
+  target_year: number | null;
 }
 
 export interface TocAlignmentWriteDto {

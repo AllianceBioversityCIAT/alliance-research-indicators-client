@@ -953,10 +953,12 @@ export const TOC_CATALOG_EMPTY_LEVELS_FIXTURE: BilateralTocCatalogResponse = {
 };
 
 /**
- * Saved alignments read-back (rides `AlignmentResponse.toc_alignments`), per
- * backend-handoff §4: SP01 fully aligned to toc_result 5187 / indicator 5973
- * (snapshot denormalized at save time — `target_value` '5' for 2026), and SP03
- * answering No (`aligns_with_toc: false`, no cascade fields).
+ * Saved alignments read-back (rides `AlignmentResponse.toc_alignments`). FLAT
+ * shape matching the backend `TocAlignmentReadbackResponse` (decision D-10): the
+ * display fields are denormalized onto the row itself — NO `snapshot` wrapper, NO
+ * `aow_code`, NO `is_stale`. SP01 is fully aligned to toc_result 5187 / indicator
+ * 5973 (`target_value` '5' for 2026); SP03 answers No, so the backend sends every
+ * cascade/display field as explicit `null`.
  */
 export const SAVED_TOC_ALIGNMENTS_FIXTURE: SavedTocAlignment[] = [
   {
@@ -966,15 +968,23 @@ export const SAVED_TOC_ALIGNMENTS_FIXTURE: SavedTocAlignment[] = [
     toc_result_id: 5187,
     indicator_id: 5973,
     quantitative_contribution: 3,
-    snapshot: {
-      toc_result_title: 'HLO1.AOW1.IO1 Steer to impact',
-      aow_code: 'AOW01',
-      indicator_description: 'Number of events where Market Intelligence (market research findings) were shared',
-      unit_of_measurement: 'Number',
-      target_value: '5',
-      target_year: 2026
-    },
-    is_stale: false
+    toc_result_title: 'HLO1.AOW1.IO1 Steer to impact',
+    indicator_description: 'Number of events where Market Intelligence (market research findings) were shared',
+    unit_of_measurement: 'Number',
+    target_value: '5',
+    target_year: 2026
   },
-  { sp_code: 'SP03', aligns_with_toc: false }
+  {
+    sp_code: 'SP03',
+    aligns_with_toc: false,
+    level: null,
+    toc_result_id: null,
+    indicator_id: null,
+    quantitative_contribution: null,
+    toc_result_title: null,
+    indicator_description: null,
+    unit_of_measurement: null,
+    target_value: null,
+    target_year: null
+  }
 ];

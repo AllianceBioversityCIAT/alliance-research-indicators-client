@@ -884,15 +884,11 @@ describe('PoolFundingAlignmentComponent', () => {
         toc_result_id: 999999,
         indicator_id: 888888,
         quantitative_contribution: 7,
-        snapshot: {
-          toc_result_title: 'Retired HLO',
-          aow_code: 'AOW09',
-          indicator_description: 'Retired indicator',
-          unit_of_measurement: 'Number',
-          target_value: '4',
-          target_year: 2026
-        },
-        is_stale: true
+        toc_result_title: 'Retired HLO',
+        indicator_description: 'Retired indicator',
+        unit_of_measurement: 'Number',
+        target_value: '4',
+        target_year: 2026
       };
       currentAlignment.set({
         ...baseAlignment,
@@ -905,8 +901,16 @@ describe('PoolFundingAlignmentComponent', () => {
 
       expect(component.staleSnapshots().length).toBe(1);
       const root: HTMLElement = fixture.nativeElement;
-      expect(root.querySelector('[data-testid="pf-alignment-stale-SP01"]')).not.toBeNull();
+      const staleEl = root.querySelector('[data-testid="pf-alignment-stale-SP01"]') as HTMLElement | null;
+      expect(staleEl).not.toBeNull();
       expect(root.querySelector('[data-testid="pf-alignment-stale-tag-SP01"]')).not.toBeNull();
+      // Flat read-back fields render directly off the row (D-10 — no snapshot wrapper).
+      const staleText = staleEl!.textContent ?? '';
+      expect(staleText).toContain('Retired HLO');
+      expect(staleText).toContain('Retired indicator');
+      expect(staleText).toContain('Number');
+      expect(staleText).toContain('4');
+      expect(staleText).toContain('7');
     });
   });
 
