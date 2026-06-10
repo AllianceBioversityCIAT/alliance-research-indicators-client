@@ -139,11 +139,6 @@ export class AllModalsService {
       isOpen: false,
       title: 'Existing Results',
       isWide: true
-    },
-    hloSelection: {
-      isOpen: false,
-      title: 'High Level Outputs',
-      isWide: true
     }
   });
 
@@ -259,8 +254,7 @@ export class AllModalsService {
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
       resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false, title: 'Result Information' },
       addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false },
-      selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false },
-      hloSelection: { ...this.modalConfig().hloSelection, isOpen: false, isWide: false }
+      selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false }
     });
 
     this.setSubmitResultOrigin(null);

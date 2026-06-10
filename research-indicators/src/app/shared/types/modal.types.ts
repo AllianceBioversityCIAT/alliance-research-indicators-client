@@ -6,5 +6,4 @@ export type ModalName =
   | 'createOicrResult'
   | 'resultInformation'
   | 'addContactPerson'
-  | 'selectLinkedResults'
-  | 'hloSelection';
+  | 'selectLinkedResults';

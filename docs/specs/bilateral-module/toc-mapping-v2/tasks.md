@@ -105,7 +105,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-05 — *Retire the modal flow (deletions + grep gates)*
 
-- **Status**: `pending`
+- **Status**: `completed` — PASS attempt 1, 2026-06-10 (see [`./execution.md`](./execution.md))
 - **Size**: M
 - **Depends on**: T-BIL-TM2-04
 - **Discharges ACs**: AC-10.1, AC-10.2

@@ -9,7 +9,6 @@ import { AskForHelpModalComponent } from './modals-content/ask-for-help-modal/as
 import { ResultInformationModalComponent } from './modals-content/result-information-modal/result-information-modal.component';
 import { AddContactPersonModalComponent } from './modals-content/add-contact-person-modal/add-contact-person-modal.component';
 import { SelectLinkedResultsModalComponent } from './modals-content/select-linked-results-modal/select-linked-results-modal.component';
-import { HloSelectionModalComponent } from './modals-content/hlo-selection-modal/hlo-selection-modal.component';
 
 @Component({
   selector: 'app-all-modals',
@@ -21,8 +20,7 @@ import { HloSelectionModalComponent } from './modals-content/hlo-selection-modal
     AskForHelpModalComponent,
     ResultInformationModalComponent,
     AddContactPersonModalComponent,
-    SelectLinkedResultsModalComponent,
-    HloSelectionModalComponent
+    SelectLinkedResultsModalComponent
   ],
   templateUrl: './all-modals.component.html'
 })

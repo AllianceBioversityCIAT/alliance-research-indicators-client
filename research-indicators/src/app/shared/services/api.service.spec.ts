@@ -273,14 +273,16 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('v1/results/19792/pool-funding-alignment/hlos-indicators', {});
     });
 
-    it('should resolve the MainResponse<BilateralHlosIndicatorsResponse> envelope for GET_PoolFundingHlosIndicators', async () => {
+    it('should resolve the MainResponse<BilateralTocCatalogResponse> envelope for GET_PoolFundingHlosIndicators', async () => {
       const envelope = {
         data: {
           result_code: 'STAR-19792',
           mapping_status: 'mapped',
-          aow_status: 'has_aow',
           clarisa_project: { id: 7, short_name: 'PRJ-7' },
-          pairs: []
+          result_type: 'CapSharing',
+          allowed_levels: [],
+          version_locked: false,
+          catalogs: []
         },
         status: 200,
         description: 'OK',
