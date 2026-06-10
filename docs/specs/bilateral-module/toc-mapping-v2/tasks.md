@@ -89,7 +89,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-04 — *Page rework: blocks, drafts, save, pre-fill, gates*
 
-- **Status**: `pending`
+- **Status**: `completed` — PASS attempt 1, 2026-06-10 (see [`./execution.md`](./execution.md))
 - **Size**: L
 - **Depends on**: T-BIL-TM2-02, T-BIL-TM2-03
 - **Discharges ACs**: AC-01.1/01.2, AC-02.1–02.3, AC-03.1, AC-04.3, AC-08.1–08.4, AC-09.1/09.2

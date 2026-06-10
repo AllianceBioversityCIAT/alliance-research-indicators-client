@@ -11,3 +11,19 @@
   border: 1px solid var(--ac-red-1);
   color: var(--ac-red-1);
 }
+
+// AC-08.4 — stale saved-alignment read-only sub-view (display only, token-styled).
+.pf-stale-snapshot {
+  border: 1px solid var(--ac-grey-300);
+  background: var(--ac-grey-100);
+}
+
+.pf-stale-tag {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 6px;
+  padding: 1px 8px;
+  font-size: 12px;
+  border: 1px solid var(--ac-orange-1);
+  color: var(--ac-orange-1);
+}

@@ -66,3 +66,21 @@
   - Contribution callout (`CONTRIBUTION_CALLOUT`) hardcodes 2026 wording (AC-07.3); negatives clamped to 0 at the emit boundary in addition to `p-inputNumber [min]="0"`.
 - **Issues encountered:** none blocking. `@testing` is not a declared path alias, so the spec imports the fixture via `src/app/...` (codebase convention) — not a violation.
 - **Final verification:** lint clean, 28/28 scoped tests, build green; Reviewer re-ran lint + tests independently.
+
+### T-BIL-TM2-04 — Page rework: blocks, drafts, save, pre-fill, gates — ✅ PASS (attempt 1) — 2026-06-10
+
+- **Attempts:** 1 (Implementer → Reviewer PASS, no rework)
+- **Files changed** (all under `research-indicators/src/app/pages/platform/pages/result/pages/pool-funding-alignment/`):
+  - `pool-funding-alignment.component.ts` (+340 — `toc_drafts` in `AlignmentFormData` seeded via `draftsFromSaved`; catalog as 3rd section GET; `allowedLevels`/`showTocBlocks`/`catalogState`/`versionLocked`/`blocksDisabled` computeds; immutable `onDraftChange`; SP add/remove reconciliation with D-6a destructive-confirm; extended `isDirty`/`canSave`/`onSave`; per-SP 400 routing into `blockErrors`; `toc_mapping_version_locked` 409 branch; `staleSnapshots`; telemetry `toc_alignment_count`; removed AI-card/modal injects + copy + import)
+  - `pool-funding-alignment.component.html` (±63 — `@for` of `app-sp-toc-alignment-block` replacing the action-card section; version-locked banner; per-SP stale-snapshot read-only sub-views)
+  - `pool-funding-alignment.component.scss` (+16 — token-only `.pf-stale-snapshot`/`.pf-stale-tag`)
+  - `pool-funding-alignment.component.spec.ts` (rewritten, ±1222 — 87 page tests)
+- **Implementer verification:** `npm run lint` clean; `npm run test -- pool-funding-alignment` 2 suites / 87 pass (page 89.05% stmts / 94% lines); full `npm run test` 262 suites / 5316 pass, coverage floors hold; `npx tsc -p tsconfig.app.json --noEmit` 0 errors (AOT templates compile). `npm run build` fails only at Google-Fonts inlining (network-isolated sandbox — environmental, not a code error; build is not a T-04 gate).
+- **Reviewer verdict:** **PASS** — "fully implements the per-SP ToC page rework against all discharged ACs with correct immutable draft independence (10/25 two-SP test asserts SP03 untouched in state + body), additive 409 version-lock handling (synced/PRMS branches byte-for-byte preserved), D-6a house-confirm deselect, complete removal of the modal-era page surface; lint, the 87-test suite, and AOT typecheck all green." Independently re-ran lint + scoped tests + tsc.
+- **Requirements covered:** AC-01.1/01.2, AC-02.1/02.2/02.3, AC-03.1, AC-04.3, AC-08.1/08.2/08.3/08.4, AC-09.1/09.2.
+- **Decisions made:**
+  - **D-6a (design clarification, recorded in design.md §11):** destructive SP-deselect uses the actual house pattern `ActionsService.showGlobalAlert({ severity:'delete', confirmCallback, cancelCallback })` (rendered by `global-alert`) — the repo has NO `ConfirmationService`/`p-confirmdialog`. Confirm drops SP+draft; Cancel re-keeps (chip restored first). Only touched-draft / server-saved SPs trigger the confirm.
+  - **Stale snapshots** render at the PAGE level (read-only sub-view from `snapshot`) because the T-03 block intentionally takes no snapshot input; `isStaleSaved` = `is_stale` OR `toc_result_id` unresolved in the live catalog.
+  - `versionLockedFrom409` latches the gate before the catalog refetch resolves `version_locked` (version-lock is a stable property, so latching is safe).
+- **Issues encountered:** none blocking. The "coverage threshold not met" line on the scoped 1-file run is the standard single-file-subset artifact (global thresholds vs whole tree) — full-suite coverage holds.
+- **Final verification:** lint clean, 87 page tests + full suite 5316 green, AOT tsc clean; Reviewer re-ran independently.

@@ -14,12 +14,13 @@ import { MultiselectComponent } from '@shared/components/custom-fields/multisele
 import { FormHeaderComponent } from '@shared/components/form-header/form-header.component';
 import { NavigationButtonsComponent } from '@shared/components/navigation-buttons/navigation-buttons.component';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
-import { BilateralActionCardComponent } from '@shared/components/bilateral-action-card/bilateral-action-card.component';
-import { AllModalsService } from '@shared/services/cache/all-modals.service';
-import { HloSelectionModalContextService } from '@shared/services/cache/hlo-selection-modal-context.service';
+import { SpTocAlignmentBlockComponent } from './components/sp-toc-alignment-block/sp-toc-alignment-block.component';
 import {
   AlignmentChangedEvent,
   AlignmentResponse,
+  SavedTocAlignment,
+  SpAlignmentDraft,
+  TocLevel,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
 
@@ -33,6 +34,8 @@ interface SelectedScienceProgram {
 interface AlignmentFormData {
   has_contribution: boolean | null;
   selected_sps: SelectedScienceProgram[];
+  // T-BIL-TM2-04 — per-SP ToC drafts, keyed by sp_code, order = SP selection order.
+  toc_drafts: SpAlignmentDraft[];
 }
 
 @Component({
@@ -45,14 +48,14 @@ interface AlignmentFormData {
     FormHeaderComponent,
     NavigationButtonsComponent,
     CustomTagComponent,
-    BilateralActionCardComponent
+    SpTocAlignmentBlockComponent
   ],
   templateUrl: './pool-funding-alignment.component.html',
   styleUrl: './pool-funding-alignment.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export default class PoolFundingAlignmentComponent {
-  private readonly bilateralService = inject(BilateralService);
+  readonly bilateralService = inject(BilateralService);
   private readonly cache = inject(CacheService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -67,8 +70,6 @@ export default class PoolFundingAlignmentComponent {
   private readonly clarityService: ClarityService | null = (() => {
     try { return inject(ClarityService); } catch { return null; }
   })();
-  private readonly allModals = inject(AllModalsService);
-  private readonly hloContext = inject(HloSelectionModalContextService);
   private readonly destroyRef = inject(DestroyRef);
 
   readonly loadFailed = signal(false);
@@ -77,6 +78,14 @@ export default class PoolFundingAlignmentComponent {
   // Drives both the inline message (via inlineErrors['sp_codes']) and the per-chip
   // error highlight. Cleared on any selection change (AC-03.4).
   readonly rejectedSpCodes = signal<string[]>([]);
+  // AC-08.2 — per-SP ToC alignment 400 errors, keyed sp_code → { field|'_': message }.
+  // Each rendered block receives its slice via blockErrorsForSp(); cleared per-SP on
+  // any draft change for that SP.
+  readonly blockErrors = signal<Record<string, Record<string, string>>>({});
+  // AC-08.3/09.1 — set when a 409 `toc_mapping_version_locked` lands; renders the
+  // version-gate notice and disables the ToC blocks even before the catalog refetch
+  // resolves `version_locked`.
+  readonly versionLockedFrom409 = signal(false);
 
   readonly SYNCED_BANNER = 'This result has been pushed to PRMS. Alignment can no longer be edited from STAR.';
   readonly READ_ONLY_BANNER = "You don't have permission to edit this section.";
@@ -99,10 +108,15 @@ export default class PoolFundingAlignmentComponent {
   readonly REJECTED_SP_MESSAGE_PREFIX = 'These Science Programs are no longer valid for this result: ';
   readonly REJECTED_SP_MESSAGE_SUFFIX = '. Remove them and save again.';
   readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
-  readonly HLO_CARD_TITLE = 'VIEW HIGH LEVEL OUTPUTS';
-  readonly HLO_CARD_BODY =
-    'Browse and select the High-Level Outputs associated with this result. You can review their details before linking them to ensure proper alignment and reporting accuracy.';
-  readonly HLO_CARD_CTA_LABEL = 'Select';
+  // AC-09.1 — live-version gate notice (2026-only ToC mapping).
+  readonly VERSION_LOCKED_BANNER =
+    'Theory of Change alignment is only editable on the live 2026 version of this result. The alignment below is read-only.';
+  // AC-08.4 — stale snapshot warning tag (display-only).
+  readonly STALE_SNAPSHOT_TAG = 'Stale — catalog item no longer available';
+  // REQ-BIL-TM2-10 / D-6a — destructive SP-deselect confirmation copy (OQ-5 default).
+  readonly DESELECT_CONFIRM_SUMMARY = 'Remove Science Program?';
+  readonly DESELECT_CONFIRM_DETAIL =
+    'This Science Program has a Theory of Change alignment. Removing it will discard that alignment. Do you want to continue?';
 
   readonly alignment = this.bilateralService.currentAlignment;
   readonly loading = this.bilateralService.loadingAlignment;
@@ -143,16 +157,50 @@ export default class PoolFundingAlignmentComponent {
     return form.has_contribution === true && form.selected_sps.length >= 1;
   });
 
+  // T-BIL-TM2-04 — ToC catalog signals (T-02 seams) surfaced for the template.
+  readonly loadingTocCatalog = this.bilateralService.loadingTocCatalog;
+  readonly tocCatalogError = this.bilateralService.tocCatalogError;
+  readonly tocCatalog = this.bilateralService.tocCatalog;
+
+  // AC-04.3 — server-owned allowed levels; [] ⇒ no ToC blocks render.
+  readonly allowedLevels = computed<TocLevel[]>(() => this.tocCatalog()?.allowed_levels ?? []);
+  // Gate the @for blocks: only render the per-SP ToC question + cascade when the
+  // backend offers at least one level for this result type (AC-04.3).
+  readonly showTocBlocks = computed(() => this.allowedLevels().length > 0);
+
+  // AC-09.1 — version-locked when the catalog flags it OR a 409 said so.
+  readonly versionLocked = computed(() => !!this.tocCatalog()?.version_locked || this.versionLockedFrom409());
+
+  // Catalog async state machine for the per-SP blocks (AC-11.1/11.2).
+  readonly catalogState = computed<'loading' | 'ready' | 'error'>(() => {
+    if (this.loadingTocCatalog()) return 'loading';
+    if (this.tocCatalogError()) return 'error';
+    return 'ready';
+  });
+
+  // Blocks are disabled when the section is read-only OR the live version is locked.
+  readonly blocksDisabled = computed(() => !this.editable() || this.isReadOnly() || this.versionLocked());
+
   readonly formData = signal<AlignmentFormData>({
     has_contribution: null,
-    selected_sps: []
+    selected_sps: [],
+    toc_drafts: []
   });
 
   // AR.1 — alignment edit is NOT gated by result_status.
   readonly canSave = computed(() => {
     const form = this.formData();
     const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
-    return this.editable() && !this.isReadOnly() && this.isDirty() && hasMinimalSelection;
+    if (!this.editable() || this.isReadOnly() || !this.isDirty() || !hasMinimalSelection) return false;
+    // Block save while any RENDERED block's draft is an incomplete "Yes" (D-9).
+    // No blocks render when allowed_levels is empty (AC-04.3), so drafts are skipped.
+    if (this.showHloSection() && this.showTocBlocks() && !this.versionLocked()) {
+      for (const sp of form.selected_sps) {
+        const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
+        if (draft && !this.isDraftSaveable(draft)) return false;
+      }
+    }
+    return true;
   });
 
   readonly isDirty = computed(() => {
@@ -160,10 +208,11 @@ export default class PoolFundingAlignmentComponent {
     if (!alignment) return false;
     const server = this.snapshotFromServer(alignment);
     const form = this.formData();
-    return (
-      server.has_contribution !== form.has_contribution ||
-      !this.sameCodeSet(server.selected_sps.map(sp => sp.official_code), form.selected_sps.map(sp => sp.official_code))
-    );
+    if (server.has_contribution !== form.has_contribution) return true;
+    if (!this.sameCodeSet(server.selected_sps.map(sp => sp.official_code), form.selected_sps.map(sp => sp.official_code))) {
+      return true;
+    }
+    return !this.sameDraftSet(server.toc_drafts, form.toc_drafts);
   });
 
   readonly resultCode = computed(() => {
@@ -171,6 +220,13 @@ export default class PoolFundingAlignmentComponent {
     if (routeId) return routeId;
     const numeric = this.cache.getCurrentNumericResultId();
     return numeric ? String(numeric) : '';
+  });
+
+  // AC-08.4 — saved alignments that must render read-only from their snapshot:
+  // explicitly stale, or whose toc_result_id no longer resolves in the live catalog.
+  readonly staleSnapshots = computed<SavedTocAlignment[]>(() => {
+    const saved = this.alignment()?.toc_alignments ?? [];
+    return saved.filter(a => a.aligns_with_toc && !!a.snapshot && this.isStaleSaved(a));
   });
 
   constructor() {
@@ -189,6 +245,8 @@ export default class PoolFundingAlignmentComponent {
       // alignment confirms the result is eligible. The picker endpoint is only
       // reachable on eligible results (pitfall 4).
       void this.bilateralService.getSciencePrograms(resultCode);
+      // §8 — section load = 3 GETs (alignment, science-programs, catalog).
+      void this.bilateralService.getTocCatalog(resultCode);
       this.clarityService?.trackEvent('bilateral.alignment.viewed', {
         result_code: alignment.result_code,
         eligible: alignment.eligible,
@@ -230,16 +288,151 @@ export default class PoolFundingAlignmentComponent {
     this.formData.update(form => ({
       ...form,
       has_contribution: value,
-      selected_sps: value === false ? [] : form.selected_sps
+      selected_sps: value === false ? [] : form.selected_sps,
+      toc_drafts: value === false ? [] : form.toc_drafts
     }));
     // Flipping to "No" clears the selection, so any rejected-code state is stale.
-    if (value === false) this.clearRejectedSpError();
+    if (value === false) {
+      this.clearRejectedSpError();
+      this.blockErrors.set({});
+    }
   }
 
   // REQ-BIL-ASR-03 (AC-03.4) — any change to the SP selection clears the inline
   // rejection error + chip highlight so the next save attempt starts clean.
+  // AC-02.2/02.3 (D-6/D-6a) — reconcile the per-SP draft array: append empty drafts
+  // for newly-added SPs; for a removed SP that holds a saved/in-progress alignment,
+  // re-select it and ask the house destructive-confirm before applying the removal.
   onSpSelectionChange(): void {
     this.clearRejectedSpError();
+    this.reconcileDrafts();
+  }
+
+  private reconcileDrafts(): void {
+    const form = this.formData();
+    const selectedCodes = form.selected_sps.map(sp => sp.official_code);
+    const draftCodes = form.toc_drafts.map(d => d.sp_code);
+
+    // Detect a removed SP that holds a saved/in-progress alignment (needs confirm).
+    const removed = draftCodes.filter(code => !selectedCodes.includes(code));
+    const destructive = removed.find(code => this.hasMeaningfulAlignment(code));
+    if (destructive) {
+      this.confirmDestructiveRemoval(destructive);
+      return;
+    }
+
+    // No destructive removal: sync drafts to the current selection in order.
+    this.syncDraftsToSelection();
+  }
+
+  // Rebuild toc_drafts to match the current selection order; preserve existing
+  // drafts, append empty drafts for new SPs, drop drafts for removed SPs.
+  private syncDraftsToSelection(): void {
+    this.formData.update(form => {
+      const existing = new Map(form.toc_drafts.map(d => [d.sp_code, d]));
+      const toc_drafts = form.selected_sps.map(sp => existing.get(sp.official_code) ?? this.emptyDraft(sp.official_code));
+      return { ...form, toc_drafts };
+    });
+  }
+
+  // D-6a — re-select the removed SP (so its chip stays) and ask the house confirm.
+  private confirmDestructiveRemoval(spCode: string): void {
+    // Re-add the SP to keep the chip while the user decides (Cancel default).
+    const restored = this.draftSp(spCode);
+    this.formData.update(form => {
+      if (form.selected_sps.some(sp => sp.official_code === spCode)) return form;
+      return { ...form, selected_sps: [...form.selected_sps, restored] };
+    });
+
+    this.actions.showGlobalAlert({
+      severity: 'delete',
+      summary: this.DESELECT_CONFIRM_SUMMARY,
+      detail: this.DESELECT_CONFIRM_DETAIL,
+      confirmCallback: {
+        label: 'Remove',
+        event: () => this.applyDestructiveRemoval(spCode)
+      },
+      cancelCallback: {
+        label: 'Cancel',
+        event: () => { /* keep the SP selected — chip already restored above */ }
+      }
+    });
+  }
+
+  private applyDestructiveRemoval(spCode: string): void {
+    this.formData.update(form => ({
+      ...form,
+      selected_sps: form.selected_sps.filter(sp => sp.official_code !== spCode),
+      toc_drafts: form.toc_drafts.filter(d => d.sp_code !== spCode)
+    }));
+    // Clear any block error scoped to the removed SP.
+    const errors = this.blockErrors();
+    if (errors[spCode]) {
+      const rest = { ...errors };
+      delete rest[spCode];
+      this.blockErrors.set(rest);
+    }
+  }
+
+  // AC-02.3 / D-6 — an SP "holds" an alignment when its draft has any answer/cascade
+  // value OR the server saved one for it.
+  private hasMeaningfulAlignment(spCode: string): boolean {
+    const draft = this.formData().toc_drafts.find(d => d.sp_code === spCode);
+    if (draft && this.isDraftTouched(draft)) return true;
+    return (this.alignment()?.toc_alignments ?? []).some(a => a.sp_code === spCode);
+  }
+
+  private isDraftTouched(draft: SpAlignmentDraft): boolean {
+    return (
+      draft.aligns_with_toc !== null ||
+      draft.level !== null ||
+      draft.toc_result_id !== null ||
+      draft.indicator_id !== null ||
+      draft.quantitative_contribution !== null
+    );
+  }
+
+  // T-BIL-TM2-04 — replace an SP's draft immutably (block never mutates inputs).
+  onDraftChange(next: SpAlignmentDraft): void {
+    this.formData.update(form => ({
+      ...form,
+      toc_drafts: form.toc_drafts.map(d => (d.sp_code === next.sp_code ? next : d))
+    }));
+    // Clear any 400 block error for this SP on edit (AC-08.2).
+    const errors = this.blockErrors();
+    if (errors[next.sp_code]) {
+      const rest = { ...errors };
+      delete rest[next.sp_code];
+      this.blockErrors.set(rest);
+    }
+  }
+
+  draftForSp(spCode: string): SpAlignmentDraft {
+    return this.formData().toc_drafts.find(d => d.sp_code === spCode) ?? this.emptyDraft(spCode);
+  }
+
+  blockErrorsForSp(spCode: string): Record<string, string> | null {
+    return this.blockErrors()[spCode] ?? null;
+  }
+
+  private emptyDraft(spCode: string): SpAlignmentDraft {
+    return {
+      sp_code: spCode,
+      aligns_with_toc: null,
+      level: null,
+      toc_result_id: null,
+      indicator_id: null,
+      quantitative_contribution: null
+    };
+  }
+
+  private draftSp(spCode: string): SelectedScienceProgram {
+    const existing = this.formData().selected_sps.find(sp => sp.official_code === spCode);
+    if (existing) return existing;
+    const fromCatalog = this.sciencePrograms().find(sp => sp.code === spCode);
+    return fromCatalog
+      ? { official_code: fromCatalog.code, name: fromCatalog.name, category: fromCatalog.category ?? null, color: fromCatalog.color ?? null }
+      : { official_code: spCode };
   }
 
   private clearRejectedSpError(): void {
@@ -263,24 +456,23 @@ export default class PoolFundingAlignmentComponent {
     return `${this.REJECTED_SP_MESSAGE_PREFIX}${codes.join(', ')}${this.REJECTED_SP_MESSAGE_SUFFIX}`;
   }
 
-  onOpenHloSelector(): void {
-    this.hloContext.setContext({ resultCode: this.resultCode() });
-    this.allModals.openModal('hloSelection');
-    this.clarityService?.trackEvent('bilateral.alignment.hlo_selector_opened', {
-      result_code: this.resultCode(),
-      sp_count: this.formData().selected_sps.length
-    });
+  retryCatalog(): void {
+    void this.bilateralService.getTocCatalog(this.resultCode());
   }
 
   async onSave(): Promise<void> {
     if (!this.canSave()) return;
     this.inlineErrors.set(null);
     this.rejectedSpCodes.set([]);
+    this.blockErrors.set({});
 
     const form = this.formData();
+    // AC-09.1 — when version-locked, do NOT submit toc_alignments at all.
+    const includeToc = form.has_contribution === true && this.showTocBlocks() && !this.versionLocked();
     const body: UpdatePoolFundingAlignmentDto = {
       has_contribution: form.has_contribution as boolean,
-      ...(form.has_contribution ? { sp_codes: form.selected_sps.map(sp => sp.official_code) } : {})
+      ...(form.has_contribution ? { sp_codes: form.selected_sps.map(sp => sp.official_code) } : {}),
+      ...(includeToc ? { toc_alignments: this.bilateralService.writeDtoFromDrafts(form.toc_drafts) } : {})
     };
 
     const result = await this.bilateralService.patchAlignment(this.resultCode(), body);
@@ -290,7 +482,8 @@ export default class PoolFundingAlignmentComponent {
       this.clarityService?.trackEvent('bilateral.alignment.saved', {
         result_code: result.data.result_code,
         has_contribution: result.data.has_contribution,
-        sp_count: (result.data.selected_science_programs ?? []).length
+        sp_count: (result.data.selected_science_programs ?? []).length,
+        toc_alignment_count: (body.toc_alignments ?? []).length
       });
       this.actions.showToast({
         severity: 'success',
@@ -301,6 +494,15 @@ export default class PoolFundingAlignmentComponent {
     }
 
     if (result.status === 400) {
+      // AC-08.2 — route per-SP ToC errors to the owning block.
+      if (result.tocAlignmentErrors && result.tocAlignmentErrors.length > 0) {
+        const bySp: Record<string, Record<string, string>> = {};
+        for (const err of result.tocAlignmentErrors) {
+          const key = err.field && err.field.length > 0 ? err.field : '_';
+          bySp[err.sp_code] = { ...(bySp[err.sp_code] ?? {}), [key]: err.message };
+        }
+        this.blockErrors.set(bySp);
+      }
       // REQ-BIL-ASR-03 — rejected SP codes drive an inline picker error + chip
       // highlight (no generic toast — already suppressed for /pool-funding-alignment).
       if (result.unknownSpCodes && result.unknownSpCodes.length > 0) {
@@ -311,11 +513,28 @@ export default class PoolFundingAlignmentComponent {
         });
         return;
       }
+      if (result.tocAlignmentErrors && result.tocAlignmentErrors.length > 0 && !result.fieldErrors) {
+        // ToC errors already routed inline to the blocks; nothing global to show.
+        return;
+      }
       this.inlineErrors.set(result.fieldErrors ?? { _global: result.description || 'Validation failed' });
       return;
     }
 
     if (result.status === 409) {
+      // AC-08.3/09.1 — version-locked 409: refetch alignment + catalog, render the
+      // version-gate notice and disable the ToC inputs. Matched by code/description.
+      if (this.isVersionLocked409(result.description)) {
+        this.versionLockedFrom409.set(true);
+        await this.bilateralService.getAlignment(this.resultCode());
+        await this.bilateralService.getTocCatalog(this.resultCode());
+        this.actions.showToast({
+          severity: 'warning',
+          summary: 'Version locked',
+          detail: 'Theory of Change alignment is locked for this version. Your ToC changes were not applied.'
+        });
+        return;
+      }
       // Refetch so the read-only flags refresh — `readOnlyCause` then resolves to
       // the right cause ('prms-sourced' vs 'synced') and the matching banner renders
       // (AC-02.4). Differentiate the toast copy by the locked PRMS-sourced 409 desc.
@@ -339,6 +558,18 @@ export default class PoolFundingAlignmentComponent {
     // 5xx — global httpErrorInterceptor owns the toast; form state preserved for retry.
   }
 
+  private isVersionLocked409(description: string | undefined): boolean {
+    if (!description) return false;
+    return description.toLowerCase().includes('toc_mapping_version_locked') ||
+      description.toLowerCase().includes('version locked');
+  }
+
+  // Catalog delegation for the block input (kept as a method — the block consumes a
+  // plain value, OnPush re-reads only on input identity changes).
+  catalogForSp(spCode: string) {
+    return this.bilateralService.catalogForSp(spCode);
+  }
+
   private snapshotFromServer(alignment: AlignmentResponse): AlignmentFormData {
     // Prefer the new SP field; fall back to the deprecated lever payload so a
     // response that hasn't migrated yet still seeds something readable. Form
@@ -355,10 +586,41 @@ export default class PoolFundingAlignmentComponent {
       : alignment.selected_levers
           .filter(l => !!l.lever_code)
           .map(l => ({ official_code: l.lever_code, name: l.lever_name }));
+    // AC-08.1 — pre-fill per-SP drafts from saved alignments, ordered by selection.
+    const savedDrafts = this.bilateralService.draftsFromSaved(alignment.toc_alignments);
+    const byCode = new Map(savedDrafts.map(d => [d.sp_code, d]));
+    const toc_drafts: SpAlignmentDraft[] = selected_sps.map(
+      sp => byCode.get(sp.official_code) ?? this.emptyDraft(sp.official_code)
+    );
     return {
       has_contribution: alignment.has_contribution,
-      selected_sps
+      selected_sps,
+      toc_drafts
     };
+  }
+
+  // AC-08.4 — a saved alignment is stale when flagged, or its toc_result_id no longer
+  // resolves in the live catalog for its SP/level.
+  private isStaleSaved(saved: SavedTocAlignment): boolean {
+    if (saved.is_stale) return true;
+    if (!saved.aligns_with_toc || saved.toc_result_id == null) return false;
+    const catalog = this.bilateralService.catalogForSp(saved.sp_code);
+    if (!catalog) return true;
+    return !catalog.levels.some(group =>
+      group.toc_results.some(r => r.toc_result_id === saved.toc_result_id)
+    );
+  }
+
+  // D-9 — a rendered draft blocks save only when it's an incomplete "Yes".
+  private isDraftSaveable(draft: SpAlignmentDraft): boolean {
+    if (draft.aligns_with_toc !== true) return true; // No or unanswered → not blocking
+    return (
+      draft.level !== null &&
+      draft.toc_result_id !== null &&
+      draft.indicator_id !== null &&
+      draft.quantitative_contribution !== null &&
+      draft.quantitative_contribution >= 0
+    );
   }
 
   private sameCodeSet(a: string[], b: string[]): boolean {
@@ -366,5 +628,25 @@ export default class PoolFundingAlignmentComponent {
     const sortedA = [...a].sort();
     const sortedB = [...b].sort();
     return sortedA.every((v, i) => v === sortedB[i]);
+  }
+
+  // Order-insensitive draft comparison by sp_code; compares every draft field.
+  private sameDraftSet(a: SpAlignmentDraft[], b: SpAlignmentDraft[]): boolean {
+    if (a.length !== b.length) return false;
+    const mapB = new Map(b.map(d => [d.sp_code, d]));
+    for (const da of a) {
+      const db = mapB.get(da.sp_code);
+      if (!db) return false;
+      if (
+        da.aligns_with_toc !== db.aligns_with_toc ||
+        da.level !== db.level ||
+        da.toc_result_id !== db.toc_result_id ||
+        da.indicator_id !== db.indicator_id ||
+        da.quantitative_contribution !== db.quantitative_contribution
+      ) {
+        return false;
+      }
+    }
+    return true;
   }
 }
