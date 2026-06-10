@@ -58,7 +58,6 @@ export class AllModalsService {
   refreshLinkedResults?: () => Promise<void> | void;
   setRefreshLinkedResults = (fn: (() => Promise<void> | void) | undefined) => (this.refreshLinkedResults = fn);
   syncSelectedResults = signal<Result[]>([]);
-
   setResultInformationEntryContext(context: 'results-center' | null): void {
     this.resultInformationEntryContext.set(context);
     this.modalConfig.update(modals => ({
@@ -139,6 +138,10 @@ export class AllModalsService {
       isOpen: false,
       title: 'Existing Results',
       isWide: true
+    },
+    editEnvironmentVariable: {
+      isOpen: false,
+      title: 'Environment variables'
     }
   });
 
@@ -254,7 +257,8 @@ export class AllModalsService {
       askForHelp: { ...this.modalConfig().askForHelp, isOpen: false, isWide: false },
       resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false, title: 'Result Information' },
       addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false },
-      selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false }
+      selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false },
+      editEnvironmentVariable: { ...this.modalConfig().editEnvironmentVariable, isOpen: false, isWide: false }
     });
 
     this.setSubmitResultOrigin(null);

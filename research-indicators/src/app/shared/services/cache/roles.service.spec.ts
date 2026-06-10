@@ -144,4 +144,25 @@ describe('RolesService', () => {
     userRoleList.set([{ role_id: 2 }]);
     expect(service.canEditOicr()).toBe(false);
   });
+
+  it('canAccessAppConfiguration should be true for System Admin (1) or Technical Support (7)', () => {
+    userRoleList.set([{ role_id: 1 }]);
+    expect(service.canAccessAppConfiguration()).toBe(true);
+
+    userRoleList.set([{ role_id: 7 }]);
+    expect(service.canAccessAppConfiguration()).toBe(true);
+  });
+
+  it('canAccessAppConfiguration should be false without roles 1 or 7', () => {
+    userRoleList.set([{ role_id: 9 }, { role_id: 10 }]);
+    expect(service.canAccessAppConfiguration()).toBe(false);
+  });
+
+  it('canEditAppConfiguration should mirror canAccessAppConfiguration', () => {
+    userRoleList.set([{ role_id: 7 }]);
+    expect(service.canEditAppConfiguration()).toBe(true);
+
+    userRoleList.set([]);
+    expect(service.canEditAppConfiguration()).toBe(false);
+  });
 });

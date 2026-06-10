@@ -47,22 +47,42 @@ export class AllianceSidebarComponent implements OnInit, AfterViewInit, OnDestro
     { icon: 'pi-external-link', label: 'Other Reporting Tools', link: '45', underConstruction: true, hide: true }
   ];
 
-  administrationGroups: AdministrationNavGroup[] = [
-    {
-      id: 'center-admin',
-      label: 'Center admin',
-      icon: 'pi-id-card',
-      children: [
-        { label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' },
-        {
-          label: 'SDG Management',
-          link: '/administration/center-admin/sdg-management',
-          icon: 'pi-bullseye',
-          iconSize: '13px'
-        }
-      ]
+  administrationGroups(): AdministrationNavGroup[] {
+    const groups: AdministrationNavGroup[] = [];
+    if (this.rolesService.canAccessCenterAdmin()) {
+      groups.push({
+        id: 'center-admin',
+        label: 'Center admin',
+        icon: 'pi-id-card',
+        children: [
+          { label: 'Bulk upload', link: '/administration/center-admin/bulk-upload', s3Image: 'images/brain.png' },
+          {
+            label: 'SDG Management',
+            link: '/administration/center-admin/sdg-management',
+            icon: 'pi-bullseye',
+            iconSize: '13px'
+          }
+        ]
+      });
     }
-  ];
+    if (this.rolesService.canAccessAppConfiguration()) {
+      groups.push({
+        id: 'system-admin',
+        label: 'System admin',
+        s3Image: 'icons/graph.svg',
+        iconSize: '15.5px',
+        children: [
+          {
+            label: 'Environment variables',
+            link: '/administration/configuration/variables',
+            icon: 'pi-database',
+            iconSize: '13px'
+          }
+        ]
+      });
+    }
+    return groups;
+  }
 
   administrationGroupExpanded = signal<Record<string, boolean>>({});
   administrationFlyoutGroupId = signal<string | null>(null);

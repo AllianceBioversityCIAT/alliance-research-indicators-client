@@ -10,7 +10,9 @@ export interface AdministrationNavChild {
 export interface AdministrationNavGroup {
   id: string;
   label: string;
-  icon: string;
+  icon?: string;
+  iconSize?: string;
+  s3Image?: string;
   children: AdministrationNavChild[];
 }
 

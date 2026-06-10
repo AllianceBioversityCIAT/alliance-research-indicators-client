@@ -10,6 +10,8 @@ export class RolesService {
   private readonly centerAdminRoleId = 9;
   private readonly melRegionalExpertRoleId = 10;
 
+  private readonly technicalSupportRoleId = 7;
+
   createResultManagementService = inject(CreateResultManagementService);
   cache = inject(CacheService);
 
@@ -28,6 +30,14 @@ export class RolesService {
   );
 
   canAccessCenterAdmin = computed(() => this.cache.dataCache().user.user_role_list.some(e => this.userHasCenterAdminAccess(e)));
+
+  canAccessAppConfiguration = computed(() =>
+    this.cache.dataCache().user.user_role_list.some(
+      r => r.role_id === this.adminRoleId || r.role_id === this.technicalSupportRoleId
+    )
+  );
+
+  canEditAppConfiguration = computed(() => this.canAccessAppConfiguration());
 
   canEditOicr = computed(() => {
     if (!this.createResultManagementService.editingOicr()) {
