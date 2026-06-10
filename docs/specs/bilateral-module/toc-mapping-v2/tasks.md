@@ -138,7 +138,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-07 — *Archive superseded specs + docs sync*
 
-- **Status**: `pending`
+- **Status**: `completed` — 2026-06-10 (see [`./execution.md`](./execution.md))
 - **Size**: S
 - **Depends on**: T-BIL-TM2-05
 - **Discharges ACs**: none (constitutional hygiene)

@@ -1,6 +1,6 @@
 # Requirements — Bilateral Module / ToC Mapping v2
 
-> Feature folder under [`../`](../). Replaces the modal-based US3/US4 mapping UX ([`../indicator-mapping/`](../indicator-mapping/), slated for archive) with the inline per-SP cascading flow (Level → High-Level Output → Indicator → Contribution) sourced from the **lambda-toc** integration. Follows [`../../general-setup/requirements.md`](../../general-setup/requirements.md).
+> Feature folder under [`../`](../). Replaces the modal-based US3/US4 mapping UX ([`../indicator-mapping/`](../../archive/2026-06-10-bilateral-module--indicator-mapping/), slated for archive) with the inline per-SP cascading flow (Level → High-Level Output → Indicator → Contribution) sourced from the **lambda-toc** integration. Follows [`../../general-setup/requirements.md`](../../general-setup/requirements.md).
 >
 > **Source-of-truth note:** the four 2026-06-09 mockups under [`../figma-mockups/_assets/`](../figma-mockups/_assets/) (`Pool funding alignment.png` … `Pool funding alignment3.png`) are authoritative for UX shape and field set, together with the updated "Science Program and TOC mapping rules" US text. The backend wire contract is frozen in [`./backend-handoff.md`](./backend-handoff.md) §4.
 
@@ -13,7 +13,7 @@
 | Spec | `docs/specs/bilateral-module/toc-mapping-v2/` |
 | Proposal | [`./proposal.md`](./proposal.md) — approved 2026-06-09 |
 | Backend handoff | [`./backend-handoff.md`](./backend-handoff.md) — relayed to `alliance-research-indicators-main` 2026-06-09; `ARI_TOC_INTEGRATION_HOST` set |
-| Supersedes | [`../indicator-mapping/`](../indicator-mapping/) (REQ-BIL-IM-\*) · [`../hlo-grouped-mapping/`](../hlo-grouped-mapping/) (REQ-BIL-HGM-\*, never implemented) — both to be archived via `/sdd-archive` |
+| Supersedes | [`../indicator-mapping/`](../../archive/2026-06-10-bilateral-module--indicator-mapping/) (REQ-BIL-IM-\*) · [`../hlo-grouped-mapping/`](../../archive/2026-06-10-bilateral-module--hlo-grouped-mapping/) (REQ-BIL-HGM-\*, never implemented) — both to be archived via `/sdd-archive` |
 | Status | **DRAFT — Phase 1 (`/sdd-specify`), 2026-06-09** |
 | Depth | Standard (write-side + endpoint switch; rollout/risk detail lives in `design.md`) |
 | Domain abbreviation | `BIL-TM2` |
@@ -204,5 +204,5 @@ Unchanged from the shipped alignment section: editing requires result-edit permi
 
 - [`./proposal.md`](./proposal.md) · [`./backend-handoff.md`](./backend-handoff.md)
 - Mockups: `../figma-mockups/_assets/Pool funding alignment.png` · `…1.png` · `…2.png` · `…3.png`
-- [`../indicator-mapping/requirements.md`](../indicator-mapping/requirements.md) (superseded) · [`../hlo-grouped-mapping/requirements.md`](../hlo-grouped-mapping/requirements.md) (superseded)
+- [`../indicator-mapping/requirements.md`](../../archive/2026-06-10-bilateral-module--indicator-mapping/requirements.md) (superseded) · [`../hlo-grouped-mapping/requirements.md`](../../archive/2026-06-10-bilateral-module--hlo-grouped-mapping/requirements.md) (superseded)
 - [`docs/prd.md`](../../../prd.md) §3–§5, §8.3 · [`docs/system-design/design.md`](../../../system-design/design.md) §7 · [`docs/detailed-design/detailed-design.md`](../../../detailed-design/detailed-design.md) §2, §6

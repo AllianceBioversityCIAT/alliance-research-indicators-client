@@ -13,7 +13,7 @@
 | Author | Juanca + Claude (`AC-1594-bilateral-module`) |
 | Status | DRAFT — awaiting approval |
 | Created | 2026-06-09 |
-| Supersedes | [`../indicator-mapping/`](../indicator-mapping/) (US3/US4 modal-based mapping) · [`../hlo-grouped-mapping/`](../hlo-grouped-mapping/) (modal refinement, never implemented) |
+| Supersedes | [`../indicator-mapping/`](../../archive/2026-06-10-bilateral-module--indicator-mapping/) (US3/US4 modal-based mapping) · [`../hlo-grouped-mapping/`](../../archive/2026-06-10-bilateral-module--hlo-grouped-mapping/) (modal refinement, never implemented) |
 | Inputs | 2026-06-09 team meeting notes · "Science Program and TOC mapping rules" (updated US text) · 3 new mockup screens (Result 5238, Capacity Sharing, live version) — **not yet exported to [`../figma-mockups/`](../figma-mockups/)** |
 | Backend repo | `alliance-research-indicators-main`, branch `AC-1594-bilateral-module-v2` (mirror proposal needed there) |
 | Backend handoff | [`./backend-handoff.md`](./backend-handoff.md) — upstream contract + frozen FE wire contract + proxy design (2026-06-09) |
