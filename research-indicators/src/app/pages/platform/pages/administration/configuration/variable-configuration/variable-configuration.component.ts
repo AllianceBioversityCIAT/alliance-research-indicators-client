@@ -87,7 +87,11 @@ export default class VariableConfigurationComponent implements OnInit {
     return items.filter(row => haystacks[row.key]?.includes(query));
   });
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit(): void {
+    void this.loadPage();
+  }
+
+  private async loadPage(): Promise<void> {
     await this.service.reload();
     this.syncSearchHaystacks(this.service.items());
     this.service.syncJsonDrafts(this.service.items());
