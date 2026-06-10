@@ -212,9 +212,10 @@ describe('AllianceSidebarComponent', () => {
     const button = fixture.nativeElement.querySelector(
       'button.admin-parent--collapsed'
     ) as HTMLButtonElement | null;
-    const img = button?.querySelector('img.admin-collapsed-group-img') as HTMLImageElement | null;
-    expect(button?.style.getPropertyValue('--admin-icon-size')).toBe(group?.iconSize);
+    const img = button?.querySelector('img') as HTMLImageElement | null;
     expect(img).toBeTruthy();
+    expect(img?.style.width).toBe(group?.iconSize);
+    expect(img?.style.height).toBe(group?.iconSize);
     expect(img?.getAttribute('src')).toContain('icons/graph.svg');
   });
 });

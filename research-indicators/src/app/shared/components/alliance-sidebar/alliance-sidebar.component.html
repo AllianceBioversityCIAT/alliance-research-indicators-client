@@ -51,7 +51,7 @@
         class="admin-parent flex w-full cursor-pointer items-center gap-[15px] border-0 bg-transparent py-[7px] pl-0 pr-0 text-left atc-primary-blue-400"
         (click)="toggleAdministrationGroup(group.id)" (keydown.enter)="toggleAdministrationGroup(group.id)">
         @if (group.s3Image) {
-        <img [src]="group.s3Image | s3ImageUrl" alt="" class="admin-group-img"
+        <img [src]="group.s3Image | s3ImageUrl" alt="" class="block shrink-0 object-contain"
           [style.width]="group.iconSize ?? '14px'" [style.height]="group.iconSize ?? '14px'" />
         } @else {
         <i class="sidebar-option-icon" [ngClass]="'pi ' + group.icon" [style.fontSize]="group.iconSize ?? null"></i>
@@ -88,7 +88,6 @@
       <button type="button"
         class="admin-parent admin-parent--collapsed flex w-full cursor-pointer items-center justify-center border-0 bg-transparent py-[7px] pl-0 pr-0 atc-primary-blue-400"
         [class.admin-parent--collapsed-open]="administrationFlyoutGroupId() === group.id"
-        [style.--admin-icon-size]="group.iconSize ?? '14px'"
         (click)="toggleAdministrationFlyout(group.id, $event)"
         (keydown.enter)="toggleAdministrationFlyout(group.id, $event)"
         (keydown.space)="$event.preventDefault(); toggleAdministrationFlyout(group.id, $event)"
@@ -96,9 +95,11 @@
         [pTooltip]="administrationFlyoutGroupId() === group.id ? '' : group.label" tooltipPosition="right"
         [positionLeft]="15">
         @if (group.s3Image) {
-        <img [src]="group.s3Image | s3ImageUrl" alt="" class="admin-collapsed-group-img" />
+        <img [src]="group.s3Image | s3ImageUrl" alt="" class="block shrink-0 object-contain !max-w-none"
+          [style.width]="group.iconSize ?? '14px'" [style.height]="group.iconSize ?? '14px'" />
         } @else {
-        <i class="sidebar-option-icon admin-collapsed-group-icon shrink-0" [ngClass]="'pi ' + group.icon"></i>
+        <i class="sidebar-option-icon shrink-0" [ngClass]="'pi ' + group.icon"
+          [style.fontSize]="group.iconSize ?? '14px'"></i>
         }
       </button>
       @if (administrationFlyoutGroupId() === group.id) {

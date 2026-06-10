@@ -46,7 +46,7 @@
       content: none !important;
     }
 
-    .option.active:not(.option--nested-collapsed):not(.option--logout) {
+    .option.active:not(.option--logout) {
       background-color: var(--sidebar-option-selected-bg) !important;
     }
 
@@ -105,73 +105,6 @@
           color: var(--ac-primary-blue-400) !important;
         }
       }
-    }
-
-    .admin-collapsed-submenu {
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      margin: 0;
-      padding: 0;
-      border: none;
-      background: none;
-      box-sizing: border-box;
-    }
-
-    .option--nested-collapsed {
-      justify-content: center;
-      min-height: 0;
-      box-sizing: border-box;
-      isolation: isolate;
-      color: #8d9299;
-      background-color: transparent;
-
-      &:hover {
-        background-color: var(--sidebar-option-hover-bg);
-        box-shadow: none;
-      }
-
-      .sidebar-option-icon {
-        font-size: 14px;
-        color: #8d9299 !important;
-      }
-
-      .admin-collapsed-nested-hit {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-    }
-    .option.option--nested-collapsed.active {
-      background-color: var(--sidebar-option-selected-bg) !important;
-      box-shadow: none;
-
-      .sidebar-option-icon {
-        color: #8d9299 !important;
-      }
-    }
-
-    button.admin-parent--collapsed {
-      .admin-collapsed-group-img {
-        width: var(--admin-icon-size, 14px) !important;
-        height: var(--admin-icon-size, 14px) !important;
-        max-width: none !important;
-        max-height: none !important;
-      }
-
-      .admin-collapsed-group-icon {
-        font-size: var(--admin-icon-size, 14px) !important;
-      }
-    }
-
-    .admin-collapsed-nested-img {
-      display: block;
-      width: 14px;
-      height: 14px;
-      flex-shrink: 0;
-      object-fit: contain;
-      filter: grayscale(1) brightness(0.42) contrast(0.65);
-      opacity: 1;
     }
 
     .option.option--nested {
@@ -316,13 +249,6 @@
   .administration-block {
     align-self: stretch;
 
-    .admin-group-img,
-    .admin-collapsed-group-img {
-      display: block;
-      flex-shrink: 0;
-      object-fit: contain;
-    }
-
     .admin-parent {
       font: inherit;
       border-radius: var(--sidebar-option-radius);
@@ -382,7 +308,6 @@
     padding-top: 15px;
   }
 
-  /** Less vertical rhythm when the rail is narrow (avoids a large void without Center admin). */
   .divider--collapsed-tight {
     margin: 4px 0;
     padding-top: 6px;
