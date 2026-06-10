@@ -72,7 +72,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-03 — *`SpTocAlignmentBlockComponent` (pure per-SP block)*
 
-- **Status**: `pending`
+- **Status**: `completed` — PASS attempt 1, 2026-06-10 (see [`./execution.md`](./execution.md))
 - **Size**: L
 - **Depends on**: T-BIL-TM2-01
 - **Discharges ACs**: AC-03.2, AC-04.1/04.2/04.4, AC-05.1–05.4, AC-06.1/06.2, AC-07.1–07.3, block-level parts of AC-09.1 + AC-11.1/11.2

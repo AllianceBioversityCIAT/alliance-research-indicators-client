@@ -1,0 +1,110 @@
+.sp-toc-block {
+  background: var(--ac-grey-100);
+  border: 1px solid var(--ac-grey-200);
+
+  &__swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid var(--ac-grey-300);
+  }
+
+  &__title {
+    color: var(--ac-grey-800);
+    font-size: 15px;
+    letter-spacing: 0.04em;
+  }
+
+  &__name {
+    color: var(--ac-grey-700);
+    font-weight: 400;
+  }
+
+  &__required {
+    color: var(--ac-red-1);
+    margin-left: 2px;
+  }
+
+  &__error {
+    display: block;
+    margin-top: 4px;
+    color: var(--ac-red-1);
+    font-size: 13px;
+  }
+
+  // Async / empty notices — color is never the sole signal (icon + text carry it).
+  &__notice {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid var(--ac-grey-300);
+    background: var(--ac-white-1);
+    color: var(--ac-grey-800);
+    font-size: 14px;
+
+    &--error {
+      border-color: var(--ac-red-1);
+      color: var(--ac-red-1);
+    }
+  }
+
+  &__retry {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--ac-red-1);
+    background: transparent;
+    color: var(--ac-red-1);
+    font-size: 13px;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: var(--ac-red-1);
+      color: var(--ac-white-1);
+    }
+  }
+
+  &__hlo-label {
+    color: var(--ac-grey-800);
+    font-size: 14px;
+
+    strong {
+      color: var(--ac-primary-blue-500);
+    }
+  }
+
+  // Contribution panel
+  &__contribution {
+    background: var(--ac-white-1);
+    border: 1px solid var(--ac-grey-200);
+  }
+
+  &__callout {
+    border-left: 4px solid var(--ac-primary-blue-500);
+    padding-left: 10px;
+  }
+
+  &__callout-icon {
+    color: var(--ac-primary-blue-500);
+    font-weight: 300;
+  }
+
+  &__callout-text {
+    color: var(--ac-grey-700);
+    font-size: 14px;
+    line-height: 18px;
+  }
+
+  &__readonly-label {
+    color: var(--ac-grey-600);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  &__readonly-value {
+    color: var(--ac-grey-800);
+    font-size: 14px;
+    font-weight: 500;
+  }
+}

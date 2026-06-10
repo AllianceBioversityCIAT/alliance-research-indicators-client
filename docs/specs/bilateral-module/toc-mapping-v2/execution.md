@@ -48,3 +48,21 @@
   - Spec-file mocking convention (jest-mocked `ApiService` + ok/err envelope builders) kept over the template's `HttpTestingController` line, per task instruction.
 - **Issues encountered:** stale test name in `api.service.spec.ts` (~L276) still says `BilateralHlosIndicatorsResponse` — rename in T-05 with the type deletion.
 - **Final verification:** tests + lint clean (Reviewer re-ran).
+
+### T-BIL-TM2-03 — `SpTocAlignmentBlockComponent` (pure per-SP block) — ✅ PASS (attempt 1) — 2026-06-10
+
+- **Attempts:** 1 (Implementer → Reviewer PASS, no rework)
+- **Files created:**
+  - `research-indicators/src/app/pages/platform/pages/result/pages/pool-funding-alignment/components/sp-toc-alignment-block/sp-toc-alignment-block.component.ts` (205 lines — standalone OnPush `app-sp-toc-alignment-block`; signal inputs `sp`/`catalog`/`allowedLevels`/`draft`/`disabled`/`inlineErrors`/`catalogState`; outputs `draftChange`/`retryCatalog`; computeds `levelOptions`/`hloOptions`/`indicatorOptions`/`selectedIndicator`; pure `emit()` with cascade resets; exports `SpTocBlockScienceProgram`)
+  - `…/sp-toc-alignment-block.component.html` (236 lines — Yes/No `p-radioButton`, Level/HLO/Indicator raw `p-select` (D-8a), `p-inputNumber` contribution; SP-scoped `data-testid`s; a11y per §9)
+  - `…/sp-toc-alignment-block.component.scss` (110 lines — `var(--ac-*)` tokens only, no hex)
+  - `…/sp-toc-alignment-block.component.spec.ts` (344 lines — 28 tests on the canonical `toc-catalog.fixture.ts`)
+- **Implementer verification:** `npm run test -- sp-toc-alignment-block` → 28/28 pass (new file 100% lines / 97.4% stmts); `npm run lint` → "All files pass linting." (fixed one template `eqeqeq`); `npm run s-lint` → clean for the new SCSS (pre-existing errors elsewhere untouched); `npm run build` → success (only pre-existing budget/CJS warnings).
+- **Reviewer verdict:** **PASS** — "honors the approved D-8a raw-PrimeNG deviation (signals + FormsModule, no FormGroup, `var(--ac-*)`, no hex), never mutates its `draft` input (dedicated purity test asserts new-reference emission + unchanged input), applies all cascade resets (No/level/HLO), respects D-4 (no single-option preselect), D-5 (unfiltered indicators), §4.7 labels, AC-05.4 EOI title-only, AC-07.x 2026 callout + read-only unit/target + ≥0 clamp, loading/error/ready with wired Retry; a11y + constitution hold; lint + 28/28 re-verified." Independently re-ran lint + scoped tests.
+- **Requirements covered:** AC-03.2, AC-04.1/04.2/04.4, AC-05.1–05.4, AC-06.1/06.2, AC-07.1–07.3, block-level parts of AC-09.1, AC-11.1/11.2.
+- **Decisions made:**
+  - **D-8a (design pivot, spec-owner approved 2026-06-10):** cascade uses raw `p-select`/`p-radioButton`/`p-inputNumber`, NOT the wrapped `custom-fields/*` — the wrapped fields source options only from a registered `ControlListServices` (`ServiceLocatorService` → `[options]="optionsSig()"`) and structurally cannot take the in-memory, cascade-dependent catalog options. Styled to match via `custom-prime-force-styles` patterns + tokens; precedent: `innovation-details/components/{actor-item,organization-item}`. Recorded in `design.md` §11 (D-8a) before implementation.
+  - Block input SP type `SpTocBlockScienceProgram` defined+exported in the block (mirrors the page's local `SelectedScienceProgram`) to avoid importing from the page (scope boundary).
+  - Contribution callout (`CONTRIBUTION_CALLOUT`) hardcodes 2026 wording (AC-07.3); negatives clamped to 0 at the emit boundary in addition to `p-inputNumber [min]="0"`.
+- **Issues encountered:** none blocking. `@testing` is not a declared path alias, so the spec imports the fixture via `src/app/...` (codebase convention) — not a violation.
+- **Final verification:** lint clean, 28/28 scoped tests, build green; Reviewer re-ran lint + tests independently.

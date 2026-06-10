@@ -1,0 +1,236 @@
+@let d = draft();
+@let errors = inlineErrors();
+
+<section
+  class="sp-toc-block flex flex-col gap-5 p-5 rounded-[10px]"
+  [attr.data-testid]="'sp-toc-block-' + spCode()"
+  [attr.aria-label]="'Theory of Change alignment for ' + (sp().name || spCode())">
+  <!-- SP heading -->
+  <header class="flex items-center gap-2 min-w-0">
+    @if (sp().color) {
+      <span class="sp-toc-block__swatch shrink-0" [style.background]="sp().color" aria-hidden="true"></span>
+    }
+    <h3 class="sp-toc-block__title truncate" [attr.data-testid]="'sp-toc-block-title-' + spCode()">
+      <strong>{{ spCode() }}</strong>@if (sp().name) { <span class="sp-toc-block__name"> — {{ sp().name }}</span> }
+    </h3>
+  </header>
+
+  <!-- Per-SP Yes/No: does this SP align with a ToC result? -->
+  <fieldset class="flex flex-col gap-2 border-0 p-0 m-0">
+    <legend
+      [id]="'sp-toc-aligns-q-' + spCode()"
+      class="label inline-block mb-1">
+      {{ ALIGN_QUESTION }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
+    </legend>
+    <div
+      role="radiogroup"
+      [attr.aria-labelledby]="'sp-toc-aligns-q-' + spCode()"
+      aria-required="true"
+      class="flex flex-row gap-6">
+      <div class="flex items-center">
+        <p-radioButton
+          [name]="'sp-toc-aligns-' + spCode()"
+          [inputId]="'sp-toc-aligns-yes-' + spCode()"
+          [value]="true"
+          [ngModel]="d.aligns_with_toc"
+          (ngModelChange)="onAlignsChange($event)"
+          [disabled]="disabled()"
+          [attr.data-testid]="'sp-toc-aligns-yes-' + spCode()"></p-radioButton>
+        <label [for]="'sp-toc-aligns-yes-' + spCode()" class="option-label ml-2">Yes</label>
+      </div>
+      <div class="flex items-center">
+        <p-radioButton
+          [name]="'sp-toc-aligns-' + spCode()"
+          [inputId]="'sp-toc-aligns-no-' + spCode()"
+          [value]="false"
+          [ngModel]="d.aligns_with_toc"
+          (ngModelChange)="onAlignsChange($event)"
+          [disabled]="disabled()"
+          [attr.data-testid]="'sp-toc-aligns-no-' + spCode()"></p-radioButton>
+        <label [for]="'sp-toc-aligns-no-' + spCode()" class="option-label ml-2">No</label>
+      </div>
+    </div>
+    @if (errors?.['aligns_with_toc']; as msg) {
+      <small role="alert" aria-live="polite" class="sp-toc-block__error" [attr.data-testid]="'sp-toc-error-aligns-' + spCode()">{{ msg }}</small>
+    }
+  </fieldset>
+
+  <!-- Cascade — only when the per-SP answer is "Yes" -->
+  @if (alignsYes()) {
+    <!-- Catalog async states -->
+    @if (catalogState() === 'loading') {
+      <div
+        role="status"
+        aria-live="polite"
+        class="sp-toc-block__notice flex items-center gap-2"
+        [attr.data-testid]="'sp-toc-catalog-loading-' + spCode()">
+        <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+        <span>{{ LOADING_MESSAGE }}</span>
+      </div>
+    } @else if (catalogState() === 'error') {
+      <div
+        role="alert"
+        aria-live="polite"
+        class="sp-toc-block__notice sp-toc-block__notice--error flex items-center justify-between gap-3"
+        [attr.data-testid]="'sp-toc-catalog-error-' + spCode()">
+        <span class="flex items-center gap-2">
+          <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+          <span>{{ CATALOG_ERROR_MESSAGE }}</span>
+        </span>
+        <button
+          type="button"
+          class="sp-toc-block__retry"
+          (click)="onRetry()"
+          [attr.data-testid]="'sp-toc-catalog-retry-' + spCode()">
+          {{ RETRY_LABEL }}
+        </button>
+      </div>
+    } @else {
+      <!-- Level select (no preselect even when single option — D-4) -->
+      <div class="flex flex-col gap-1">
+        <label [for]="'sp-toc-level-' + spCode()" class="label inline-block">
+          {{ LEVEL_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
+        </label>
+        <p-select
+          [inputId]="'sp-toc-level-' + spCode()"
+          [options]="levelOptions()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select a level"
+          appendTo="body"
+          [disabled]="disabled()"
+          [ngModel]="d.level"
+          (onChange)="onLevelChange($event.value)"
+          [attr.aria-required]="true"
+          styleClass="sp-toc-block__select"
+          [style]="{ width: '100%' }"
+          [attr.data-testid]="'sp-toc-level-' + spCode()">
+        </p-select>
+      </div>
+
+      <!-- HLO select (searchable) — only after a level is chosen -->
+      @if (d.level) {
+        @if (showEmptyHlo()) {
+          <div
+            role="status"
+            aria-live="polite"
+            class="sp-toc-block__notice"
+            [attr.data-testid]="'sp-toc-hlo-empty-' + spCode()">
+            {{ EMPTY_HLO_MESSAGE }}
+          </div>
+        } @else {
+          <div class="flex flex-col gap-1">
+            <label [for]="'sp-toc-hlo-' + spCode()" class="label inline-block">
+              {{ hloFieldLabel() }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
+            </label>
+            <p-select
+              [inputId]="'sp-toc-hlo-' + spCode()"
+              [options]="hloOptions()"
+              optionValue="value"
+              [filter]="true"
+              filterBy="aowCode,title"
+              [autoOptionFocus]="false"
+              placeholder="Select a result"
+              appendTo="body"
+              [disabled]="disabled()"
+              [ngModel]="d.toc_result_id"
+              (onChange)="onHloChange($event.value)"
+              [attr.aria-required]="true"
+              styleClass="sp-toc-block__select"
+              [style]="{ width: '100%' }"
+              [attr.data-testid]="'sp-toc-hlo-' + spCode()">
+              <ng-template let-option pTemplate="selectedItem">
+                <span class="sp-toc-block__hlo-label">
+                  @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
+                </span>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <span class="sp-toc-block__hlo-label">
+                  @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
+                </span>
+              </ng-template>
+            </p-select>
+          </div>
+        }
+      }
+
+      <!-- Indicator select (searchable, unfiltered by type — D-5) -->
+      @if (d.toc_result_id !== null) {
+        <div class="flex flex-col gap-1">
+          <label [for]="'sp-toc-indicator-' + spCode()" class="label inline-block">
+            {{ INDICATOR_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
+          </label>
+          <p-select
+            [inputId]="'sp-toc-indicator-' + spCode()"
+            [options]="indicatorOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [filter]="true"
+            filterBy="label"
+            [autoOptionFocus]="false"
+            placeholder="Select an indicator"
+            appendTo="body"
+            [disabled]="disabled()"
+            [ngModel]="d.indicator_id"
+            (onChange)="onIndicatorChange($event.value)"
+            [attr.aria-required]="true"
+            styleClass="sp-toc-block__select"
+            [style]="{ width: '100%' }"
+            [attr.data-testid]="'sp-toc-indicator-' + spCode()">
+          </p-select>
+        </div>
+      }
+
+      <!-- Contribution panel — appears when an indicator is selected -->
+      @if (selectedIndicator(); as indicator) {
+        <div
+          class="sp-toc-block__contribution flex flex-col gap-4 p-4 rounded-[8px]"
+          role="group"
+          aria-live="polite"
+          [attr.aria-label]="'Quantitative contribution for ' + spCode()"
+          [attr.data-testid]="'sp-toc-contribution-' + spCode()">
+          <div role="note" class="sp-toc-block__callout flex items-start gap-2">
+            <span class="material-symbols-rounded rotate-180 sp-toc-block__callout-icon" aria-hidden="true">info</span>
+            <p class="sp-toc-block__callout-text">{{ CONTRIBUTION_CALLOUT }}</p>
+          </div>
+
+          <div class="flex flex-wrap gap-6">
+            <div class="flex flex-col gap-1">
+              <span class="sp-toc-block__readonly-label">{{ UNIT_LABEL }}</span>
+              <span class="sp-toc-block__readonly-value" [attr.data-testid]="'sp-toc-unit-' + spCode()">
+                {{ indicator.unit_of_measurement || '—' }}
+              </span>
+            </div>
+            <div class="flex flex-col gap-1">
+              <span class="sp-toc-block__readonly-label">{{ TARGET_LABEL }} ({{ indicator.target_year }})</span>
+              <span class="sp-toc-block__readonly-value" [attr.data-testid]="'sp-toc-target-' + spCode()">
+                {{ indicator.target_value ?? '—' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label [for]="'sp-toc-contribution-input-' + spCode()" class="label inline-block">
+              {{ CONTRIBUTION_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
+            </label>
+            <p-inputNumber
+              [inputId]="'sp-toc-contribution-input-' + spCode()"
+              [ngModel]="d.quantitative_contribution"
+              (ngModelChange)="onContributionChange($event)"
+              [min]="0"
+              [useGrouping]="false"
+              [disabled]="disabled()"
+              [attr.aria-required]="true"
+              placeholder="0"
+              styleClass="sp-toc-block__number"
+              [attr.data-testid]="'sp-toc-contribution-input-' + spCode()">
+            </p-inputNumber>
+            @if (errors?.['quantitative_contribution']; as msg) {
+              <small role="alert" aria-live="polite" class="sp-toc-block__error" [attr.data-testid]="'sp-toc-error-contribution-' + spCode()">{{ msg }}</small>
+            }
+          </div>
+        </div>
+      }
+    }
+  }
+</section>
