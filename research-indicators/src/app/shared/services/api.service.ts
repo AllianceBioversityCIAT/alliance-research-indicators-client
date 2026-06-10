@@ -74,7 +74,7 @@ import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { PoolFundingTagPatchBody, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
 import {
   AlignmentResponse,
-  BilateralHlosIndicatorsResponse,
+  BilateralTocCatalogResponse,
   PoolFundingSciencePrograms,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
@@ -683,10 +683,12 @@ export class ApiService {
     return this.TP.get(this.bilateralPath(resultCode, '/science-programs'), {});
   };
 
-  // Result-scoped HLOs + indicators tree (SP → AOW → outcome/output → indicator),
-  // sourced live from CLARISA + PRMS via the backend's 5-min cache (T-15.12, live on
-  // AC-1594-bilateral-module-v2). Read-only; no query params today.
-  GET_PoolFundingHlosIndicators = (resultCode: string): Promise<MainResponse<BilateralHlosIndicatorsResponse>> => {
+  // Result-scoped ToC catalog (SP → level → ToC result → indicator), sourced live
+  // from lambda-toc via the backend's cache. Same path as the modal-era tree — the
+  // backend reshaped the envelope to `BilateralTocCatalogResponse` (only the generic
+  // changed here). Read-only; no query params today.
+  // @sdd-spec docs/specs/bilateral-module/toc-mapping-v2 (T-BIL-TM2-02)
+  GET_PoolFundingHlosIndicators = (resultCode: string): Promise<MainResponse<BilateralTocCatalogResponse>> => {
     return this.TP.get(this.bilateralPath(resultCode, '/hlos-indicators'), {});
   };
 

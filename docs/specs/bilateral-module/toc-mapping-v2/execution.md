@@ -31,3 +31,20 @@
   - `TOC_CATALOG_EMPTY_LEVELS_FIXTURE` ships `catalogs: []` + `result_type: 'oicr'` (unpinned by spec; matches "backend ships nothing when the cascade is hidden").
 - **Issues encountered:** one live OUTCOME indicator (6719) has empty upstream `targets[]` → `target_value: null` (contract-legal; useful edge case for T-03). No `is_stale: true` fixture variant (not mandated; T-04 can derive).
 - **Final verification:** lint + build clean (see above).
+
+### T-BIL-TM2-02 — BilateralService / ApiService refit — ✅ PASS (attempt 1) — 2026-06-09
+
+- **Attempts:** 1
+- **Files changed:**
+  - `research-indicators/src/app/shared/services/api.service.ts` (+12/−x — `GET_PoolFundingHlosIndicators` re-typed to `MainResponse<BilateralTocCatalogResponse>`, same path via `bilateralPath`)
+  - `research-indicators/src/app/shared/services/bilateral.service.ts` (+149 — `tocCatalog`/`loadingTocCatalog`/`tocCatalogError` signals; `getTocCatalog` with keep-prior-value-on-error; pure `catalogForSp`/`draftsFromSaved`/`writeDtoFromDrafts` (D-9 exact); tolerant `extractTocAlignmentErrors` wired into `patchAlignment`; new exported `TocAlignmentError` + `PatchAlignmentResult.tocAlignmentErrors?`)
+  - `research-indicators/src/app/shared/services/bilateral.service.spec.ts` (+267 — 18 new tests on the T-01 fixtures)
+- **Implementer verification:** `npm run test -- bilateral.service` → 71/71 pass; per-file coverage 98.38% stmts / 84.73% branches / 100% funcs+lines; `npm run lint` clean; `tsc --noEmit` only pre-existing errors; collateral suites (api.service, hlo-selection-modal, modal-context) 232 tests green.
+- **Reviewer verdict:** **PASS** — design §3/§4.4 + AC-08.2/AC-11.1/AC-11.2 groundwork faithful; D-9-exact DTO semantics; extractor regression-safe alongside `unknown_sp_codes`; re-ran tests + lint.
+- **Requirements covered:** AC-08.2 (extractor), AC-11.1/AC-11.2 (state machine groundwork); foundations for AC-04.x/AC-08.x (T-04).
+- **Decisions made:**
+  - `TocAlignmentError` exported from `bilateral.service.ts` (companion to `PatchAlignmentResult`, not a wire DTO) — Reviewer endorsed.
+  - Transition seam: modal-era `getHlosIndicators` now casts `res.data as unknown as BilateralHlosIndicatorsResponse` ("dead-but-compiling until T-BIL-TM2-05") — unavoidable consequence of the mandated re-type; behavior unchanged, old tests green. **T-05 must remove it.**
+  - Spec-file mocking convention (jest-mocked `ApiService` + ok/err envelope builders) kept over the template's `HttpTestingController` line, per task instruction.
+- **Issues encountered:** stale test name in `api.service.spec.ts` (~L276) still says `BilateralHlosIndicatorsResponse` — rename in T-05 with the type deletion.
+- **Final verification:** tests + lint clean (Reviewer re-ran).

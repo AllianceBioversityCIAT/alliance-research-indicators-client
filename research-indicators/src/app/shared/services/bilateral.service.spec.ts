@@ -10,14 +10,17 @@ import { PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contr
 import {
   AlignmentResponse,
   BilateralHlosIndicatorsResponse,
+  BilateralTocCatalogResponse,
   HloMapping,
-  PoolFundingSciencePrograms
+  PoolFundingSciencePrograms,
+  SpAlignmentDraft
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import {
   bilateralHlosIndicatorsResponseMock,
   bilateralHlosNoAowResponseMock,
   persistedMappingMock
 } from '../../testing/fixtures/bilateral.fixtures';
+import { SAVED_TOC_ALIGNMENTS_FIXTURE, TOC_CATALOG_CAPSHARING_FIXTURE, TOC_CATALOG_TWO_SP_FIXTURE } from '../../testing/toc-catalog.fixture';
 
 describe('BilateralService', () => {
   let service: BilateralService;
@@ -892,6 +895,268 @@ describe('BilateralService', () => {
       expect(row?.is_stale).toBe(false);
       // lever_name falls back to lever_code when not in selected_levers (SP02 isn't)
       expect(row?.lever_name).toBe('SP02');
+    });
+  });
+
+  // --- T-BIL-TM2-02 — ToC mapping v2 catalog read + draft seams ---------------
+  // @sdd-spec docs/specs/bilateral-module/toc-mapping-v2
+
+  describe('getTocCatalog (T-BIL-TM2-02, AC-11.1/AC-11.2)', () => {
+    it('happy path — sets tocCatalog, clears tocCatalogError, toggles loadingTocCatalog true→false', async () => {
+      let loadingDuringCall = false;
+      mockApi.GET_PoolFundingHlosIndicators.mockImplementation(() => {
+        loadingDuringCall = service.loadingTocCatalog();
+        return Promise.resolve(ok<BilateralTocCatalogResponse>(TOC_CATALOG_CAPSHARING_FIXTURE));
+      });
+
+      const result = await service.getTocCatalog('STAR-5238');
+
+      expect(loadingDuringCall).toBe(true);
+      expect(service.loadingTocCatalog()).toBe(false);
+      expect(service.tocCatalog()).toEqual(TOC_CATALOG_CAPSHARING_FIXTURE);
+      expect(service.tocCatalogError()).toBe(false);
+      expect(result).toEqual(TOC_CATALOG_CAPSHARING_FIXTURE);
+      expect(mockApi.GET_PoolFundingHlosIndicators).toHaveBeenCalledWith('STAR-5238');
+    });
+
+    it('5xx — sets tocCatalogError, KEEPS the prior tocCatalog value (design §4.4), loading false', async () => {
+      service.tocCatalog.set(TOC_CATALOG_CAPSHARING_FIXTURE);
+      mockApi.GET_PoolFundingHlosIndicators.mockResolvedValue(
+        err<BilateralTocCatalogResponse>(500, 'Internal Server Error', undefined as unknown as BilateralTocCatalogResponse)
+      );
+
+      const result = await service.getTocCatalog('STAR-5238');
+
+      expect(result).toBeNull();
+      expect(service.tocCatalogError()).toBe(true);
+      expect(service.tocCatalog()).toEqual(TOC_CATALOG_CAPSHARING_FIXTURE);
+      expect(service.loadingTocCatalog()).toBe(false);
+    });
+
+    it('success after a prior error — clears tocCatalogError and replaces the catalog', async () => {
+      mockApi.GET_PoolFundingHlosIndicators.mockResolvedValueOnce(
+        err<BilateralTocCatalogResponse>(503, 'Service Unavailable', undefined as unknown as BilateralTocCatalogResponse)
+      );
+      await service.getTocCatalog('STAR-5238');
+      expect(service.tocCatalogError()).toBe(true);
+      expect(service.tocCatalog()).toBeNull();
+
+      mockApi.GET_PoolFundingHlosIndicators.mockResolvedValueOnce(ok<BilateralTocCatalogResponse>(TOC_CATALOG_TWO_SP_FIXTURE));
+      const result = await service.getTocCatalog('STAR-5238');
+
+      expect(result).toEqual(TOC_CATALOG_TWO_SP_FIXTURE);
+      expect(service.tocCatalogError()).toBe(false);
+      expect(service.tocCatalog()).toEqual(TOC_CATALOG_TWO_SP_FIXTURE);
+    });
+
+    it('rejection — loadingTocCatalog resets to false (defensive try/finally)', async () => {
+      mockApi.GET_PoolFundingHlosIndicators.mockRejectedValue(new Error('network down'));
+
+      await expect(service.getTocCatalog('STAR-5238')).rejects.toThrow('network down');
+
+      expect(service.loadingTocCatalog()).toBe(false);
+    });
+  });
+
+  describe('catalogForSp (T-BIL-TM2-02)', () => {
+    it('null when no catalog has been loaded', () => {
+      expect(service.catalogForSp('SP01')).toBeNull();
+    });
+
+    it('returns the matching SP branch from the loaded catalog', () => {
+      service.tocCatalog.set(TOC_CATALOG_TWO_SP_FIXTURE);
+
+      expect(service.catalogForSp('SP01')?.sp_code).toBe('SP01');
+      expect(service.catalogForSp('SP03')?.sp_code).toBe('SP03');
+    });
+
+    it('null when the SP is not in the catalog', () => {
+      service.tocCatalog.set(TOC_CATALOG_CAPSHARING_FIXTURE);
+
+      expect(service.catalogForSp('SP99')).toBeNull();
+    });
+  });
+
+  describe('draftsFromSaved / writeDtoFromDrafts (T-BIL-TM2-02, D-9)', () => {
+    it('round-trip — saved alignments (SP01 full Yes + SP03 No) → drafts → write DTOs', () => {
+      const drafts = service.draftsFromSaved(SAVED_TOC_ALIGNMENTS_FIXTURE);
+
+      expect(drafts).toEqual([
+        {
+          sp_code: 'SP01',
+          aligns_with_toc: true,
+          level: 'OUTPUT',
+          toc_result_id: 5187,
+          indicator_id: 5973,
+          quantitative_contribution: 3
+        },
+        { sp_code: 'SP03', aligns_with_toc: false, level: null, toc_result_id: null, indicator_id: null, quantitative_contribution: null }
+      ]);
+
+      const dtos = service.writeDtoFromDrafts(drafts);
+
+      expect(dtos).toEqual([
+        { sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 },
+        // No → bare DTO, cascade fields dropped (design §4.4)
+        { sp_code: 'SP03', aligns_with_toc: false }
+      ]);
+    });
+
+    it('draftsFromSaved — null / undefined input → []', () => {
+      expect(service.draftsFromSaved(null)).toEqual([]);
+      expect(service.draftsFromSaved(undefined)).toEqual([]);
+    });
+
+    it('writeDtoFromDrafts — incomplete Yes draft is omitted entirely (defensive, canSave gates upstream)', () => {
+      const incomplete: SpAlignmentDraft = {
+        sp_code: 'SP01',
+        aligns_with_toc: true,
+        level: 'OUTPUT',
+        toc_result_id: 5187,
+        indicator_id: null, // missing cascade step
+        quantitative_contribution: 3
+      };
+
+      expect(service.writeDtoFromDrafts([incomplete])).toEqual([]);
+    });
+
+    it('writeDtoFromDrafts — unanswered draft (aligns_with_toc: null) is omitted', () => {
+      const unanswered: SpAlignmentDraft = {
+        sp_code: 'SP02',
+        aligns_with_toc: null,
+        level: null,
+        toc_result_id: null,
+        indicator_id: null,
+        quantitative_contribution: null
+      };
+
+      expect(service.writeDtoFromDrafts([unanswered])).toEqual([]);
+    });
+
+    it('writeDtoFromDrafts — quantitative_contribution 0 is a valid complete draft (≥ 0)', () => {
+      const zero: SpAlignmentDraft = {
+        sp_code: 'SP01',
+        aligns_with_toc: true,
+        level: 'OUTPUT',
+        toc_result_id: 5187,
+        indicator_id: 5973,
+        quantitative_contribution: 0
+      };
+
+      expect(service.writeDtoFromDrafts([zero])).toEqual([
+        { sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 0 }
+      ]);
+    });
+
+    it('writeDtoFromDrafts — negative contribution makes a Yes draft incomplete (omitted)', () => {
+      const negative: SpAlignmentDraft = {
+        sp_code: 'SP01',
+        aligns_with_toc: true,
+        level: 'OUTPUT',
+        toc_result_id: 5187,
+        indicator_id: 5973,
+        quantitative_contribution: -1
+      };
+
+      expect(service.writeDtoFromDrafts([negative])).toEqual([]);
+    });
+  });
+
+  describe('extractTocAlignmentErrors via patchAlignment (T-BIL-TM2-02, AC-08.2)', () => {
+    const fail400 = (errors: unknown): MainResponse<AlignmentResponse> =>
+      ({
+        data: undefined,
+        status: 400,
+        description: 'error',
+        timestamp: '',
+        path: '',
+        successfulRequest: false,
+        errorDetail: { errors: errors as string, detail: '', description: 'Validation failed' }
+      }) as MainResponse<AlignmentResponse>;
+
+    it('400 with toc_alignments as STRINGIFIED-JSON errors → tocAlignmentErrors populated (field kept only when string)', async () => {
+      const errorsJson = JSON.stringify({
+        toc_alignments: [
+          { sp_code: 'SP01', field: 'quantitative_contribution', message: 'must be >= 0' },
+          { sp_code: 'SP03', message: 'indicator not in catalog' }
+        ]
+      });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(fail400(errorsJson));
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        tocAlignmentErrors: [
+          { sp_code: 'SP01', field: 'quantitative_contribution', message: 'must be >= 0' },
+          { sp_code: 'SP03', message: 'indicator not in catalog' }
+        ]
+      });
+      expect(service.savingAlignment()).toBe(false);
+    });
+
+    it('400 with toc_alignments on an already-parsed OBJECT errors envelope → tocAlignmentErrors populated (tolerant of object shape)', async () => {
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(fail400({ toc_alignments: [{ sp_code: 'SP01', message: 'invalid level' }] }));
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect((result as { tocAlignmentErrors?: unknown }).tocAlignmentErrors).toEqual([{ sp_code: 'SP01', message: 'invalid level' }]);
+    });
+
+    it('400 with malformed errors payloads → no crash, no tocAlignmentErrors key', async () => {
+      const malformed = ['{not-json', 'plain text', JSON.stringify({ toc_alignments: 'not-an-array' }), JSON.stringify(['array-root'])];
+      for (const errors of malformed) {
+        mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(fail400(errors));
+
+        const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+        expect((result as { tocAlignmentErrors?: unknown }).tocAlignmentErrors).toBeUndefined();
+      }
+    });
+
+    it('400 whose toc_alignments entries are missing sp_code / message or are non-objects → dropped (key absent when all drop)', async () => {
+      const errorsJson = JSON.stringify({
+        toc_alignments: [{ message: 'no sp_code' }, { sp_code: '   ', message: 'blank sp_code' }, { sp_code: 'SP01' }, 'not-an-object', null]
+      });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(fail400(errorsJson));
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect((result as { tocAlignmentErrors?: unknown }).tocAlignmentErrors).toBeUndefined();
+    });
+
+    it('400 mixing well-formed and malformed entries → only the well-formed entries survive', async () => {
+      const errorsJson = JSON.stringify({
+        toc_alignments: [{ sp_code: 'SP01', message: 'kept' }, { message: 'dropped — no sp_code' }, { sp_code: 'SP03', field: 7, message: 'kept, field dropped' }]
+      });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(fail400(errorsJson));
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect((result as { tocAlignmentErrors?: unknown }).tocAlignmentErrors).toEqual([
+        { sp_code: 'SP01', message: 'kept' },
+        { sp_code: 'SP03', message: 'kept, field dropped' }
+      ]);
+    });
+
+    it('400 carrying BOTH unknown_sp_codes and toc_alignments → both surfaced side by side (no regression)', async () => {
+      const errorsJson = JSON.stringify({
+        unknown_sp_codes: ['SP04'],
+        toc_alignments: [{ sp_code: 'SP01', message: 'invalid indicator' }]
+      });
+      mockApi.PATCH_PoolFundingAlignment.mockResolvedValue(fail400(errorsJson));
+
+      const result = await service.patchAlignment('RES-001', { has_contribution: true });
+
+      expect(result).toEqual({
+        ok: false,
+        status: 400,
+        description: 'Validation failed',
+        unknownSpCodes: ['SP04'],
+        tocAlignmentErrors: [{ sp_code: 'SP01', message: 'invalid indicator' }]
+      });
     });
   });
 });
