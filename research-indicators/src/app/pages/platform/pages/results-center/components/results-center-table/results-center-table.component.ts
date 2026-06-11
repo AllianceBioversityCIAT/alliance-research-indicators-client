@@ -398,7 +398,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
       if (result.result_contracts?.contract_id) {
         event.preventDefault();
         event.stopPropagation();
-        this.router.navigate(['/project-detail', result.result_contracts.contract_id, 'project-results'], {
+        this.router.navigate(['/project-detail', result.result_contracts.contract_id], {
           queryParams: this.resultEntryQueryParamsForNavigation()
         });
       }

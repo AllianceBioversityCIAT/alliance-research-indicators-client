@@ -3,7 +3,7 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { ApiService } from '@shared/services/api.service';
 import { HttpClient } from '@angular/common/http';
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import { SubmissionService } from '@shared/services/submission.service';
 import { ActivatedRouteSnapshot, NavigationEnd, ParamMap } from '@angular/router';
@@ -564,6 +564,26 @@ export const httpClientMock = {
   delete: jest.fn(),
   patch: jest.fn()
 } as unknown as HttpClient;
+
+export const whatsNewServiceMock = {
+  notionData: signal<{ results: unknown[] } | null>({ results: [] }),
+  notionDataLoading: signal(false),
+  notionDataError: signal(null),
+  activeNotionPageData: signal(null),
+  lastSeenAt: signal<string | null>(null),
+  hasUnreadReleaseNotes: computed(() => false),
+  getWhatsNewPages: jest.fn(),
+  markWhatsNewAsSeen: jest.fn(),
+  isReleaseNoteNew: jest.fn().mockReturnValue(false),
+  getDisplayDate: jest.fn().mockReturnValue(null),
+  getActiveDisplayDate: jest.fn().mockReturnValue(null),
+  getReleaseNoteTitle: jest.fn().mockReturnValue(''),
+  getActiveReleaseNoteTitle: jest.fn().mockReturnValue(''),
+  findReleaseNoteById: jest.fn().mockReturnValue(undefined),
+  getActiveNotionPageUrl: jest.fn().mockReturnValue(null),
+  getNotionBlockChildren: jest.fn(),
+  getColor: jest.fn().mockReturnValue('#313131')
+};
 
 export const routerMock = {
   events: routerEventsSubject.get().asObservable(),

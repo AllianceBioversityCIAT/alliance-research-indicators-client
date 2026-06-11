@@ -13,7 +13,8 @@ interface Indicator {
 @Component({
   selector: 'app-discover-hero',
   imports: [S3ImageUrlPipe],
-  templateUrl: './discover-hero.component.html'
+  templateUrl: './discover-hero.component.html',
+  styleUrl: './discover-hero.component.scss'
 })
 export class DiscoverHeroComponent {
   indicators: Indicator[] = [

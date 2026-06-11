@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { DownloadOicrTemplateComponent } from '../download-oicr-template/download-oicr-template.component';
 import { RolesService } from '@shared/services/cache/roles.service';
 import { isHomeEntryFromUrl, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
+import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.service';
 
 export interface BreadcrumbItem {
   label: string;
@@ -38,6 +39,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   rolesService = inject(RolesService);
   api = inject(ApiService);
   submissionService = inject(SubmissionService);
+  whatsNewService = inject(WhatsNewService);
 
   private currentProject = signal<GetProjectDetail>({});
   private contractId = signal('');
@@ -182,12 +184,19 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
       return resultsCenterEntryBreadcrumb;
     }
 
+    const whatsNewDetailsBreadcrumb = this.breadcrumbForWhatsNewDetails(fullUrl);
+    if (whatsNewDetailsBreadcrumb) {
+      return whatsNewDetailsBreadcrumb;
+    }
+
     if (!contractId) return [];
+
+    const enteredFromResultsCenter = isResultsCenterEntryFromUrl(fullUrl);
 
     const baseItems: BreadcrumbItem[] = [
       {
-        label: 'Projects',
-        route: '/projects'
+        label: enteredFromResultsCenter ? 'Results Center' : 'Projects',
+        route: enteredFromResultsCenter ? '/results-center' : '/projects'
       },
       {
         label: `Project ${contractId}`,
@@ -244,6 +253,23 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     return undefined;
   }
 
+  private breadcrumbForWhatsNewDetails(fullUrl: string): BreadcrumbItem[] | undefined {
+    const pathOnly = fullUrl.split(/[?#]/)[0];
+    const segments = pathOnly.split('/').filter(Boolean);
+    if (segments[0] !== 'whats-new' || segments[1] !== 'details' || !segments[2]) {
+      return undefined;
+    }
+
+    const pageId = segments[2];
+    const title =
+      this.whatsNewService.getActiveReleaseNoteTitle() ||
+      this.whatsNewService.getReleaseNoteTitle(this.whatsNewService.findReleaseNoteById(pageId));
+    return [
+      { label: 'Release Notes', route: '/whats-new' },
+      { label: title || 'Release note', tooltip: title || undefined }
+    ];
+  }
+
   private breadcrumbForResultsCenterEntry(fullUrl: string): BreadcrumbItem[] | undefined {
     if (this.isResultPage() && isResultsCenterEntryFromUrl(fullUrl)) {
       const pathOnly = fullUrl.split(/[?#]/)[0];
@@ -276,8 +302,10 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   }
 
   private async loadProjectData() {
-    const urlParts = this.router.url.split('/');
-    const projectId = urlParts[urlParts.length - 1];
+    const pathOnly = this.router.url.split(/[?#]/)[0];
+    const segments = pathOnly.split('/').filter(Boolean);
+    const detailIndex = segments.indexOf('project-detail');
+    const projectId = detailIndex >= 0 && segments.length > detailIndex + 1 ? segments[detailIndex + 1] : '';
     this.contractId.set(projectId);
 
     try {

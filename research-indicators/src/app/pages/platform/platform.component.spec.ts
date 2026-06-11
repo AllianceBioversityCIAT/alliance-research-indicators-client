@@ -13,6 +13,7 @@ import { AllModalsComponent } from '../../shared/components/all-modals/all-modal
 import PlatformComponent from './platform.component';
 import * as mockServices from 'src/app/testing/mock-services.mock';
 import { SubmissionService } from '@shared/services/submission.service';
+import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.service';
 
 describe('PlatformComponent', () => {
   let component: PlatformComponent;
@@ -38,7 +39,8 @@ describe('PlatformComponent', () => {
         { provide: ActionsService, useValue: mockServices.actionsServiceMock },
         { provide: ApiService, useValue: mockServices.apiServiceMock },
         { provide: CacheService, useValue: mockServices.cacheServiceMock },
-        { provide: SubmissionService, useValue: mockServices.submissionServiceMock }
+        { provide: SubmissionService, useValue: mockServices.submissionServiceMock },
+        { provide: WhatsNewService, useValue: mockServices.whatsNewServiceMock }
       ]
     }).compileComponents();
 
