@@ -107,15 +107,18 @@
     font-size: 14px;
     font-weight: 500;
   }
+
+  // Short numeric field — input-only wrapper; label stays full width on one line.
+  &__contribution-input {
+    width: 7.5rem;
+    max-width: 100%;
+  }
 }
 
-// Quantitative contribution is a short number, not a full-width text field.
-// PrimeNG renders the input outside this component's view, so pierce
-// encapsulation to constrain the host + inner input width.
 /* stylelint-disable selector-pseudo-element-no-unknown, selector-class-pattern */
-:host ::ng-deep .sp-toc-block__number {
-  width: 9rem;
-  max-width: 100%;
+:host ::ng-deep .sp-toc-block__contribution-input p-inputnumber {
+  display: block;
+  width: 100%;
 
   .p-inputnumber-input {
     width: 100%;

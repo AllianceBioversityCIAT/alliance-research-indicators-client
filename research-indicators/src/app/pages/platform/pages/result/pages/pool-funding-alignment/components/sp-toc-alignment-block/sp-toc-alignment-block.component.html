@@ -213,18 +213,19 @@
             <label [for]="'sp-toc-contribution-input-' + spCode()" class="label inline-block">
               {{ CONTRIBUTION_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
             </label>
-            <p-inputNumber
-              [inputId]="'sp-toc-contribution-input-' + spCode()"
-              [ngModel]="d.quantitative_contribution"
-              (ngModelChange)="onContributionChange($event)"
-              [min]="0"
-              [useGrouping]="false"
-              [disabled]="disabled()"
-              [attr.aria-required]="true"
-              placeholder="0"
-              styleClass="sp-toc-block__number"
-              [attr.data-testid]="'sp-toc-contribution-input-' + spCode()">
-            </p-inputNumber>
+            <div class="sp-toc-block__contribution-input">
+              <p-inputNumber
+                [inputId]="'sp-toc-contribution-input-' + spCode()"
+                [ngModel]="d.quantitative_contribution"
+                (ngModelChange)="onContributionChange($event)"
+                [min]="0"
+                [useGrouping]="false"
+                [disabled]="disabled()"
+                [attr.aria-required]="true"
+                placeholder="0"
+                [attr.data-testid]="'sp-toc-contribution-input-' + spCode()">
+              </p-inputNumber>
+            </div>
             @if (errors?.['quantitative_contribution']; as msg) {
               <small role="alert" aria-live="polite" class="sp-toc-block__error" [attr.data-testid]="'sp-toc-error-contribution-' + spCode()">{{ msg }}</small>
             }
