@@ -1,5 +1,11 @@
 export const PROJECT_DASHBOARD_DEFAULT_LIMIT = 5;
 
+export interface ProjectDashboardRankedListItem {
+  id: string;
+  label: string;
+  count: number;
+}
+
 export interface GeoScopeSummary {
   global: number;
   regional: number;
