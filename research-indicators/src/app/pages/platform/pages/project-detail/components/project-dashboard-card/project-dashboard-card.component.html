@@ -1,0 +1,36 @@
+<section class="box-border flex h-full flex-col rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs"
+  [class.min-h-0]="compact()" [class.min-h-[280px]]="!compact()">
+  <header class="mb-4 flex items-start justify-between gap-3">
+    <div class="flex min-w-0 flex-1 flex-col gap-1">
+      <h2 class="m-0 font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">{{ title() }}</h2>
+      @if (description()) {
+      <p class="m-0 font-['Barlow'] text-[14px] leading-4 text-[#777C83]">{{ description() }}</p>
+      }
+    </div>
+  </header>
+
+  <div class="flex min-h-0 flex-1 flex-col">
+    @if (loading()) {
+    <div class="flex flex-1 flex-col items-center justify-center gap-2.5 px-3 py-6 text-center">
+      <app-custom-progress-bar></app-custom-progress-bar>
+      <span class="font-['Barlow'] text-[13px] text-[#777C83]">Loading chart…</span>
+    </div>
+    } @else if (error()) {
+    <div class="flex flex-1 flex-col items-center justify-center gap-2.5 px-3 py-6 text-center">
+      <i class="pi pi-exclamation-circle text-[28px] text-[#b00020]" aria-hidden="true"></i>
+      <p class="m-0 max-w-64 font-['Barlow'] text-[13px] leading-snug text-[#777C83]">{{ errorMessage() }}</p>
+      <p-button label="Try again" icon="pi pi-refresh" size="small" [outlined]="true" severity="secondary"
+        (keydown.enter)="retry.emit()" (click)="retry.emit()"></p-button>
+    </div>
+    } @else if (empty()) {
+    <div class="flex flex-1 flex-col items-center justify-center gap-2.5 px-3 py-6 text-center">
+      <i class="pi pi-chart-bar text-[28px] text-[#1689CA]" aria-hidden="true"></i>
+      <p class="m-0 max-w-64 font-['Barlow'] text-[13px] leading-snug text-[#777C83]">{{ emptyMessage() }}</p>
+    </div>
+    } @else {
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+      <ng-content></ng-content>
+    </div>
+    }
+  </div>
+</section>
