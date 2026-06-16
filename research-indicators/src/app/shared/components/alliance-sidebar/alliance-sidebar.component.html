@@ -57,7 +57,7 @@
         <i class="sidebar-option-icon" [ngClass]="'pi ' + group.icon" [style.fontSize]="group.iconSize ?? null"></i>
         }
         <span class="sidebar-option-label body-2 flex flex-1">{{ group.label }}</span>
-        <i class="pi shrink-0 !text-[12px] text-[#173f6f]"
+        <i class="pi shrink-0 !text-[12px] text-[#112F5C]"
           [class.pi-chevron-up]="isAdministrationGroupExpanded(group.id)"
           [class.pi-chevron-down]="!isAdministrationGroupExpanded(group.id)"></i>
       </button>
@@ -116,10 +116,10 @@
           <img [src]="child.s3Image | s3ImageUrl" alt="" class="shrink-0 object-contain"
             [style.width]="child.iconSize ?? '14px'" [style.height]="child.iconSize ?? '14px'" />
           } @else {
-          <i class="sidebar-option-icon shrink-0 text-[#173f6f]" [ngClass]="'pi ' + child.icon"
+          <i class="sidebar-option-icon shrink-0 text-[#112F5C]" [ngClass]="'pi ' + child.icon"
             [style.fontSize]="child.iconSize ?? null"></i>
           }
-          <span class="admin-flyout-label sidebar-option-label body-2 !text-[12.5px] text-[#173f6f]">{{ child.label
+          <span class="admin-flyout-label sidebar-option-label body-2 !text-[12.5px] text-[#112F5C]">{{ child.label
             }}</span>
         </a>
         }

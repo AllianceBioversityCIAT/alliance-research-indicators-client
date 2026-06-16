@@ -36,14 +36,14 @@
       styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
       <ng-template pTemplate="header">
         <tr>
-          <th class="!text-[#173F6F] min-w-[60px]" scope="col">
+          <th class="!text-[#112F5C] min-w-[60px]" scope="col">
             <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] xl:text-[16px]">
               Select
             </div>
           </th>
           @for (column of resultsCenterService.tableColumns(); track column.field) {
           @if (column.field !== 'versions' && (!column.hideIf || !column.hideIf())) {
-          <th class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#173F6F]"
+          <th class="{{ column.minWidth }} {{ column.maxWidth }} !text-[#112F5C]"
             [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
             <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] ">
               {{
@@ -130,9 +130,9 @@
           } @else if (column.field === 'public_link') {
           <td (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()">
             @if (result.public_link) {
-            <button type="button" data-public-link-action (click)="openPublicLink(result.public_link); $event.stopPropagation()"
-              [pTooltip]="result.public_link" tooltipPosition="left"
-              [attr.aria-label]="'Open public link for ' + result.result_official_code"
+            <button type="button" data-public-link-action
+              (click)="openPublicLink(result.public_link); $event.stopPropagation()" [pTooltip]="result.public_link"
+              tooltipPosition="left" [attr.aria-label]="'Open public link for ' + result.result_official_code"
               class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9]">
               <i class="pi pi-external-link !text-[16px]"></i>
             </button>
