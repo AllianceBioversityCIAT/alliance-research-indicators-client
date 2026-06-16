@@ -64,7 +64,7 @@
         <tr>
           @for (column of getVisibleColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
-          <th class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
+          <th class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#112F5C]"
             [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
             <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
               {{ column.header }}
@@ -140,11 +140,16 @@
           <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()"
             (keydown.enter)="$event.stopPropagation()">
             @if (result.public_link) {
-            <button type="button" data-public-link-action (click)="openPublicLink(result.public_link); $event.stopPropagation()"
-              [pTooltip]="result.public_link" tooltipPosition="left"
-              [attr.aria-label]="'Open public link for ' + result.result_official_code"
+            <button type="button" data-public-link-action
+              (click)="openPublicLink(result.public_link); $event.stopPropagation()" [pTooltip]="result.public_link"
+              tooltipPosition="left"
+              [attr.aria-label]="(result.platform_code === 'STAR' ? 'Open PDF for ' : 'Open public link for ') + result.result_official_code"
               class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9]">
+              @if (result.platform_code === 'STAR') {
+              <i class="pi pi-file-pdf !text-[16px]"></i>
+              } @else {
               <i class="pi pi-external-link !text-[16px]"></i>
+              }
             </button>
             } @else {
             <span>None</span>
@@ -191,7 +196,7 @@
 
               <p-popover #popover [baseZIndex]="10000" [appendTo]="'self'"
                 styleClass="rounded-lg p-1 -ml-4 text-center">
-                <div class="mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
+                <div class="mb-3 text-[14px] text-[#112F5C]">Approved Versions</div>
                 <div class="grid grid-cols-2 gap-2">
                   @for (year of versions; track year) {
                   <span (keydown.enter)="openResultByYear(result.result_official_code, year, result.platform_code)"
