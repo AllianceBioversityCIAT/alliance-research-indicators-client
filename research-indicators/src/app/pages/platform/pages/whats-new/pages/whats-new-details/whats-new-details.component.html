@@ -88,7 +88,7 @@
               }
             </div>
 
-            <span class="my-2 font-['Space_Grotesk'] text-[18px] font-bold leading-[18px] text-[#173f6f]">
+            <span class="my-2 font-['Space_Grotesk'] text-[18px] font-bold leading-[18px] text-[#112F5C]">
               {{ headerInfo?.properties?.['Name']?.title[0]?.plain_text ??
               headerInfo?.properties?.['title']?.title[0]?.plain_text }}
             </span>
@@ -100,9 +100,9 @@
             @if (item.type === 'numbered_list_item') {
             @if (index === 0 || whatsNewService.activeNotionPageData()?.blocks[index - 1]?.type !==
             'numbered_list_item') {
-              @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id; let itemIndex = $index) {
-              <app-dynamic-notion-block [block]="numberedItem" [listStart]="itemIndex + 1"></app-dynamic-notion-block>
-              }
+            @for (numberedItem of getConsecutiveNumberedItems(index); track numberedItem.id; let itemIndex = $index) {
+            <app-dynamic-notion-block [block]="numberedItem" [listStart]="itemIndex + 1"></app-dynamic-notion-block>
+            }
             }
             } @else {
             <app-dynamic-notion-block [block]="item"></app-dynamic-notion-block>
@@ -134,7 +134,7 @@
               </ul>
 
               <div class="flex min-w-0 flex-col gap-0.5">
-                <span class=" text-[10px] font-bold uppercase tracking-wide text-[#173f6f]">
+                <span class=" text-[10px] font-bold uppercase tracking-wide text-[#112F5C]">
                   Created by
                 </span>
                 @if (authorNames) {
@@ -153,8 +153,8 @@
 
             @if (whatsNewService.getActiveNotionPageUrl(); as notionUrl) {
             <a [href]="notionUrl" target="_blank" rel="noopener noreferrer"
-              class="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-[7px] border border-[#d5dbe0] bg-white px-4 py-2.5 !font-['Space_Grotesk'] text-[12px] font-medium text-[#173f6f] no-underline sm:self-center">
-              <i class="pi pi-external-link !text-[12px] text-[#173F6F]" aria-hidden="true"></i>
+              class="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-[7px] border border-[#d5dbe0] bg-white px-4 py-2.5 !font-['Space_Grotesk'] text-[12px] font-medium text-[#112F5C] no-underline sm:self-center">
+              <i class="pi pi-external-link !text-[12px] text-[#112F5C]" aria-hidden="true"></i>
               Go to Notion
             </a>
             }
