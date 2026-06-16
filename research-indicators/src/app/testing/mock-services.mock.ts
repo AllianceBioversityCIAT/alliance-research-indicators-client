@@ -612,7 +612,7 @@ export const mockResultsStatus = {
         name: 'Status 1',
         config: {
           color: {
-            text: '#173F6F',
+            text: '#112F5C',
             border: '#7C9CB9',
             background: null
           }

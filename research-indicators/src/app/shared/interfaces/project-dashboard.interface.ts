@@ -4,6 +4,7 @@ export interface ProjectDashboardRankedListItem {
   id: string;
   label: string;
   count: number;
+  iconUrl?: string;
 }
 
 export interface GeoScopeSummary {
@@ -18,6 +19,7 @@ export interface ProjectDashboardRankedItem {
   agreement_id?: string;
   contract_id?: string;
   contract_code?: string;
+  contract_description?: string;
   project_name?: string;
   institution_id?: number;
   institution_name?: string;
@@ -55,6 +57,7 @@ export interface TopPrimaryLeverItem {
   short_name: string;
   full_name: string;
   count: number;
+  icon?: string;
 }
 
 export interface TopPrimaryLeversReport {
@@ -69,12 +72,4 @@ export interface GeoScopeReport {
   geo_scope_summary: Partial<GeoScopeSummary>;
   top_regions: ProjectDashboardRankedItem[];
   top_countries: ProjectDashboardRankedItem[];
-}
-
-export interface RecentProjectActivityItem {
-  id: string;
-  type: 'result' | 'comment' | 'status' | 'update';
-  title: string;
-  description: string;
-  occurred_at?: string;
 }
