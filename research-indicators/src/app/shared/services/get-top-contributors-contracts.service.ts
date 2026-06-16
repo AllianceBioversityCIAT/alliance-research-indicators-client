@@ -1,19 +1,19 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
-import { PROJECT_DASHBOARD_DEFAULT_LIMIT, ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
+import { ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
 
 @Injectable()
 export class GetTopContributorsContractsService {
   apiService = inject(ApiService);
 
   contractId = '';
-  limit = PROJECT_DASHBOARD_DEFAULT_LIMIT;
+  limit = 0;
 
   list = signal<ProjectDashboardRankedItem[]>([]);
   loading = signal(false);
   loadError = signal(false);
 
-  main(contractId: string, limit = PROJECT_DASHBOARD_DEFAULT_LIMIT) {
+  main(contractId: string, limit: number) {
     this.contractId = contractId;
     this.limit = limit;
     void this.update();
