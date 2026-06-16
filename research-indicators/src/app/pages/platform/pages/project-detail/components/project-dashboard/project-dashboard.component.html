@@ -1,0 +1,40 @@
+<section class="project-dashboard flex w-full flex-col gap-6">
+  <header class="project-dashboard__header flex flex-col">
+    <span class="font-['Barlow'] text-[16px] font-[600] leading-normal text-[#112F5C] m-0">Project insights</span>
+    <span class="m-0 max-w-[42rem] font-['Barlow'] text-[14px] leading-relaxed text-[#777C83]">
+      Visual overview of PI performance, partners, and geographic reach for this project.
+    </span>
+  </header>
+
+  <div class="project-dashboard__top grid grid-cols-1 gap-6 lg:grid-cols-3">
+    <app-project-dashboard-card title="Contributing contracts"
+      description="Top contracts contributing to results where this project is the primary contract."
+      iconClass="pi pi-briefcase" [loading]="topContributors.loading()" [error]="topContributors.loadError()"
+      [empty]="contributorsEmpty()" emptyMessage="No contributor contracts were found for this project."
+      (retry)="topContributors.update()">
+      <app-project-dashboard-ranked-list [items]="contributorItems()"
+        layout="rows-stacked"></app-project-dashboard-ranked-list>
+    </app-project-dashboard-card>
+
+    <app-project-dashboard-card title="Partner institutions"
+      description="Partner institutions most frequently linked to results on this primary contract."
+      iconClass="pi pi-building" [loading]="topPartners.loading()" [error]="topPartners.loadError()"
+      [empty]="partnersEmpty()" emptyMessage="No partner institutions were found for this project."
+      (retry)="topPartners.update()">
+      <app-project-dashboard-ranked-list [items]="partnerItems()"
+        layout="rows-partners"></app-project-dashboard-ranked-list>
+    </app-project-dashboard-card>
+
+    <app-project-dashboard-card title="Primary levers"
+      description="Primary levers most frequently linked to results on this contract." iconClass="pi pi-sliders-h"
+      [loading]="topPrimaryLevers.loading()" [error]="topPrimaryLevers.loadError()" [empty]="leversEmpty()"
+      emptyMessage="No primary levers were found for this project." (retry)="topPrimaryLevers.update()">
+      <app-project-dashboard-ranked-list [items]="leverItems()"
+        layout="rows-stacked-lever"></app-project-dashboard-ranked-list>
+    </app-project-dashboard-card>
+  </div>
+
+  <div class="project-dashboard__bottom w-full">
+    <app-geo-scope-card></app-geo-scope-card>
+  </div>
+</section>

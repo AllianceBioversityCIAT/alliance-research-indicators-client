@@ -1,13 +1,7 @@
-<app-project-dashboard-card
-  title="Geographic scope"
-  description="Distribution of geographic reach for results linked to this primary contract."
-  iconClass="pi pi-globe"
-  [compact]="true"
-  [loading]="service.loading()"
-  [error]="service.loadError()"
-  [empty]="isEmpty()"
-  emptyMessage="No geographic scope data was found for this project."
-  (retry)="service.update()">
+<app-project-dashboard-card title="Geographic scope"
+  description="Distribution of geographic reach for results linked to this primary contract." iconClass="pi pi-globe"
+  [compact]="true" [loading]="service.loading()" [error]="service.loadError()" [empty]="isEmpty()"
+  emptyMessage="No geographic scope data was found for this project." (retry)="service.update()">
   <div class="geo-scope">
     <div class="geo-scope__main">
       @if (donutTotal() > 0) {
