@@ -102,7 +102,7 @@
             [totalRecords]="myProjectsService.totalRecords()" [first]="getCurrentFirst()"
             (onPage)="onCurrentPageChange($event)" (onSort)="onSort($event)" [paginatorDropdownAppendTo]="tableRppScope"
             currentPageReportTemplate="Showing {first} to {last} of {totalRecords} projects" [sortField]="sortField()"
-            [sortOrder]="sortOrder()"             [globalFilterFields]="[
+            [sortOrder]="sortOrder()" [globalFilterFields]="[
                   'agreement_id',
                   'full_name',
                   'contract_status',
@@ -114,56 +114,56 @@
                 ]" styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows">
             <ng-template pTemplate="header">
               <tr>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="agreement_id">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="agreement_id">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     Code
                     <p-sortIcon field="agreement_id"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="description" style="width: 40%">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="description" style="width: 40%">
                   <div
                     class="flex items-center font-[500] leading-4.5 gap-2 text-[14px] overflow-hidden line-clamp-3 xl:line-clamp-2">
                     Project Name
                     <p-sortIcon field="description"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="contract_status">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="contract_status">
                   <div class="font-[500] leading-4.5 gap-2 text-[14px]">
                     Status
                     <p-sortIcon field="contract_status"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="display_principal_investigator">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="display_principal_investigator">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     Principal Investigator
                     <p-sortIcon field="display_principal_investigator"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="display_lever_name">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="display_lever_name">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     Lever
                     <p-sortIcon field="display_lever_name"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="count_results" style="min-width: 90px">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="count_results" style="min-width: 90px">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     Results
                     <p-sortIcon field="count_results"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="lead_center" style="min-width: 200px">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="lead_center" style="min-width: 200px">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     Lead Center
                     <p-sortIcon field="lead_center"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="start_date" style="min-width: 120px">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="start_date" style="min-width: 120px">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     Start Date
                     <p-sortIcon field="start_date"></p-sortIcon>
                   </div>
                 </th>
-                <th class="!text-[#173F6F]" scope="col" pSortableColumn="end_date" style="min-width: 120px">
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="end_date" style="min-width: 120px">
                   <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                     End Date
                     <p-sortIcon field="end_date"></p-sortIcon>
@@ -195,8 +195,8 @@
                     class="inline-block w-fit max-w-full" style="color: inherit; text-decoration: none">
                     <div class="flex w-fit items-center min-h-[40px]">
                       <app-custom-tag [statusId]="projectUtils.getStatusDisplay(project).statusId"
-                        [statusName]="projectUtils.getStatusDisplay(project).statusName"
-                        [maxWidth]="statusTagMaxWidth" [multiline]="true"></app-custom-tag>
+                        [statusName]="projectUtils.getStatusDisplay(project).statusName" [maxWidth]="statusTagMaxWidth"
+                        [multiline]="true"></app-custom-tag>
                     </div>
                   </a>
                 </td>
@@ -250,7 +250,7 @@
                     <div class="flex flex-col items-center gap-1">
                       <img [src]="'images/landing/projects.png' | s3ImageUrl" alt="Empty Projects"
                         class="w-[180px] h-[180px] mb-3" />
-                      <h2 class="text-[#173F6F] text-[16px] font-bold">
+                      <h2 class="text-[#112F5C] text-[16px] font-bold">
                         {{ myProjectsFilterItem()?.id === 'my' ? 'YOUR PROJECTS LIST IS EMPTY' : 'PROJECTS LIST IS
                         EMPTY' }}
                       </h2>
