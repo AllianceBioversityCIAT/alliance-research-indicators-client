@@ -1,0 +1,129 @@
+.geo-scope {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.geo-scope__main {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.geo-scope__donut-panel {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+  border-radius: 10px;
+  background: #f4f7f9;
+}
+
+.geo-scope__donut {
+  display: flex;
+  width: 88px;
+  height: 88px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.geo-scope__donut-hole {
+  display: flex;
+  width: 54px;
+  height: 54px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 1px #e8ebed;
+}
+
+.geo-scope__donut-total {
+  font-family: Barlow, sans-serif;
+  font-size: 18px;
+  line-height: 1;
+  color: #112f5c;
+}
+
+.geo-scope__donut-label {
+  margin-top: 4px;
+  font-family: Barlow, sans-serif;
+  font-size: 11px;
+  color: #777c83;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.geo-scope__legend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.geo-scope__legend-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.geo-scope__legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.geo-scope__legend-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: Barlow, sans-serif;
+  font-size: 12px;
+  color: #4c5158;
+}
+
+.geo-scope__legend-value {
+  font-family: Barlow, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #112f5c;
+  font-variant-numeric: tabular-nums;
+}
+
+.geo-scope__map {
+  min-width: 0;
+}
+
+.geo-scope__regions {
+  padding-top: 4px;
+}
+
+.geo-scope__list-title {
+  margin: 0 0 8px;
+  font-family: Barlow, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: #112f5c;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media screen and (width <= 1024px) {
+  .geo-scope__main {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (width <= 768px) {
+  .geo-scope__donut-panel {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}

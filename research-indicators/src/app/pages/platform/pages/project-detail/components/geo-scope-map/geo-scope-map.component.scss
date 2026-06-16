@@ -1,0 +1,78 @@
+.geo-scope-map {
+  position: relative;
+  overflow: hidden;
+  min-height: 140px;
+  border: 1px solid #e8ebed;
+  border-radius: 12px;
+  background: #f8fafb;
+}
+
+.geo-scope-map__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.geo-scope-map__chips {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.geo-scope-map__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgb(22 137 202 / 18%);
+  font-family: Barlow, sans-serif;
+  font-size: 12px;
+  backdrop-filter: blur(4px);
+}
+
+.geo-scope-map__chip--high {
+  background: #1689ca;
+  border-color: #1689ca;
+  color: #fff;
+}
+
+.geo-scope-map__chip--medium {
+  background: #7c9cb9;
+  border-color: #7c9cb9;
+  color: #112f5c;
+}
+
+.geo-scope-map__chip--low {
+  background: #fff;
+  border-color: #a2a9af;
+  color: #4c5158;
+}
+
+.geo-scope-map__chip-label {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.geo-scope-map__chip-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.geo-scope-map__empty {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  left: 16px;
+  margin: 0;
+  font-family: Barlow, sans-serif;
+  font-size: 12px;
+  color: #777c83;
+  text-align: center;
+}

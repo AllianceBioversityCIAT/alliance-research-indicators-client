@@ -1,0 +1,46 @@
+<app-project-dashboard-card
+  title="Geographic scope"
+  description="Distribution of geographic reach for results linked to this primary contract."
+  iconClass="pi pi-globe"
+  [compact]="true"
+  [loading]="service.loading()"
+  [error]="service.loadError()"
+  [empty]="isEmpty()"
+  emptyMessage="No geographic scope data was found for this project."
+  (retry)="service.update()">
+  <div class="geo-scope">
+    <div class="geo-scope__main">
+      @if (donutTotal() > 0) {
+      <div class="geo-scope__donut-panel">
+        <div class="geo-scope__donut" [style.background]="donutGradient()">
+          <div class="geo-scope__donut-hole">
+            <strong class="geo-scope__donut-total">{{ donutTotal() }}</strong>
+            <span class="geo-scope__donut-label">Results</span>
+          </div>
+        </div>
+
+        <ul class="geo-scope__legend m-0 list-none p-0">
+          @for (segment of donutSegments(); track segment.key) {
+          <li class="geo-scope__legend-item">
+            <span class="geo-scope__legend-dot" [style.background-color]="segment.color"></span>
+            <span class="geo-scope__legend-label">{{ segment.label }}</span>
+            <span class="geo-scope__legend-value">{{ segment.value }}</span>
+          </li>
+          }
+        </ul>
+      </div>
+      }
+
+      <div class="geo-scope__map">
+        <app-geo-scope-map [countries]="topCountries()"></app-geo-scope-map>
+      </div>
+    </div>
+
+    @if (topRegions().length) {
+    <div class="geo-scope__regions">
+      <h3 class="geo-scope__list-title">Top regions</h3>
+      <app-project-dashboard-ranked-list [items]="topRegions()" layout="rows"></app-project-dashboard-ranked-list>
+    </div>
+    }
+  </div>
+</app-project-dashboard-card>
