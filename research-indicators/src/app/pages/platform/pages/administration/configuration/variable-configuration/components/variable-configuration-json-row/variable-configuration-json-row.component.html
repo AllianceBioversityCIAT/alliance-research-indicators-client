@@ -11,8 +11,8 @@
       <button type="button"
         class="flex w-full cursor-pointer items-center justify-between border-0 bg-[#e8ebed] rounded-[2px] py-2.5 px-3.5 text-left"
         (click)="sectionToggle.emit(section.key)" [attr.aria-expanded]="isSectionExpanded(section.key)">
-        <span class="text-[14px] font-[600] text-[#173F6F]">{{ formatLabel(section.key) }}</span>
-        <i class="pi shrink-0 text-[#173f6f] !text-[12px]" [class.pi-chevron-up]="isSectionExpanded(section.key)"
+        <span class="text-[14px] font-[600] text-[#112F5C]">{{ formatLabel(section.key) }}</span>
+        <i class="pi shrink-0 text-[#112F5C] !text-[12px]" [class.pi-chevron-up]="isSectionExpanded(section.key)"
           [class.pi-chevron-down]="!isSectionExpanded(section.key)"></i>
       </button>
       @if (isSectionExpanded(section.key)) {

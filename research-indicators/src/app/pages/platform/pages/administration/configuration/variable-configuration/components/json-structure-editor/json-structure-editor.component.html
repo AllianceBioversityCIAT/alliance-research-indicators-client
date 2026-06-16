@@ -2,7 +2,7 @@
   @for (node of nodes(); track node.pathKey) {
   @if (node.type === 'group') {
   <section class="flex flex-col gap-3 py-1">
-    <h3 class="m-0 text-[14px] font-[700] capitalize px-2.5 text-[#173F6F]">
+    <h3 class="m-0 text-[14px] font-[700] capitalize px-2.5 text-[#112F5C]">
       {{ formatLabel(node.key) }}
     </h3>
     <app-json-structure-editor [nodes]="node.children" [values]="values()" [disabled]="disabled()"
