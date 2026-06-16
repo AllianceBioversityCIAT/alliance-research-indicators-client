@@ -1,26 +1,48 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
 import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ApiService } from '../../../../shared/services/api.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, PRIMARY_OUTLET, Router, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ResultsCenterService } from '../results-center/results-center.service';
+import { filter } from 'rxjs';
+
+interface ViewTab {
+  label: string;
+  route: string;
+}
 
 @Component({
   selector: 'app-project-detail',
-  imports: [ResultsCenterTableComponent, ProjectItemComponent, TableFiltersSidebarComponent, TableConfigurationComponent, SectionSidebarComponent],
+  imports: [
+    ResultsCenterTableComponent,
+    ProjectItemComponent,
+    TableFiltersSidebarComponent,
+    TableConfigurationComponent,
+    SectionSidebarComponent,
+    RouterOutlet
+  ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
 })
 export default class ProjectDetailComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
+  router = inject(Router);
   resultsCenterService = inject(ResultsCenterService);
+  private readonly destroyRef = inject(DestroyRef);
   contractId = signal('');
+  lastSegment = signal('project-results');
   currentProject = signal<GetProjectDetail>({});
+
+  tabs = computed<ViewTab[]>(() => [
+    { label: 'Project Dashboard', route: 'project-dashboard' },
+    { label: 'Project Results', route: 'project-results' }
+  ]);
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
@@ -37,6 +59,29 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
     }
 
     this.getProjectDetail();
+    this.getLastSegment();
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.getLastSegment());
+  }
+
+  getLastSegment(): void {
+    const tree = this.router.parseUrl(this.router.url);
+    const segments = tree.root.children[PRIMARY_OUTLET]?.segments ?? [];
+    const lastPath = segments.at(-1)?.path ?? '';
+    this.lastSegment.set(lastPath === this.contractId() || !lastPath ? 'project-results' : lastPath);
+  }
+
+  onTabClick(tab: ViewTab): void {
+    this.lastSegment.set(tab.route);
+    if (tab.route === 'project-results') {
+      void this.router.navigate(['./'], { relativeTo: this.activatedRoute });
+    } else {
+      void this.router.navigate([tab.route], { relativeTo: this.activatedRoute });
+    }
   }
 
   ngOnDestroy(): void {
@@ -61,19 +106,16 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   onIndicatorClick(indicator: { indicator_id: number; name: string }): void {
-    // Limpiar otros filtros de indicadores primero
     this.resultsCenterService.tableFilters.update(prev => ({
       ...prev,
       indicators: []
     }));
 
-    // Agregar el indicador seleccionado al filtro
     this.resultsCenterService.tableFilters.update(prev => ({
       ...prev,
       indicators: [{ indicator_id: indicator.indicator_id, name: indicator.name }]
     }));
 
-    // Aplicar los filtros
     this.resultsCenterService.applyFilters();
   }
 

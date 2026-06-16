@@ -173,7 +173,24 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
         data: {
           title: 'Project Detail'
-        }
+        },
+        children: [
+          {
+            path: 'project-results',
+            redirectTo: '../',
+            pathMatch: 'full'
+          },
+          {
+            path: 'project-dashboard',
+            loadComponent: () =>
+              import('@platform/pages/project-detail/components/project-dashboard/project-dashboard.component').then(
+                m => m.ProjectDashboardComponent
+              ),
+            data: {
+              title: 'Project Dashboard'
+            }
+          }
+        ]
       },
       {
         path: 'about',
