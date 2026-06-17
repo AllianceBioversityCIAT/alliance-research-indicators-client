@@ -124,7 +124,7 @@ Critical path for Wednesday: T-01 → T-02/T-03 → T-04 → T-06. T-05/T-07 can
 
 ### T-BIL-TM2-06 — *LIVE-VERIFY on testing env + demo prep*
 
-- **Status**: `in-progress` — static contract verification done 2026-06-10 (D-10); live smoke pending backend deploy to testing (see [`./execution.md`](./execution.md))
+- **Status**: `[~]` deferred — **accepted post-archive follow-up (2026-06-17)**. Static contract verification + local live golden-path done (D-10; backend Swagger contract matches, SP cascade rendered from real lambda-toc data); the full §12 golden-path sign-off against the **deployed testing env** remains, gated on the backend testing deploy. Tracked in the archive-summary §9.
 - **Size**: S
 - **Depends on**: T-BIL-TM2-04 · backend proxy deployed to testing
 - **Discharges ACs**: re-runs AC-04.1/04.2, AC-05.1, AC-07.1, AC-08.1, AC-09.1 against live data
