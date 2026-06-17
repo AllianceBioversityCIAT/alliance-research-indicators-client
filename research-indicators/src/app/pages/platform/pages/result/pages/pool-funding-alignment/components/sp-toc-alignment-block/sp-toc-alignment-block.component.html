@@ -102,7 +102,7 @@
           [ngModel]="d.level"
           (onChange)="onLevelChange($event.value)"
           [attr.aria-required]="true"
-          styleClass="sp-toc-block__select"
+          styleClass="sp-toc-block__select" panelStyleClass="sp-toc-select-panel"
           [style]="{ width: '100%' }"
           [attr.data-testid]="'sp-toc-level-' + spCode()">
         </p-select>
@@ -136,7 +136,7 @@
               [ngModel]="d.toc_result_id"
               (onChange)="onHloChange($event.value)"
               [attr.aria-required]="true"
-              styleClass="sp-toc-block__select"
+              styleClass="sp-toc-block__select" panelStyleClass="sp-toc-select-panel"
               [style]="{ width: '100%' }"
               [attr.data-testid]="'sp-toc-hlo-' + spCode()">
               <ng-template let-option pTemplate="selectedItem">
@@ -174,7 +174,7 @@
             [ngModel]="d.indicator_id"
             (onChange)="onIndicatorChange($event.value)"
             [attr.aria-required]="true"
-            styleClass="sp-toc-block__select"
+            styleClass="sp-toc-block__select" panelStyleClass="sp-toc-select-panel"
             [style]="{ width: '100%' }"
             [attr.data-testid]="'sp-toc-indicator-' + spCode()">
           </p-select>
