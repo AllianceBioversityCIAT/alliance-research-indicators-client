@@ -1,46 +1,126 @@
 <section class="block flex w-full flex-col gap-6 p-6">
-  <header class="flex flex-col">
-    <span class="font-['Barlow'] text-[16px] font-[600] leading-normal text-[#112F5C] m-0">General information</span>
+  <header class="flex flex-col pb-1">
+    <span class="font-['Barlow'] text-[16px] font-[600] leading-normal text-[#112F5C] m-0">Project dashboard</span>
     <span class="m-0 max-w-[42rem] font-['Barlow'] text-[14px] leading-relaxed text-[#777C83]">
-      Key project details for this primary contract.
+      Visual overview of project details, people, PI performance, partners, and geographic reach.
     </span>
   </header>
-  <section class="flex flex-col gap-3 rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs">
 
-    <app-project-general-info [project]="project()"></app-project-general-info>
+  <section class="rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs">
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div class="flex flex-col">
+        <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">Project timeline</span>
+        <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Contract dates, lever, and status.</span>
+      </div>
+
+      <app-custom-tag class="shrink-0" [statusId]="projectStatus().statusId"
+        [statusName]="projectStatus().statusName"></app-custom-tag>
+    </div>
+
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+      <div class="rounded-lg border border-[#e8ebed] bg-white/80 p-4">
+        <span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wide text-[#8D9299]">Start
+          date</span>
+        <strong class="mt-1 block font-['Barlow'] text-[17px] font-semibold text-[#112F5C]">{{ project().start_date |
+          date: 'dd/MM/yyyy' }}</strong>
+      </div>
+
+      <div class="rounded-lg border border-[#e8ebed] bg-white/80 p-4">
+        <span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wide text-[#8D9299]">End
+          date</span>
+        <strong class="mt-1 block font-['Barlow'] text-[17px] font-semibold text-[#112F5C]">{{ project().end_date |
+          date: 'dd/MM/yyyy' }}</strong>
+      </div>
+
+      <div class="rounded-lg border border-[#e8ebed] bg-white/80 p-4">
+        <span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wide text-[#8D9299]">Lever</span>
+        <strong class="mt-1 block truncate font-['Barlow'] text-[17px] font-semibold text-[#345B8F]"
+          [title]="projectLeverName()">{{ projectLeverName() }}</strong>
+      </div>
+    </div>
   </section>
 
-  <header class="flex flex-col pb-1">
-    <span class="font-['Barlow'] text-[16px] font-[600] leading-normal text-[#112F5C] m-0">Project insights</span>
-    <span class="m-0 max-w-[42rem] font-['Barlow'] text-[14px] leading-relaxed text-[#777C83]">
-      Visual overview of PI performance, partners, and geographic reach for this project.
-    </span>
-  </header>
+  <div class="grid grid-cols-1 gap-5 lg:flex lg:items-stretch xl:gap-6">
+    <section
+      class="flex flex-col gap-4 rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs lg:flex-1">
+      <header class="flex flex-col">
+        <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">General information</span>
+        <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Results by indicator.</span>
+      </header>
 
-  <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
-    <app-project-dashboard-card title="Contributing contracts"
-      description="Top contracts contributing to results where this project is the primary contract."
-      iconClass="pi pi-briefcase" [loading]="topContributors.loading()" [error]="topContributors.loadError()"
-      [empty]="contributorsEmpty()" emptyMessage="No contributor contracts were found for this project."
-      [items]="contributorItems()" layout="rows-stacked" (retry)="topContributors.update()">
-    </app-project-dashboard-card>
+      <div class="flex flex-1 flex-col items-center justify-center gap-4">
+        <div class="flex h-[118px] w-[118px] shrink-0 items-center justify-center rounded-full"
+          [style.background]="indicatorDonutGradient()">
+          <div class="flex h-[74px] w-[74px] flex-col items-center justify-center rounded-full bg-white">
+            <strong class="font-['Barlow'] text-2xl leading-none text-[#112F5C]">{{ totalProjectResults() }}</strong>
+            <span class="mt-0.5 font-['Barlow'] text-[11px] uppercase tracking-[0.04em] text-[#777C83]">Results</span>
+          </div>
+        </div>
 
-    <app-project-dashboard-card title="Partner institutions"
-      description="Partner institutions most frequently linked to results on this primary contract."
-      iconClass="pi pi-building" [loading]="topPartners.loading()" [error]="topPartners.loadError()"
-      [empty]="partnersEmpty()" emptyMessage="No partner institutions were found for this project."
-      [items]="partnerItems()" layout="rows-partners" (retry)="topPartners.update()">
-    </app-project-dashboard-card>
+        <ul class="m-0 grid w-full min-w-0 grid-cols-1 list-none gap-2 p-0 sm:grid-cols-2 xl:grid-cols-3">
+          @for (indicator of indicatorSummaries(); track indicator.id) {
+          <li class="grid min-w-0 grid-cols-[auto_1fr_auto] items-center gap-1.5 rounded-md bg-white/60 px-2 py-1.5">
+            <span class="h-2.5 w-2.5 rounded-full" [style.background-color]="indicator.color"></span>
+            <span class="truncate font-['Barlow'] text-[11px] text-[#4C5158]" [title]="indicator.label">{{
+              indicator.label }}</span>
+            <span class="font-['Barlow'] text-xs font-bold tabular-nums text-[#112F5C]">{{ indicator.value }}</span>
+          </li>
+          }
+        </ul>
+      </div>
+    </section>
 
-    <app-project-dashboard-card title="Primary levers"
-      description="Primary levers most frequently linked to results on this contract." iconClass="pi pi-sliders-h"
-      [loading]="topPrimaryLevers.loading()" [error]="topPrimaryLevers.loadError()" [empty]="leversEmpty()"
-      emptyMessage="No primary levers were found for this project." [items]="leverItems()" layout="rows-stacked-lever"
-      (retry)="topPrimaryLevers.update()">
-    </app-project-dashboard-card>
+    <div class="flex lg:flex-1 [&>*]:w-full">
+      <app-project-dashboard-card title="Contact persons"
+        description="Staff linked to this primary contract." iconClass="pi pi-users" [compact]="true"
+        [loading]="contractStaff.loading()" [error]="contractStaff.loadError()" [empty]="staffEmpty()"
+        emptyMessage="No contact persons were found for this project." (retry)="contractStaff.update()">
+        <ul class="m-0 flex list-none flex-col gap-3 p-0">
+          @for (person of contractStaff.staff(); track person.name + person.role) {
+          <li class="flex flex-col gap-1 rounded-md border border-[#e8ebed] bg-white/80 px-4 py-3">
+            <span class="font-['Barlow'] text-sm font-semibold leading-snug text-[#112F5C]">{{ person.name }}</span>
+            <span class="font-['Barlow'] text-xs leading-snug text-[#777C83]">{{ person.role }}</span>
+          </li>
+          }
+        </ul>
+      </app-project-dashboard-card>
+    </div>
+
+    <div class="flex lg:flex-1 [&>*]:w-full">
+      <app-project-dashboard-card title="Primary levers"
+        description="Primary levers most frequently linked to results on this contract." iconClass="pi pi-sliders-h"
+        [compact]="true" [loading]="topPrimaryLevers.loading()" [error]="topPrimaryLevers.loadError()"
+        [empty]="leversEmpty()" emptyMessage="No primary levers were found for this project." [items]="leverItems()"
+        layout="rows-stacked-lever" (retry)="topPrimaryLevers.update()">
+      </app-project-dashboard-card>
+    </div>
   </div>
 
-  <div class="w-full">
-    <app-geo-scope-card></app-geo-scope-card>
+  <div class="grid grid-cols-1 gap-5 lg:flex lg:min-h-[520px] lg:items-stretch xl:gap-6">
+    <div class="flex min-h-[520px] lg:min-h-0 lg:flex-1 lg:self-stretch">
+      <app-geo-scope-card class="h-full w-full"></app-geo-scope-card>
+    </div>
+
+    <div class="flex flex-col gap-5 lg:flex-1 lg:self-stretch xl:gap-6">
+      <div class="flex flex-1">
+        <app-project-dashboard-card title="Contributing contracts"
+          description="Top contracts contributing to results where this project is the primary contract."
+          class="h-full w-full" iconClass="pi pi-briefcase" [compact]="true" [loading]="topContributors.loading()"
+          [error]="topContributors.loadError()" [empty]="contributorsEmpty()"
+          emptyMessage="No contributor contracts were found for this project." [items]="contributorItems()"
+          layout="rows-stacked" (retry)="topContributors.update()">
+        </app-project-dashboard-card>
+      </div>
+
+      <div class="flex flex-1">
+        <app-project-dashboard-card title="Partner institutions"
+          description="Partner institutions most frequently linked to results on this primary contract."
+          class="h-full w-full" iconClass="pi pi-building" [compact]="true" [loading]="topPartners.loading()"
+          [error]="topPartners.loadError()" [empty]="partnersEmpty()"
+          emptyMessage="No partner institutions were found for this project." [items]="partnerItems()"
+          layout="rows-partners" (retry)="topPartners.update()">
+        </app-project-dashboard-card>
+      </div>
+    </div>
   </div>
 </section>

@@ -31,11 +31,11 @@
       <p class="m-0 max-w-64 font-['Barlow'] text-[13px] leading-snug text-[#777C83]">{{ emptyMessage() }}</p>
     </div>
     } @else if (items().length) {
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible">
       <ng-container *ngTemplateOutlet="rankedList"></ng-container>
     </div>
     } @else {
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col overflow-visible">
       <ng-content></ng-content>
     </div>
     }
