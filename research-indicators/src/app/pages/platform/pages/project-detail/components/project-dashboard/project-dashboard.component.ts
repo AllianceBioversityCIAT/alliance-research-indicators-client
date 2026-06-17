@@ -1,26 +1,29 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
 import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
-import { ProjectDashboardRankedListComponent } from '../project-dashboard-ranked-list/project-dashboard-ranked-list.component';
+import { ProjectGeneralInfoComponent } from '@shared/components/project-general-info/project-general-info.component';
 import { GetTopContributorsContractsService } from '@services/get-top-contributors-contracts.service';
 import { GetTopPartnersService } from '@services/get-top-partners.service';
 import { GetTopPrimaryLeversService } from '@services/get-top-primary-levers.service';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
+import { ApiService } from '@shared/services/api.service';
+import { GetProjectDetail } from '@shared/interfaces/get-project-detail.interface';
 
 @Component({
   selector: 'app-project-dashboard',
   standalone: true,
-  imports: [ProjectDashboardCardComponent, ProjectDashboardRankedListComponent, GeoScopeCardComponent],
+  imports: [ProjectDashboardCardComponent, GeoScopeCardComponent, ProjectGeneralInfoComponent],
   providers: [GetTopContributorsContractsService, GetTopPartnersService, GetTopPrimaryLeversService, GetGeoScopeService],
   templateUrl: './project-dashboard.component.html',
-  styleUrl: './project-dashboard.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProjectDashboardComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly api = inject(ApiService);
 
   readonly contractId = computed(() => this.route.parent?.snapshot.paramMap.get('id') ?? '');
+  readonly project = signal<GetProjectDetail>({});
 
   readonly topContributors = inject(GetTopContributorsContractsService);
   readonly topPartners = inject(GetTopPartnersService);
@@ -68,12 +71,22 @@ export class ProjectDashboardComponent {
     effect(() => {
       const contractId = this.contractId();
       if (contractId) {
+        void this.loadProject(contractId);
         this.topContributors.main(contractId, 3);
         this.topPartners.main(contractId, 5);
         this.topPrimaryLevers.main(contractId, 5);
         this.geoScope.main(contractId);
       }
     });
+  }
+
+  private async loadProject(contractId: string): Promise<void> {
+    const response = await this.api.GET_ResultsCount(contractId);
+    if (response?.data) {
+      this.project.set(response.data);
+    } else {
+      this.project.set({});
+    }
   }
 }
 

@@ -6,6 +6,7 @@ import { GetTopContributorsContractsService } from '@services/get-top-contributo
 import { GetTopPartnersService } from '@services/get-top-partners.service';
 import { GetTopPrimaryLeversService } from '@services/get-top-primary-levers.service';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
+import { ApiService } from '@shared/services/api.service';
 
 describe('ProjectDashboardComponent', () => {
   let component: ProjectDashboardComponent;
@@ -14,6 +15,7 @@ describe('ProjectDashboardComponent', () => {
   let topPartners: { main: jest.Mock };
   let topPrimaryLevers: { main: jest.Mock };
   let geoScope: { main: jest.Mock };
+  let api: { GET_ResultsCount: jest.Mock };
 
   beforeEach(async () => {
     topContributors = { main: jest.fn(), list: signal([]), loading: signal(false), loadError: signal(false), update: jest.fn() };
@@ -28,6 +30,7 @@ describe('ProjectDashboardComponent', () => {
       loadError: signal(false),
       update: jest.fn()
     };
+    api = { GET_ResultsCount: jest.fn().mockResolvedValue({ data: { agreement_id: 'A100' } }) };
 
     await TestBed.configureTestingModule({
       imports: [ProjectDashboardComponent],
@@ -38,6 +41,7 @@ describe('ProjectDashboardComponent', () => {
             parent: { snapshot: { paramMap: { get: (key: string) => (key === 'id' ? 'A100' : null) } } }
           }
         },
+        { provide: ApiService, useValue: api }
       ]
     })
       .overrideComponent(ProjectDashboardComponent, {
@@ -57,11 +61,13 @@ describe('ProjectDashboardComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create and load dashboard data for the contract id', () => {
+  it('should create and load dashboard data for the contract id', async () => {
     expect(component).toBeTruthy();
     expect(topContributors.main).toHaveBeenCalledWith('A100', 3);
     expect(topPartners.main).toHaveBeenCalledWith('A100', 5);
     expect(topPrimaryLevers.main).toHaveBeenCalledWith('A100', 5);
     expect(geoScope.main).toHaveBeenCalledWith('A100');
+    await Promise.resolve();
+    expect(api.GET_ResultsCount).toHaveBeenCalledWith('A100');
   });
 });

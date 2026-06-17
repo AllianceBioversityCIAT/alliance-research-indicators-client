@@ -1,5 +1,7 @@
 export const PROJECT_DASHBOARD_DEFAULT_LIMIT = 5;
 
+export type ProjectDashboardChartLayout = 'columns' | 'rows' | 'rows-partners' | 'rows-stacked' | 'rows-stacked-lever';
+
 export interface ProjectDashboardRankedListItem {
   id: string;
   label: string;
