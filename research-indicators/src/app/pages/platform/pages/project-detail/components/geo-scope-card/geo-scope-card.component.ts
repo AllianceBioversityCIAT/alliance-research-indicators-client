@@ -1,27 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { GeoScopeSummary } from '@interfaces/project-dashboard.interface';
 import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
 import { GeoScopeMapComponent } from '../geo-scope-map/geo-scope-map.component';
-import { GEO_SCOPE_SUMMARY_COLORS } from '@shared/constants/project-dashboard-chart-colors.constants';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
-
-interface GeoScopeMetric {
-  key: keyof GeoScopeSummary;
-  label: string;
-  value: number;
-}
-
-interface GeoScopeDonutSegment extends GeoScopeMetric {
-  start: number;
-  end: number;
-  color: string;
-}
+import {
+  GeoScopeCountrySummary,
+  GeoScopeMetric,
+  GeoScopeSubNationalSummary
+} from '@interfaces/geo-scope-card.interface';
 
 @Component({
   selector: 'app-geo-scope-card',
   standalone: true,
   imports: [ProjectDashboardCardComponent, GeoScopeMapComponent],
   templateUrl: './geo-scope-card.component.html',
+  host: {
+    class: 'flex h-full w-full'
+  },
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeoScopeCardComponent {
@@ -58,37 +52,34 @@ export class GeoScopeCardComponent {
     ];
   });
 
-  readonly donutTotal = computed(() => this.summaryMetrics().reduce((sum, metric) => sum + metric.value, 0));
+  readonly visibleSummaryMetrics = computed(() => this.summaryMetrics().filter(metric => metric.value > 0));
 
-  readonly donutSegments = computed<GeoScopeDonutSegment[]>(() => {
-    const total = this.donutTotal();
-    if (total <= 0) {
-      return [];
-    }
+  readonly topCountries = computed<GeoScopeCountrySummary[]>(() =>
+    [...this.service.topCountries()]
+      .sort((first, second) => Number(second.count ?? 0) - Number(first.count ?? 0))
+      .map(country => ({
+        id: country.iso_alpha_2 ?? country.country_name,
+        label: country.country_name,
+        count: Number(country.count ?? country.results_count ?? 0),
+        subNationals: (country.top_sub_nationals ?? [])
+          .slice()
+          .sort((first, second) => Number(second.count ?? 0) - Number(first.count ?? 0))
+          .slice(0, 3)
+          .map(subNational => ({
+            id: String(subNational.sub_national_id),
+            label: subNational.sub_national_name,
+            countryName: country.country_name,
+            count: Number(subNational.count ?? 0)
+          }))
+      }))
+  );
 
-    let accumulated = 0;
-    return this.summaryMetrics()
-      .filter(metric => metric.value > 0)
-      .map(metric => {
-        const start = (accumulated / total) * 100;
-        accumulated += metric.value;
-        return {
-          ...metric,
-          start,
-          end: (accumulated / total) * 100,
-          color: GEO_SCOPE_SUMMARY_COLORS[metric.key]
-        };
-      });
-  });
-
-  readonly donutGradient = computed(() => {
-    const segments = this.donutSegments();
-    if (!segments.length) {
-      return 'conic-gradient(#e8ebed 0 100%)';
-    }
-
-    return `conic-gradient(${segments.map(segment => `${segment.color} ${segment.start}% ${segment.end}%`).join(', ')})`;
-  });
+  readonly topSubNationals = computed<GeoScopeSubNationalSummary[]>(() =>
+    this.topCountries()
+      .flatMap(country => country.subNationals)
+      .sort((first, second) => second.count - first.count)
+      .slice(0, 6)
+  );
 
   readonly topRegions = computed(() =>
     this.service.topRegionsList().map((item, index) => ({

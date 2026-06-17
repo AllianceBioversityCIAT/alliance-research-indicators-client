@@ -1,35 +1,62 @@
-<app-project-dashboard-card title="Geographic scope"
+<app-project-dashboard-card class="h-full w-full" title="Geographic scope"
   description="Distribution of geographic reach for results linked to this primary contract." iconClass="pi pi-globe"
   [compact]="true" [loading]="service.loading()" [error]="service.loadError()" [empty]="isEmpty()"
   emptyMessage="No geographic scope data was found for this project." (retry)="service.update()">
-  <div class="flex flex-col gap-3">
-    <div class="grid grid-cols-1 items-start gap-3 lg:grid-cols-[minmax(220px,280px)_minmax(0,1fr)] lg:items-center">
-      @if (donutTotal() > 0) {
-      <div class="grid grid-cols-[auto_1fr] items-center gap-3 rounded-[10px] bg-[#F4F7F9] p-2.5 md:max-lg:justify-items-center">
-        <div class="flex h-[88px] w-[88px] shrink-0 items-center justify-center rounded-full"
-          [style.background]="donutGradient()">
-          <div
-            class="flex h-[54px] w-[54px] flex-col items-center justify-center rounded-full bg-white shadow-[0_0_0_1px_#E8EBED]">
-            <strong class="font-['Barlow'] text-lg leading-none text-[#112F5C]">{{ donutTotal() }}</strong>
-            <span class="mt-1 font-['Barlow'] text-[11px] uppercase tracking-[0.04em] text-[#777C83]">Results</span>
-          </div>
-        </div>
+  <div class="flex min-h-0 flex-1 flex-col gap-3">
+    <div class="flex flex-col gap-3 rounded-[10px] bg-[#F4F7F9] p-3">
+      @if (visibleSummaryMetrics().length) {
+      <ul class="m-0 grid list-none grid-cols-2 gap-2 p-0 xl:grid-cols-4">
+        @for (metric of visibleSummaryMetrics(); track metric.key) {
+        <li class="rounded-md bg-white/80 px-3 py-2">
+          <span class="block font-['Barlow'] text-[11px] font-medium uppercase tracking-[0.04em] text-[#777C83]">{{
+            metric.label }}</span>
+          <strong class="mt-1 block font-['Barlow'] text-lg leading-none text-[#112F5C]">{{ metric.value }}</strong>
+        </li>
+        }
+      </ul>
+      }
 
-        <ul class="m-0 flex min-w-0 list-none flex-col gap-1.5 p-0">
-          @for (segment of donutSegments(); track segment.key) {
-          <li class="grid grid-cols-[auto_1fr_auto] items-center gap-2">
-            <span class="h-2.5 w-2.5 rounded-full" [style.background-color]="segment.color"></span>
-            <span class="truncate font-['Barlow'] text-xs text-[#4C5158]">{{ segment.label }}</span>
-            <span class="font-['Barlow'] text-[13px] font-bold tabular-nums text-[#112F5C]">{{ segment.value }}</span>
+      @if (topCountries().length) {
+      <div class="grid grid-cols-1 gap-2 xl:grid-cols-2">
+        @for (country of topCountries(); track country.id) {
+        <article class="min-w-0 rounded-md bg-white/80 px-3 py-2">
+          <div class="flex items-center justify-between gap-2">
+            <span class="truncate font-['Barlow'] text-[13px] font-semibold text-[#112F5C]" [title]="country.label">{{
+              country.label }}</span>
+            <span class="shrink-0 font-['Barlow'] text-xs font-bold tabular-nums text-[#112F5C]">{{ country.count
+              }}</span>
+          </div>
+
+          @if (country.subNationals.length) {
+          <p class="m-0 mt-1 truncate font-['Barlow'] text-[11px] leading-snug text-[#777C83]"
+            [title]="country.subNationals[0].label">
+            Top sub-national: {{ country.subNationals[0].label }} ({{ country.subNationals[0].count }})
+          </p>
+          }
+        </article>
+        }
+      </div>
+      }
+
+      @if (topSubNationals().length) {
+      <div>
+        <h3 class="mb-2 mt-0 font-['Barlow'] text-xs font-semibold uppercase tracking-[0.04em] text-[#112F5C]">Top
+          sub-national levels</h3>
+        <ul class="m-0 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 xl:grid-cols-3">
+          @for (subNational of topSubNationals(); track subNational.id) {
+          <li class="grid min-w-0 grid-cols-[1fr_auto] gap-2 rounded-md bg-white/80 px-2.5 py-1.5">
+            <span class="truncate font-['Barlow'] text-[11px] text-[#4C5158]" [title]="subNational.label">{{
+              subNational.label }}</span>
+            <span class="font-['Barlow'] text-xs font-bold tabular-nums text-[#112F5C]">{{ subNational.count }}</span>
           </li>
           }
         </ul>
       </div>
       }
+    </div>
 
-      <div class="min-w-0">
-        <app-geo-scope-map [countries]="service.topCountries()"></app-geo-scope-map>
-      </div>
+    <div class="flex min-w-0 justify-center py-2">
+      <app-geo-scope-map [countries]="service.topCountries()"></app-geo-scope-map>
     </div>
 
     @if (topRegions().length) {
