@@ -112,7 +112,7 @@ export default class PoolFundingAlignmentComponent {
   // REQ-BIL-SGU-05 — Save-disabled hint: surfaces when Save is blocked only because a
   // rendered "Yes" block is an incomplete ToC alignment (D-9), so the contributor
   // knows to finish or clear it rather than guessing why Save is disabled.
-  readonly SAVE_BLOCKED_HINT = 'Complete or clear the in-progress Theory of Change alignment(s) to save.';
+  readonly SAVE_BLOCKED_HINT = 'Answer the Theory of Change question for each Science Program, and complete any "Yes" alignment, before saving.';
   // AC-09.1 — live-version gate notice (2026-only ToC mapping).
   readonly VERSION_LOCKED_BANNER =
     'Theory of Change alignment is only editable on the live 2026 version of this result. The alignment below is read-only.';
@@ -197,12 +197,15 @@ export default class PoolFundingAlignmentComponent {
     const form = this.formData();
     const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
     if (!this.editable() || this.isReadOnly() || !this.isDirty() || !hasMinimalSelection) return false;
-    // Block save while any RENDERED block's draft is an incomplete "Yes" (D-9).
-    // No blocks render when allowed_levels is empty (AC-04.3), so drafts are skipped.
+    // Block save until every RENDERED block is answered + complete: the per-SP
+    // ToC question is required (*), so unanswered (null) blocks too, as does an
+    // incomplete "Yes" (D-9). No blocks render when allowed_levels is empty
+    // (AC-04.3), so this gate is skipped then.
+    // @sdd-spec docs/specs/archive/2026-06-17-bilateral-module--toc-mapping-save-gating-ux (refines OQ-UX-3)
     if (this.showHloSection() && this.showTocBlocks() && !this.versionLocked()) {
       for (const sp of form.selected_sps) {
         const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
-        if (draft && !this.isDraftSaveable(draft)) return false;
+        if (!draft || !this.isDraftSaveable(draft)) return false;
       }
     }
     return true;
@@ -222,7 +225,9 @@ export default class PoolFundingAlignmentComponent {
     if (!(this.showHloSection() && this.showTocBlocks() && !this.versionLocked())) return false;
     return form.selected_sps.some(sp => {
       const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
-      return !!draft && draft.aligns_with_toc === true && !this.isDraftSaveable(draft);
+      // Hint whenever a rendered SP isn't yet saveable: unanswered (required *)
+      // or an incomplete "Yes" (D-9).
+      return !draft || !this.isDraftSaveable(draft);
     });
   });
 
@@ -655,9 +660,12 @@ export default class PoolFundingAlignmentComponent {
     );
   }
 
-  // D-9 — a rendered draft blocks save only when it's an incomplete "Yes".
+  // The per-SP ToC question is required (*), so a rendered draft is saveable only
+  // once answered: unanswered (null) blocks; "No" is complete; "Yes" needs the full
+  // cascade (D-9). Refines OQ-UX-3 (unanswered was previously treated as non-blocking).
   private isDraftSaveable(draft: SpAlignmentDraft): boolean {
-    if (draft.aligns_with_toc !== true) return true; // No or unanswered → not blocking
+    if (draft.aligns_with_toc === null) return false; // unanswered → required, blocks save
+    if (draft.aligns_with_toc === false) return true; // "No" is a complete answer
     return (
       draft.level !== null &&
       draft.toc_result_id !== null &&

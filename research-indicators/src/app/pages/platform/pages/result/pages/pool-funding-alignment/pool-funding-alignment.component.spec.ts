@@ -1355,11 +1355,13 @@ describe('PoolFundingAlignmentComponent', () => {
         expect(component.saveBlockedByIncompleteToc()).toBe(false);
       });
 
-      it('saveBlockedByIncompleteToc is false when the draft is unanswered', async () => {
+      it('saveBlockedByIncompleteToc is true when the draft is unanswered (required *)', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
-        // Fresh empty draft (aligns_with_toc === null) — not a "Yes", so no hint.
+        // Fresh empty draft (aligns_with_toc === null) — the per-SP ToC question is
+        // required, so an unanswered block blocks save and surfaces the hint.
         expect(component.draftForSp('SP01').aligns_with_toc).toBeNull();
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+        expect(component.saveBlockedByIncompleteToc()).toBe(true);
+        expect(component.canSave()).toBe(false);
       });
     });
 
