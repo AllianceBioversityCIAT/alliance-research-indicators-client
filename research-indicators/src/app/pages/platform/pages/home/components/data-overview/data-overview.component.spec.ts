@@ -92,7 +92,7 @@ describe('DataOverviewComponent', () => {
     const legend = component.chartLegend();
     expect(legend).toHaveLength(2);
     expect(legend[0]).toEqual({
-      color: '#173F6F',
+      color: '#112F5C',
       label: 'Status 1',
       value: 5,
       result_status_id: 1
