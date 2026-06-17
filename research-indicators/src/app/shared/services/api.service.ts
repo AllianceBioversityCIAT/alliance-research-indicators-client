@@ -91,6 +91,7 @@ import { ImpactArea } from '@shared/interfaces/impact-area.interface';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
 import {
+  ContractStaffReport,
   GeoScopeReport,
   TopContributorsContractReport,
   TopPartnersReport,
@@ -702,6 +703,11 @@ export class ApiService {
   GET_TopPrimaryLevers = (contractId: string, limit = 5): Promise<MainResponse<TopPrimaryLeversReport>> => {
     const url = () =>
       `agresso/contracts/reports/top-primary-levers?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ContractStaff = (contractId: string): Promise<MainResponse<ContractStaffReport>> => {
+    const url = () => `agresso/contracts/reports/contract-staff?contract-id=${encodeURIComponent(contractId)}`;
     return this.TP.get(url(), {});
   };
 
