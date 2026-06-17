@@ -1181,4 +1181,221 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(calledEvents).not.toContain('bilateral.alignment.hlo_selector_opened');
     });
   });
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // toc-mapping-save-gating-ux — REQ-BIL-SGU-01…05, NFR-BIL-SGU-02
+  // Locks in the T-01 draft-lifecycle fix (deferred reconcile + upsert) and the
+  // T-02 Save-disabled hint. onSpSelectionChange defers reconcileDrafts via
+  // queueMicrotask, so helpers flush the microtask (await Promise.resolve())
+  // before asserting on toc_drafts (same pattern as the existing helpers).
+  // ──────────────────────────────────────────────────────────────────────────
+  describe('save-gating-ux (REQ-BIL-SGU-*)', () => {
+    // Bring the page to "has_contribution = Yes" with the given SPs selected and
+    // the reconcile microtask flushed — mirrors the established showBlocks helper.
+    const selectSps = async (spCodes: string[], catalog = TOC_CATALOG_TWO_SP_FIXTURE) => {
+      tocCatalog.set(catalog);
+      mappingStatus.set('mapped');
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: spCodes.map(c => sp(c)) }));
+      component.onSpSelectionChange();
+      await Promise.resolve();
+    };
+
+    describe('REQ-BIL-SGU-02 — SP selection populates a per-SP draft (upsert on edit)', () => {
+      it('selecting N SPs populates toc_drafts (count + selection order) after the microtask flush', async () => {
+        await selectSps(['SP01', 'SP03']);
+        const drafts = component.formData().toc_drafts;
+        expect(drafts.length).toBe(2);
+        // Selection order preserved.
+        expect(drafts.map(d => d.sp_code)).toEqual(['SP01', 'SP03']);
+        expect(drafts.every(d => d.aligns_with_toc === null)).toBe(true);
+      });
+
+      it('onDraftChange APPENDS (upserts) an answer for an sp_code NOT present in toc_drafts — never dropped', async () => {
+        await selectSps(['SP01']);
+        // SP03 is NOT in toc_drafts (only SP01 selected). A direct draft change
+        // for SP03 must be recorded, not silently dropped (REQ-BIL-SGU-02 upsert).
+        expect(component.formData().toc_drafts.map(d => d.sp_code)).toEqual(['SP01']);
+
+        component.onDraftChange({
+          sp_code: 'SP03', aligns_with_toc: true, level: 'OUTPUT',
+          toc_result_id: 905187, indicator_id: 905973, quantitative_contribution: 7
+        });
+
+        const drafts = component.formData().toc_drafts;
+        expect(drafts.map(d => d.sp_code)).toEqual(['SP01', 'SP03']);
+        const sp03 = drafts.find(d => d.sp_code === 'SP03');
+        expect(sp03).toMatchObject({ sp_code: 'SP03', aligns_with_toc: true, quantitative_contribution: 7 });
+      });
+    });
+
+    describe('REQ-BIL-SGU-01 — "Yes" immediately reveals the cascade (no prior save)', () => {
+      it('answering "Yes" on a freshly-selected SP records aligns_with_toc=true on its draft with NO save', async () => {
+        await selectSps(['SP01']);
+        const draft = component.draftForSp('SP01');
+        expect(draft.aligns_with_toc).toBeNull();
+
+        // The block emits the "Yes" answer via draftChange — no save in between.
+        component.onDraftChange({ ...draft, aligns_with_toc: true });
+
+        const after = component.draftForSp('SP01');
+        expect(after.aligns_with_toc).toBe(true);
+        // The reveal is driven purely by draft state — no PATCH was issued.
+        expect(patchAlignmentMock).not.toHaveBeenCalled();
+      });
+
+      it('the "Yes" answer persists across change detection (recorded in the draft)', async () => {
+        await selectSps(['SP01']);
+        component.onDraftChange({ ...component.draftForSp('SP01'), aligns_with_toc: true });
+        // Simulate an unrelated re-render (another field changes elsewhere).
+        fixture.detectChanges();
+        expect(component.draftForSp('SP01').aligns_with_toc).toBe(true);
+      });
+    });
+
+    describe('REQ-BIL-SGU-03 — single-pass select → map → save', () => {
+      it('one PATCH carries BOTH sp_codes and toc_alignments together', async () => {
+        await selectSps(['SP01', 'SP03']);
+        component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 });
+        component.onDraftChange({ sp_code: 'SP03', aligns_with_toc: false, level: null, toc_result_id: null, indicator_id: null, quantitative_contribution: null });
+
+        patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
+        await component.onSave();
+
+        expect(patchAlignmentMock).toHaveBeenCalledTimes(1);
+        const [resultCode, body] = patchAlignmentMock.mock.calls[0];
+        expect(resultCode).toBe('RES-001');
+        expect(body.sp_codes).toEqual(['SP01', 'SP03']);
+        expect(body.toc_alignments).toEqual([
+          { sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 },
+          { sp_code: 'SP03', aligns_with_toc: false }
+        ]);
+      });
+
+      it('seedFromServer pre-fills toc_drafts from a saved toc_alignments round-trip', () => {
+        tocCatalog.set(TOC_CATALOG_TWO_SP_FIXTURE);
+        const saved: AlignmentResponse = {
+          ...baseAlignment,
+          has_contribution: true,
+          selected_science_programs: [{ code: 'SP01', name: 'A' }, { code: 'SP03', name: 'B' }],
+          toc_alignments: SAVED_TOC_ALIGNMENTS_FIXTURE
+        };
+        component.seedFromServer(saved);
+
+        const drafts = component.formData().toc_drafts;
+        expect(drafts.map(d => d.sp_code)).toEqual(['SP01', 'SP03']);
+        expect(component.draftForSp('SP01')).toMatchObject({
+          sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3
+        });
+        expect(component.draftForSp('SP03')).toMatchObject({
+          sp_code: 'SP03', aligns_with_toc: false, level: null, toc_result_id: null
+        });
+      });
+    });
+
+    describe('per-SP independence — editing one SP leaves the other untouched (10/25)', () => {
+      it('editing SP02 leaves SP06 unchanged in state AND in the composed PATCH toc_alignments', async () => {
+        // Two-SP scenario using SP02 + SP06; the catalog levels just need to be
+        // non-empty so the blocks render — independence is a draft-array property.
+        await selectSps(['SP02', 'SP06']);
+        component.onDraftChange({ sp_code: 'SP02', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 10 });
+        component.onDraftChange({ sp_code: 'SP06', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 905187, indicator_id: 905973, quantitative_contribution: 25 });
+
+        const sp06Before = component.formData().toc_drafts.find(d => d.sp_code === 'SP06');
+
+        // Edit SP02 again (10 → 11). SP06's draft reference + value must not move.
+        component.onDraftChange({ sp_code: 'SP02', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 11 });
+
+        const sp06After = component.formData().toc_drafts.find(d => d.sp_code === 'SP06');
+        expect(sp06After).toBe(sp06Before);
+        expect(sp06After?.quantitative_contribution).toBe(25);
+
+        patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
+        await component.onSave();
+
+        const [, body] = patchAlignmentMock.mock.calls[0];
+        expect(body.toc_alignments).toEqual([
+          { sp_code: 'SP02', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 11 },
+          { sp_code: 'SP06', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 905187, indicator_id: 905973, quantitative_contribution: 25 }
+        ]);
+      });
+    });
+
+    describe('REQ-BIL-SGU-05 — Save-disabled hint', () => {
+      it('saveBlockedByIncompleteToc is true (and the hint renders) for an incomplete "Yes" draft', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        // "Yes" but missing indicator + contribution → incomplete (D-9).
+        component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: null, quantitative_contribution: null });
+
+        expect(component.saveBlockedByIncompleteToc()).toBe(true);
+        // Save is correspondingly disabled by the existing D-9 gate.
+        expect(component.canSave()).toBe(false);
+
+        sciencePrograms.set([{ code: 'SP01', name: 'A', category: null, color: null, icon_key: 'SP01', allocation: 100 }]);
+        fixture.detectChanges();
+        const root: HTMLElement = fixture.nativeElement;
+        expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).not.toBeNull();
+      });
+
+      it('saveBlockedByIncompleteToc is false when the "Yes" draft is complete', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 });
+
+        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+        fixture.detectChanges();
+        const root: HTMLElement = fixture.nativeElement;
+        expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
+      });
+
+      it('saveBlockedByIncompleteToc is false when the draft answers "No" (not a blocking "Yes")', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: false, level: null, toc_result_id: null, indicator_id: null, quantitative_contribution: null });
+        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+      });
+
+      it('saveBlockedByIncompleteToc is false when the draft is unanswered', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        // Fresh empty draft (aligns_with_toc === null) — not a "Yes", so no hint.
+        expect(component.draftForSp('SP01').aligns_with_toc).toBeNull();
+        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+      });
+    });
+
+    describe('REQ-BIL-SGU-04 — determinate (non-error/non-loading) block state on a loaded catalog', () => {
+      it('catalogState is "ready" when the catalog loaded (not loading, not error)', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        loadingTocCatalog.set(false);
+        tocCatalogError.set(false);
+        expect(component.catalogState()).toBe('ready');
+      });
+
+      it('catalogState reflects the service signals: loading and error', () => {
+        loadingTocCatalog.set(true);
+        expect(component.catalogState()).toBe('loading');
+        loadingTocCatalog.set(false);
+        tocCatalogError.set(true);
+        expect(component.catalogState()).toBe('error');
+      });
+    });
+
+    describe('REQ-BIL-SGU-* regression — D-6a destructive-deselect confirm still fires', () => {
+      it('deselecting an SP holding a meaningful alignment calls showGlobalAlert after the microtask flush', async () => {
+        await selectSps(['SP01', 'SP03']);
+        // Give SP03 a meaningful (touched) alignment.
+        component.onDraftChange({ sp_code: 'SP03', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 905187, indicator_id: 905973, quantitative_contribution: 25 });
+
+        // Multiselect removes SP03, then notifies.
+        component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+        component.onSpSelectionChange();
+        await Promise.resolve();
+
+        expect(showGlobalAlertMock).toHaveBeenCalledTimes(1);
+        expect(showGlobalAlertMock.mock.calls[0][0].severity).toBe('delete');
+        // Chip restored while the confirm dialog is open.
+        expect(codes(component.formData())).toContain('SP03');
+      });
+    });
+  });
 });
