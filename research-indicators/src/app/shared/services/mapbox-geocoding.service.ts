@@ -5,9 +5,9 @@ import { environment } from '../../../environments/environment';
 import { Observable, catchError, forkJoin, map, of } from 'rxjs';
 
 interface MapboxGeocodingResponse {
-  features?: Array<{
+  features?: {
     center?: [number, number];
-  }>;
+  }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,7 +49,7 @@ export class MapboxGeocodingService {
       map(response => {
         const center = response.features?.[0]?.center;
         const location =
-          center && center.length === 2
+          center?.length === 2
             ? {
                 lng: center[0],
                 lat: center[1]

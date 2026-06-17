@@ -94,14 +94,7 @@ export function buildGeoScopeFeatureCollection(
   }
 
   for (const task of tasks) {
-    let location = resolveTaskLocation(task, coordinatesByKey, staticCoordinates);
-
-    if (!location && task.level === 'sub-national') {
-      const countryLocation = countryCoordinates.get(task.countryName.toLowerCase());
-      if (countryLocation) {
-        location = jitterAroundCountry(countryLocation, task.fallbackSeed ?? task.name.length);
-      }
-    }
+    const location = resolveFeatureLocation(task, coordinatesByKey, staticCoordinates, countryCoordinates);
 
     if (!location) {
       continue;
@@ -142,6 +135,25 @@ function resolveTaskLocation(
   staticCoordinates: ReadonlyMap<string, GeocodedLocation>
 ): GeocodedLocation | null {
   return staticCoordinates.get(task.cacheKey) ?? coordinatesByKey.get(task.cacheKey) ?? null;
+}
+
+function resolveFeatureLocation(
+  task: GeoScopeGeocodeTask,
+  coordinatesByKey: ReadonlyMap<string, GeocodedLocation | null>,
+  staticCoordinates: ReadonlyMap<string, GeocodedLocation>,
+  countryCoordinates: ReadonlyMap<string, GeocodedLocation>
+): GeocodedLocation | null {
+  const location = resolveTaskLocation(task, coordinatesByKey, staticCoordinates);
+  if (location || task.level !== 'sub-national') {
+    return location;
+  }
+
+  const countryLocation = countryCoordinates.get(task.countryName.toLowerCase());
+  if (!countryLocation) {
+    return null;
+  }
+
+  return jitterAroundCountry(countryLocation, task.fallbackSeed ?? task.name.length);
 }
 
 function createFeature(task: GeoScopeGeocodeTask, location: GeocodedLocation): GeoScopePointFeature {
@@ -201,7 +213,7 @@ function subNationalCacheKey(countryName: string, subNationalId: number | string
   return `sub:${countryName.toLowerCase()}:${subNationalId}:${subName.toLowerCase()}`;
 }
 
-function normalizeCount(...values: Array<number | undefined>): number {
+function normalizeCount(...values: (number | undefined)[]): number {
   for (const value of values) {
     const parsed = Number(value);
     if (Number.isFinite(parsed) && parsed >= 0) {
