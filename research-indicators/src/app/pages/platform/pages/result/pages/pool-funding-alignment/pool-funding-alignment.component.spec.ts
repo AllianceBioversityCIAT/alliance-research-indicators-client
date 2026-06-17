@@ -523,7 +523,9 @@ describe('PoolFundingAlignmentComponent', () => {
   });
 
   describe('per-SP ToC blocks (AC-02.2, AC-03.1)', () => {
-    const showBlocks = (catalog = TOC_CATALOG_TWO_SP_FIXTURE) => {
+    // onSpSelectionChange now defers reconcileDrafts via queueMicrotask
+    // (toc-mapping-save-gating-ux T-01), so the helper awaits the microtask flush.
+    const showBlocks = async (catalog = TOC_CATALOG_TWO_SP_FIXTURE) => {
       tocCatalog.set(catalog);
       mappingStatus.set('mapped');
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
@@ -531,10 +533,11 @@ describe('PoolFundingAlignmentComponent', () => {
       component.onContributionChange(true);
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01'), sp('SP03')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
     };
 
-    it('AC-02.2 — N selected SPs render N blocks in selection order', () => {
-      showBlocks();
+    it('AC-02.2 — N selected SPs render N blocks in selection order', async () => {
+      await showBlocks();
       sciencePrograms.set([
         { code: 'SP01', name: 'A', category: null, color: null, icon_key: 'SP01', allocation: 50 },
         { code: 'SP03', name: 'B', category: null, color: null, icon_key: 'SP03', allocation: 50 }
@@ -545,15 +548,15 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(blocks.length).toBe(2);
     });
 
-    it('reconcileDrafts appends one empty draft per selected SP', () => {
-      showBlocks();
+    it('reconcileDrafts appends one empty draft per selected SP', async () => {
+      await showBlocks();
       const drafts = component.formData().toc_drafts;
       expect(drafts.map(d => d.sp_code)).toEqual(['SP01', 'SP03']);
       expect(drafts.every(d => d.aligns_with_toc === null)).toBe(true);
     });
 
     it('AC-03.1 — editing SP01 draft leaves SP03 draft untouched in state AND in the PATCH body (10/25)', async () => {
-      showBlocks();
+      await showBlocks();
       // Configure both SP drafts: SP01 → 10, SP03 → 25.
       component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 10 });
       component.onDraftChange({ sp_code: 'SP03', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 905187, indicator_id: 905973, quantitative_contribution: 25 });
@@ -578,8 +581,8 @@ describe('PoolFundingAlignmentComponent', () => {
       ]);
     });
 
-    it('onDraftChange replaces a draft immutably (new array reference)', () => {
-      showBlocks();
+    it('onDraftChange replaces a draft immutably (new array reference)', async () => {
+      await showBlocks();
       const before = component.formData().toc_drafts;
       component.onDraftChange({ ...component.draftForSp('SP01'), aligns_with_toc: false });
       const after = component.formData().toc_drafts;
@@ -589,7 +592,9 @@ describe('PoolFundingAlignmentComponent', () => {
   });
 
   describe('deselect-confirm flow (AC-02.3, D-6a)', () => {
-    const selectTwoWithAlignment = () => {
+    // onSpSelectionChange defers reconcileDrafts via queueMicrotask
+    // (toc-mapping-save-gating-ux T-01), so flush the microtask after each notify.
+    const selectTwoWithAlignment = async () => {
       tocCatalog.set(TOC_CATALOG_TWO_SP_FIXTURE);
       mappingStatus.set('mapped');
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
@@ -597,15 +602,17 @@ describe('PoolFundingAlignmentComponent', () => {
       component.onContributionChange(true);
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01'), sp('SP03')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
       // Give SP03 a meaningful (touched) alignment.
       component.onDraftChange({ sp_code: 'SP03', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 905187, indicator_id: 905973, quantitative_contribution: 25 });
     };
 
-    it('removing an SP with a touched draft prompts the house confirm and keeps the chip until confirmed', () => {
-      selectTwoWithAlignment();
+    it('removing an SP with a touched draft prompts the house confirm and keeps the chip until confirmed', async () => {
+      await selectTwoWithAlignment();
       // Simulate the multiselect removing SP03 from the form, then notify.
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
 
       expect(showGlobalAlertMock).toHaveBeenCalledTimes(1);
       const alertArg = showGlobalAlertMock.mock.calls[0][0];
@@ -616,26 +623,28 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(codes(component.formData())).toContain('SP03');
     });
 
-    it('confirm removes the SP and its draft', () => {
-      selectTwoWithAlignment();
+    it('confirm removes the SP and its draft', async () => {
+      await selectTwoWithAlignment();
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
       const confirm = showGlobalAlertMock.mock.calls[0][0].confirmCallback.event;
       confirm();
       expect(codes(component.formData())).toEqual(['SP01']);
       expect(component.formData().toc_drafts.map(d => d.sp_code)).toEqual(['SP01']);
     });
 
-    it('cancel keeps the SP selected', () => {
-      selectTwoWithAlignment();
+    it('cancel keeps the SP selected', async () => {
+      await selectTwoWithAlignment();
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
       const cancel = showGlobalAlertMock.mock.calls[0][0].cancelCallback.event;
       cancel();
       expect(codes(component.formData())).toContain('SP03');
     });
 
-    it('removing an SP with an untouched/empty draft needs no confirm', () => {
+    it('removing an SP with an untouched/empty draft needs no confirm', async () => {
       tocCatalog.set(TOC_CATALOG_TWO_SP_FIXTURE);
       mappingStatus.set('mapped');
       currentAlignment.set({ ...baseAlignment, has_contribution: false });
@@ -643,9 +652,11 @@ describe('PoolFundingAlignmentComponent', () => {
       component.onContributionChange(true);
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01'), sp('SP03')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
       // SP03 has only an empty draft.
       component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
       component.onSpSelectionChange();
+      await Promise.resolve();
 
       expect(showGlobalAlertMock).not.toHaveBeenCalled();
       expect(codes(component.formData())).toEqual(['SP01']);

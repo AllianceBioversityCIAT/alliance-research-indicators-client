@@ -304,9 +304,15 @@ export default class PoolFundingAlignmentComponent {
   // AC-02.2/02.3 (D-6/D-6a) — reconcile the per-SP draft array: append empty drafts
   // for newly-added SPs; for a removed SP that holds a saved/in-progress alignment,
   // re-select it and ask the house destructive-confirm before applying the removal.
+  // @sdd-spec docs/specs/bilateral-module/toc-mapping-save-gating-ux
+  // Non-re-entrant reconcile: the multiselect emits selectEvent *inside* its own
+  // formData.update() whose outer `return { ...current }` would clobber a nested
+  // reconcile write. Defer reconcileDrafts to after that update settles so the
+  // toc_drafts sync actually populates (REQ-BIL-SGU-01/02). clearRejectedSpError
+  // stays synchronous (D-6a destructive-deselect confirm internals unchanged).
   onSpSelectionChange(): void {
     this.clearRejectedSpError();
-    this.reconcileDrafts();
+    queueMicrotask(() => this.reconcileDrafts());
   }
 
   private reconcileDrafts(): void {
@@ -394,11 +400,18 @@ export default class PoolFundingAlignmentComponent {
   }
 
   // T-BIL-TM2-04 — replace an SP's draft immutably (block never mutates inputs).
+  // @sdd-spec docs/specs/bilateral-module/toc-mapping-save-gating-ux
+  // Upsert (insert-or-replace): if the SP's draft entry is momentarily absent
+  // (e.g. selection reconcile not yet settled), append it instead of dropping the
+  // answer — guarantees a "Yes"/edit is always recorded (REQ-BIL-SGU-01/02).
   onDraftChange(next: SpAlignmentDraft): void {
-    this.formData.update(form => ({
-      ...form,
-      toc_drafts: form.toc_drafts.map(d => (d.sp_code === next.sp_code ? next : d))
-    }));
+    this.formData.update(form => {
+      const exists = form.toc_drafts.some(d => d.sp_code === next.sp_code);
+      const toc_drafts = exists
+        ? form.toc_drafts.map(d => (d.sp_code === next.sp_code ? next : d))
+        : [...form.toc_drafts, next];
+      return { ...form, toc_drafts };
+    });
     // Clear any 400 block error for this SP on edit (AC-08.2).
     const errors = this.blockErrors();
     if (errors[next.sp_code]) {
