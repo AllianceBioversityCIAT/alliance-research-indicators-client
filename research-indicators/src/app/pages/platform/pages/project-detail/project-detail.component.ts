@@ -4,6 +4,7 @@ import { TableFiltersSidebarComponent } from '../results-center/components/table
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
 import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
+import { ProjectIndicatorFiltersComponent } from '@shared/components/project-indicator-filters/project-indicator-filters.component';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute, NavigationEnd, PRIMARY_OUTLET, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,13 +22,13 @@ interface ViewTab {
   imports: [
     ResultsCenterTableComponent,
     ProjectItemComponent,
+    ProjectIndicatorFiltersComponent,
     TableFiltersSidebarComponent,
     TableConfigurationComponent,
     SectionSidebarComponent,
     RouterOutlet
   ],
-  templateUrl: './project-detail.component.html',
-  styleUrl: './project-detail.component.scss'
+  templateUrl: './project-detail.component.html'
 })
 export default class ProjectDetailComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);

@@ -1,62 +1,54 @@
 <div class="flex flex-col h-full min-w-0">
   <div class="w-full">
-    <app-project-item
-      [project]="currentProject()"
-      [isHeader]="true"
-      [enableIndicatorFilter]="true"
-      (indicatorClick)="onIndicatorClick($event)"></app-project-item>
+    <app-project-item [project]="currentProject()" [isHeader]="true" [showGeneralInfo]="false"
+      [showIndicators]="false"></app-project-item>
   </div>
 
   <div class="w-full min-w-0 py-[8px] px-[8px] sm:py-[12px] sm:px-[12px] md:py-[20px] md:px-[24px]">
-    <div class="project-detail__surface">
-      <div class="project-detail__tabs border-b border-[#E8EBED]">
+    <div class="overflow-hidden rounded-lg border border-[#E8EBED] bg-white">
+      <div class="border-b border-[#E8EBED]">
         <div class="flex items-center gap-0">
           @for (tab of tabs(); track tab.route) {
-            <div
-              class="project-detail__tab flex cursor-pointer items-center border-b border-transparent px-5 py-3 transition-all duration-200 hover:bg-gray-50"
-              [class.project-detail__tab--active]="lastSegment() === tab.route"
-              (click)="onTabClick(tab)"
-              (keydown.enter)="onTabClick(tab)">
-              <span
-                class="py-1 text-[14px] font-semibold transition-colors duration-200"
-                [class.text-[#035BA9]]="lastSegment() === tab.route"
-                [class.text-gray-500]="lastSegment() !== tab.route">
-                {{ tab.label }}
-              </span>
-            </div>
+          <div
+            class="flex cursor-pointer items-center border-b border-transparent px-5 py-3 transition-all duration-200 hover:bg-gray-50"
+            [class.!border-b-[#035BA9]]="lastSegment() === tab.route" (click)="onTabClick(tab)"
+            (keydown.enter)="onTabClick(tab)">
+            <span class="py-1 text-[14px] font-semibold transition-colors duration-200"
+              [class.text-[#035BA9]]="lastSegment() === tab.route" [class.text-gray-500]="lastSegment() !== tab.route">
+              {{ tab.label }}
+            </span>
+          </div>
           }
         </div>
       </div>
 
-      <div
-        class="project-detail__tab-content w-full overflow-x-auto"
-        [class.project-detail__tab-content--results]="lastSegment() === 'project-results'">
+      <div class="w-full overflow-x-auto px-y" [class.p-0]="lastSegment() === 'project-results'">
         @if (lastSegment() === 'project-results') {
-          <div class="w-full">
-            <app-results-center-table [showNewProjectResultButton]="true"></app-results-center-table>
+        <div class="w-full">
+          <div class="border-b border-[#E8EBED] bg-white px-5 pb-3 pt-5 md:px-6 md:py-[18px]">
+            <app-project-indicator-filters [project]="currentProject()" [enableFilter]="true"
+              (indicatorClick)="onIndicatorClick($event)"></app-project-indicator-filters>
           </div>
+          <app-results-center-table [showNewProjectResultButton]="true"></app-results-center-table>
+        </div>
         } @else {
-          <router-outlet />
+        <router-outlet />
         }
       </div>
     </div>
   </div>
 </div>
 
-<app-section-sidebar
-  [title]="'Table Filters'"
-  [description]="'Filter your table data by applying custom criteria.'"
-  [showSignal]="this.resultsCenterService.showFiltersSidebar"
-  confirmText="Apply filters"
+<app-section-sidebar [title]="'Table Filters'" [description]="'Filter your table data by applying custom criteria.'"
+  [showSignal]="this.resultsCenterService.showFiltersSidebar" confirmText="Apply filters"
   (confirm)="this.resultsCenterService.applyFilters()">
   <app-table-filters-sidebar [hideProjectFilter]="true"></app-table-filters-sidebar>
 </app-section-sidebar>
 
-<app-section-sidebar
-  [title]="'Table Configuration'"
+<app-section-sidebar [title]="'Table Configuration'"
   [description]="'Customize your table by enabling, disabling, or reordering columns.'"
-  [showSignal]="this.resultsCenterService.showConfigurationsSidebar"
-  confirmText="Save table settings"
+  [showSignal]="this.resultsCenterService.showConfigurationsSidebar" confirmText="Save table settings"
   (confirm)="sidebarConfigurations.applyConfigurations()">
-  <app-table-configuration #sidebarConfigurations [excludedColumns]="['Platform', 'Reporting Project', 'Primary Lever']"></app-table-configuration>
+  <app-table-configuration #sidebarConfigurations
+    [excludedColumns]="['Platform', 'Reporting Project', 'Primary Lever']"></app-table-configuration>
 </app-section-sidebar>
