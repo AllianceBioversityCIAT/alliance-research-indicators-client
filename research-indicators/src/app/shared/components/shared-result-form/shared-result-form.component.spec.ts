@@ -119,6 +119,8 @@ describe('SharedResultFormComponent', () => {
       // Trigger MutationObserver callback (lines 49-82)
       (globalThis as any).mutationCallback([]);
 
+      expect(document.querySelector).toHaveBeenCalledWith('.p-select-overlay.shared-result-form-select-panel');
+
       // Verify styles were applied to overlay
       expect(mockSelectOverlay.style.width).toBe('100%');
       expect(mockSelectOverlay.style.minWidth).toBe('0');

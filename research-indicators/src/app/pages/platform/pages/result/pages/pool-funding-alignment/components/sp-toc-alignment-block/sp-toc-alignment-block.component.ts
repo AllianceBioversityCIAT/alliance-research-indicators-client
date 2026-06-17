@@ -1,6 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { SelectModule } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { InputNumberModule } from 'primeng/inputnumber';
 import {
@@ -59,6 +59,8 @@ interface HloSelectOption {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SpTocAlignmentBlockComponent {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   // --- Inputs (signal inputs) -------------------------------------------------
   readonly sp = input.required<SpTocBlockScienceProgram>();
   readonly catalog = input<TocCatalogSp | null>(null);
@@ -93,6 +95,12 @@ export class SpTocAlignmentBlockComponent {
   /** AC-07.3 — callout wording uses the active reporting year (2026), not 2025. */
   readonly CONTRIBUTION_CALLOUT =
     'Enter this result’s quantitative contribution toward the selected indicator’s 2026 target. Use the indicator’s unit of measurement.';
+
+  /** Dropdown panel height — long HLO/indicator labels scroll inside the panel. */
+  readonly SELECT_SCROLL_HEIGHT = '280px';
+
+  /** Measured trigger width (px) so the body-appended overlay matches the field. */
+  private readonly selectPanelWidthPx = signal<number | null>(null);
 
   // --- Derived view state -----------------------------------------------------
   /** Stable, unique-ish id fragment for label/control wiring. */
@@ -201,5 +209,31 @@ export class SpTocAlignmentBlockComponent {
 
   onRetry(): void {
     this.retryCatalog.emit();
+  }
+
+  /** Overlay width tracks the trigger; capped so it never spills past the viewport. */
+  selectPanelStyle(): Record<string, string> {
+    const measured = this.selectPanelWidthPx();
+    const base: Record<string, string> = { boxSizing: 'border-box' };
+    if (measured == null || measured <= 0) {
+      return { ...base, maxWidth: 'min(40rem, calc(100vw - 2rem))' };
+    }
+    const capped = Math.min(measured, window.innerWidth - 32);
+    return {
+      ...base,
+      width: `${capped}px`,
+      maxWidth: `${capped}px`,
+      minWidth: `${capped}px`
+    };
+  }
+
+  onSelectPanelShow(select: Select, trigger: HTMLElement): void {
+    const width = Math.round(trigger.getBoundingClientRect().width);
+    if (width <= 0) {
+      return;
+    }
+    this.selectPanelWidthPx.set(width);
+    this.cdr.markForCheck();
+    setTimeout(() => select.overlayViewChild?.alignOverlay());
   }
 }

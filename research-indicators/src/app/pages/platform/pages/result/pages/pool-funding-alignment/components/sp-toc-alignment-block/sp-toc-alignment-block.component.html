@@ -91,21 +91,28 @@
         <label [for]="'sp-toc-level-' + spCode()" class="label inline-block">
           {{ LEVEL_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
         </label>
-        <p-select
-          [inputId]="'sp-toc-level-' + spCode()"
-          [options]="levelOptions()"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Select a level"
-          appendTo="body"
-          [disabled]="disabled()"
-          [ngModel]="d.level"
-          (onChange)="onLevelChange($event.value)"
-          [attr.aria-required]="true"
-          styleClass="sp-toc-block__select" panelStyleClass="sp-toc-select-panel"
-          [style]="{ width: '100%' }"
-          [attr.data-testid]="'sp-toc-level-' + spCode()">
-        </p-select>
+        <div class="w-full min-w-0" #levelSelectTrigger>
+          <p-select
+            #levelSelect
+            [inputId]="'sp-toc-level-' + spCode()"
+            [options]="levelOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select a level"
+            appendTo="body"
+            [disabled]="disabled()"
+            [ngModel]="d.level"
+            (onChange)="onLevelChange($event.value)"
+            [attr.aria-required]="true"
+            styleClass="sp-toc-block__select"
+            panelStyleClass="sp-toc-select-panel"
+            [panelStyle]="selectPanelStyle()"
+            [scrollHeight]="SELECT_SCROLL_HEIGHT"
+            (onShow)="onSelectPanelShow(levelSelect, levelSelectTrigger)"
+            [style]="{ width: '100%' }"
+            [attr.data-testid]="'sp-toc-level-' + spCode()">
+          </p-select>
+        </div>
       </div>
 
       <!-- HLO select (searchable) — only after a level is chosen -->
@@ -123,33 +130,40 @@
             <label [for]="'sp-toc-hlo-' + spCode()" class="label inline-block">
               {{ hloFieldLabel() }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
             </label>
-            <p-select
-              [inputId]="'sp-toc-hlo-' + spCode()"
-              [options]="hloOptions()"
-              optionValue="value"
-              [filter]="true"
-              filterBy="aowCode,title"
-              [autoOptionFocus]="false"
-              placeholder="Select a result"
-              appendTo="body"
-              [disabled]="disabled()"
-              [ngModel]="d.toc_result_id"
-              (onChange)="onHloChange($event.value)"
-              [attr.aria-required]="true"
-              styleClass="sp-toc-block__select" panelStyleClass="sp-toc-select-panel"
-              [style]="{ width: '100%' }"
-              [attr.data-testid]="'sp-toc-hlo-' + spCode()">
-              <ng-template let-option pTemplate="selectedItem">
-                <span class="sp-toc-block__hlo-label">
-                  @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
-                </span>
-              </ng-template>
-              <ng-template let-option pTemplate="item">
-                <span class="sp-toc-block__hlo-label">
-                  @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
-                </span>
-              </ng-template>
-            </p-select>
+            <div class="w-full min-w-0" #hloSelectTrigger>
+              <p-select
+                #hloSelect
+                [inputId]="'sp-toc-hlo-' + spCode()"
+                [options]="hloOptions()"
+                optionValue="value"
+                [filter]="true"
+                filterBy="aowCode,title"
+                [autoOptionFocus]="false"
+                placeholder="Select a result"
+                appendTo="body"
+                [disabled]="disabled()"
+                [ngModel]="d.toc_result_id"
+                (onChange)="onHloChange($event.value)"
+                [attr.aria-required]="true"
+                styleClass="sp-toc-block__select"
+                panelStyleClass="sp-toc-select-panel"
+                [panelStyle]="selectPanelStyle()"
+                [scrollHeight]="SELECT_SCROLL_HEIGHT"
+                (onShow)="onSelectPanelShow(hloSelect, hloSelectTrigger)"
+                [style]="{ width: '100%' }"
+                [attr.data-testid]="'sp-toc-hlo-' + spCode()">
+                <ng-template let-option pTemplate="selectedItem">
+                  <span class="sp-toc-block__hlo-label block min-w-0 whitespace-normal break-words">
+                    @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
+                  </span>
+                </ng-template>
+                <ng-template let-option pTemplate="item">
+                  <span class="sp-toc-block__hlo-label block w-full min-w-0 whitespace-normal break-words leading-[1.3]">
+                    @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
+                  </span>
+                </ng-template>
+              </p-select>
+            </div>
           </div>
         }
       }
@@ -160,24 +174,34 @@
           <label [for]="'sp-toc-indicator-' + spCode()" class="label inline-block">
             {{ INDICATOR_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
           </label>
-          <p-select
-            [inputId]="'sp-toc-indicator-' + spCode()"
-            [options]="indicatorOptions()"
-            optionLabel="label"
-            optionValue="value"
-            [filter]="true"
-            filterBy="label"
-            [autoOptionFocus]="false"
-            placeholder="Select an indicator"
-            appendTo="body"
-            [disabled]="disabled()"
-            [ngModel]="d.indicator_id"
-            (onChange)="onIndicatorChange($event.value)"
-            [attr.aria-required]="true"
-            styleClass="sp-toc-block__select" panelStyleClass="sp-toc-select-panel"
-            [style]="{ width: '100%' }"
-            [attr.data-testid]="'sp-toc-indicator-' + spCode()">
-          </p-select>
+          <div class="w-full min-w-0" #indicatorSelectTrigger>
+            <p-select
+              #indicatorSelect
+              [inputId]="'sp-toc-indicator-' + spCode()"
+              [options]="indicatorOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [filter]="true"
+              filterBy="label"
+              [autoOptionFocus]="false"
+              placeholder="Select an indicator"
+              appendTo="body"
+              [disabled]="disabled()"
+              [ngModel]="d.indicator_id"
+              (onChange)="onIndicatorChange($event.value)"
+              [attr.aria-required]="true"
+              styleClass="sp-toc-block__select"
+              panelStyleClass="sp-toc-select-panel"
+              [panelStyle]="selectPanelStyle()"
+              [scrollHeight]="SELECT_SCROLL_HEIGHT"
+              (onShow)="onSelectPanelShow(indicatorSelect, indicatorSelectTrigger)"
+              [style]="{ width: '100%' }"
+              [attr.data-testid]="'sp-toc-indicator-' + spCode()">
+              <ng-template let-option pTemplate="item">
+                <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">{{ option.label }}</span>
+              </ng-template>
+            </p-select>
+          </div>
         </div>
       }
 

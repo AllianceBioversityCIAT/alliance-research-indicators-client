@@ -43,9 +43,12 @@ export class SharedResultFormComponent implements AfterViewInit, OnChanges {
   }
 
   private forceSelectOverlayWidth() {
-    // Observe DOM changes to detect when select opens
+    // Observe DOM changes to detect when this form's select opens.
+    // Scoped by panelStyleClass — must not touch other app selects (e.g. ToC alignment).
     const observer = new MutationObserver(() => {
-      const selectOverlay = document.querySelector('.p-select-overlay') as HTMLElement;
+      const selectOverlay = document.querySelector(
+        '.p-select-overlay.shared-result-form-select-panel'
+      ) as HTMLElement;
       if (selectOverlay) {
         // Force overlay width
         selectOverlay.style.width = '100%';
