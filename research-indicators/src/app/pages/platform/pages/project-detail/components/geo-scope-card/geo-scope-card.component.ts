@@ -22,7 +22,6 @@ interface GeoScopeDonutSegment extends GeoScopeMetric {
   standalone: true,
   imports: [ProjectDashboardCardComponent, GeoScopeMapComponent],
   templateUrl: './geo-scope-card.component.html',
-  styleUrl: './geo-scope-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeoScopeCardComponent {
@@ -41,7 +40,7 @@ export class GeoScopeCardComponent {
       Number(summary.sub_national ?? 0) +
       Number(summary.yet_to_be_determined ?? 0);
 
-    return summaryTotal === 0 && this.service.topRegionsList().length === 0 && this.service.topCountriesList().length === 0;
+    return summaryTotal === 0 && this.service.topRegionsList().length === 0 && this.service.topCountries().length === 0;
   });
 
   readonly summaryMetrics = computed<GeoScopeMetric[]>(() => {
@@ -95,14 +94,6 @@ export class GeoScopeCardComponent {
     this.service.topRegionsList().map((item, index) => ({
       id: item.region_name ?? String(index),
       label: item.region_name ?? '—',
-      count: Number(item.results_count ?? item.count ?? 0)
-    }))
-  );
-
-  readonly topCountries = computed(() =>
-    this.service.topCountriesList().map((item, index) => ({
-      id: item.country_name ?? String(index),
-      label: item.country_name ?? '—',
       count: Number(item.results_count ?? item.count ?? 0)
     }))
   );

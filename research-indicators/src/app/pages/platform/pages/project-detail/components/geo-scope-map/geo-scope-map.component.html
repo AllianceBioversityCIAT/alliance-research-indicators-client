@@ -1,40 +1,26 @@
-<div class="geo-scope-map" role="img" aria-label="Geographic distribution map">
-  <svg class="geo-scope-map__svg" viewBox="0 0 784 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <rect width="784" height="400" fill="#e8f4fb" rx="12" />
-    <path
-      fill="#cfe8f5"
-      d="M120 180c28-18 62-28 98-28 36 0 70 10 98 28 24 16 42 38 52 64-30 8-62 12-96 12s-66-4-96-12c10-26 28-48 52-64z" />
-    <path
-      fill="#b9ddf0"
-      d="M300 120c40-12 84-12 124 0 34 10 62 30 80 56-36 14-76 22-118 22s-82-8-118-22c18-26 46-46 80-56z" />
-    <path
-      fill="#cfe8f5"
-      d="M470 150c22-10 48-14 74-14 26 0 52 4 74 14 20 9 36 24 46 42-28 6-58 10-88 10s-60-4-88-10c10-18 26-33 46-42z" />
-    <path
-      fill="#b9ddf0"
-      d="M560 210c18-8 40-12 62-12 22 0 44 4 62 12 16 7 28 18 36 32-22 4-46 6-70 6s-48-2-70-6c8-14 20-25 36-32z" />
-    <path
-      fill="#cfe8f5"
-      d="M610 280c14-6 32-10 50-10s36 4 50 10c12 5 22 14 28 24-18 3-36 5-54 5s-36-2-54-5c6-10 16-19 28-24z" />
-    <path
-      fill="#b9ddf0"
-      d="M140 250c16-8 36-12 56-12s40 4 56 12c14 7 24 18 30 30-20 4-42 6-64 6s-44-2-64-6c6-12 16-23 30-30z" />
-    <path
-      fill="#1689ca"
-      opacity="0.12"
-      d="M250 200c80-40 180-40 260 0 40 20 70 50 85 85-55 20-115 30-175 30S180 305 125 285c15-35 45-65 85-85z" />
-  </svg>
+<div class="geo-scope-map relative min-h-[280px] overflow-hidden rounded-xl border border-[#E8EBED] bg-[#F8FAFB]">
+  <div #mapContainer class="geo-scope-map__canvas h-[280px] w-full" role="region"
+    aria-label="Geographic distribution map"></div>
 
-  @if (countries().length) {
-  <ul class="geo-scope-map__chips m-0 list-none p-0">
-    @for (country of countries(); track country.id) {
-    <li class="geo-scope-map__chip" [class]="intensityClass(country.count)">
-      <span class="geo-scope-map__chip-label">{{ country.label }}</span>
-      <span class="geo-scope-map__chip-value">{{ country.count }}</span>
-    </li>
-    }
-  </ul>
-  } @else {
-  <p class="geo-scope-map__empty">Country markers will appear when geographic data is available.</p>
+  @if (geocodingLoading()) {
+  <div
+    class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-white/80 px-4 text-center backdrop-blur-[1px]">
+    <app-custom-progress-bar></app-custom-progress-bar>
+    <span class="font-['Barlow'] text-[13px] text-[#777C83]">Loading map locations…</span>
+  </div>
+  }
+
+  @if (mapError()) {
+  <div class="absolute inset-x-0 bottom-0 z-10 bg-[#FFF4F4] px-4 py-3 text-center">
+    <p class="m-0 font-['Barlow'] text-[13px] text-[#B00020]">Map could not be loaded. Check the Mapbox access token.
+    </p>
+  </div>
+  }
+
+  @if (showEmptyState() && !geocodingLoading() && !mapError()) {
+  <div class="absolute inset-x-0 bottom-0 z-10 px-4 py-3 text-center">
+    <p class="m-0 font-['Barlow'] text-[13px] text-[#777C83]">No geographic points could be resolved for this project.
+    </p>
+  </div>
   }
 </div>

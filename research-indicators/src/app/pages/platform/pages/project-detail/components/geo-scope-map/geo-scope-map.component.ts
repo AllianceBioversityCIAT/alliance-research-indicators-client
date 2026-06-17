@@ -1,36 +1,295 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { ProjectDashboardRankedListItem } from '@interfaces/project-dashboard.interface';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  ElementRef,
+  OnDestroy,
+  effect,
+  inject,
+  input,
+  signal,
+  viewChild
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import mapboxgl, { GeoJSONSource, LngLatBounds, Map as MapboxMap, Popup } from 'mapbox-gl';
+import {
+  GeoScopeCountry,
+  GeoScopePointFeature,
+  GeoScopePointFeatureCollection,
+  GeoScopePointProperties,
+  GeocodedLocation
+} from '@interfaces/geo-scope.interface';
+import { MapboxGeocodingService } from '@shared/services/mapbox-geocoding.service';
+import {
+  GEO_SCOPE_LAYER_ID,
+  GEO_SCOPE_MAP_STYLE,
+  GEO_SCOPE_SOURCE_ID,
+  buildGeoScopeFeatureCollection,
+  buildGeoScopePopupHtml,
+  buildGeoScopeResolutionPlan,
+  getGeoScopeMaxCount
+} from '@shared/utils/geo-scope-map.util';
+import { environment } from '../../../../../../../environments/environment';
+import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 
 @Component({
   selector: 'app-geo-scope-map',
   standalone: true,
+  imports: [CustomProgressBarComponent],
   templateUrl: './geo-scope-map.component.html',
   styleUrl: './geo-scope-map.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class GeoScopeMapComponent {
-  readonly countries = input<readonly ProjectDashboardRankedListItem[]>([]);
+export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
+  readonly countries = input<readonly GeoScopeCountry[]>([]);
 
-  readonly maxCount = computed(() => {
-    const items = this.countries();
-    if (!items.length) {
-      return 0;
-    }
-    return Math.max(...items.map(item => item.count), 0);
-  });
+  private readonly mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly geocoding = inject(MapboxGeocodingService);
 
-  intensityClass(count: number): string {
-    const max = this.maxCount();
-    if (max <= 0 || count <= 0) {
-      return 'geo-scope-map__chip--low';
+  readonly geocodingLoading = signal(false);
+  readonly mapError = signal(false);
+  readonly hasResolvedPoints = signal(false);
+  readonly showEmptyState = signal(false);
+
+  private map?: MapboxMap;
+  private popup?: Popup;
+  private refreshVersion = 0;
+  private viewReady = false;
+  private readonly hasMapboxToken = Boolean(environment.mapboxAccessToken?.trim());
+
+  constructor() {
+    effect(() => {
+      const countries = this.countries();
+      if (!this.viewReady) {
+        return;
+      }
+      void this.refreshMapPoints(countries);
+    });
+  }
+
+  ngAfterViewInit(): void {
+    this.initMap();
+    this.viewReady = true;
+    void this.refreshMapPoints(this.countries());
+  }
+
+  ngOnDestroy(): void {
+    this.popup?.remove();
+    this.map?.remove();
+    this.map = undefined;
+  }
+
+  private initMap(): void {
+    if (!this.hasMapboxToken) {
+      this.mapError.set(true);
+      return;
     }
-    const ratio = count / max;
-    if (ratio >= 0.75) {
-      return 'geo-scope-map__chip--high';
+
+    mapboxgl.accessToken = environment.mapboxAccessToken.trim();
+    this.map = new MapboxMap({
+      container: this.mapContainer().nativeElement,
+      style: GEO_SCOPE_MAP_STYLE,
+      center: [0, 20],
+      zoom: 1.2,
+      attributionControl: true
+    });
+
+    this.map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
+    this.map.on('load', () => this.ensureMapLayers());
+    this.map.on('click', GEO_SCOPE_LAYER_ID, event => this.openPopup(event));
+    this.map.on('mouseenter', GEO_SCOPE_LAYER_ID, () => {
+      if (this.map) {
+        this.map.getCanvas().style.cursor = 'pointer';
+      }
+    });
+    this.map.on('mouseleave', GEO_SCOPE_LAYER_ID, () => {
+      if (this.map) {
+        this.map.getCanvas().style.cursor = '';
+      }
+    });
+  }
+
+  private refreshMapPoints(countries: readonly GeoScopeCountry[]): void {
+    const version = ++this.refreshVersion;
+    const plan = buildGeoScopeResolutionPlan(countries);
+
+    if (!plan.displayTasks.length) {
+      this.geocodingLoading.set(false);
+      this.hasResolvedPoints.set(false);
+      this.showEmptyState.set(true);
+      this.updateSourceData({
+        type: 'FeatureCollection',
+        features: []
+      });
+      return;
     }
-    if (ratio >= 0.4) {
-      return 'geo-scope-map__chip--medium';
+
+    this.showEmptyState.set(false);
+
+    const applyFeatures = (coordinatesByKey: Map<string, GeocodedLocation | null>) => {
+      if (version !== this.refreshVersion) {
+        return;
+      }
+
+      const featureCollection = buildGeoScopeFeatureCollection(
+        plan.displayTasks,
+        coordinatesByKey,
+        plan.staticCoordinates
+      );
+
+      this.geocodingLoading.set(false);
+      this.hasResolvedPoints.set(featureCollection.features.length > 0);
+      this.showEmptyState.set(featureCollection.features.length === 0 && !this.mapError());
+      this.updateSourceData(featureCollection);
+      this.fitMapToFeatures(featureCollection.features);
+    };
+
+    if (!plan.geocodeTasks.length) {
+      this.geocodingLoading.set(false);
+      applyFeatures(new Map());
+      return;
     }
-    return 'geo-scope-map__chip--low';
+
+    this.geocodingLoading.set(true);
+
+    this.geocoding
+      .geocodeTasks(plan.geocodeTasks)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: applyFeatures,
+        error: () => {
+          if (version !== this.refreshVersion) {
+            return;
+          }
+          this.geocodingLoading.set(false);
+          applyFeatures(new Map());
+        }
+      });
+  }
+
+  private ensureMapLayers(): void {
+    if (!this.map) {
+      return;
+    }
+
+    if (!this.map.getSource(GEO_SCOPE_SOURCE_ID)) {
+      this.map.addSource(GEO_SCOPE_SOURCE_ID, {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+    }
+
+    if (!this.map.getLayer(GEO_SCOPE_LAYER_ID)) {
+      this.map.addLayer({
+        id: GEO_SCOPE_LAYER_ID,
+        type: 'circle',
+        source: GEO_SCOPE_SOURCE_ID,
+        paint: {
+          'circle-color': [
+            'match',
+            ['get', 'level'],
+            'country',
+            '#1689CA',
+            'sub-national',
+            '#7C9CB9',
+            '#1689CA'
+          ],
+          'circle-opacity': 0.88,
+          'circle-stroke-color': '#ffffff',
+          'circle-stroke-width': 1.5,
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['get', 'count'],
+            1,
+            6,
+            100,
+            22
+          ]
+        }
+      });
+    }
+  }
+
+  private updateSourceData(data: GeoScopePointFeatureCollection): void {
+    if (!this.map) {
+      return;
+    }
+
+    if (!this.map.isStyleLoaded()) {
+      this.map.once('load', () => this.updateSourceData(data));
+      return;
+    }
+
+    this.ensureMapLayers();
+    const maxCount = getGeoScopeMaxCount(data.features);
+    const source = this.map.getSource(GEO_SCOPE_SOURCE_ID) as GeoJSONSource | undefined;
+    source?.setData(data);
+
+    if (this.map.getLayer(GEO_SCOPE_LAYER_ID)) {
+      this.map.setPaintProperty(GEO_SCOPE_LAYER_ID, 'circle-radius', [
+        'interpolate',
+        ['linear'],
+        ['get', 'count'],
+        1,
+        6,
+        maxCount,
+        22
+      ]);
+    }
+  }
+
+  private fitMapToFeatures(features: GeoScopePointFeature[]): void {
+    if (!this.map || !features.length) {
+      return;
+    }
+
+    const bounds = new LngLatBounds();
+    for (const feature of features) {
+      if (feature.geometry.type !== 'Point') {
+        continue;
+      }
+      bounds.extend(feature.geometry.coordinates);
+    }
+
+    if (bounds.isEmpty()) {
+      return;
+    }
+
+    this.map.fitBounds(bounds, {
+      padding: 48,
+      maxZoom: 6,
+      duration: 700
+    });
+  }
+
+  private openPopup(event: mapboxgl.MapLayerMouseEvent): void {
+    if (!this.map || !event.features?.length) {
+      return;
+    }
+
+    const feature = event.features[0] as unknown as GeoScopePointFeature;
+    const raw = feature.properties;
+    const properties: GeoScopePointProperties = {
+      level: raw.level === 'sub-national' ? 'sub-national' : 'country',
+      name: String(raw.name ?? ''),
+      countryName: String(raw.countryName ?? ''),
+      count: Number(raw.count ?? 0)
+    };
+    if (!properties.name || feature.geometry.type !== 'Point') {
+      return;
+    }
+
+    const coordinates = [...feature.geometry.coordinates] as [number, number];
+    this.popup?.remove();
+    this.popup = new Popup({ closeButton: true, closeOnClick: true, offset: 12 })
+      .setLngLat(coordinates)
+      .setHTML(buildGeoScopePopupHtml(properties))
+      .addTo(this.map);
   }
 }
