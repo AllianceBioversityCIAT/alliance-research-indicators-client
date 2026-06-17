@@ -246,9 +246,7 @@ export const routes: Routes = [
       {
         path: 'administration/center-admin/bulk-upload',
         loadComponent: () =>
-          import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(
-            m => m.default
-          ),
+          import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(m => m.default),
         canMatch: [centerAdminGuard],
         data: {
           title: 'Bulk upload',
@@ -257,8 +255,7 @@ export const routes: Routes = [
       },
       {
         path: 'administration/center-admin/sdg-management',
-        loadComponent: () =>
-          import('@platform/pages/administration/center-admin/sdg-management/sdg-management.component').then(m => m.default),
+        loadComponent: () => import('@platform/pages/administration/center-admin/sdg-management/sdg-management.component').then(m => m.default),
         canMatch: [centerAdminGuard],
         data: {
           title: 'SDG Management',
@@ -268,9 +265,7 @@ export const routes: Routes = [
       {
         path: 'administration/configuration/variables',
         loadComponent: () =>
-          import('@platform/pages/administration/configuration/variable-configuration/variable-configuration.component').then(
-            m => m.default
-          ),
+          import('@platform/pages/administration/configuration/variable-configuration/variable-configuration.component').then(m => m.default),
         canMatch: [appConfigurationGuard],
         data: {
           title: 'Configuration variables',

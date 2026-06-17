@@ -79,7 +79,7 @@
         @if (!isTableView()) {
         <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
           @for (project of filteredProjects(); track project.agreement_id) {
-          <app-project-item [project]="project"></app-project-item>
+          <app-project-item [project]="project" [detailLink]="projectDetailRoute(project.agreement_id)"></app-project-item>
           }
         </div>
         @if (getCurrentProjects().length > 0) {
@@ -175,7 +175,7 @@
               <tr (click)="openProject(project)" (keydown.enter)="openProject(project)"
                 class="cursor-pointer hover:surface-ground transition-colors duration-150 text-[14px]">
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     <div class="overflow-hidden line-clamp-2">
                       {{ project.agreement_id || '-' }}
@@ -183,7 +183,7 @@
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     <div class="overflow-hidden line-clamp-2">
                       {{ project.description }}
@@ -191,7 +191,7 @@
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="inline-block w-fit max-w-full" style="color: inherit; text-decoration: none">
                     <div class="flex w-fit items-center min-h-[40px]">
                       <app-custom-tag [statusId]="projectUtils.getStatusDisplay(project).statusId"
@@ -201,7 +201,7 @@
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     <div class="overflow-hidden line-clamp-2">
                       {{ project.principal_investigator || project.project_lead_description || '-' }}
@@ -209,7 +209,7 @@
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     <div class="overflow-hidden line-clamp-2">
                       {{ projectUtils.getLeverName(project) }}
@@ -217,25 +217,25 @@
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block text-center" style="color: inherit; text-decoration: none">
                     {{ project.count_results ?? 0 }}
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     {{ project.ubwClientDescription ? (project.ubwClientDescription) : '-' }}
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     {{ project.start_date ? (project.start_date | date: 'shortDate') : '-' }}
                   </a>
                 </td>
                 <td>
-                  <a [routerLink]="['/project-detail', project.agreement_id]" (click)="$event.stopPropagation()"
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
                     class="block" style="color: inherit; text-decoration: none">
                     {{ project.end_date ? (project.end_date | date: 'shortDate') : '-' }}
                   </a>

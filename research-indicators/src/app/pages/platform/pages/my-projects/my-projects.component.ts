@@ -593,9 +593,17 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   }
 
   openProject(project: FindContracts) {
-    if (project.agreement_id) {
-      this.router.navigate(['/project-detail', project.agreement_id]);
+    const route = this.projectDetailRoute(project.agreement_id);
+    if (route) {
+      void this.router.navigate(route);
     }
+  }
+
+  projectDetailRoute(agreementId?: string | null): string[] | null {
+    if (!agreementId) {
+      return null;
+    }
+    return ['/project-detail', agreementId, 'project-dashboard'];
   }
 
   getStatusColor(result: Result): string {
