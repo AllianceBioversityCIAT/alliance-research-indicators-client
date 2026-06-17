@@ -68,6 +68,16 @@ export interface TopPrimaryLeversReport {
   top_primary_levers: TopPrimaryLeverItem[];
 }
 
+export interface ContractStaffItem {
+  name: string;
+  role: string;
+}
+
+export interface ContractStaffReport {
+  contract_id: string;
+  staff: ContractStaffItem[];
+}
+
 export interface GeoScopeReport {
   contract_id: string;
   limit: number;
