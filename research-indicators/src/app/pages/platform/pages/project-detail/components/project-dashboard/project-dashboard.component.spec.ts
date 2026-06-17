@@ -1,3 +1,5 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute } from '@angular/router';
@@ -25,7 +27,7 @@ describe('ProjectDashboardComponent', () => {
       main: jest.fn(),
       summary: signal({}),
       topRegionsList: signal([]),
-      topCountriesList: signal([]),
+      topCountries: signal([]),
       loading: signal(false),
       loadError: signal(false),
       update: jest.fn()
@@ -41,7 +43,9 @@ describe('ProjectDashboardComponent', () => {
             parent: { snapshot: { paramMap: { get: (key: string) => (key === 'id' ? 'A100' : null) } } }
           }
         },
-        { provide: ApiService, useValue: api }
+        { provide: ApiService, useValue: api },
+        provideHttpClient(),
+        provideHttpClientTesting()
       ]
     })
       .overrideComponent(ProjectDashboardComponent, {

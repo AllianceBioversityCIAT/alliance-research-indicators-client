@@ -1,6 +1,8 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { ApiService } from '@shared/services/api.service';
-import { GeoScopeSummary, PROJECT_DASHBOARD_DEFAULT_LIMIT, ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
+import { GeoScopeCountry } from '@interfaces/geo-scope.interface';
+import { PROJECT_DASHBOARD_DEFAULT_LIMIT } from '@shared/constants/country-centroids.constants';
+import { GeoScopeSummary, ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
 
 @Injectable()
 export class GetGeoScopeService {
@@ -11,7 +13,7 @@ export class GetGeoScopeService {
 
   summary = signal<Partial<GeoScopeSummary>>({});
   topRegionsList = signal<ProjectDashboardRankedItem[]>([]);
-  topCountriesList = signal<ProjectDashboardRankedItem[]>([]);
+  topCountries = signal<GeoScopeCountry[]>([]);
   loading = signal(false);
   loadError = signal(false);
 
@@ -34,14 +36,14 @@ export class GetGeoScopeService {
       const data = response?.data;
       this.summary.set(data?.geo_scope_summary ?? {});
       this.topRegionsList.set(Array.isArray(data?.top_regions) ? data.top_regions : []);
-      this.topCountriesList.set(Array.isArray(data?.top_countries) ? data.top_countries : []);
+      this.topCountries.set(Array.isArray(data?.top_countries) ? data.top_countries : []);
     } catch {
       this.summary.set({});
       this.topRegionsList.set([]);
-      this.topCountriesList.set([]);
+      this.topCountries.set([]);
       this.loadError.set(true);
     } finally {
       this.loading.set(false);
     }
   };
-}
+};

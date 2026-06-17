@@ -24,7 +24,9 @@ import { MapboxGeocodingService } from '@shared/services/mapbox-geocoding.servic
 import {
   GEO_SCOPE_LAYER_ID,
   GEO_SCOPE_MAP_STYLE,
-  GEO_SCOPE_SOURCE_ID,
+  GEO_SCOPE_SOURCE_ID
+} from '@shared/constants/country-centroids.constants';
+import {
   buildGeoScopeFeatureCollection,
   buildGeoScopePopupHtml,
   buildGeoScopeResolutionPlan,

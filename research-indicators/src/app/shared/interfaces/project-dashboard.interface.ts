@@ -1,4 +1,4 @@
-export const PROJECT_DASHBOARD_DEFAULT_LIMIT = 5;
+import type { GeoScopeCountry } from '@interfaces/geo-scope.interface';
 
 export type ProjectDashboardChartLayout = 'columns' | 'rows' | 'rows-partners' | 'rows-stacked' | 'rows-stacked-lever';
 
@@ -73,5 +73,5 @@ export interface GeoScopeReport {
   limit: number;
   geo_scope_summary: Partial<GeoScopeSummary>;
   top_regions: ProjectDashboardRankedItem[];
-  top_countries: ProjectDashboardRankedItem[];
+  top_countries: GeoScopeCountry[];
 }
