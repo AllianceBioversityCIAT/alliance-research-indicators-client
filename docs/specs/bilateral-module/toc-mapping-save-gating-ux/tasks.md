@@ -43,7 +43,7 @@ Critical path: T-01 (the bug fix) is the demo-relevant one; T-02 is small; T-03 
 
 ### T-BIL-SGU-02 — Save-disabled hint + sequence legibility
 
-- **Status**: `pending`
+- **Status**: `[x]` completed — PASS attempt 1, 2026-06-17 (see [`./execution.md`](./execution.md))
 - **Size**: S
 - **Depends on**: T-BIL-SGU-01
 - **Requirements**: REQ-BIL-SGU-04 (verify), REQ-BIL-SGU-05

@@ -109,6 +109,10 @@ export default class PoolFundingAlignmentComponent {
   readonly REJECTED_SP_MESSAGE_PREFIX = 'These Science Programs are no longer valid for this result: ';
   readonly REJECTED_SP_MESSAGE_SUFFIX = '. Remove them and save again.';
   readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
+  // REQ-BIL-SGU-05 — Save-disabled hint: surfaces when Save is blocked only because a
+  // rendered "Yes" block is an incomplete ToC alignment (D-9), so the contributor
+  // knows to finish or clear it rather than guessing why Save is disabled.
+  readonly SAVE_BLOCKED_HINT = 'Complete or clear the in-progress Theory of Change alignment(s) to save.';
   // AC-09.1 — live-version gate notice (2026-only ToC mapping).
   readonly VERSION_LOCKED_BANNER =
     'Theory of Change alignment is only editable on the live 2026 version of this result. The alignment below is read-only.';
@@ -202,6 +206,24 @@ export default class PoolFundingAlignmentComponent {
       }
     }
     return true;
+  });
+
+  // REQ-BIL-SGU-05 — true when the section is otherwise saveable but Save is blocked
+  // specifically by an incomplete "Yes" block (D-9). Mirrors the canSave gate without
+  // touching it: same editable/dirty/minimal-selection preconditions + same render
+  // gate (showHloSection && showTocBlocks && !versionLocked), then narrows to drafts
+  // that are a "Yes" (aligns_with_toc === true) AND not yet saveable. Drives the
+  // inline Save-disabled hint only — it never changes whether Save is enabled.
+  // @sdd-spec docs/specs/bilateral-module/toc-mapping-save-gating-ux
+  readonly saveBlockedByIncompleteToc = computed(() => {
+    const form = this.formData();
+    const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
+    if (!this.editable() || this.isReadOnly() || !this.isDirty() || !hasMinimalSelection) return false;
+    if (!(this.showHloSection() && this.showTocBlocks() && !this.versionLocked())) return false;
+    return form.selected_sps.some(sp => {
+      const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
+      return !!draft && draft.aligns_with_toc === true && !this.isDraftSaveable(draft);
+    });
   });
 
   readonly isDirty = computed(() => {

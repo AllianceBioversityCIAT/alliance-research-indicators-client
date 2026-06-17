@@ -29,3 +29,14 @@
 - **Root cause fixed (OQ-UX-1):** the multiselect emits `selectEvent` inside its own `formData.update()`; the page's nested reconcile write was clobbered by the outer `return { ...current }`, so `toc_drafts` never populated on selection → "Yes" couldn't be recorded (replace-only `.map`) → cascade never revealed until a save rebuilt drafts. The deferral fixes the clobber; the upsert guarantees the answer is never dropped.
 - **Decisions:** D-SGU-1 (fix the consumer, not the shared multiselect), D-SGU-2 (upsert + deferred reconcile, not an `effect`), D-SGU-4 (block untouched) all honored. Implementer judgment call (Leader-accepted): the spec file was edited for microtask timing despite "ONLY this file" for production — scoped strictly to flush timing, assertions preserved; new behavior tests remain T-BIL-SGU-03's scope.
 - **Final verification:** lint clean, tsc 0, 87/87 page spec green; Reviewer re-ran independently.
+
+### T-BIL-SGU-02 — Save-disabled hint + sequence legibility — ✅ PASS (attempt 1) — 2026-06-17
+
+- **Attempts:** 1 (Implementer → Reviewer PASS, no rework)
+- **Requirements covered:** REQ-BIL-SGU-05; REQ-BIL-SGU-04 (verified, no change); NFR-BIL-SGU-02, NFR-BIL-SGU-01.
+- **Files changed:** `pool-funding-alignment.component.ts` (new `SAVE_BLOCKED_HINT` constant + `saveBlockedByIncompleteToc` computed, `@sdd-spec` comment) + `…component.html` (token-styled inline hint above `<app-navigation-buttons>`). No SCSS (reused existing note utility classes).
+- **What it does:** `saveBlockedByIncompleteToc` mirrors `canSave`'s preconditions (`editable && !isReadOnly && isDirty && minimal-selection`) + render gate (`showHloSection && showTocBlocks && !versionLocked`), then narrows to a selected SP whose draft is `aligns_with_toc === true` AND `!isDraftSaveable` (D-9 incomplete "Yes"). Purely additive/read-only — does NOT touch `canSave`/`onSave`/`isDraftSaveable`. The hint (`role="status"`, `aria-live="polite"`, `data-testid="pf-alignment-save-hint"`, `var(--ac-*)` tokens) renders only when that computed is true. Optional sequence-intro copy skipped (existing INFO_BANNER already covers it).
+- **REQ-BIL-SGU-04:** re-verified by reading the unmodified block — on "Yes" it always renders loading / error+retry / empty-(SP,level) / cascade; no inert path. No block change.
+- **Implementer verification:** `npm run lint` clean; `npx tsc -p tsconfig.app.json --noEmit` 0; `npm run test -- pool-funding-alignment` 87/87.
+- **Reviewer verdict:** **PASS** — "purely-additive; computed mirrors canSave then narrows to incomplete-Yes; `canSave`/`onSave`/`isDraftSaveable` byte-identical to baseline; hint a11y + tokens (no hex) per the file's note pattern; blast radius = the two page files; REQ-04 re-verified; lint + tsc + 87/87 green." Re-ran independently.
+- **Final verification:** lint clean, tsc 0, 87/87 page spec green.
