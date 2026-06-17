@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { GeoScopeSummary } from '@interfaces/project-dashboard.interface';
 import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
-import { ProjectDashboardRankedListComponent } from '../project-dashboard-ranked-list/project-dashboard-ranked-list.component';
 import { GeoScopeMapComponent } from '../geo-scope-map/geo-scope-map.component';
 import { GEO_SCOPE_SUMMARY_COLORS } from '@shared/constants/project-dashboard-chart-colors.constants';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
@@ -21,7 +20,7 @@ interface GeoScopeDonutSegment extends GeoScopeMetric {
 @Component({
   selector: 'app-geo-scope-card',
   standalone: true,
-  imports: [ProjectDashboardCardComponent, ProjectDashboardRankedListComponent, GeoScopeMapComponent],
+  imports: [ProjectDashboardCardComponent, GeoScopeMapComponent],
   templateUrl: './geo-scope-card.component.html',
   styleUrl: './geo-scope-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush

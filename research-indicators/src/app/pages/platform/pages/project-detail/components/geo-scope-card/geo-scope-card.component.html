@@ -33,7 +33,7 @@
     @if (topRegions().length) {
     <div class="geo-scope__regions">
       <h3 class="geo-scope__list-title">Top regions</h3>
-      <app-project-dashboard-ranked-list [items]="topRegions()" layout="rows"></app-project-dashboard-ranked-list>
+      <app-project-dashboard-card variant="list" [items]="topRegions()" layout="rows"></app-project-dashboard-card>
     </div>
     }
   </div>
