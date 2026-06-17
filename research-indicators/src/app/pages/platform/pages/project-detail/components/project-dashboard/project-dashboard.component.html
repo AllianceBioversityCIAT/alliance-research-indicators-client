@@ -6,7 +6,7 @@
     </span>
   </header>
 
-  <section class="rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs">
+  <section class="rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs hidden">
     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div class="flex flex-col">
         <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">Project timeline</span>
@@ -40,9 +40,8 @@
     </div>
   </section>
 
-  <div class="grid grid-cols-1 gap-5 lg:flex lg:items-stretch xl:gap-6">
-    <section
-      class="flex flex-col gap-4 rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs lg:flex-1">
+  <div class="grid grid-cols-1 gap-5 lg:items-stretch xl:gap-6 hidden">
+    <section class="flex flex-col gap-4 rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs lg:flex-1">
       <header class="flex flex-col">
         <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">General information</span>
         <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Results by indicator.</span>
@@ -71,10 +70,10 @@
     </section>
 
     <div class="flex lg:flex-1 [&>*]:w-full">
-      <app-project-dashboard-card title="Contact persons"
-        description="Staff linked to this primary contract." iconClass="pi pi-users" [compact]="true"
-        [loading]="contractStaff.loading()" [error]="contractStaff.loadError()" [empty]="staffEmpty()"
-        emptyMessage="No contact persons were found for this project." (retry)="contractStaff.update()">
+      <app-project-dashboard-card title="Contact persons" description="Staff linked to this primary contract."
+        iconClass="pi pi-users" [compact]="true" [loading]="contractStaff.loading()" [error]="contractStaff.loadError()"
+        [empty]="staffEmpty()" emptyMessage="No contact persons were found for this project."
+        (retry)="contractStaff.update()">
         <ul class="m-0 flex list-none flex-col gap-3 p-0">
           @for (person of contractStaff.staff(); track person.name + person.role) {
           <li class="flex flex-col gap-1 rounded-md border border-[#e8ebed] bg-white/80 px-4 py-3">
