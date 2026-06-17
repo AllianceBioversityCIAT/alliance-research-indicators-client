@@ -41,12 +41,15 @@ import { CustomProgressBarComponent } from '@shared/components/custom-progress-b
   imports: [CustomProgressBarComponent],
   templateUrl: './geo-scope-map.component.html',
   styleUrl: './geo-scope-map.component.scss',
+  host: {
+    class: 'block w-full max-w-[520px]'
+  },
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
   readonly countries = input<readonly GeoScopeCountry[]>([]);
 
-  private readonly mapContainer = viewChild.required<ElementRef<HTMLDivElement>>('mapContainer');
+  private readonly mapContainer = viewChild.required<ElementRef<HTMLElement>>('mapContainer');
   private readonly destroyRef = inject(DestroyRef);
   private readonly geocoding = inject(MapboxGeocodingService);
 
@@ -57,6 +60,7 @@ export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
 
   private map?: MapboxMap;
   private popup?: Popup;
+  private resizeObserver?: ResizeObserver;
   private refreshVersion = 0;
   private viewReady = false;
   private readonly hasMapboxToken = Boolean(environment.mapboxAccessToken?.trim());
@@ -67,17 +71,19 @@ export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
       if (!this.viewReady) {
         return;
       }
-      void this.refreshMapPoints(countries);
+      this.refreshMapPoints(countries);
     });
   }
 
   ngAfterViewInit(): void {
     this.initMap();
+    this.observeContainerResize();
     this.viewReady = true;
-    void this.refreshMapPoints(this.countries());
+    this.refreshMapPoints(this.countries());
   }
 
   ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
     this.popup?.remove();
     this.map?.remove();
     this.map = undefined;
@@ -99,7 +105,10 @@ export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
     });
 
     this.map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right');
-    this.map.on('load', () => this.ensureMapLayers());
+    this.map.on('load', () => {
+      this.ensureMapLayers();
+      this.resizeMap();
+    });
     this.map.on('click', GEO_SCOPE_LAYER_ID, event => this.openPopup(event));
     this.map.on('mouseenter', GEO_SCOPE_LAYER_ID, () => {
       if (this.map) {
@@ -111,6 +120,15 @@ export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
         this.map.getCanvas().style.cursor = '';
       }
     });
+  }
+
+  private observeContainerResize(): void {
+    this.resizeObserver = new ResizeObserver(() => this.resizeMap());
+    this.resizeObserver.observe(this.mapContainer().nativeElement);
+  }
+
+  private resizeMap(): void {
+    globalThis.requestAnimationFrame(() => this.map?.resize());
   }
 
   private refreshMapPoints(countries: readonly GeoScopeCountry[]): void {
@@ -145,6 +163,7 @@ export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
       this.hasResolvedPoints.set(featureCollection.features.length > 0);
       this.showEmptyState.set(featureCollection.features.length === 0 && !this.mapError());
       this.updateSourceData(featureCollection);
+      this.resizeMap();
       this.fitMapToFeatures(featureCollection.features);
     };
 
@@ -270,7 +289,7 @@ export class GeoScopeMapComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  private openPopup(event: mapboxgl.MapLayerMouseEvent): void {
+  private openPopup(event: mapboxgl.MapMouseEvent & { features?: unknown[] }): void {
     if (!this.map || !event.features?.length) {
       return;
     }
