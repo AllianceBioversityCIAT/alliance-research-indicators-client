@@ -13,11 +13,10 @@
         <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Project dates, lever, and status.</span>
       </div>
 
-      <app-custom-tag class="shrink-0" [statusId]="projectStatus().statusId"
-        [statusName]="projectStatus().statusName"></app-custom-tag>
     </div>
 
-    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+    <div class="grid grid-cols-1 gap-3 md:grid-cols-4">
+
       <div class="rounded-lg border border-[#e8ebed] bg-white/80 p-4">
         <span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wide text-[#8D9299]">Start
           date</span>
@@ -36,6 +35,13 @@
         <span class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wide text-[#8D9299]">Lever</span>
         <strong class="mt-1 block truncate font-['Barlow'] text-[17px] font-semibold text-[#345B8F]"
           [title]="projectLeverName()">{{ projectLeverName() }}</strong>
+      </div>
+
+      <div class="rounded-lg border border-[#e8ebed] bg-white/80 p-4 flex flex-col  justify-center gap-1">
+        <span
+          class="font-['Space_Grotesk'] text-[11px] font-medium uppercase tracking-wide text-[#8D9299]">Status</span>
+        <app-custom-tag class="shrink-0" [statusId]="projectStatus().statusId"
+          [statusName]="projectStatus().statusName"></app-custom-tag>
       </div>
     </div>
   </section>
