@@ -1,7 +1,38 @@
-import { CUSTOM_ELEMENTS_SCHEMA, signal } from '@angular/core';
+import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
+import { GeoScopeCountry } from '@interfaces/geo-scope.interface';
+import { GeoScopeSummary, ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
 import { GeoScopeCardComponent } from './geo-scope-card.component';
+
+@Component({
+  selector: 'app-project-dashboard-card',
+  standalone: true,
+  template: '<ng-content />'
+})
+class MockProjectDashboardCardComponent {
+  @Input() title = '';
+  @Input() description = '';
+  @Input() iconClass = '';
+  @Input() compact = false;
+  @Input() loading = false;
+  @Input() error = false;
+  @Input() empty = false;
+  @Input() emptyMessage = '';
+  @Input() variant = '';
+  @Input() items: unknown[] = [];
+  @Input() layout = '';
+  @Output() retry = new EventEmitter<void>();
+}
+
+@Component({
+  selector: 'app-geo-scope-map',
+  standalone: true,
+  template: ''
+})
+class MockGeoScopeMapComponent {
+  @Input() countries: unknown[] = [];
+}
 
 describe('GeoScopeCardComponent', () => {
   let component: GeoScopeCardComponent;
@@ -12,12 +43,11 @@ describe('GeoScopeCardComponent', () => {
     service = createGeoScopeServiceMock();
 
     await TestBed.configureTestingModule({
-      imports: [GeoScopeCardComponent],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      imports: [GeoScopeCardComponent]
     })
       .overrideComponent(GeoScopeCardComponent, {
         set: {
-          imports: [],
+          imports: [MockProjectDashboardCardComponent, MockGeoScopeMapComponent],
           providers: [{ provide: GetGeoScopeService, useValue: service }]
         }
       })
@@ -119,13 +149,13 @@ describe('GeoScopeCardComponent', () => {
         country_name: 'Fallback country',
         results_count: 7,
         top_sub_nationals: [
-          { sub_national_name: 'Unknown sub-national' },
-          { sub_national_name: 'Known sub-national', count: 2 }
+          { sub_national_name: 'Unknown sub-national' } as never,
+          { sub_national_name: 'Known sub-national', count: 2 } as never
         ]
-      },
+      } as never,
       {
         country_name: 'Empty count country'
-      }
+      } as never
     ]);
 
     expect(component.summaryMetrics().every(metric => metric.value === 0)).toBe(true);
@@ -166,9 +196,9 @@ describe('GeoScopeCardComponent', () => {
         country_name: 'Colombia',
         count: 1,
         top_sub_nationals: [
-          { sub_national_id: 1, sub_national_name: 'Undefined A' },
+          { sub_national_id: 1, sub_national_name: 'Undefined A' } as never,
           { sub_national_id: 2, sub_national_name: 'Defined', count: 1 },
-          { sub_national_id: 3, sub_national_name: 'Undefined B' }
+          { sub_national_id: 3, sub_national_name: 'Undefined B' } as never
         ]
       }
     ]);
@@ -193,9 +223,9 @@ describe('GeoScopeCardComponent', () => {
 
 function createGeoScopeServiceMock() {
   return {
-    summary: signal({}),
-    topRegionsList: signal([]),
-    topCountries: signal([]),
+    summary: signal<Partial<GeoScopeSummary>>({}),
+    topRegionsList: signal<ProjectDashboardRankedItem[]>([]),
+    topCountries: signal<GeoScopeCountry[]>([]),
     loading: signal(false),
     loadError: signal(false),
     update: jest.fn()
