@@ -64,4 +64,21 @@ describe('ProjectItemComponent', () => {
     expect(compiled.querySelector('app-project-general-info')).toBeNull();
     expect(compiled.querySelector('app-project-indicator-filters')).toBeNull();
   });
+
+  it('should build the project title with the project description prefix', () => {
+    component.project = {
+      projectDescription: 'Portfolio project',
+      description: 'Research indicators'
+    };
+
+    expect(component.projectTitle()).toBe('Portfolio project - Research indicators');
+  });
+
+  it('should build the project title without a prefix when the project description is missing', () => {
+    component.project = {
+      description: 'Research indicators'
+    };
+
+    expect(component.projectTitle()).toBe('Research indicators');
+  });
 });
