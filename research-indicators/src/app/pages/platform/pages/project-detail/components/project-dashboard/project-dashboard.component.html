@@ -6,11 +6,11 @@
     </span>
   </header>
 
-  <section class="rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs hidden">
+  <section class="rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs">
     <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div class="flex flex-col">
-        <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">Project timeline</span>
-        <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Contract dates, lever, and status.</span>
+        <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">Project information</span>
+        <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Project dates, lever, and status.</span>
       </div>
 
       <app-custom-tag class="shrink-0" [statusId]="projectStatus().statusId"
@@ -40,11 +40,11 @@
     </div>
   </section>
 
-  <div class="grid grid-cols-1 gap-5 lg:items-stretch xl:gap-6 hidden">
+  <div class="grid grid-cols-1 gap-5 lg:items-stretch xl:gap-6 lg:flex">
     <section class="flex flex-col gap-4 rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs lg:flex-1">
       <header class="flex flex-col">
-        <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">General information</span>
-        <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Results by indicator.</span>
+        <span class="font-['Barlow'] text-[15px] font-[550] leading-tight text-[#112f5c]">Results by indicator</span>
+        <span class="font-['Barlow'] text-[14px] leading-4 text-[#777C83]">Distribution of results by indicators.</span>
       </header>
 
       <div class="flex flex-1 flex-col items-center justify-center gap-4">
@@ -87,7 +87,7 @@
 
     <div class="flex lg:flex-1 [&>*]:w-full">
       <app-project-dashboard-card title="Primary levers"
-        description="Primary levers most frequently linked to results on this contract." iconClass="pi pi-sliders-h"
+        description="Primary levers most frequently linked to results on this project." iconClass="pi pi-sliders-h"
         [compact]="true" [loading]="topPrimaryLevers.loading()" [error]="topPrimaryLevers.loadError()"
         [empty]="leversEmpty()" emptyMessage="No primary levers were found for this project." [items]="leverItems()"
         layout="rows-stacked-lever" (retry)="topPrimaryLevers.update()">
@@ -102,18 +102,18 @@
 
     <div class="flex flex-col gap-5 lg:flex-1 lg:self-stretch xl:gap-6">
       <div class="flex flex-1">
-        <app-project-dashboard-card title="Contributing contracts"
-          description="Top contracts contributing to results where this project is the primary contract."
+        <app-project-dashboard-card title="Contributing projects"
+          description="Top projects contributing to results where this project is the primary project."
           class="h-full w-full" iconClass="pi pi-briefcase" [compact]="true" [loading]="topContributors.loading()"
           [error]="topContributors.loadError()" [empty]="contributorsEmpty()"
-          emptyMessage="No contributor contracts were found for this project." [items]="contributorItems()"
-          layout="rows-stacked" (retry)="topContributors.update()">
+          emptyMessage="No contributor projects were found." [items]="contributorItems()" layout="rows-stacked"
+          (retry)="topContributors.update()">
         </app-project-dashboard-card>
       </div>
 
       <div class="flex flex-1">
         <app-project-dashboard-card title="Partner institutions"
-          description="Partner institutions most frequently linked to results on this primary contract."
+          description="Partner institutions most frequently linked to results on this primary project."
           class="h-full w-full" iconClass="pi pi-building" [compact]="true" [loading]="topPartners.loading()"
           [error]="topPartners.loadError()" [empty]="partnersEmpty()"
           emptyMessage="No partner institutions were found for this project." [items]="partnerItems()"
