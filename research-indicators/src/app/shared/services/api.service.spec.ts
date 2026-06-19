@@ -1418,7 +1418,10 @@ describe('ApiService', () => {
 
       service.fastResponse(body);
 
-      expect(mockToPromiseService.post).toHaveBeenCalledWith('fast-response', body, { isAuth: environment.fastResponseUrl });
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('fast-response', body, {
+        isAuth: environment.fastResponseUrl,
+        clarisaApiKey: true
+      });
     });
   });
 

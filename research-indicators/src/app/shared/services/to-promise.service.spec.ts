@@ -3,6 +3,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { of, throwError } from 'rxjs';
 import { ToPromiseService } from './to-promise.service';
 import { cacheServiceMock, mockGreenChecks } from 'src/app/testing/mock-services.mock';
+import { environment } from '@envs/environment';
 
 const httpClientMock = {
   get: jest.fn(),
@@ -121,6 +122,13 @@ describe('ToPromiseService', () => {
     await service.post('/test-url', { a: 1 }, { useResultInterceptor: true });
     const headers = (httpClientMock.post as jest.Mock).mock.calls[0][2].headers;
     expect(headers.get('X-Use-Year')).toBe('true');
+  });
+
+  it('post sets X-API-Key header when clarisaApiKey is true', async () => {
+    httpClientMock.post = jest.fn().mockReturnValue(of({ data: { foo: 'bar' } }));
+    await service.post('/test-url', { a: 1 }, { clarisaApiKey: true });
+    const headers = (httpClientMock.post as jest.Mock).mock.calls[0][2].headers;
+    expect(headers.get('X-API-Key')).toBe(environment.clarisaApiKey);
   });
 
   it('put sets X-Use-Year header', async () => {

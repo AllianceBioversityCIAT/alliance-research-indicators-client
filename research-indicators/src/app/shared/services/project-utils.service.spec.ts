@@ -308,4 +308,23 @@ describe('ProjectUtilsService', () => {
       expect(result).toEqual([]);
     });
   });
+
+  describe('getProjectTitle', () => {
+    it('should build the project title with the project description prefix', () => {
+      const project = {
+        projectDescription: 'Portfolio project',
+        description: 'Research indicators'
+      } as GetProjectDetail;
+
+      expect(service.getProjectTitle(project)).toBe('Portfolio project - Research indicators');
+    });
+
+    it('should build the project title without a prefix when the project description is missing', () => {
+      const project = {
+        description: 'Research indicators'
+      } as GetProjectDetail;
+
+      expect(service.getProjectTitle(project)).toBe('Research indicators');
+    });
+  });
 });
