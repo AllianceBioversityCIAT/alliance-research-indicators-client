@@ -3,8 +3,8 @@ import { ResultsCenterTableComponent } from '../results-center/components/result
 import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
-import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
 import { ProjectIndicatorFiltersComponent } from '@shared/components/project-indicator-filters/project-indicator-filters.component';
+import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ApiService } from '../../../../shared/services/api.service';
 import { ActivatedRoute, NavigationEnd, PRIMARY_OUTLET, Router, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -21,7 +21,6 @@ interface ViewTab {
   selector: 'app-project-detail',
   imports: [
     ResultsCenterTableComponent,
-    ProjectItemComponent,
     ProjectIndicatorFiltersComponent,
     TableFiltersSidebarComponent,
     TableConfigurationComponent,
@@ -35,6 +34,7 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   router = inject(Router);
   resultsCenterService = inject(ResultsCenterService);
+  private readonly projectUtils = inject(ProjectUtilsService);
   private readonly destroyRef = inject(DestroyRef);
   contractId = signal('');
   lastSegment = signal('project-results');
@@ -76,10 +76,19 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
     this.lastSegment.set(lastPath === this.contractId() || !lastPath ? 'project-results' : lastPath);
   }
 
+  projectTitle(): string {
+    return this.projectUtils.getProjectTitle(this.currentProject());
+  }
+
   onTabClick(tab: ViewTab): void {
     this.lastSegment.set(tab.route);
     if (tab.route === 'project-results') {
       void this.router.navigate(['./'], { relativeTo: this.activatedRoute });
+      const stateKey = this.getStateKey();
+      if (!this.resultsCenterService.restorePersistedState(stateKey)) {
+        this.resultsCenterService.resetState();
+      }
+      void this.resultsCenterService.main();
     } else {
       void this.router.navigate([tab.route], { relativeTo: this.activatedRoute });
     }

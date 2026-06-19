@@ -101,6 +101,15 @@ describe('ProjectComponent', () => {
     ]);
   });
 
+  it('should build the project title from the current project data', () => {
+    component.currentProject.set({
+      projectDescription: 'EMBRAPA',
+      description: 'Establishment of the international coconut gene bank'
+    });
+
+    expect(component.projectTitle()).toBe('EMBRAPA - Establishment of the international coconut gene bank');
+  });
+
   it('should set contractId and call getProjectDetail on ngOnInit', () => {
     const getProjectDetailSpy = jest.spyOn(component, 'getProjectDetail').mockImplementation(jest.fn());
     component.ngOnInit();
@@ -155,11 +164,17 @@ describe('ProjectComponent', () => {
     expect(component.lastSegment()).toBe('project-results');
   });
 
-  it('should navigate to the project results root tab', () => {
+  it('should navigate to the project results root tab and restore persisted state', () => {
+    resultsCenterService.restorePersistedState.mockReturnValue(true);
+    jest.clearAllMocks();
+
     component.onTabClick({ label: 'Project Results', route: 'project-results' });
 
     expect(component.lastSegment()).toBe('project-results');
     expect(router.navigate).toHaveBeenCalledWith(['./'], { relativeTo: activatedRoute });
+    expect(resultsCenterService.restorePersistedState).toHaveBeenCalledWith('project-detail:mock-id');
+    expect(resultsCenterService.resetState).not.toHaveBeenCalled();
+    expect(resultsCenterService.main).toHaveBeenCalled();
   });
 
   it('should navigate to child tabs', () => {
