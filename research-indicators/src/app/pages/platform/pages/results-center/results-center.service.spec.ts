@@ -1177,6 +1177,25 @@ describe('ResultsCenterService', () => {
     });
   });
 
+  describe('initializeProjectDashboardResultsTable', () => {
+    it('sets pending revision status, contract context, and loads all results', () => {
+      const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
+
+      service.initializeProjectDashboardResultsTable('D514');
+
+      expect(service.primaryContractId()).toBe('D514');
+      expect(service.myResultsFilterItem()?.id).toBe('all');
+      expect(service.resultsFilter()['status-codes']).toEqual([5]);
+      expect(service.appliedFilters()['status-codes']).toEqual([5]);
+      expect(service.resultsFilter()['create-user-codes']).toEqual([]);
+      expect(service.tableFilters().statusCodes).toEqual([{ result_status_id: 5, name: 'Pending Revision' }]);
+      expect(service.searchInput()).toBe('');
+      expect(service.resultsTablePaginatorFirst()).toBe(0);
+      expect(service.resultsTablePaginatorRows()).toBe(10);
+      expect(mainSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('applyStatusFilterFromHomeLink', () => {
     it('sets status on tableFilters and results filters and calls main by default', () => {
       const mainSpy = jest.spyOn(service, 'main').mockImplementation(() => Promise.resolve());
