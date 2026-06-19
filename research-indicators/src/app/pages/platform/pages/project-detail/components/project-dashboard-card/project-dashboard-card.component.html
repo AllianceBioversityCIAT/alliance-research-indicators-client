@@ -1,7 +1,7 @@
 @if (variant() === 'list') {
 <ng-container *ngTemplateOutlet="rankedList"></ng-container>
 } @else {
-<section class="box-border flex h-full flex-col rounded-xl border border-[#e8ebed] bg-[#f4f7f9] p-5 shadow-xs"
+<section class="box-border flex h-full flex-col rounded-xl border border-[#e8ebed] bg-white p-5 shadow-xs"
   [class.min-h-0]="compact()" [class.min-h-[280px]]="!compact()">
   <header class="mb-4 flex items-start justify-between gap-3">
     <div class="flex min-w-0 flex-1 flex-col gap-1">
@@ -19,11 +19,10 @@
       <span class="font-['Barlow'] text-[13px] text-[#777C83]">Loading chart…</span>
     </div>
     } @else if (error()) {
-    <div class="flex flex-1 flex-col items-center justify-center gap-2.5 px-3 py-6 text-center">
-      <i class="pi pi-exclamation-circle text-[28px] text-[#b00020]" aria-hidden="true"></i>
+    <div class="flex flex-1 flex-col items-center justify-center gap-3 px-3 py-6 text-center">
+      <i class="pi pi-exclamation-triangle text-[28px] text-[#b42318]" aria-hidden="true"></i>
       <p class="m-0 max-w-64 font-['Barlow'] text-[13px] leading-snug text-[#777C83]">{{ errorMessage() }}</p>
-      <p-button label="Try again" icon="pi pi-refresh" size="small" [outlined]="true" severity="secondary"
-        (keydown.enter)="retry.emit()" (click)="retry.emit()"></p-button>
+      <button pButton type="button" severity="secondary" size="small" (click)="retry.emit()">Try again</button>
     </div>
     } @else if (empty()) {
     <div class="flex flex-1 flex-col items-center justify-center gap-2.5 px-3 py-6 text-center">
@@ -58,7 +57,8 @@
       <span class="font-['Barlow'] text-xs font-bold leading-none tabular-nums text-[#112F5C]">{{ item.count }}</span>
       <div class="relative mx-auto w-full overflow-hidden" [style.height.rem]="largeColumns() ? 9 : 6"
         [style.max-width.rem]="4.2" aria-hidden="true">
-        <div class="absolute inset-x-0 bottom-0 min-h-1 w-full rounded-t-lg transition-[height] duration-300 ease-in-out"
+        <div
+          class="absolute inset-x-0 bottom-0 min-h-1 w-full rounded-t-lg transition-[height] duration-300 ease-in-out"
           [style.background-color]="barColor(index)" [style.height.%]="fillPercent(item.count)"></div>
       </div>
       <span
@@ -89,9 +89,13 @@
   } @else if (layout() === 'rows-stacked-lever') {
   <div class="flex w-full flex-1 flex-col min-h-0" [class.justify-center]="items().length >= 2"
     [class.pt-4]="items().length < 2" [class.justify-start]="items().length < 2">
-    <ul class="m-0 flex w-full list-none flex-col gap-3.5 p-0">
+    <ul class="m-0 flex w-full list-none flex-col gap-3 p-0">
       @for (item of items(); track item.id; let index = $index) {
-      <li class="flex flex-col gap-2.5 rounded-md border border-[#e8ebed] bg-white/80 px-5 py-2.5">
+      <li
+        class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-[#e8ebed] bg-white/80 px-4 py-3">
+        <span
+          class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8F0F7] font-['Barlow'] text-[13px] font-bold tabular-nums text-[#345B8F]">{{
+          index + 1 }}</span>
         <div class="flex min-w-0 items-center gap-2.5">
           @if (item.iconUrl) {
           <img [src]="item.iconUrl" alt="" class="h-7 w-7 shrink-0 rounded-full object-cover ring-1 ring-black/[0.06]"
@@ -101,14 +105,8 @@
             class="min-w-0 cursor-default overflow-hidden break-words font-['Barlow'] text-[11px] font-semibold uppercase leading-snug tracking-wide text-[#4c5158] line-clamp-2"
             [appTruncatedTooltip]="item.label" tooltipPosition="top">{{ item.label }}</span>
         </div>
-        <div class="flex items-center gap-2.5">
-          <div class="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#e8ebed]" aria-hidden="true">
-            <div class="h-full min-w-1 rounded-[inherit] transition-[width] duration-300 ease-in-out"
-              [style.background-color]="barColor(index)" [style.width.%]="fillPercent(item.count)"></div>
-          </div>
-          <span class="min-w-7 text-right font-['Barlow'] text-[13px] font-bold tabular-nums text-[#112F5C]">{{ item.count
-            }}</span>
-        </div>
+        <span class="shrink-0 font-['Barlow'] text-[13px] font-semibold tabular-nums text-[#112F5C]">{{
+          linkedResultsLabel(item.count) }}</span>
       </li>
       }
     </ul>
@@ -116,20 +114,18 @@
   } @else if (layout() === 'rows-stacked') {
   <div class="flex w-full flex-1 flex-col min-h-0" [class.justify-center]="items().length >= 2"
     [class.justify-start]="items().length < 2">
-    <ul class="m-0 flex w-full list-none flex-col gap-3.5 p-0">
+    <ul class="m-0 flex w-full list-none flex-col gap-3 p-0">
       @for (item of items(); track item.id; let index = $index) {
-      <li class="flex flex-col gap-2.5 rounded-md border border-[#e8ebed] bg-white/80 px-5 py-2.5">
+      <li
+        class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border border-[#e8ebed] bg-white/80 px-4 py-3">
         <span
-          class="cursor-default overflow-hidden break-words font-['Barlow'] text-sm font-semibold leading-snug text-[#4c5158] line-clamp-2"
+          class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8F0F7] font-['Barlow'] text-[13px] font-bold tabular-nums text-[#345B8F]">{{
+          index + 1 }}</span>
+        <span
+          class="min-w-0 cursor-default overflow-hidden break-words font-['Barlow'] text-sm font-semibold leading-snug text-[#4c5158] line-clamp-2"
           [appTruncatedTooltip]="item.label" tooltipPosition="top">{{ item.label }}</span>
-        <div class="flex items-center gap-2.5">
-          <div class="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#e8ebed]" aria-hidden="true">
-            <div class="h-full min-w-1 rounded-[inherit] transition-[width] duration-300 ease-in-out"
-              [style.background-color]="barColor(index)" [style.width.%]="fillPercent(item.count)"></div>
-          </div>
-          <span class="min-w-7 text-right font-['Barlow'] text-[13px] font-bold tabular-nums text-[#112F5C]">{{ item.count
-            }}</span>
-        </div>
+        <span class="shrink-0 font-['Barlow'] text-[13px] font-semibold tabular-nums text-[#112F5C]">{{
+          linkedResultsLabel(item.count) }}</span>
       </li>
       }
     </ul>

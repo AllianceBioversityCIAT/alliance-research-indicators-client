@@ -29,6 +29,11 @@ describe('ProjectDashboardCardComponent', () => {
     expect(component.fillPercent(0)).toBe(0);
   });
 
+  it('should format linked results label', () => {
+    expect(component.linkedResultsLabel(1)).toBe('1 result');
+    expect(component.linkedResultsLabel(4)).toBe('4 results');
+  });
+
   it('should calculate percentages for total-based layouts', () => {
     fixture.componentRef.setInput('items', [
       { id: 'a', label: 'A', count: 8 },

@@ -82,6 +82,10 @@ export class ProjectDashboardCardComponent {
     return Math.min(100, (count / max) * 100);
   }
 
+  linkedResultsLabel(count: number): string {
+    return count === 1 ? '1 result' : `${count} results`;
+  }
+
   barColor(index: number): string {
     return projectDashboardBarColor(index, this.items().length);
   }
