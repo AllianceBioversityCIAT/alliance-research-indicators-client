@@ -79,7 +79,20 @@
         @if (!isTableView()) {
         <div class="analyze-result-content max-h-[calc(90vh-300px)] overflow-y-auto">
           @for (project of filteredProjects(); track project.agreement_id) {
-          <app-project-item [project]="project" [detailLink]="projectDetailRoute(project.agreement_id)"></app-project-item>
+          <a
+            class="block h-auto w-full cursor-pointer border border-[#E8EBED] bg-[#FCFCFC] px-[25px] py-[18px] text-inherit no-underline hover:text-inherit hover:no-underline"
+            [routerLink]="projectDetailRoute(project.agreement_id)">
+            <div class="grid gap-5">
+              <div
+                class="flex min-w-0 flex-wrap items-center gap-3 font-['Barlow'] text-[17px] font-semibold leading-6 text-[#112F5C]">
+                <span class="shrink-0">{{ project.agreement_id }} - {{ projectUtils.getProjectTitle(project) }}</span>
+              </div>
+              <div class="flex flex-wrap items-center">
+                <app-project-general-info class="contents" [project]="project"></app-project-general-info>
+              </div>
+              <app-project-indicator-filters [project]="project"></app-project-indicator-filters>
+            </div>
+          </a>
           }
         </div>
         @if (getCurrentProjects().length > 0) {

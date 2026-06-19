@@ -23,7 +23,8 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { OverlayBadgeModule } from 'primeng/overlaybadge';
 import { ActionsService } from '@shared/services/actions.service';
 import { RippleModule } from 'primeng/ripple';
-import { ProjectItemComponent } from '../../../../shared/components/project-item/project-item.component';
+import { ProjectGeneralInfoComponent } from '../../../../shared/components/project-general-info/project-general-info.component';
+import { ProjectIndicatorFiltersComponent } from '../../../../shared/components/project-indicator-filters/project-indicator-filters.component';
 import { FiltersActionButtonsComponent } from '@shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '@shared/components/search-export-controls/search-export-controls.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
@@ -50,7 +51,8 @@ import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
     SectionSidebarComponent,
     CalendarInputComponent,
     OverlayBadgeModule,
-    ProjectItemComponent,
+    ProjectGeneralInfoComponent,
+    ProjectIndicatorFiltersComponent,
     FiltersActionButtonsComponent,
     SearchExportControlsComponent
   ],
