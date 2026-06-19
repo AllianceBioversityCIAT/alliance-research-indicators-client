@@ -14,20 +14,13 @@ import { ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interf
 import { projectDashboardBarColor } from '@shared/constants/project-dashboard-chart-colors.constants';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
-
-interface IndicatorSummarySegment {
-  id: number;
-  label: string;
-  value: number;
-  color: string;
-  start: number;
-  end: number;
-}
+import { ResultsCenterTableComponent } from '../../../results-center/components/results-center-table/results-center-table.component';
+import { ResultsCenterService } from '../../../results-center/results-center.service';
 
 @Component({
   selector: 'app-project-dashboard',
   standalone: true,
-  imports: [DatePipe, ProjectDashboardCardComponent, GeoScopeCardComponent, CustomTagComponent],
+  imports: [DatePipe, ProjectDashboardCardComponent, GeoScopeCardComponent, CustomTagComponent, ResultsCenterTableComponent],
   providers: [
     GetTopContributorsContractsService,
     GetTopPartnersService,
@@ -42,6 +35,7 @@ export class ProjectDashboardComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly api = inject(ApiService);
   private readonly projectUtils = inject(ProjectUtilsService);
+  private readonly resultsCenterService = inject(ResultsCenterService);
 
   readonly contractId = computed(() => this.route.parent?.snapshot.paramMap.get('id') ?? '');
   readonly project = signal<GetProjectDetail>({});
@@ -49,50 +43,27 @@ export class ProjectDashboardComponent {
   readonly projectLeverName = computed(() => this.projectUtils.getLeverName(this.project()));
   readonly projectStatus = computed(() => this.projectUtils.getStatusDisplay(this.project()));
 
-  readonly indicatorSummaries = computed(() =>
-    this.projectUtils
+  readonly indicatorSummaries = computed(() => {
+    const ranked = this.projectUtils
       .sortIndicators([...(this.project().indicators ?? [])])
       .map((indicator, index) => ({
         id: indicator.indicator?.indicator_id ?? indicator.indicator_id ?? index,
         label: formatIndicatorName(indicator),
-        value: Number(indicator.count_results ?? 0),
-        color: projectDashboardBarColor(index, this.project().indicators?.length ?? 0)
+        value: Number(indicator.count_results ?? 0)
       }))
-      .sort((first, second) => second.value - first.value)
-  );
+      .sort((first, second) => second.value - first.value);
+
+    return ranked.map((indicator, index) => ({
+      ...indicator,
+      color: projectDashboardBarColor(index, ranked.length)
+    }));
+  });
+
+  readonly indicatorsWithResults = computed(() => this.indicatorSummaries().filter(indicator => indicator.value > 0));
 
   readonly totalProjectResults = computed(() =>
     this.indicatorSummaries().reduce((total, indicator) => total + indicator.value, 0)
   );
-
-  readonly indicatorDonutSegments = computed<IndicatorSummarySegment[]>(() => {
-    const total = this.totalProjectResults();
-    if (total <= 0) {
-      return [];
-    }
-
-    let accumulated = 0;
-    return this.indicatorSummaries()
-      .filter(indicator => indicator.value > 0)
-      .map(indicator => {
-        const start = (accumulated / total) * 100;
-        accumulated += indicator.value;
-        return {
-          ...indicator,
-          start,
-          end: (accumulated / total) * 100
-        };
-      });
-  });
-
-  readonly indicatorDonutGradient = computed(() => {
-    const segments = this.indicatorDonutSegments();
-    if (!segments.length) {
-      return 'conic-gradient(#e8ebed 0 100%)';
-    }
-
-    return `conic-gradient(${segments.map(formatDonutSegment).join(', ')})`;
-  });
 
   readonly topContributors = inject(GetTopContributorsContractsService);
   readonly topPartners = inject(GetTopPartnersService);
@@ -101,11 +72,14 @@ export class ProjectDashboardComponent {
   private readonly geoScope = inject(GetGeoScopeService);
 
   readonly contributorItems = computed(() =>
-    this.topContributors.list().map((item, index) => ({
-      id: item.contract_code ?? item.contract_id ?? String(index),
-      label: item.contract_description ?? item.contract_code ?? item.contract_id ?? item.project_name ?? '—',
-      count: Number(item.results_count ?? item.count ?? 0)
-    }))
+    this.topContributors
+      .list()
+      .map((item, index) => ({
+        id: item.contract_code ?? item.contract_id ?? String(index),
+        label: item.contract_description ?? item.contract_code ?? item.contract_id ?? item.project_name ?? '—',
+        count: Number(item.results_count ?? item.count ?? 0)
+      }))
+      .sort((first, second) => second.count - first.count)
   );
 
   readonly contributorsEmpty = computed(
@@ -125,12 +99,15 @@ export class ProjectDashboardComponent {
   );
 
   readonly leverItems = computed(() =>
-    this.topPrimaryLevers.list().map(item => ({
-      id: String(item.lever_id),
-      label: formatLeverDisplayLabel(item.short_name, item.full_name),
-      count: item.count,
-      iconUrl: item.icon || undefined
-    }))
+    this.topPrimaryLevers
+      .list()
+      .map(item => ({
+        id: String(item.lever_id),
+        label: formatLeverDisplayLabel(item.short_name, item.full_name),
+        count: item.count,
+        iconUrl: item.icon || undefined
+      }))
+      .sort((first, second) => second.count - first.count)
   );
 
   readonly leversEmpty = computed(
@@ -140,6 +117,8 @@ export class ProjectDashboardComponent {
   readonly staffEmpty = computed(
     () => !this.contractStaff.loading() && !this.contractStaff.loadError() && this.contractStaff.staff().length === 0
   );
+
+  readonly pendingRevisionExcludedColumns = ['status', 'year', 'versions', 'creation_date', 'public_link'] as const;
 
   constructor() {
     effect(() => {
@@ -151,6 +130,7 @@ export class ProjectDashboardComponent {
         this.topPrimaryLevers.main(contractId, 5);
         this.contractStaff.main(contractId);
         this.geoScope.main(contractId);
+        this.resultsCenterService.initializeProjectDashboardResultsTable(contractId);
       }
     });
   }
@@ -162,6 +142,19 @@ export class ProjectDashboardComponent {
     } else {
       this.project.set({});
     }
+  }
+
+  getContactInitials(name: string): string {
+    return getContactInitialsFromName(name);
+  }
+
+  indicatorSharePercent(value: number): number {
+    const total = this.totalProjectResults();
+    if (total <= 0 || value <= 0) {
+      return 0;
+    }
+
+    return Math.round((value / total) * 100);
   }
 }
 
@@ -185,15 +178,19 @@ function getPartnerItemId(item: ProjectDashboardRankedItem, index: number): stri
 }
 
 function formatIndicatorName(indicator: GetProjectDetailIndicator): string {
-  const name = indicator.indicator?.name ?? indicator.full_name ?? 'Indicator';
-  const maxLength = 22;
-  if (name.length <= maxLength) {
-    return name;
-  }
-
-  return `${name.slice(0, maxLength - 1).trimEnd()}.`;
+  return indicator.indicator?.name ?? indicator.full_name ?? 'Indicator';
 }
 
-function formatDonutSegment(segment: IndicatorSummarySegment): string {
-  return [segment.color, `${segment.start}%`, `${segment.end}%`].join(' ');
+function getContactInitialsFromName(name: string): string {
+  const parts = name.split(',').map(part => part.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+  }
+
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
+  }
+
+  return (words[0]?.charAt(0) ?? '?').toUpperCase();
 }
