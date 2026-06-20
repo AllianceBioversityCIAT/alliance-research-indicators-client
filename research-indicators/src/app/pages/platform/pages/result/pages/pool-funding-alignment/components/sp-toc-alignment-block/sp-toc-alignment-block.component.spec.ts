@@ -190,6 +190,16 @@ describe('SpTocAlignmentBlockComponent', () => {
         expect.objectContaining({ level: 'OUTPUT', toc_result_id: 5187, indicator_id: null, quantitative_contribution: null })
       );
     });
+
+    it('coerces string HLO ids from PrimeNG before emitting', () => {
+      setup({ draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5172, indicator_id: 5939, quantitative_contribution: 7 }) });
+      const emitted: SpAlignmentDraft[] = [];
+      component.draftChange.subscribe(d => emitted.push(d));
+
+      component.onHloChange('5187');
+
+      expect(emitted[0].toc_result_id).toBe(5187);
+    });
   });
 
   // --- Indicator options (AC-06.1, D-5) --------------------------------------
@@ -202,6 +212,42 @@ describe('SpTocAlignmentBlockComponent', () => {
       // A `custom` type_value indicator (5973) is still present — no type filtering.
       expect(opts.some(o => o.value === 5973)).toBe(true);
       expect(opts[0].label).toBe('Number of new market intelligence briefs');
+    });
+
+    it('resolves indicators when toc_result_id is a string (PrimeNG coercion)', () => {
+      setup({
+        catalog: SP01_CAT,
+        draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: '5187' as unknown as number })
+      });
+      fixture.detectChanges();
+      expect(component.indicatorOptions().length).toBe(5);
+    });
+
+    it('shows an empty notice when the chosen HLO has no indicators in the catalog', () => {
+      const catalogWithoutIndicators = {
+        ...SP01_CAT,
+        levels: [
+          {
+            level: 'OUTPUT' as const,
+            toc_results: [
+              {
+                toc_result_id: 9999,
+                title: 'Result without indicators',
+                description: null,
+                aow_code: 'AOW01',
+                indicators: []
+              }
+            ]
+          }
+        ]
+      };
+      setup({
+        catalog: catalogWithoutIndicators,
+        draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 9999 })
+      });
+      fixture.detectChanges();
+      expect(component.showEmptyIndicators()).toBe(true);
+      expect(fixture.nativeElement.querySelector('[data-testid="sp-toc-indicator-empty-SP01"]')).not.toBeNull();
     });
 
     it('selecting an indicator reveals the contribution panel (AC-06.2)', () => {

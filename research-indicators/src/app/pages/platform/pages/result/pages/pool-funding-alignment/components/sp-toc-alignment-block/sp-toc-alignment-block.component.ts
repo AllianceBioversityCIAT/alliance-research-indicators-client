@@ -89,6 +89,7 @@ export class SpTocAlignmentBlockComponent {
   readonly UNIT_LABEL = 'Unit of measurement';
   readonly TARGET_LABEL = 'Target';
   readonly EMPTY_HLO_MESSAGE = 'No Theory of Change results are available for this Science Program at the selected level.';
+  readonly EMPTY_INDICATOR_MESSAGE = 'No indicators are available for the selected result in the Theory of Change catalog.';
   readonly LOADING_MESSAGE = 'Loading the Theory of Change catalog…';
   readonly CATALOG_ERROR_MESSAGE = "We couldn't load the Theory of Change catalog for this Science Program.";
   readonly RETRY_LABEL = 'Retry';
@@ -142,9 +143,9 @@ export class SpTocAlignmentBlockComponent {
 
   /** The selected HLO (toc_result) from the catalog, if resolvable. */
   private readonly selectedTocResult = computed<TocCatalogResult | null>(() => {
-    const id = this.draft().toc_result_id;
+    const id = this.normalizeNumericId(this.draft().toc_result_id);
     if (id == null) return null;
-    return this.tocResultsForLevel().find(result => result.toc_result_id === id) ?? null;
+    return this.tocResultsForLevel().find(result => this.normalizeNumericId(result.toc_result_id) === id) ?? null;
   });
 
   /**
@@ -153,16 +154,25 @@ export class SpTocAlignmentBlockComponent {
    */
   readonly indicatorOptions = computed<SelectOption<number>[]>(() =>
     (this.selectedTocResult()?.indicators ?? []).map(indicator => ({
-      label: indicator.indicator_description,
+      label: indicator.indicator_description?.trim() || '—',
       value: indicator.indicator_id
     }))
   );
 
+  /** True when an HLO is chosen but its catalog row carries no indicators. */
+  readonly showEmptyIndicators = computed(
+    () => this.normalizeNumericId(this.draft().toc_result_id) != null && this.indicatorOptions().length === 0
+  );
+
   /** The selected indicator — drives the contribution panel reveal (AC-06.2). */
   readonly selectedIndicator = computed<TocCatalogIndicator | null>(() => {
-    const id = this.draft().indicator_id;
+    const id = this.normalizeNumericId(this.draft().indicator_id);
     if (id == null) return null;
-    return this.selectedTocResult()?.indicators.find(indicator => indicator.indicator_id === id) ?? null;
+    return (
+      this.selectedTocResult()?.indicators.find(
+        indicator => this.normalizeNumericId(indicator.indicator_id) === id
+      ) ?? null
+    );
   });
 
   // --- Emission helpers (cascade resets applied; inputs never mutated) --------
@@ -191,14 +201,14 @@ export class SpTocAlignmentBlockComponent {
     this.emit({ level, toc_result_id: null, indicator_id: null, quantitative_contribution: null });
   }
 
-  onHloChange(tocResultId: number | null): void {
+  onHloChange(tocResultId: number | string | null): void {
     // Changing HLO resets indicator + contribution (AC-05.3).
-    this.emit({ toc_result_id: tocResultId, indicator_id: null, quantitative_contribution: null });
+    this.emit({ toc_result_id: this.normalizeNumericId(tocResultId), indicator_id: null, quantitative_contribution: null });
   }
 
-  onIndicatorChange(indicatorId: number | null): void {
+  onIndicatorChange(indicatorId: number | string | null): void {
     // New indicator clears any stale contribution so the panel re-prompts.
-    this.emit({ indicator_id: indicatorId, quantitative_contribution: null });
+    this.emit({ indicator_id: this.normalizeNumericId(indicatorId), quantitative_contribution: null });
   }
 
   onContributionChange(value: number | null): void {
@@ -209,6 +219,13 @@ export class SpTocAlignmentBlockComponent {
 
   onRetry(): void {
     this.retryCatalog.emit();
+  }
+
+  /** PrimeNG may emit numeric ids as strings — normalize before catalog lookups. */
+  private normalizeNumericId(value: unknown): number | null {
+    if (value == null || value === '') return null;
+    const parsed = typeof value === 'number' ? value : Number(value);
+    return Number.isFinite(parsed) ? parsed : null;
   }
 
   /** Overlay width tracks the trigger; capped so it never spills past the viewport. */

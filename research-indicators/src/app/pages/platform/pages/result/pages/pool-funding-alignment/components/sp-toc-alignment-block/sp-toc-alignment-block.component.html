@@ -174,34 +174,44 @@
           <label [for]="'sp-toc-indicator-' + spCode()" class="label inline-block">
             {{ INDICATOR_LABEL }}<span class="sp-toc-block__required" aria-hidden="true">*</span>
           </label>
-          <div class="w-full min-w-0" #indicatorSelectTrigger>
-            <p-select
-              #indicatorSelect
-              [inputId]="'sp-toc-indicator-' + spCode()"
-              [options]="indicatorOptions()"
-              optionLabel="label"
-              optionValue="value"
-              [filter]="true"
-              filterBy="label"
-              [autoOptionFocus]="false"
-              placeholder="Select an indicator"
-              appendTo="body"
-              [disabled]="disabled()"
-              [ngModel]="d.indicator_id"
-              (onChange)="onIndicatorChange($event.value)"
-              [attr.aria-required]="true"
-              styleClass="sp-toc-block__select"
-              panelStyleClass="sp-toc-select-panel"
-              [panelStyle]="selectPanelStyle()"
-              [scrollHeight]="SELECT_SCROLL_HEIGHT"
-              (onShow)="onSelectPanelShow(indicatorSelect, indicatorSelectTrigger)"
-              [style]="{ width: '100%' }"
-              [attr.data-testid]="'sp-toc-indicator-' + spCode()">
-              <ng-template let-option pTemplate="item">
-                <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">{{ option.label }}</span>
-              </ng-template>
-            </p-select>
-          </div>
+          @if (showEmptyIndicators()) {
+            <div
+              role="status"
+              aria-live="polite"
+              class="sp-toc-block__notice"
+              [attr.data-testid]="'sp-toc-indicator-empty-' + spCode()">
+              {{ EMPTY_INDICATOR_MESSAGE }}
+            </div>
+          } @else {
+            <div class="w-full min-w-0" #indicatorSelectTrigger>
+              <p-select
+                #indicatorSelect
+                [inputId]="'sp-toc-indicator-' + spCode()"
+                [options]="indicatorOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [filter]="true"
+                filterBy="label"
+                [autoOptionFocus]="false"
+                placeholder="Select an indicator"
+                appendTo="body"
+                [disabled]="disabled()"
+                [ngModel]="d.indicator_id"
+                (onChange)="onIndicatorChange($event.value)"
+                [attr.aria-required]="true"
+                styleClass="sp-toc-block__select"
+                panelStyleClass="sp-toc-select-panel"
+                [panelStyle]="selectPanelStyle()"
+                [scrollHeight]="SELECT_SCROLL_HEIGHT"
+                (onShow)="onSelectPanelShow(indicatorSelect, indicatorSelectTrigger)"
+                [style]="{ width: '100%' }"
+                [attr.data-testid]="'sp-toc-indicator-' + spCode()">
+                <ng-template let-option pTemplate="item">
+                  <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">{{ option.label }}</span>
+                </ng-template>
+              </p-select>
+            </div>
+          }
         </div>
       }
 
