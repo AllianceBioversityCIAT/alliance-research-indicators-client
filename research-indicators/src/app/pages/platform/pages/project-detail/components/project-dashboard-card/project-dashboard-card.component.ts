@@ -34,6 +34,8 @@ export class ProjectDashboardCardComponent {
   readonly items = input<readonly ProjectDashboardRankedListItem[]>([]);
   readonly layout = input<ProjectDashboardChartLayout>('columns');
   readonly largeColumns = input(false);
+  readonly barHeightClass = input('h-6');
+  readonly itemHeightPx = input<number | null>(null);
   readonly loading = input(false);
   readonly error = input(false);
   readonly empty = input(false);
