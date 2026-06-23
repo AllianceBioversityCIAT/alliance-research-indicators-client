@@ -63,16 +63,10 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
-    const stateKey = this.getStateKey();
-    const restoredState = this.resultsCenterService.restorePersistedState(stateKey);
+    this.getLastSegment();
 
-    this.resultsCenterService.primaryContractId.set(this.contractId());
-    this.resultsCenterService.activateStatePersistence(stateKey);
-
-    if (restoredState) {
+    if (this.lastSegment() === 'project-results' && this.activateProjectResultsState()) {
       void this.resultsCenterService.main();
-    } else {
-      this.resultsCenterService.resetState();
     }
 
     this.getProjectDetail();
@@ -106,12 +100,11 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
     this.lastSegment.set(tab.route);
     if (tab.route === 'project-results') {
       void this.router.navigate(['./'], { relativeTo: this.activatedRoute });
-      const stateKey = this.getStateKey();
-      if (!this.resultsCenterService.restorePersistedState(stateKey)) {
-        this.resultsCenterService.resetState();
+      if (this.activateProjectResultsState()) {
+        void this.resultsCenterService.main();
       }
-      void this.resultsCenterService.main();
     } else {
+      this.resultsCenterService.deactivateStatePersistence(this.getStateKey());
       void this.router.navigate([tab.route], { relativeTo: this.activatedRoute });
     }
   }
@@ -153,5 +146,67 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
 
   private getStateKey(): string {
     return `project-detail:${this.contractId()}`;
+  }
+
+  private activateProjectResultsState(): boolean {
+    const stateKey = this.getStateKey();
+    const restoredState = this.resultsCenterService.restorePersistedState(stateKey);
+
+    this.resultsCenterService.primaryContractId.set(this.contractId());
+    this.resultsCenterService.activateStatePersistence(stateKey);
+
+    if (!restoredState || this.isOnlyPendingRevisionStatusFilter()) {
+      this.resultsCenterService.resetState();
+      return false;
+    }
+
+    return true;
+  }
+
+  private isOnlyPendingRevisionStatusFilter(): boolean {
+    const tableFilters = this.resultsCenterService.tableFilters();
+    const resultsFilter = this.resultsCenterService.resultsFilter();
+    const appliedFilters = this.resultsCenterService.appliedFilters();
+
+    const hasOnlyPendingRevisionTableFilter =
+      tableFilters.statusCodes.length === 1 &&
+      tableFilters.statusCodes[0]?.result_status_id === 5 &&
+      tableFilters.indicators.length === 0 &&
+      tableFilters.contracts.length === 0 &&
+      tableFilters.levers.length === 0 &&
+      tableFilters.years.length === 0 &&
+      (tableFilters.sources?.length ?? 0) === 0;
+
+    return (
+      hasOnlyPendingRevisionTableFilter &&
+      this.hasOnlyPendingRevisionResultFilter(resultsFilter) &&
+      this.hasOnlyPendingRevisionResultFilter(appliedFilters) &&
+      this.resultsCenterService.searchInput().trim() === ''
+    );
+  }
+
+  private hasOnlyPendingRevisionResultFilter(filterState: ReturnType<ResultsCenterService['resultsFilter']>): boolean {
+    const statusCodes = filterState['status-codes'] ?? [];
+    const indicatorCodes = filterState['indicator-codes'] ?? [];
+    const indicatorTabCodes = filterState['indicator-codes-tabs'] ?? [];
+    const indicatorFilterCodes = filterState['indicator-codes-filter'] ?? [];
+    const contractCodes = filterState['contract-codes'] ?? [];
+    const platformCodes = filterState['platform-code'] ?? [];
+    const leverCodes = filterState['lever-codes'] ?? [];
+    const years = filterState.years ?? [];
+    const createUserCodes = filterState['create-user-codes'] ?? [];
+
+    return (
+      statusCodes.length === 1 &&
+      statusCodes[0] === 5 &&
+      indicatorCodes.length === 0 &&
+      indicatorTabCodes.length === 0 &&
+      indicatorFilterCodes.length === 0 &&
+      contractCodes.length === 0 &&
+      platformCodes.length === 0 &&
+      leverCodes.length === 0 &&
+      years.length === 0 &&
+      createUserCodes.length === 0
+    );
   }
 }

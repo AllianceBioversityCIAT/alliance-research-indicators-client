@@ -23,7 +23,12 @@ describe('ProjectDetailComponent', () => {
     primaryContractId: ReturnType<typeof signal<string>>;
     showFiltersSidebar: ReturnType<typeof signal<boolean>>;
     showConfigurationsSidebar: ReturnType<typeof signal<boolean>>;
-    tableFilters: ReturnType<typeof signal<{ indicators: { indicator_id: number; name: string }[] }>>;
+    tableFilters: ReturnType<typeof signal<any>>;
+    resultsFilter: ReturnType<typeof signal<any>>;
+    appliedFilters: ReturnType<typeof signal<any>>;
+    searchInput: ReturnType<typeof signal<string>>;
+    myResultsFilterItem: ReturnType<typeof signal<any>>;
+    myResultsFilterItems: { id: string; label: string }[];
     restorePersistedState: jest.Mock;
     activateStatePersistence: jest.Mock;
     deactivateStatePersistence: jest.Mock;
@@ -48,6 +53,17 @@ describe('ProjectDetailComponent', () => {
   });
 
   beforeEach(async () => {
+    const emptyResultFilter = {
+      'indicator-codes': [],
+      'lever-codes': [],
+      'indicator-codes-tabs': [],
+      'indicator-codes-filter': [],
+      'status-codes': [],
+      'contract-codes': [],
+      'platform-code': [],
+      years: [],
+      'create-user-codes': []
+    };
     apiService = {
       GET_ResultsCount: jest.fn().mockResolvedValue({ data: {} })
     };
@@ -60,13 +76,21 @@ describe('ProjectDetailComponent', () => {
       url: '/projects/mock-id/project-results',
       events: new Subject<NavigationEnd>(),
       navigate: jest.fn(),
-      parseUrl: jest.fn(() => parseUrlWithSegments('projects', 'mock-id', 'project-results'))
+      parseUrl: jest.fn((url: string) => parseUrlWithSegments(...url.split('/').filter(Boolean)))
     };
     resultsCenterService = {
       primaryContractId: signal(''),
       showFiltersSidebar: signal(true),
       showConfigurationsSidebar: signal(true),
-      tableFilters: signal({ indicators: [] }),
+      tableFilters: signal({ indicators: [], statusCodes: [], sources: [], years: [], contracts: [], levers: [] }),
+      resultsFilter: signal({ ...emptyResultFilter }),
+      appliedFilters: signal({ ...emptyResultFilter }),
+      searchInput: signal(''),
+      myResultsFilterItems: [
+        { id: 'all', label: 'All Results' },
+        { id: 'my', label: 'My Results' }
+      ],
+      myResultsFilterItem: signal({ id: 'all', label: 'All Results' }),
       restorePersistedState: jest.fn(() => null),
       activateStatePersistence: jest.fn(),
       deactivateStatePersistence: jest.fn(),
@@ -162,6 +186,29 @@ describe('ProjectDetailComponent', () => {
     getProjectDetailSpy.mockRestore();
   });
 
+  it('should discard a restored pending revision-only filter from the dashboard fixed table', () => {
+    const getProjectDetailSpy = jest.spyOn(component, 'getProjectDetail').mockImplementation(jest.fn());
+    resultsCenterService.restorePersistedState.mockReturnValue(true);
+    resultsCenterService.tableFilters.set({
+      indicators: [],
+      statusCodes: [{ result_status_id: 5, name: 'Pending Revision' }],
+      sources: [],
+      years: [],
+      contracts: [],
+      levers: []
+    });
+    resultsCenterService.resultsFilter.update(prev => ({ ...prev, 'status-codes': [5] }));
+    resultsCenterService.appliedFilters.update(prev => ({ ...prev, 'status-codes': [5] }));
+    resultsCenterService.main.mockClear();
+    resultsCenterService.resetState.mockClear();
+
+    component.ngOnInit();
+
+    expect(resultsCenterService.resetState).toHaveBeenCalled();
+    expect(resultsCenterService.main).not.toHaveBeenCalled();
+    getProjectDetailSpy.mockRestore();
+  });
+
   it('should update the last segment when navigation ends', () => {
     const getLastSegmentSpy = jest.spyOn(component, 'getLastSegment');
     router.url = '/projects/mock-id/project-dashboard';
@@ -214,14 +261,37 @@ describe('ProjectDetailComponent', () => {
     component.onTabClick({ label: 'Project Results', route: 'project-results' });
 
     expect(resultsCenterService.resetState).toHaveBeenCalled();
-    expect(resultsCenterService.main).toHaveBeenCalled();
+    expect(resultsCenterService.main).not.toHaveBeenCalled();
   });
 
   it('should navigate to child tabs', () => {
+    component.contractId.set('mock-id');
+
     component.onTabClick({ label: 'Project Dashboard', route: 'project-dashboard' });
 
     expect(component.lastSegment()).toBe('project-dashboard');
+    expect(resultsCenterService.deactivateStatePersistence).toHaveBeenCalledWith('project-detail:mock-id');
     expect(router.navigate).toHaveBeenCalledWith(['project-dashboard'], { relativeTo: activatedRoute });
+  });
+
+  it('should not activate project results persistence when initialized on the dashboard tab', () => {
+    router.url = '/projects/mock-id/project-dashboard';
+    resultsCenterService.restorePersistedState.mockClear();
+    resultsCenterService.activateStatePersistence.mockClear();
+    resultsCenterService.resetState.mockClear();
+
+    const dashboardFixture = TestBed.createComponent(ProjectDetailComponent);
+    const dashboardComponent = dashboardFixture.componentInstance;
+    jest.spyOn(dashboardComponent, 'getProjectDetail').mockImplementation(jest.fn());
+
+    dashboardFixture.detectChanges();
+
+    expect(dashboardComponent.lastSegment()).toBe('project-dashboard');
+    expect(resultsCenterService.restorePersistedState).not.toHaveBeenCalled();
+    expect(resultsCenterService.activateStatePersistence).not.toHaveBeenCalled();
+    expect(resultsCenterService.resetState).not.toHaveBeenCalled();
+
+    dashboardFixture.destroy();
   });
 
   it('should deactivate persisted state and close sidebars on destroy', () => {

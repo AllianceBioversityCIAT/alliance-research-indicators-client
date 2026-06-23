@@ -190,10 +190,7 @@
         <ul class="m-0 flex list-none flex-col gap-0 divide-y divide-[#e8ebed] p-0">
           @for (indicator of indicatorsWithResults(); track indicator.id; let rank = $index) {
           <li class="py-3 first:pt-0 last:pb-0">
-            <button type="button"
-              class="grid w-full cursor-pointer grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-md border-0 bg-transparent p-0 text-left transition-colors duration-150 hover:bg-[#F4F7F9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1689CA]"
-              [attr.aria-label]="'View project results filtered by ' + indicator.label"
-              (click)="openProjectResultsForIndicator(indicator.indicatorId, indicator.label)">
+            <div class="grid w-full grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3">
               <span
                 class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#E8F0F7] font-['Barlow'] text-[12px] font-bold tabular-nums text-[#345B8F]">{{
                 rank + 1 }}</span>
@@ -208,7 +205,7 @@
                 <span class="mt-0.5 block font-['Barlow'] text-[11px] tabular-nums text-[#777C83]">{{
                   indicatorSharePercent(indicator.value) }}%</span>
               </span>
-            </button>
+            </div>
           </li>
           }
         </ul>
@@ -235,11 +232,8 @@
         <ul class="m-0 flex max-h-[172px] min-h-0 list-none flex-col gap-3 overflow-y-auto p-0 pr-1 pt-1">
           @for (item of statusChartItems(); track item.result_status_id) {
           <li class="m-0 list-none p-0">
-            <button type="button"
-              class="grid w-full cursor-pointer items-center gap-2.5 border-0 bg-transparent p-0 text-left text-inherit transition-colors duration-150 hover:bg-[#F4F7F9] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1689CA]"
-              style="grid-template-columns: clamp(7.5rem, 38%, 12rem) minmax(0, 1fr)"
-              [attr.aria-label]="'View project results filtered by ' + item.label"
-              (click)="openProjectResultsForStatus(item.result_status_id, item.label)">
+            <div class="grid w-full items-center gap-2.5 text-left text-inherit"
+              style="grid-template-columns: clamp(7.5rem, 38%, 12rem) minmax(0, 1fr)">
               <span
                 class="min-w-0 overflow-hidden font-['Barlow'] text-[12.5px] font-semibold capitalize leading-tight text-[#4c5158] line-clamp-2"
                 [title]="item.label">{{ item.label }}</span>
@@ -253,7 +247,7 @@
                   item.value }}</span>
                 </span>
               </span>
-            </button>
+            </div>
           </li>
           }
         </ul>
