@@ -94,6 +94,7 @@ import {
   ContractStaffReport,
   GeoScopeReport,
   TopContributorsContractReport,
+  TopMainContactPersonsReport,
   TopPartnersReport,
   TopPrimaryLeversReport
 } from '@shared/interfaces/project-dashboard.interface';
@@ -697,6 +698,12 @@ export class ApiService {
 
   GET_TopPartners = (contractId: string, limit = 5): Promise<MainResponse<TopPartnersReport>> => {
     const url = () => `agresso/contracts/reports/top-partners?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_TopMainContactPersons = (contractId: string, limit = 5): Promise<MainResponse<TopMainContactPersonsReport>> => {
+    const url = () =>
+      `agresso/contracts/reports/top-main-contact-persons?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
