@@ -2,7 +2,7 @@ import { GeocodedLocation } from '@interfaces/geo-scope.interface';
 
 export const PROJECT_DASHBOARD_DEFAULT_LIMIT = 5;
 
-export const GEO_SCOPE_MAP_STYLE = 'mapbox://styles/mapbox/light-v11';
+export const GEO_SCOPE_MAP_STYLE = 'mapbox://styles/mapbox/outdoors-v12';
 export const GEO_SCOPE_SOURCE_ID = 'geo-scope-points';
 export const GEO_SCOPE_LAYER_ID = 'geo-scope-circles';
 

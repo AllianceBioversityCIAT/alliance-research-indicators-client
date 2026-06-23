@@ -1,12 +1,16 @@
 <div class="flex h-full min-w-0 flex-col">
   <div class="w-full min-w-0 pt-[8px] sm:pt-[12px] bg-white md:pt-[20px]">
     <div class="mb-4 px-[24px] md:px-[28px] py-[9px]">
-      <div class="font-['Barlow'] text-[15px] font-normal leading-[18px] text-[#8D9299]">
-        {{ currentProject().agreement_id || contractId() }}
-      </div>
-      <span class="m-0 mt-1 font-['Barlow'] text-[18px] font-semibold leading-[20px] text-[#112F5C]">
-        {{ projectTitle() }}
+      <span class="m-0 mt-2 font-['Barlow'] text-[18px] font-semibold leading-[20px] text-[#112F5C]">
+        {{ currentProject().agreement_id }} - {{ currentProject().description }}
       </span>
+      <div class="flex flex-col gap-1 pt-1">
+        <span class="font-['Barlow'] text-[15px] font-normal leading-[18px] text-[#8D9299]">
+          {{ currentProject().department }} Department
+        </span>
+        <app-custom-tag class="shrink-0" [statusId]="projectStatus().statusId"
+          [statusName]="projectStatus().statusName"></app-custom-tag>
+      </div>
     </div>
 
     <div class="flex items-end gap-0 px-2 border-b border-[#E8EBED]">

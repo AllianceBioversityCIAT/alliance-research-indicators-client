@@ -7,6 +7,7 @@ export interface ProjectDashboardRankedListItem {
   label: string;
   count: number;
   iconUrl?: string;
+  description?: string;
 }
 
 export interface GeoScopeSummary {
@@ -25,10 +26,15 @@ export interface ProjectDashboardRankedItem {
   project_name?: string;
   institution_id?: number;
   institution_name?: string;
+  acronym?: string;
   partner_name?: string;
   lever_id?: number;
   short_name?: string;
   full_name?: string;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  contact_person_name?: string;
   lever_name?: string;
   primary_lever?: string;
   region_name?: string;
@@ -52,6 +58,12 @@ export interface TopPartnersReport {
   contract_id: string;
   limit: number;
   top_partners: ProjectDashboardRankedItem[];
+}
+
+export interface TopMainContactPersonsReport {
+  contract_id: string;
+  limit: number;
+  top_main_contact_persons: ProjectDashboardRankedItem[];
 }
 
 export interface TopPrimaryLeverItem {

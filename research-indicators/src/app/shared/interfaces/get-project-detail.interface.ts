@@ -5,6 +5,14 @@ export interface GetProjectDetail {
   project_lead_description?: string;
   start_date?: string;
   end_date?: string;
+  extension_date?: string | null;
+  grant_amount?: string | number;
+  donor?: string;
+  department?: string;
+  division?: string;
+  divisionId?: string;
+  unit?: string;
+  unitId?: string;
   full_name?: string;
   indicators?: GetProjectDetailIndicator[];
   status_name?: string;

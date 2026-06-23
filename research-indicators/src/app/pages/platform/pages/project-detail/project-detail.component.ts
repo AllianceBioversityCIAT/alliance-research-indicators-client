@@ -11,6 +11,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ResultsCenterService } from '../results-center/results-center.service';
 import { filter } from 'rxjs';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 
 interface ViewTab {
   label: string;
@@ -25,6 +26,7 @@ interface ViewTab {
     TableFiltersSidebarComponent,
     TableConfigurationComponent,
     SectionSidebarComponent,
+    CustomTagComponent,
     RouterOutlet
   ],
   templateUrl: './project-detail.component.html'
@@ -78,6 +80,10 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
 
   projectTitle(): string {
     return this.projectUtils.getProjectTitle(this.currentProject());
+  }
+
+  projectStatus(): { statusId: number; statusName: string } {
+    return this.projectUtils.getStatusDisplay(this.currentProject());
   }
 
   onTabClick(tab: ViewTab): void {
