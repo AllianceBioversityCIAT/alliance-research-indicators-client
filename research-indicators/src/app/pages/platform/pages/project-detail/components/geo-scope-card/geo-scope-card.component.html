@@ -1,70 +1,56 @@
-<app-project-dashboard-card class="h-full w-full" title="Geographic scope"
+<app-project-dashboard-card class="h-full w-full" title="Top geographic scope"
   description="Distribution of geographic reach for results linked to this primary project." iconClass="pi pi-globe"
   [compact]="true" [loading]="service.loading()" [error]="service.loadError()" [empty]="isEmpty()"
   emptyMessage="No geographic scope data was found for this project." (retry)="service.update()">
-  <div class="flex min-h-0 flex-1 flex-col gap-3">
-    <div class="flex flex-col gap-3 rounded-[10px] bg-[#F4F7F9] p-3">
+  <div class="grid min-h-0 flex-1 grid-cols-1 gap-4 xl:grid-cols-[minmax(280px,.5fr)_minmax(0,1.6fr)]">
+    <div class="flex h-full min-w-0 items-stretch">
+      <app-geo-scope-map [countries]="service.topCountries()"></app-geo-scope-map>
+    </div>
+
+    <div class="flex min-w-0 flex-col gap-4 px-6">
       @if (visibleSummaryMetrics().length) {
-      <ul class="m-0 grid list-none grid-cols-2 gap-2 p-0 xl:grid-cols-4">
+      <ul
+        class="m-0 grid list-none grid-cols-2 gap-x-5 gap-y-1.5 border-y border-[#e8ebed] py-2 p-0 md:grid-cols-5 mb-4">
         @for (metric of visibleSummaryMetrics(); track metric.key) {
-        <li class="rounded-md bg-white/80 px-3 py-2">
-          <span class="block font-['Barlow'] text-[11px] font-medium uppercase tracking-[0.04em] text-[#777C83]">{{
+        <li class="flex min-w-0 items-baseline justify-between gap-2 md:justify-start">
+          <span class="truncate font-['Barlow'] text-[11px] font-medium uppercase tracking-[0.04em] text-[#777C83]">{{
             metric.label }}</span>
-          <strong class="mt-1 block font-['Barlow'] text-lg leading-none text-[#112F5C]">{{ metric.value }}</strong>
+          <strong class="font-['Barlow'] text-[15px] font-semibold leading-none tabular-nums text-[#112F5C]">{{
+            metric.value
+            }}</strong>
         </li>
         }
       </ul>
       }
 
-      @if (topCountries().length) {
-      <div class="grid grid-cols-1 gap-2 xl:grid-cols-2">
-        @for (country of topCountries(); track country.id) {
-        <article class="min-w-0 rounded-md bg-white/80 px-3 py-2">
-          <div class="flex items-center justify-between gap-2">
-            <span class="truncate font-['Barlow'] text-[13px] font-semibold text-[#112F5C]" [title]="country.label">{{
-              country.label }}</span>
-            <span class="shrink-0 font-['Barlow'] text-xs font-bold tabular-nums text-[#112F5C]">{{ country.count
-              }}</span>
-          </div>
+      <div class="grid min-w-0 grid-cols-1 gap-16 lg:grid-cols-3">
+        @if (topRegions().length) {
+        <div class="min-w-0">
+          <h3 class="mb-2 mt-0 font-['Barlow'] text-xs font-semibold uppercase tracking-[0.04em] text-[#112F5C]">Top
+            regions</h3>
+          <app-project-dashboard-card variant="list" [items]="topRegions()" layout="rows-partners" barHeightClass="h-4"
+            [itemHeightPx]="18"></app-project-dashboard-card>
+        </div>
+        }
 
-          @if (country.subNationals.length) {
-          <p class="m-0 mt-1 truncate font-['Barlow'] text-[11px] leading-snug text-[#777C83]"
-            [title]="country.subNationals[0].label">
-            Top sub-national: {{ country.subNationals[0].label }} ({{ country.subNationals[0].count }})
-          </p>
-          }
-        </article>
+        @if (topCountryItems().length) {
+        <div class="min-w-0">
+          <h3 class="mb-2 mt-0 font-['Barlow'] text-xs font-semibold uppercase tracking-[0.04em] text-[#112F5C]">Top
+            countries</h3>
+          <app-project-dashboard-card variant="list" [items]="topCountryItems()" layout="rows-partners"
+            barHeightClass="h-4" [itemHeightPx]="18"></app-project-dashboard-card>
+        </div>
+        }
+
+        @if (topSubNationalItems().length) {
+        <div class="min-w-0">
+          <h3 class="mb-2 mt-0 font-['Barlow'] text-xs font-semibold uppercase tracking-[0.04em] text-[#112F5C]">Top
+            sub-national levels</h3>
+          <app-project-dashboard-card variant="list" [items]="topSubNationalItems()" layout="rows-partners"
+            barHeightClass="h-4" [itemHeightPx]="18"></app-project-dashboard-card>
+        </div>
         }
       </div>
-      }
-
-      @if (topSubNationals().length) {
-      <div>
-        <h3 class="mb-2 mt-0 font-['Barlow'] text-xs font-semibold uppercase tracking-[0.04em] text-[#112F5C]">Top
-          sub-national levels</h3>
-        <ul class="m-0 grid list-none grid-cols-1 gap-2 p-0 sm:grid-cols-2 xl:grid-cols-3">
-          @for (subNational of topSubNationals(); track subNational.id) {
-          <li class="grid min-w-0 grid-cols-[1fr_auto] gap-2 rounded-md bg-white/80 px-2.5 py-1.5">
-            <span class="truncate font-['Barlow'] text-[11px] text-[#4C5158]" [title]="subNational.label">{{
-              subNational.label }}</span>
-            <span class="font-['Barlow'] text-xs font-bold tabular-nums text-[#112F5C]">{{ subNational.count }}</span>
-          </li>
-          }
-        </ul>
-      </div>
-      }
     </div>
-
-    <div class="flex min-w-0 justify-center py-2">
-      <app-geo-scope-map [countries]="service.topCountries()"></app-geo-scope-map>
-    </div>
-
-    @if (topRegions().length) {
-    <div class="pt-1">
-      <h3 class="mb-2 mt-0 font-['Barlow'] text-xs font-semibold uppercase tracking-[0.04em] text-[#112F5C]">Top
-        regions</h3>
-      <app-project-dashboard-card variant="list" [items]="topRegions()" layout="rows"></app-project-dashboard-card>
-    </div>
-    }
   </div>
 </app-project-dashboard-card>

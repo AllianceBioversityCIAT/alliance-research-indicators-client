@@ -42,7 +42,7 @@ import { CustomProgressBarComponent } from '@shared/components/custom-progress-b
   templateUrl: './geo-scope-map.component.html',
   styleUrl: './geo-scope-map.component.scss',
   host: {
-    class: 'block w-full max-w-[520px]'
+    class: 'block h-full w-full'
   },
   changeDetection: ChangeDetectionStrategy.OnPush
 })

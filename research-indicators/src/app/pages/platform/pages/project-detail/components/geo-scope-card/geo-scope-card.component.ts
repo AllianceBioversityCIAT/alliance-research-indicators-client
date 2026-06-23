@@ -88,4 +88,20 @@ export class GeoScopeCardComponent {
       count: Number(item.results_count ?? item.count ?? 0)
     }))
   );
+
+  readonly topCountryItems = computed(() =>
+    this.topCountries().map(country => ({
+      id: country.id,
+      label: country.label,
+      count: country.count
+    }))
+  );
+
+  readonly topSubNationalItems = computed(() =>
+    this.topSubNationals().map(subNational => ({
+      id: subNational.id,
+      label: subNational.label,
+      count: subNational.count
+    }))
+  );
 }
