@@ -1,6 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
 import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
 import { GetTopContributorsContractsService } from '@services/get-top-contributors-contracts.service';
@@ -16,7 +16,6 @@ import { projectDashboardBarColor } from '@shared/constants/project-dashboard-ch
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ResultsCenterTableComponent } from '../../../results-center/components/results-center-table/results-center-table.component';
 import { ResultsCenterService } from '../../../results-center/results-center.service';
-import { TableFilters } from '../../../results-center/class/table.filters.class';
 import { Result } from '@shared/interfaces/result/result.interface';
 
 interface ProjectStatusChartItem {
@@ -43,7 +42,6 @@ interface ProjectStatusChartItem {
 })
 export class ProjectDashboardComponent {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly api = inject(ApiService);
   private readonly projectUtils = inject(ProjectUtilsService);
   private readonly resultsCenterService = inject(ResultsCenterService);
@@ -201,72 +199,6 @@ export class ProjectDashboardComponent {
       return 0;
     }
     return Math.min(100, (value / max) * 100);
-  }
-
-  openProjectResultsForStatus(statusId: number, statusName: string): void {
-    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-    this.resultsCenterService.searchInput.set('');
-    this.resultsCenterService.primaryContractId.set(this.contractId());
-    this.resultsCenterService.resultsFilter.update(prev => ({
-      ...prev,
-      'indicator-codes': [],
-      'indicator-codes-tabs': [],
-      'indicator-codes-filter': [],
-      'contract-codes': [this.contractId()],
-      'status-codes': [statusId],
-      'create-user-codes': []
-    }));
-    this.resultsCenterService.appliedFilters.update(prev => ({
-      ...prev,
-      'indicator-codes': [],
-      'indicator-codes-tabs': [],
-      'indicator-codes-filter': [],
-      'contract-codes': [this.contractId()],
-      'status-codes': [statusId],
-      'create-user-codes': []
-    }));
-    this.resultsCenterService.tableFilters.set(new TableFilters());
-    this.resultsCenterService.tableFilters.update(prev => ({
-      ...prev,
-      statusCodes: [{ result_status_id: statusId, name: statusName }]
-    }));
-    void this.resultsCenterService.main();
-    void this.router.navigate(['../'], { relativeTo: this.route });
-  }
-
-  openProjectResultsForIndicator(indicatorId: number | null, indicatorName: string): void {
-    if (typeof indicatorId !== 'number') {
-      return;
-    }
-
-    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
-    this.resultsCenterService.searchInput.set('');
-    this.resultsCenterService.primaryContractId.set(this.contractId());
-    this.resultsCenterService.resultsFilter.update(prev => ({
-      ...prev,
-      'indicator-codes': [],
-      'indicator-codes-tabs': [],
-      'indicator-codes-filter': [indicatorId],
-      'contract-codes': [this.contractId()],
-      'status-codes': [],
-      'create-user-codes': []
-    }));
-    this.resultsCenterService.appliedFilters.update(prev => ({
-      ...prev,
-      'indicator-codes': [],
-      'indicator-codes-tabs': [],
-      'indicator-codes-filter': [indicatorId],
-      'contract-codes': [this.contractId()],
-      'status-codes': [],
-      'create-user-codes': []
-    }));
-    this.resultsCenterService.tableFilters.set(new TableFilters());
-    this.resultsCenterService.tableFilters.update(prev => ({
-      ...prev,
-      indicators: [{ indicator_id: indicatorId, name: indicatorName }]
-    }));
-    void this.resultsCenterService.main();
-    void this.router.navigate(['../'], { relativeTo: this.route });
   }
 
   private async loadProjectResultsByStatus(contractId: string): Promise<void> {
