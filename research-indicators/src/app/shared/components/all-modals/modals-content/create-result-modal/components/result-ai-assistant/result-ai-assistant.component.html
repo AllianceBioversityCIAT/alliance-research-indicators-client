@@ -28,8 +28,9 @@
         <div class="upload-area" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)" [class.dragging]="isDragging" (keydown.enter)="fileInput.click()"
           (click)="fileInput.click()">
-          <input #fileInput type="file" [accept]="acceptedFormats.join(',')" (change)="onFileSelected($event)"
-            style="display: none" />
+          <label class="sr-only" for="result-ai-file-input">Upload file for AI assistant</label>
+          <input id="result-ai-file-input" #fileInput type="file" [accept]="acceptedFormats.join(',')"
+            (change)="onFileSelected($event)" style="display: none" />
           <i class="material-symbols-rounded upload-icon">add_circle</i>
           <p class="text-[14px] font-[600] text-[#112F5C]">Drag and drop your file here or click to upload.</p>
           <p class="text-[11px] font-[400] text-[#112F5C] pt-1">Accepted file formats: {{ acceptedFormats.join(', ') }}
