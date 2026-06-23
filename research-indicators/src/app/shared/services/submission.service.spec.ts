@@ -66,6 +66,20 @@ describe('SubmissionService', () => {
     expect(service.isEditableStatus()).toBe(true);
   });
 
+  it('isEditableStatus true for published status_id 14 on STAR when user is admin', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 14 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    rolesMock.isAdmin.mockReturnValue(true);
+    expect(service.isEditableStatus()).toBe(true);
+  });
+
+  it('isEditableStatus false for published status_id 14 on STAR when user is not admin', () => {
+    cacheMock.currentMetadata.mockReturnValue({ status_id: 14 });
+    cacheMock.getCurrentPlatformCode.mockReturnValue('STAR');
+    rolesMock.isAdmin.mockReturnValue(false);
+    expect(service.isEditableStatus()).toBe(false);
+  });
+
   it('isEditableStatus false for status_id 4 but TIP platform', () => {
     cacheMock.currentMetadata.mockReturnValue({ status_id: 4 });
     cacheMock.getCurrentPlatformCode.mockReturnValue('TIP');
@@ -129,6 +143,21 @@ describe('SubmissionService', () => {
     expect(service.isSubmitted()).toBe(false);
   });
 
+  it('meetsStatusChangeValidationRequirements true when all green checks are true', () => {
+    cacheMock.greenChecks.mockReturnValue({ a: true, b: true });
+    expect(service.meetsStatusChangeValidationRequirements()).toBe(true);
+  });
+
+  it('meetsStatusChangeValidationRequirements false when green checks are empty', () => {
+    cacheMock.greenChecks.mockReturnValue({});
+    expect(service.meetsStatusChangeValidationRequirements()).toBe(false);
+  });
+
+  it('meetsStatusChangeValidationRequirements false when any green check is false', () => {
+    cacheMock.greenChecks.mockReturnValue({ a: true, b: false });
+    expect(service.meetsStatusChangeValidationRequirements()).toBe(false);
+  });
+
   it('canSubmitResult true when all conditions met', () => {
     cacheMock.allGreenChecksAreTrue.mockReturnValue(true);
     cacheMock.greenChecks.mockReturnValue({ a: 1 });
@@ -147,7 +176,7 @@ describe('SubmissionService', () => {
 
   it('canSubmitResult false if not allGreenChecksAreTrue', () => {
     cacheMock.allGreenChecksAreTrue.mockReturnValue(false);
-    cacheMock.greenChecks.mockReturnValue({ a: 1 });
+    cacheMock.greenChecks.mockReturnValue({ a: false });
     cacheMock.isMyResult.mockReturnValue(true);
     cacheMock.currentMetadata.mockReturnValue({ is_principal_investigator: false });
     expect(service.canSubmitResult()).toBe(false);

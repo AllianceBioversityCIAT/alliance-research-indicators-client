@@ -480,6 +480,14 @@ describe('InputComponent', () => {
       });
     });
 
+    it('should return handle-url pattern', () => {
+      component.pattern = 'handle-url';
+      expect(component.getPattern()).toEqual({
+        pattern: String.raw`^https:\/\/hdl\.handle\.net\/.+`,
+        message: 'URL must start with https://hdl.handle.net/'
+      });
+    });
+
     it('should return empty pattern for default case', () => {
       component.pattern = 'other' as any;
       expect(component.getPattern()).toEqual({ pattern: '', message: '' });

@@ -6,6 +6,9 @@ import { RolesService } from './cache/roles.service';
 
 const STAR_DRAFT_RBAC_STATUS_IDS = new Set([4, 12, 13]);
 
+export const STATUS_CHANGE_VALIDATION_TOOLTIP =
+  'All green checks must be completed. All mandatory fields must be filled.';
+
 export interface SubmissionStatus {
   id: number;
   name: string;
@@ -24,10 +27,14 @@ export class SubmissionService {
   statusSelected = signal<ReviewOption | null>(null);
   canSubmitResult = computed(() => {
     return (
-      this.cache.allGreenChecksAreTrue() &&
-      Object.values(this.cache.greenChecks()).length &&
+      this.meetsStatusChangeValidationRequirements() &&
       (this.cache.isMyResult() || this.cache.currentMetadata().is_principal_investigator || this.rolesService.isAdmin())
     );
+  });
+
+  meetsStatusChangeValidationRequirements = computed(() => {
+    const checks = this.cache.greenChecks();
+    return Object.values(checks).length > 0 && Object.values(checks).every(Boolean);
   });
   submissionStatuses = signal<SubmissionStatus[]>([
     { id: 1, name: 'Editing' },
@@ -54,11 +61,17 @@ export class SubmissionService {
     const editableStatuses = [4, 5, 12, 13, 10];
     const meta = this.cache.currentMetadata();
     const statusId = meta.status_id ?? -1;
-    const hasEditableStatus = editableStatuses.includes(statusId);
     const platformCode = this.cache.getCurrentPlatformCode();
     const isStarPlatform = platformCode === 'STAR';
     const hasNoPlatformCode = platformCode === '';
-    if (!hasEditableStatus || (!isStarPlatform && !hasNoPlatformCode)) {
+    if (!isStarPlatform && !hasNoPlatformCode) {
+      return false;
+    }
+    if (statusId === 14 && this.rolesService.isAdmin()) {
+      return true;
+    }
+    const hasEditableStatus = editableStatuses.includes(statusId);
+    if (!hasEditableStatus) {
       return false;
     }
     if (!STAR_DRAFT_RBAC_STATUS_IDS.has(statusId)) {

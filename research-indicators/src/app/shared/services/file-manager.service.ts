@@ -30,7 +30,8 @@ export class FileManagerService {
 
     const headers = new HttpHeaders({
       'access-token': this.cache.dataCache().access_token,
-      'environment-url': environment.managementApiUrl
+      'environment-url': environment.managementApiUrl,
+      'X-API-Key': environment.clarisaApiKey
     });
 
     try {

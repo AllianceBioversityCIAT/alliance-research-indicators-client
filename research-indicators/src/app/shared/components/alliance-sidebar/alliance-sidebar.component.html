@@ -39,20 +39,25 @@
     }
   </div>
 
-  @if (rolesService.canAccessCenterAdmin()) {
+  @if (rolesService.canAccessCenterAdmin() || rolesService.canAccessAppConfiguration()) {
   @if (!cache.isSidebarCollapsed()) {
   <hr class="divider" />
   <div class="sidebar-title text-[#8D9299] !text-[10.5px] uppercase font-[300] tracking-[4.5px] !font-[space_grotesk]">
     ADMINISTRATION</div>
   <div class="administration-block flex w-full min-w-0 flex-col gap-1 py-[15px]">
-    @for (group of this.administrationGroups; track group.id) {
+    @for (group of this.administrationGroups(); track group.id) {
     <div class="flex w-full min-w-0 flex-col gap-1">
       <button type="button"
         class="admin-parent flex w-full cursor-pointer items-center gap-[15px] border-0 bg-transparent py-[7px] pl-0 pr-0 text-left atc-primary-blue-400"
         (click)="toggleAdministrationGroup(group.id)" (keydown.enter)="toggleAdministrationGroup(group.id)">
-        <i class="sidebar-option-icon" [ngClass]="'pi ' + group.icon"></i>
+        @if (group.s3Image) {
+        <img [src]="group.s3Image | s3ImageUrl" alt="" class="block shrink-0 object-contain"
+          [style.width]="group.iconSize ?? '14px'" [style.height]="group.iconSize ?? '14px'" />
+        } @else {
+        <i class="sidebar-option-icon" [ngClass]="'pi ' + group.icon" [style.fontSize]="group.iconSize ?? null"></i>
+        }
         <span class="sidebar-option-label body-2 flex flex-1">{{ group.label }}</span>
-        <i class="pi shrink-0 !text-[12px] text-[#173f6f]"
+        <i class="pi shrink-0 !text-[12px] text-[#112F5C]"
           [class.pi-chevron-up]="isAdministrationGroupExpanded(group.id)"
           [class.pi-chevron-down]="!isAdministrationGroupExpanded(group.id)"></i>
       </button>
@@ -62,7 +67,8 @@
         [routerLinkActiveOptions]="{ exact: true }">
         <span class="option-nested-inner flex min-w-0 items-center gap-[12px] pl-2">
           @if (child.s3Image) {
-          <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
+          <img [src]="child.s3Image | s3ImageUrl" alt="" class="shrink-0 object-contain"
+            [style.width]="child.iconSize ?? '14px'" [style.height]="child.iconSize ?? '14px'" />
           } @else {
           <i class="sidebar-option-icon" [ngClass]="'pi ' + child.icon" [style.fontSize]="child.iconSize ?? null"></i>
           }
@@ -77,7 +83,7 @@
   } @else {
   <hr class="divider divider--collapsed-tight" />
   <div class="administration-block administration-block--collapsed flex w-full min-w-0 flex-col">
-    @for (group of this.administrationGroups; track group.id) {
+    @for (group of this.administrationGroups(); track group.id) {
     <div class="admin-collapsed-popover-wrap flex w-full min-w-0 flex-col gap-0">
       <button type="button"
         class="admin-parent admin-parent--collapsed flex w-full cursor-pointer items-center justify-center border-0 bg-transparent py-[7px] pl-0 pr-0 atc-primary-blue-400"
@@ -88,7 +94,13 @@
         [attr.aria-expanded]="administrationFlyoutGroupId() === group.id" [attr.aria-label]="group.label"
         [pTooltip]="administrationFlyoutGroupId() === group.id ? '' : group.label" tooltipPosition="right"
         [positionLeft]="15">
-        <i class="sidebar-option-icon shrink-0" [ngClass]="'pi ' + group.icon"></i>
+        @if (group.s3Image) {
+        <img [src]="group.s3Image | s3ImageUrl" alt="" class="block shrink-0 object-contain !max-w-none"
+          [style.width]="group.iconSize ?? '14px'" [style.height]="group.iconSize ?? '14px'" />
+        } @else {
+        <i class="sidebar-option-icon shrink-0" [ngClass]="'pi ' + group.icon"
+          [style.fontSize]="group.iconSize ?? '14px'"></i>
+        }
       </button>
       @if (administrationFlyoutGroupId() === group.id) {
       <div
@@ -101,12 +113,13 @@
           [routerLink]="child.link" routerLinkActive="admin-flyout-row--active"
           [routerLinkActiveOptions]="{ exact: true }" (click)="closeAdministrationFlyout()">
           @if (child.s3Image) {
-          <img [src]="child.s3Image | s3ImageUrl" alt="" class="h-[14px] w-[14px] shrink-0 object-contain" />
+          <img [src]="child.s3Image | s3ImageUrl" alt="" class="shrink-0 object-contain"
+            [style.width]="child.iconSize ?? '14px'" [style.height]="child.iconSize ?? '14px'" />
           } @else {
-          <i class="sidebar-option-icon shrink-0 text-[#173f6f]" [ngClass]="'pi ' + child.icon"
+          <i class="sidebar-option-icon shrink-0 text-[#112F5C]" [ngClass]="'pi ' + child.icon"
             [style.fontSize]="child.iconSize ?? null"></i>
           }
-          <span class="admin-flyout-label sidebar-option-label body-2 !text-[12.5px] text-[#173f6f]">{{ child.label
+          <span class="admin-flyout-label sidebar-option-label body-2 !text-[12.5px] text-[#112F5C]">{{ child.label
             }}</span>
         </a>
         }

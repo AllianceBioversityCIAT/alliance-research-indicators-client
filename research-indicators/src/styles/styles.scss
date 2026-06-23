@@ -235,3 +235,51 @@ textarea.p-inputtextarea::placeholder,
 textarea::placeholder {
   color: #a2a9af !important;
 }
+
+.p-paginator {
+  --p-paginator-color: #334155bd;
+  --p-paginator-current-page-report-color: #334155bd;
+  --p-paginator-nav-button-color: #334155bd;
+  --p-paginator-nav-button-hover-color: #334155bd;
+  --p-paginator-nav-button-selected-color: #334155bd;
+
+  font-size: 14px;
+  line-height: 16px;
+  color: #334155bd !important;
+
+  .p-paginator-current,
+  .p-paginator-page,
+  .p-paginator-first,
+  .p-paginator-prev,
+  .p-paginator-next,
+  .p-paginator-last,
+  .p-paginator-rpp-dropdown .p-select-label,
+  .p-paginator-rpp-dropdown .p-select-dropdown,
+  .p-paginator-rpp-dropdown {
+    font-size: 14px;
+    line-height: 16px;
+    color: #334155 !important;
+    .p-icon {
+      font-size: 12px !important;
+      line-height: 16px;
+      color: #334155bd !important;
+    }
+  }
+
+  .p-paginator-page.p-paginator-page-selected {
+    color: #334155 !important;
+  }
+
+  .p-paginator-first.p-disabled,
+  .p-paginator-prev.p-disabled,
+  .p-paginator-next.p-disabled,
+  .p-paginator-last.p-disabled {
+    color: #334155bd !important;
+    opacity: 0.4;
+  }
+
+  .p-icon,
+  .p-icon svg {
+    color: #334155bd !important;
+  }
+}

@@ -82,6 +82,13 @@ import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
+import {
+  AppConfigCategoriesResponse,
+  AppConfigListItem,
+  AppConfigListQuery,
+  AppConfigListResponse,
+  UpdateAppConfigDto
+} from '@shared/interfaces/app-config.interface';
 import { GetTags } from '@shared/interfaces/get-tags.interface';
 import { GetOICRDetails } from '@shared/interfaces/gets/get-oicr-details.interface';
 import { LeverStrategicOutcome, Oicr, OicrCreation, PatchOicr } from '@shared/interfaces/oicr-creation.interface';
@@ -91,6 +98,14 @@ import { InteractionFeedbackPayload } from '@shared/interfaces/feedback-interact
 import { ImpactArea } from '@shared/interfaces/impact-area.interface';
 import { LinkResultsResponse } from '@shared/interfaces/link-results.interface';
 import { LatestResult } from '@shared/interfaces/latest-result.interface';
+import {
+  ContractStaffReport,
+  GeoScopeReport,
+  TopContributorsContractReport,
+  TopMainContactPersonsReport,
+  TopPartnersReport,
+  TopPrimaryLeversReport
+} from '@shared/interfaces/project-dashboard.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -379,6 +394,31 @@ export class ApiService {
   GET_ConfigurationByKey = (key: string): Promise<MainResponse<ConfigurationByKeyResponse>> => {
     const url = () => `configuration/${encodeURIComponent(key)}`;
     return this.TP.get(url(), {});
+  };
+
+  GET_AppConfigList = (query: AppConfigListQuery = {}): Promise<MainResponse<AppConfigListResponse>> => {
+    const url = () => {
+      const params = new URLSearchParams();
+      const search = query.search?.trim();
+      if (search) params.set('search', search);
+      if (query.category) params.set('category', query.category);
+      if (query.subcategory) params.set('subcategory', query.subcategory);
+      if (query.sortField) params.set('sort-field', query.sortField);
+      if (query.sortOrder) params.set('sort-order', query.sortOrder);
+      const qs = params.toString();
+      return qs ? `configuration?${qs}` : 'configuration';
+    };
+    return this.TP.get(url(), {});
+  };
+
+  GET_AppConfigCategories = (): Promise<MainResponse<AppConfigCategoriesResponse>> => {
+    const url = () => 'configuration/categories-and-subcategories';
+    return this.TP.get(url(), {});
+  };
+
+  PATCH_AppConfigByKey = (key: string, body: UpdateAppConfigDto): Promise<MainResponse<AppConfigListItem>> => {
+    const url = () => `configuration/${encodeURIComponent(key)}`;
+    return this.TP.patch(url(), body, {});
   };
 
   POST_PartnerRequest = <T>(body: T): Promise<MainResponse<Result>> => {
@@ -704,6 +744,42 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
+  GET_TopContributorsContracts = (
+    contractId: string,
+    limit = 5
+  ): Promise<MainResponse<TopContributorsContractReport>> => {
+    const url = () =>
+      `agresso/contracts/reports/top-contributors-contracts?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_TopPartners = (contractId: string, limit = 5): Promise<MainResponse<TopPartnersReport>> => {
+    const url = () => `agresso/contracts/reports/top-partners?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_TopMainContactPersons = (contractId: string, limit = 5): Promise<MainResponse<TopMainContactPersonsReport>> => {
+    const url = () =>
+      `agresso/contracts/reports/top-main-contact-persons?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_TopPrimaryLevers = (contractId: string, limit = 5): Promise<MainResponse<TopPrimaryLeversReport>> => {
+    const url = () =>
+      `agresso/contracts/reports/top-primary-levers?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_ContractStaff = (contractId: string): Promise<MainResponse<ContractStaffReport>> => {
+    const url = () => `agresso/contracts/reports/contract-staff?contract-id=${encodeURIComponent(contractId)}`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_GeoScope = (contractId: string, limit = 5): Promise<MainResponse<GeoScopeReport>> => {
+    const url = () => `agresso/contracts/reports/geo-scope?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    return this.TP.get(url(), {});
+  };
+
   GET_GeneralReport = (): Promise<MainResponse<GeneralReportItem[]>> => {
     const url = () => `results/general-report/all`;
     return this.TP.get(url(), {});
@@ -977,7 +1053,7 @@ export class ApiService {
 
   fastResponse = (body: { prompt: string; input_text: string }) => {
     const url = () => `fast-response`;
-    return this.TP.post(url(), body, { isAuth: environment.fastResponseUrl });
+    return this.TP.post(url(), body, { isAuth: environment.fastResponseUrl, clarisaApiKey: true });
   };
 
   POST_feedback = (body: InteractionFeedbackPayload) => {

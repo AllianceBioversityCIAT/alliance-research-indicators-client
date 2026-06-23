@@ -1,0 +1,415 @@
+import { DatePipe } from '@angular/common';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
+import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
+import { GetTopContributorsContractsService } from '@services/get-top-contributors-contracts.service';
+import { GetTopMainContactPersonsService } from '@services/get-top-main-contact-persons.service';
+import { GetTopPartnersService } from '@services/get-top-partners.service';
+import { GetTopPrimaryLeversService } from '@services/get-top-primary-levers.service';
+import { GetGeoScopeService } from '@services/get-geo-scope.service';
+import { GetContractStaffService } from '@services/get-contract-staff.service';
+import { ApiService } from '@shared/services/api.service';
+import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
+import { ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
+import { projectDashboardBarColor } from '@shared/constants/project-dashboard-chart-colors.constants';
+import { ProjectUtilsService } from '@shared/services/project-utils.service';
+import { ResultsCenterTableComponent } from '../../../results-center/components/results-center-table/results-center-table.component';
+import { ResultsCenterService } from '../../../results-center/results-center.service';
+import { TableFilters } from '../../../results-center/class/table.filters.class';
+import { Result } from '@shared/interfaces/result/result.interface';
+
+interface ProjectStatusChartItem {
+  color: string;
+  label: string;
+  value: number;
+  result_status_id: number;
+}
+
+@Component({
+  selector: 'app-project-dashboard',
+  standalone: true,
+  imports: [DatePipe, ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent],
+  providers: [
+    GetTopContributorsContractsService,
+    GetTopMainContactPersonsService,
+    GetTopPartnersService,
+    GetTopPrimaryLeversService,
+    GetGeoScopeService,
+    GetContractStaffService
+  ],
+  templateUrl: './project-dashboard.component.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class ProjectDashboardComponent {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly api = inject(ApiService);
+  private readonly projectUtils = inject(ProjectUtilsService);
+  private readonly resultsCenterService = inject(ResultsCenterService);
+
+  readonly contractId = computed(() => this.route.parent?.snapshot.paramMap.get('id') ?? '');
+  readonly project = signal<GetProjectDetail>({});
+
+  readonly projectLeverName = computed(() => this.projectUtils.getLeverName(this.project()));
+  readonly projectGrantAmount = computed(() => formatBudgetAmount(this.project().grant_amount));
+  readonly projectDivisionLabel = computed(() => formatCodeLabel(this.project().divisionId, this.project().division));
+  readonly projectUnitLabel = computed(() => formatCodeLabel(this.project().unitId, this.project().unit));
+
+  readonly indicatorSummaries = computed(() => {
+    const indicators = this.projectUtils.sortIndicators([...(this.project().indicators ?? [])]);
+    const ranked = indicators
+      .map((indicator, index) => ({
+        id: indicator.indicator?.indicator_id ?? indicator.indicator_id ?? index,
+        indicatorId: indicator.indicator?.indicator_id ?? indicator.indicator_id ?? null,
+        label: formatIndicatorName(indicator),
+        value: Number(indicator.count_results ?? 0),
+        color: getIndicatorChartColor(indicator, index, indicators.length)
+      }))
+      .sort((first, second) => second.value - first.value);
+
+    return ranked;
+  });
+
+  readonly indicatorsWithResults = computed(() => this.indicatorSummaries().filter(indicator => indicator.value > 0));
+
+  readonly totalProjectResults = computed(() => this.indicatorSummaries().reduce((total, indicator) => total + indicator.value, 0));
+  readonly statusChartItems = signal<ProjectStatusChartItem[]>([]);
+  readonly statusChartLoading = signal(false);
+  readonly statusChartError = signal(false);
+  readonly statusBarsMax = computed(() => {
+    const items = this.statusChartItems();
+    if (!items.length) {
+      return 0;
+    }
+    return Math.max(...items.map(item => item.value), 0);
+  });
+
+  readonly topContributors = inject(GetTopContributorsContractsService);
+  readonly topMainContactPersons = inject(GetTopMainContactPersonsService);
+  readonly topPartners = inject(GetTopPartnersService);
+  readonly topPrimaryLevers = inject(GetTopPrimaryLeversService);
+  readonly contractStaff = inject(GetContractStaffService);
+  private readonly geoScope = inject(GetGeoScopeService);
+
+  readonly contributorItems = computed(() =>
+    this.topContributors
+      .list()
+      .map((item, index) => ({
+        id: item.contract_code ?? item.contract_id ?? String(index),
+        label: formatContributorLabel(item),
+        count: Number(item.results_count ?? item.count ?? 0)
+      }))
+      .sort((first, second) => second.count - first.count)
+  );
+
+  readonly contributorsEmpty = computed(
+    () => !this.topContributors.loading() && !this.topContributors.loadError() && this.topContributors.list().length === 0
+  );
+
+  readonly mainContactPersonItems = computed(() =>
+    this.topMainContactPersons
+      .list()
+      .map((item, index) => ({
+        id: formatMainContactPersonName(item) ?? String(index),
+        label: formatMainContactPersonName(item) ?? '—',
+        count: Number(item.results_count ?? item.count ?? item.value ?? 0),
+        description: item.email
+      }))
+      .sort((first, second) => second.count - first.count)
+  );
+
+  readonly mainContactPersonsEmpty = computed(
+    () =>
+      !this.topMainContactPersons.loading() &&
+      !this.topMainContactPersons.loadError() &&
+      this.topMainContactPersons.list().length === 0
+  );
+
+  readonly partnerItems = computed(() =>
+    this.topPartners.list().map((item, index) => ({
+      id: getPartnerItemId(item, index),
+      label: formatPartnerLabel(item),
+      count: Number(item.results_count ?? item.count ?? 0)
+    }))
+  );
+
+  readonly partnersEmpty = computed(() => !this.topPartners.loading() && !this.topPartners.loadError() && this.topPartners.list().length === 0);
+
+  readonly leverItems = computed(() =>
+    this.topPrimaryLevers
+      .list()
+      .map(item => ({
+        id: String(item.lever_id),
+        label: formatLeverDisplayLabel(item.short_name, item.full_name),
+        count: item.count,
+        iconUrl: item.icon || undefined
+      }))
+      .sort((first, second) => second.count - first.count)
+  );
+
+  readonly leversEmpty = computed(
+    () => !this.topPrimaryLevers.loading() && !this.topPrimaryLevers.loadError() && this.topPrimaryLevers.list().length === 0
+  );
+
+  readonly staffEmpty = computed(() => !this.contractStaff.loading() && !this.contractStaff.loadError() && this.contractStaff.staff().length === 0);
+
+  readonly pendingRevisionExcludedColumns = ['status', 'year', 'versions', 'creation_date', 'public_link', 'project'] as const;
+
+  constructor() {
+    effect(() => {
+      const contractId = this.contractId();
+      if (contractId) {
+        void this.loadProject(contractId);
+        void this.loadProjectResultsByStatus(contractId);
+        this.topContributors.main(contractId, 4);
+        this.topMainContactPersons.main(contractId, 4);
+        this.topPartners.main(contractId, 4);
+        this.topPrimaryLevers.main(contractId, 4);
+        this.contractStaff.main(contractId);
+        this.geoScope.main(contractId);
+        this.resultsCenterService.initializeProjectDashboardResultsTable(contractId);
+      }
+    });
+  }
+
+  private async loadProject(contractId: string): Promise<void> {
+    const response = await this.api.GET_ResultsCount(contractId);
+    if (response?.data) {
+      this.project.set(response.data);
+    } else {
+      this.project.set({});
+    }
+  }
+
+  getContactInitials(name: string): string {
+    return getContactInitialsFromName(name);
+  }
+
+  indicatorSharePercent(value: number): number {
+    const total = this.totalProjectResults();
+    if (total <= 0 || value <= 0) {
+      return 0;
+    }
+
+    return Math.round((value / total) * 100);
+  }
+
+  statusBarFillPercent(value: number): number {
+    const max = this.statusBarsMax();
+    if (max <= 0) {
+      return 0;
+    }
+    return Math.min(100, (value / max) * 100);
+  }
+
+  openProjectResultsForStatus(statusId: number, statusName: string): void {
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+    this.resultsCenterService.searchInput.set('');
+    this.resultsCenterService.primaryContractId.set(this.contractId());
+    this.resultsCenterService.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes': [],
+      'indicator-codes-tabs': [],
+      'indicator-codes-filter': [],
+      'contract-codes': [this.contractId()],
+      'status-codes': [statusId],
+      'create-user-codes': []
+    }));
+    this.resultsCenterService.appliedFilters.update(prev => ({
+      ...prev,
+      'indicator-codes': [],
+      'indicator-codes-tabs': [],
+      'indicator-codes-filter': [],
+      'contract-codes': [this.contractId()],
+      'status-codes': [statusId],
+      'create-user-codes': []
+    }));
+    this.resultsCenterService.tableFilters.set(new TableFilters());
+    this.resultsCenterService.tableFilters.update(prev => ({
+      ...prev,
+      statusCodes: [{ result_status_id: statusId, name: statusName }]
+    }));
+    void this.resultsCenterService.main();
+    void this.router.navigate(['../'], { relativeTo: this.route });
+  }
+
+  openProjectResultsForIndicator(indicatorId: number | null, indicatorName: string): void {
+    if (typeof indicatorId !== 'number') {
+      return;
+    }
+
+    this.resultsCenterService.myResultsFilterItem.set(this.resultsCenterService.myResultsFilterItems[0]);
+    this.resultsCenterService.searchInput.set('');
+    this.resultsCenterService.primaryContractId.set(this.contractId());
+    this.resultsCenterService.resultsFilter.update(prev => ({
+      ...prev,
+      'indicator-codes': [],
+      'indicator-codes-tabs': [],
+      'indicator-codes-filter': [indicatorId],
+      'contract-codes': [this.contractId()],
+      'status-codes': [],
+      'create-user-codes': []
+    }));
+    this.resultsCenterService.appliedFilters.update(prev => ({
+      ...prev,
+      'indicator-codes': [],
+      'indicator-codes-tabs': [],
+      'indicator-codes-filter': [indicatorId],
+      'contract-codes': [this.contractId()],
+      'status-codes': [],
+      'create-user-codes': []
+    }));
+    this.resultsCenterService.tableFilters.set(new TableFilters());
+    this.resultsCenterService.tableFilters.update(prev => ({
+      ...prev,
+      indicators: [{ indicator_id: indicatorId, name: indicatorName }]
+    }));
+    void this.resultsCenterService.main();
+    void this.router.navigate(['../'], { relativeTo: this.route });
+  }
+
+  private async loadProjectResultsByStatus(contractId: string): Promise<void> {
+    this.statusChartLoading.set(true);
+    this.statusChartError.set(false);
+
+    try {
+      const response = await this.api.GET_Results(
+        { 'contract-codes': [contractId] },
+        undefined,
+        { page: 1, limit: 10_000, sortField: 'code', sortOrder: 'DESC' }
+      );
+      this.statusChartItems.set(buildStatusChartItems(response?.data?.results ?? []));
+    } catch {
+      this.statusChartItems.set([]);
+      this.statusChartError.set(true);
+    } finally {
+      this.statusChartLoading.set(false);
+    }
+  }
+}
+
+function formatLeverDisplayLabel(shortName: string, fullName: string): string {
+  const colonIndex = fullName.indexOf(':');
+  if (colonIndex >= 0) {
+    const prefix = fullName.slice(0, colonIndex).trim() || shortName;
+    const suffix = fullName.slice(colonIndex + 1).trim();
+    return suffix ? `${prefix} - ${suffix}`.toUpperCase() : prefix.toUpperCase();
+  }
+
+  return (fullName || shortName || '—').toUpperCase();
+}
+
+function formatBudgetAmount(value: string | number | undefined): string {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) {
+    return '—';
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+function formatCodeLabel(code: string | undefined, label: string | undefined): string {
+  const cleanCode = code?.trim();
+  const cleanLabel = label?.trim();
+  if (cleanCode && cleanLabel) {
+    return `${cleanCode} - ${cleanLabel}`;
+  }
+  return cleanLabel || cleanCode || '—';
+}
+
+function formatMainContactPersonName(item: ProjectDashboardRankedItem): string | undefined {
+  const firstLastName = [item.first_name, item.last_name].filter(Boolean).join(' ').trim();
+  return item.name ?? item.full_name ?? item.contact_person_name ?? item.label ?? (firstLastName || undefined);
+}
+
+function formatContributorLabel(item: ProjectDashboardRankedItem): string {
+  const contractId = item.contract_id ?? item.contract_code;
+  const label = item.contract_description ?? item.project_name;
+  if (contractId && label) {
+    return `${contractId} - ${label}`;
+  }
+  return label ?? contractId ?? '—';
+}
+
+function formatPartnerLabel(item: ProjectDashboardRankedItem): string {
+  const name = item.institution_name ?? item.partner_name ?? '—';
+  const acronym = item.acronym?.trim();
+  return acronym && name !== '—' ? `${acronym} - ${name}` : name;
+}
+
+function buildStatusChartItems(results: Result[]): ProjectStatusChartItem[] {
+  const statuses = new Map<number, ProjectStatusChartItem>();
+
+  for (const result of results) {
+    const status = result.result_status;
+    const statusId = Number(status?.result_status_id);
+    if (!Number.isFinite(statusId)) {
+      continue;
+    }
+
+    const current = statuses.get(statusId);
+    if (current) {
+      current.value += 1;
+      continue;
+    }
+
+    statuses.set(statusId, {
+      color: status?.config?.color?.text || '#1689CA',
+      label: status?.name || 'Unknown status',
+      value: 1,
+      result_status_id: statusId
+    });
+  }
+
+  return [...statuses.values()].sort((first, second) => second.value - first.value);
+}
+
+function getPartnerItemId(item: ProjectDashboardRankedItem, index: number): string {
+  if (item.institution_id === null || item.institution_id === undefined) {
+    return item.partner_name ?? String(index);
+  }
+
+  return String(item.institution_id);
+}
+
+function formatIndicatorName(indicator: GetProjectDetailIndicator): string {
+  return indicator.indicator?.name ?? indicator.full_name ?? 'Indicator';
+}
+
+function getIndicatorChartColor(indicator: GetProjectDetailIndicator, fallbackIndex: number, totalIndicators: number): string {
+  const indicatorId = indicator.indicator?.indicator_id ?? indicator.indicator_id;
+  const colorsByIndicatorId: Record<number, string> = {
+    1: '#1689CA',
+    2: '#7CB580',
+    3: '#78288c',
+    4: '#CF0808',
+    5: '#F58220',
+    6: '#173f6f'
+  };
+
+  return typeof indicatorId === 'number'
+    ? (colorsByIndicatorId[indicatorId] ?? projectDashboardBarColor(fallbackIndex, totalIndicators))
+    : projectDashboardBarColor(fallbackIndex, totalIndicators);
+}
+
+function getContactInitialsFromName(name: string): string {
+  const parts = name
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+  }
+
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
+  }
+
+  return (words[0]?.charAt(0) ?? '?').toUpperCase();
+}

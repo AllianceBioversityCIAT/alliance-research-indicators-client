@@ -21,6 +21,8 @@ import { TableFiltersSidebarComponent } from '@pages/platform/pages/results-cent
 import { CustomProgressBarComponent } from '@shared/components/custom-progress-bar/custom-progress-bar.component';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { Router, UrlTree } from '@angular/router';
+import { TooltipModule } from 'primeng/tooltip';
+import { openPublicLink } from '@shared/utils/public-link.util';
 
 const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
 
@@ -38,11 +40,13 @@ const MODAL_INDICATOR_CODES = [1, 2, 3, 4, 6] as const;
     SearchExportControlsComponent,
     SectionSidebarComponent,
     TableFiltersSidebarComponent,
-    CustomProgressBarComponent
+    CustomProgressBarComponent,
+    TooltipModule
   ],
   templateUrl: './select-linked-results-modal.component.html'
 })
 export class SelectLinkedResultsModalComponent implements OnDestroy {
+  readonly openPublicLink = openPublicLink;
   allModalsService = inject(AllModalsService);
   resultsCenterService = inject(ResultsCenterService);
   cacheService = inject(CacheService);

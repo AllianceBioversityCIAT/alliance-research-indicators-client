@@ -61,6 +61,11 @@ export class ProjectUtilsService {
     return fieldName in project && !!project[fieldName as keyof typeof project];
   }
 
+  getProjectTitle(project: ProjectType): string {
+    const prefix = project.projectDescription ? `${project.projectDescription} - ` : '';
+    return `${prefix}${project.description ?? ''}`.trim();
+  }
+
   sortIndicators(indicators: IndicatorType[]): IndicatorType[] {
     const order = ['Capacity Sharing for Development', 'Innovation Development', 'Knowledge Product', 'Innovation Use', 'Outcome Impact Case Report (OICR)', 'Policy Change'];
 

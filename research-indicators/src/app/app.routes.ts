@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { rolesGuard } from '@guards/roles.guard';
 import { centerAdminGuard } from '@guards/center-admin.guard';
+import { appConfigurationGuard } from '@guards/app-configuration.guard';
 import { resultExistsResolver } from '@pages/platform/pages/result/resolvers/result-exists.resolver';
 
 const createResultData = () => ({
@@ -177,7 +178,24 @@ export const routes: Routes = [
         loadComponent: () => import('@platform/pages/project-detail/project-detail.component'),
         data: {
           title: 'Project Detail'
-        }
+        },
+        children: [
+          {
+            path: 'project-results',
+            redirectTo: '../',
+            pathMatch: 'full'
+          },
+          {
+            path: 'project-dashboard',
+            loadComponent: () =>
+              import('@platform/pages/project-detail/components/project-dashboard/project-dashboard.component').then(
+                m => m.ProjectDashboardComponent
+              ),
+            data: {
+              title: 'Project Dashboard'
+            }
+          }
+        ]
       },
       {
         path: 'about',
@@ -233,9 +251,7 @@ export const routes: Routes = [
       {
         path: 'administration/center-admin/bulk-upload',
         loadComponent: () =>
-          import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(
-            m => m.default
-          ),
+          import('@platform/pages/administration/center-admin/capacity-bulk-upload/capacity-bulk-upload.component').then(m => m.default),
         canMatch: [centerAdminGuard],
         data: {
           title: 'Bulk upload',
@@ -256,11 +272,20 @@ export const routes: Routes = [
       },
       {
         path: 'administration/center-admin/sdg-management',
-        loadComponent: () =>
-          import('@platform/pages/administration/center-admin/sdg-management/sdg-management.component').then(m => m.default),
+        loadComponent: () => import('@platform/pages/administration/center-admin/sdg-management/sdg-management.component').then(m => m.default),
         canMatch: [centerAdminGuard],
         data: {
           title: 'SDG Management',
+          isLoggedIn: true
+        }
+      },
+      {
+        path: 'administration/configuration/variables',
+        loadComponent: () =>
+          import('@platform/pages/administration/configuration/variable-configuration/variable-configuration.component').then(m => m.default),
+        canMatch: [appConfigurationGuard],
+        data: {
+          title: 'Configuration variables',
           isLoggedIn: true
         }
       }

@@ -20,7 +20,7 @@
 
   <div
     class="flex p-[25px] pb-4 flex-wrap items-center justify-between font-medium full text-[13px]  text-[#777c83] title">
-    @if (roles.isAdmin() && cache.currentMetadata().indicator_id === 5) {
+    @if (showOicrStatusDropdown()) {
     <app-status-dropdown [statusId]="cache.currentMetadata().status_id ?? 0"
       [statusName]="cache.currentMetadata().status_name ?? ''" (statusChange)="onStatusChange($event)"
       class="cursor-pointer -mt-1">
@@ -30,8 +30,8 @@
       [statusName]="cache.currentMetadata().status_name ?? ''"
       [statusColor]="cache.currentMetadata().result_status?.config?.color?.text ?? ''"
       [statusBackground]="cache.currentMetadata().result_status?.config?.color?.background ?? ''"
-      [statusBorder]="cache.currentMetadata().result_status?.config?.color?.border ?? ''"
-      class="-mt-1"></app-custom-tag>
+      [statusBorder]="cache.currentMetadata().result_status?.config?.color?.border ?? ''" class="-mt-1"
+      [maxWidth]="'150px'"></app-custom-tag>
     }
     <div class="flex w-full text-[13.5px] font-normal pt-3">
       <span class="text-[#E69F00] pr-1">{{ getCompletedCount() }}/{{ getTotalCount() }}</span> sections completed

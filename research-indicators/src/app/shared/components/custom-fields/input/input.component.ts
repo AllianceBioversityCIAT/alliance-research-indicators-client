@@ -26,7 +26,7 @@ export class InputComponent {
   @ViewChild('numberInput', { static: false }) numberInput!: ElementRef;
   @Input() signal: WritableSignal<any> = signal({});
   @Input() optionValue = '';
-  @Input() pattern: 'email' | 'url' | '' = '';
+  @Input() pattern: 'email' | 'url' | 'handle-url' | '' = '';
   @Input() label = '';
   @Input() description = '';
   @Input() type: 'text' | 'number' = 'text';
@@ -250,6 +250,11 @@ export class InputComponent {
         return {
           pattern: String.raw`^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/\S*)?$`,
           message: 'Please enter a valid URL.'
+        };
+      case 'handle-url':
+        return {
+          pattern: String.raw`^https:\/\/hdl\.handle\.net\/.+`,
+          message: 'URL must start with https://hdl.handle.net/'
         };
       default:
         return { pattern: '', message: '' };

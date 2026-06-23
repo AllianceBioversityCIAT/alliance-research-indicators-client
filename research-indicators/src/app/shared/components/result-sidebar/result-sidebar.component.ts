@@ -61,6 +61,8 @@ export class ResultSidebarComponent {
   roles = inject(RolesService);
   currentResultService = inject(CurrentResultService);
   bilateralService = inject(BilateralService);
+  private readonly publishedOicrStatusId = 14;
+
   allOptionsWithGreenChecks = computed(() => {
     const alignment = this.bilateralService.currentAlignment();
     return this.allOptions()
@@ -79,6 +81,11 @@ export class ResultSidebarComponent {
     if (option.path !== 'pool-funding-alignment') return false;
     return !alignment || alignment.eligible === false;
   }
+
+  showOicrStatusDropdown = computed(() => {
+    const meta = this.cache.currentMetadata();
+    return this.roles.isAdmin() && meta.indicator_id === 5 && meta.status_id !== this.publishedOicrStatusId;
+  });
 
   getResultChildQueryParams(): Record<string, string> {
     const m = this.route.snapshot.queryParamMap;

@@ -1,24 +1,39 @@
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
 import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
 import { TableConfigurationComponent } from '../results-center/components/table-configuration/table-configuration.component';
 import { SectionSidebarComponent } from '@shared/components/section-sidebar/section-sidebar.component';
-import { ProjectItemComponent } from '@shared/components/project-item/project-item.component';
+import { ProjectIndicatorFiltersComponent } from '@shared/components/project-indicator-filters/project-indicator-filters.component';
+import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ApiService } from '../../../../shared/services/api.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, PRIMARY_OUTLET, Router, RouterOutlet } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/interfaces/get-project-detail.interface';
 import { ResultsCenterService } from '../results-center/results-center.service';
 import { RolesService } from '@services/cache/roles.service';
 import { BilateralService } from '@shared/services/bilateral.service';
+import { filter } from 'rxjs';
+import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+
+interface ViewTab {
+  label: string;
+  route: string;
+}
 
 @Component({
   selector: 'app-project-detail',
   imports: [
     ResultsCenterTableComponent,
-    ProjectItemComponent,
+    ProjectDetailComponent,
     TableFiltersSidebarComponent,
     TableConfigurationComponent,
-    SectionSidebarComponent
+    SectionSidebarComponent,
+    ProjectIndicatorFiltersComponent,
+    TableFiltersSidebarComponent,
+    TableConfigurationComponent,
+    SectionSidebarComponent,
+    CustomTagComponent,
+    RouterOutlet
   ],
   templateUrl: './project-detail.component.html',
   styleUrl: './project-detail.component.scss'
@@ -26,10 +41,14 @@ import { BilateralService } from '@shared/services/bilateral.service';
 export default class ProjectDetailComponent implements OnInit, OnDestroy {
   activatedRoute = inject(ActivatedRoute);
   api = inject(ApiService);
+  router = inject(Router);
   resultsCenterService = inject(ResultsCenterService);
   rolesService = inject(RolesService);
   bilateralService = inject(BilateralService);
+  private readonly projectUtils = inject(ProjectUtilsService);
+  private readonly destroyRef = inject(DestroyRef);
   contractId = signal('');
+  lastSegment = signal('project-results');
   currentProject = signal<GetProjectDetail>({});
 
   // Pool Funding flag is sourced from `bilateralService.currentContract`
@@ -37,6 +56,10 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   // that drives `currentProject` does not include `is_pool_funding_contributor`.
   showPoolFundingBadge = computed(() => !!this.bilateralService.currentContract()?.is_pool_funding_contributor);
   canEditPoolFundingTag = computed(() => this.rolesService.canAccessCenterAdmin());
+  tabs = computed<ViewTab[]>(() => [
+    { label: 'Project Dashboard', route: 'project-dashboard' },
+    { label: 'Project Results', route: 'project-results' }
+  ]);
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
@@ -55,6 +78,42 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
     this.getProjectDetail();
     // Fetch contract details to source the Pool Funding flag for the header badge.
     void this.bilateralService.getContract(this.contractId());
+    this.getLastSegment();
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(() => this.getLastSegment());
+  }
+
+  getLastSegment(): void {
+    const tree = this.router.parseUrl(this.router.url);
+    const segments = tree.root.children[PRIMARY_OUTLET]?.segments ?? [];
+    const lastPath = segments.at(-1)?.path ?? '';
+    this.lastSegment.set(lastPath === this.contractId() || !lastPath ? 'project-results' : lastPath);
+  }
+
+  projectTitle(): string {
+    return this.projectUtils.getProjectTitle(this.currentProject());
+  }
+
+  projectStatus(): { statusId: number; statusName: string } {
+    return this.projectUtils.getStatusDisplay(this.currentProject());
+  }
+
+  onTabClick(tab: ViewTab): void {
+    this.lastSegment.set(tab.route);
+    if (tab.route === 'project-results') {
+      void this.router.navigate(['./'], { relativeTo: this.activatedRoute });
+      const stateKey = this.getStateKey();
+      if (!this.resultsCenterService.restorePersistedState(stateKey)) {
+        this.resultsCenterService.resetState();
+      }
+      void this.resultsCenterService.main();
+    } else {
+      void this.router.navigate([tab.route], { relativeTo: this.activatedRoute });
+    }
   }
 
   ngOnDestroy(): void {
@@ -79,19 +138,16 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   onIndicatorClick(indicator: { indicator_id: number; name: string }): void {
-    // Limpiar otros filtros de indicadores primero
     this.resultsCenterService.tableFilters.update(prev => ({
       ...prev,
       indicators: []
     }));
 
-    // Agregar el indicador seleccionado al filtro
     this.resultsCenterService.tableFilters.update(prev => ({
       ...prev,
       indicators: [{ indicator_id: indicator.indicator_id, name: indicator.name }]
     }));
 
-    // Aplicar los filtros
     this.resultsCenterService.applyFilters();
   }
 

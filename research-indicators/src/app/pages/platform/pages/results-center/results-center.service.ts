@@ -161,6 +161,16 @@ export class ResultsCenterService {
       maxWidth: 'max-w-[110px]',
 
       getValue: (result: Result) => (result.created_at ? new Date(result.created_at).toLocaleDateString() : '-')
+    },
+    {
+      field: 'public_link',
+      path: 'public_link',
+      header: 'Link',
+      minWidth: 'min-w-[90px]',
+      maxWidth: 'max-w-[100px]',
+      filter: true,
+      hideFilterIf: () => true,
+      getValue: (result: Result) => result.public_link ?? 'None'
     }
   ]);
 
@@ -697,6 +707,40 @@ export class ResultsCenterService {
     if (!options?.skipMain) {
       void this.main();
     }
+  }
+
+  /** Fixed pending-revision table on project dashboard: status 5, current contract, all results. */
+  initializeProjectDashboardResultsTable(contractId: string): void {
+    this.invalidateResultsFetchDedupe();
+    this.primaryContractId.set(contractId);
+    this.myResultsFilterItem.set(this.myResultsFilterItems[0]);
+    this.searchInput.set('');
+    this.resultsTablePaginatorFirst.set(0);
+    this.resultsTablePaginatorRows.set(10);
+    this.resultsTableSortField.set('result_official_code');
+    this.resultsTableSortOrder.set(-1);
+
+    this.tableFilters.set(new TableFilters());
+    this.tableFilters.update(prev => ({
+      ...prev,
+      statusCodes: [{ result_status_id: 5, name: 'Pending Revision' }]
+    }));
+
+    const fixedFilter: ResultFilter = {
+      'indicator-codes': [],
+      'lever-codes': [],
+      'indicator-codes-tabs': [],
+      'indicator-codes-filter': [],
+      'status-codes': [5],
+      'contract-codes': [],
+      'platform-code': [],
+      years: [],
+      'create-user-codes': []
+    };
+
+    this.resultsFilter.set(fixedFilter);
+    this.appliedFilters.set(fixedFilter);
+    void this.main();
   }
 
   cleanFilters() {

@@ -615,7 +615,7 @@ describe('ValidateCacheService', () => {
     it('should call tp.get with correct parameters', () => {
       service.getConfiguration();
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith(`configuration/${environment.frontVersionKey}`, { noAuthInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(`configuration/${environment.frontVersionKey}`);
     });
   });
 

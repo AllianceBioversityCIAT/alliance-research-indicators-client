@@ -180,6 +180,17 @@ describe('ProjectItemComponent', () => {
     expect(spy).toHaveBeenCalledWith({ indicator_id: 3, name: '' });
   });
 
+  it('should emit an empty name when indicator metadata is missing', () => {
+    component.enableIndicatorFilter = true;
+    const spy = jest.spyOn(component.indicatorClick, 'emit');
+    const indicator = { indicator_id: 4 } as IndicatorElement;
+    const event = { preventDefault: jest.fn(), stopPropagation: jest.fn() } as unknown as Event;
+
+    component.onIndicatorClick(indicator, event);
+
+    expect(spy).toHaveBeenCalledWith({ indicator_id: 4, name: '' });
+  });
+
   it('should not emit when indicator_id is missing', () => {
     component.enableIndicatorFilter = true;
     const spy = jest.spyOn(component.indicatorClick, 'emit');
@@ -277,12 +288,19 @@ describe('ProjectItemComponent', () => {
     expect(ids.has(2)).toBe(true);
   });
 
+  it('should return an empty set when filters do not include indicators', () => {
+    component.enableIndicatorFilter = true;
+    mockResultsCenterService.tableFilters = signal({} as any);
+
+    expect(component.filteredIndicatorIds().size).toBe(0);
+  });
+
   it('formatIndicatorLabel returns full string when under limit', () => {
     expect(component.formatIndicatorLabel('Short')).toBe('Short');
   });
 
   it('formatIndicatorLabel returns empty for undefined or empty string', () => {
-    expect(component.formatIndicatorLabel(undefined)).toBe('');
+    expect(component.formatIndicatorLabel()).toBe('');
     expect(component.formatIndicatorLabel('')).toBe('');
   });
 
@@ -305,7 +323,7 @@ describe('ProjectItemComponent', () => {
 
       const badge: HTMLElement | null = fixture.nativeElement.querySelector('[data-testid="pool-funding-tag"]');
       expect(badge).not.toBeNull();
-      expect(badge!.textContent).toContain('Pool Funding');
+      expect(badge?.textContent).toContain('Pool Funding');
     });
 
     it('toggles the badge off when isPoolFunding flips back to false', () => {

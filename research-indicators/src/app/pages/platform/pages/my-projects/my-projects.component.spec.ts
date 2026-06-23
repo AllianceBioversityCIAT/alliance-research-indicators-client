@@ -832,7 +832,7 @@ describe('MyProjectsComponent', () => {
     it('should navigate to project detail', () => {
       const project = { agreement_id: 'A001' } as any;
       component.openProject(project);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'A001']);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/project-detail', 'A001', 'project-dashboard']);
     });
 
     it('should not navigate if agreement_id is missing', () => {

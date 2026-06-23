@@ -22,7 +22,7 @@ export interface CountryArea {
   areas: string[];
 }
 
-export interface ResponseAiRoarDto {
+export interface ResponseAiDto {
   content: MiningTextItem[];
 }
 
@@ -40,7 +40,7 @@ export class TextMiningService {
 
   constructor(private readonly http: HttpClient) {}
 
-  async executeTextMining(documentName: string): Promise<ResponseAiRoarDto> {
+  async executeTextMining(documentName: string): Promise<ResponseAiDto> {
     const formData = new FormData();
     formData.append('token', this.cache.dataCache().access_token);
     formData.append('key', `${environment.keyTextMining}${documentName}`);
@@ -49,13 +49,12 @@ export class TextMiningService {
     formData.append('environmentUrl', environment.managementApiUrl);
 
     const headers = new HttpHeaders({
-      'access-token': this.cache.dataCache().access_token
+      'access-token': this.cache.dataCache().access_token,
+      'X-API-Key': environment.clarisaApiKey
     });
 
     try {
-      const response = await firstValueFrom(
-        this.http.post<ResponseAiRoarDto>(`${environment.textMiningUrl}/star/text-mining`, formData, { headers })
-      );
+      const response = await firstValueFrom(this.http.post<ResponseAiDto>(`${environment.textMiningUrl}/star/text-mining`, formData, { headers }));
       return response;
     } catch (error) {
       console.error('Error occurred during text mining:', error);

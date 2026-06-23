@@ -16,7 +16,7 @@ export class ValidateCacheService {
   tp = inject(ToPromiseService);
 
   getConfiguration = () => {
-    return this.tp.get(`configuration/${environment.frontVersionKey}`, { noAuthInterceptor: true });
+    return this.tp.get(`configuration/${environment.frontVersionKey}`);
   };
 
   async validateVersions(): Promise<void> {

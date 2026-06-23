@@ -1,38 +1,39 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, output, computed } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Component, computed, EventEmitter, inject, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
-import { FindContracts } from '@shared/interfaces/find-contracts.interface';
-import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
-import { ProjectUtilsService } from '@shared/services/project-utils.service';
-import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
+import { CustomTagComponent } from '../custom-tag/custom-tag.component';
+import { ProjectType, ProjectUtilsService } from '@shared/services/project-utils.service';
+
+type ProjectItemIndicator = IndicatorElement | GetProjectDetailIndicator;
 
 @Component({
   selector: 'app-project-item',
+  standalone: true,
   imports: [DatePipe, CustomTagComponent],
   templateUrl: './project-item.component.html',
   styleUrl: './project-item.component.scss'
 })
 export class ProjectItemComponent implements OnInit, OnChanges {
-  @Input() isHeader = false;
-  @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
-  @Input() enableIndicatorFilter = false;
-  @Input() isPoolFunding = false;
-
-  indicatorClick = output<{ indicator_id: number; name: string }>();
-
   private readonly projectUtils = inject(ProjectUtilsService);
   private readonly resultsCenterService = inject(ResultsCenterService, { optional: true });
 
-  filteredIndicatorIds = computed(() => {
-    if (!this.resultsCenterService || !this.enableIndicatorFilter) {
-      return new Set<number>();
-    }
-    return new Set(this.resultsCenterService.tableFilters().indicators.map(ind => ind.indicator_id));
-  });
+  @Input() project: Partial<GetContractsByUser & GetProjectDetail> = {};
+  @Input() isHeader = false;
+  @Input() isPoolFunding = false;
+  @Input() enableIndicatorFilter = false;
 
-  // Local property for processed indicators
-  processedIndicators: (IndicatorElement | GetProjectDetailIndicator)[] = [];
+  @Output() indicatorClick = new EventEmitter<{ indicator_id: number; name: string }>();
+
+  processedIndicators: ProjectItemIndicator[] = [];
+
+  readonly filteredIndicatorIds = computed(() => {
+    if (!this.enableIndicatorFilter || !this.resultsCenterService) return new Set<number>();
+
+    const indicators = this.resultsCenterService.tableFilters().indicators ?? [];
+    return new Set(indicators.map(indicator => indicator.indicator_id).filter((indicatorId): indicatorId is number => typeof indicatorId === 'number'));
+  });
 
   ngOnInit(): void {
     this.processIndicators();
@@ -44,52 +45,52 @@ export class ProjectItemComponent implements OnInit, OnChanges {
     }
   }
 
-  private processIndicators(): void {
-    if (this.project?.indicators && this.project.indicators.length > 0) {
-      // Create a local copy of indicators and process them
-      this.processedIndicators = this.projectUtils.sortIndicators([...this.project.indicators]);
-    } else {
-      this.processedIndicators = [];
-    }
-  }
-
-  getStatusDisplay() {
-    return this.projectUtils.getStatusDisplay(this.project);
+  getStatusDisplay(): { statusId: number; statusName: string } {
+    return this.projectUtils.getStatusDisplay(this.project as ProjectType);
   }
 
   getLeverName(): string {
-    return this.projectUtils.getLeverName(this.project);
+    return this.projectUtils.getLeverName(this.project as ProjectType);
   }
 
   hasField(fieldName: string): boolean {
-    return this.projectUtils.hasField(this.project, fieldName);
+    return this.projectUtils.hasField(this.project as ProjectType, fieldName);
   }
 
-  onIndicatorClick(indicator: IndicatorElement | GetProjectDetailIndicator, event: Event): void {
-    if (this.enableIndicatorFilter) {
-      event.preventDefault();
-      event.stopPropagation();
-      const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
-      const indicatorName = indicator.indicator?.name || '';
-      if (indicatorId) {
-        this.indicatorClick.emit({ indicator_id: indicatorId, name: indicatorName });
-      }
-    }
+  onIndicatorClick(indicator: ProjectItemIndicator, event: Event): void {
+    if (!this.enableIndicatorFilter) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const indicatorId = this.getIndicatorId(indicator);
+    if (indicatorId === null) return;
+
+    this.indicatorClick.emit({
+      indicator_id: indicatorId,
+      name: indicator.indicator?.name ?? ''
+    });
   }
 
-  isIndicatorFiltered(indicator: IndicatorElement | GetProjectDetailIndicator): boolean {
-    if (!this.enableIndicatorFilter || !this.resultsCenterService) {
-      return false;
-    }
-    const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
-    return indicatorId ? this.filteredIndicatorIds().has(indicatorId) : false;
+  isIndicatorFiltered(indicator: ProjectItemIndicator): boolean {
+    if (!this.enableIndicatorFilter || !this.resultsCenterService) return false;
+
+    const indicatorId = this.getIndicatorId(indicator);
+    return indicatorId !== null && this.filteredIndicatorIds().has(indicatorId);
   }
 
-  formatIndicatorLabel(name: string | undefined): string {
-    if (!name) return '';
-    const max = 15;
-    if (name.length <= max) return name;
-    const body = name.slice(0, max - 1).trimEnd();
-    return `${body}.`;
+  formatIndicatorLabel(label?: string): string {
+    if (!label) return '';
+    if (label.length <= 21) return label;
+
+    return `${label.slice(0, 20).replace(/\.+$/, '')}.`;
+  }
+
+  private processIndicators(): void {
+    this.processedIndicators = this.project.indicators?.length ? this.projectUtils.sortIndicators(this.project.indicators as ProjectItemIndicator[]) : [];
+  }
+
+  private getIndicatorId(indicator: ProjectItemIndicator): number | null {
+    return indicator.indicator_id ?? indicator.indicator?.indicator_id ?? null;
   }
 }

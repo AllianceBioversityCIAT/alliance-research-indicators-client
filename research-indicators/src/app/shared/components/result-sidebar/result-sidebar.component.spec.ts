@@ -140,6 +140,23 @@ describe('ResultSidebarComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  describe('showOicrStatusDropdown', () => {
+    it('should be true for admin on OICR when status is not Published', () => {
+      cacheService.currentMetadata.set({ indicator_id: 5, status_id: 13 });
+      expect(component.showOicrStatusDropdown()).toBe(true);
+    });
+
+    it('should be false for admin on OICR when status is Published (14)', () => {
+      cacheService.currentMetadata.set({ indicator_id: 5, status_id: 14 });
+      expect(component.showOicrStatusDropdown()).toBe(false);
+    });
+
+    it('should be false for non-OICR indicators', () => {
+      cacheService.currentMetadata.set({ indicator_id: 1, status_id: 4 });
+      expect(component.showOicrStatusDropdown()).toBe(false);
+    });
+  });
+
   describe('allOptionsWithGreenChecks computed', () => {
     it('should filter options by indicator_id and add greenCheck property', () => {
       const options = component.allOptionsWithGreenChecks();
