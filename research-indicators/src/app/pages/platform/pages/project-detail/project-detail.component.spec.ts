@@ -134,6 +134,12 @@ describe('ProjectComponent', () => {
     expect(component.projectTitle()).toBe('EMBRAPA - Establishment of the international coconut gene bank');
   });
 
+  it('should expose the current project status', () => {
+    component.currentProject.set({ contract_status: 'completed' });
+
+    expect(component.projectStatus()).toEqual({ statusId: 2, statusName: 'Completed' });
+  });
+
   it('should set contractId and call getProjectDetail on ngOnInit', () => {
     const getProjectDetailSpy = jest.spyOn(component, 'getProjectDetail').mockImplementation(jest.fn());
     component.ngOnInit();
@@ -181,6 +187,24 @@ describe('ProjectComponent', () => {
     getProjectDetailSpy.mockRestore();
   });
 
+  it('should identify a pending revision-only filter when optional filter arrays are omitted', () => {
+    resultsCenterService.tableFilters.set({
+      indicators: [],
+      statusCodes: [{ result_status_id: 5, name: 'Pending Revision' }],
+      years: [],
+      contracts: [],
+      levers: []
+    });
+    resultsCenterService.resultsFilter.set({ 'status-codes': [5] });
+    resultsCenterService.appliedFilters.set({ 'status-codes': [5] });
+
+    expect((component as any).isOnlyPendingRevisionStatusFilter()).toBe(true);
+  });
+
+  it('should return false for result filter states without pending revision status', () => {
+    expect((component as any).hasOnlyPendingRevisionResultFilter({})).toBe(false);
+  });
+
   it('should update the last segment when navigation ends', () => {
     const getLastSegmentSpy = jest.spyOn(component, 'getLastSegment');
     router.url = '/projects/mock-id/project-dashboard';
@@ -189,6 +213,14 @@ describe('ProjectComponent', () => {
 
     expect(getLastSegmentSpy).toHaveBeenCalledTimes(1);
     expect(component.lastSegment()).toBe('project-dashboard');
+  });
+
+  it('should ignore router events that are not NavigationEnd', () => {
+    const getLastSegmentSpy = jest.spyOn(component, 'getLastSegment');
+
+    router.events.next({ type: 'NavigationStart' });
+
+    expect(getLastSegmentSpy).not.toHaveBeenCalled();
   });
 
   it('should keep project results as the selected segment when the URL ends with contract id or has no path', () => {
