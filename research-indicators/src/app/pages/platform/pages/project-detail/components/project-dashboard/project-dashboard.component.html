@@ -1,4 +1,13 @@
 <section class="block flex w-full flex-col gap-6 p-1">
+  <div class="flex items-center gap-3 border-l-[5px] border-l-[#074b86] bg-[#fafafa] px-3 py-3">
+    <i class="pi pi-info-circle text-[#074b86] !text-[18px]" aria-hidden="true"></i>
+    <p class="m-0 text-left font-['Barlow'] text-[14px] font-normal leading-[17px] text-[#777c83]">
+      The figures shown in this dashboard are based on results reported in the STAR platform. Some metrics rely on
+      metadata that is currently available for STAR results. Results imported from TIP, PRMS, and AICCRA are not yet
+      enriched with the same metadata, so the level of detail displayed in certain dashboard visualizations may vary
+      depending on the source platform.
+    </p>
+  </div>
 
   <!-- Geo scope -->
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-[3fr_1fr]  lg:min-h-[520px] lg:items-stretch ">
@@ -242,9 +251,8 @@
                   [style.width.%]="statusBarFillPercent(item.value)" [style.min-width.px]="item.value > 0 ? 32 : 0">
                   <span class="h-3 min-w-2 flex-1 rounded-full" [style.background-color]="item.color"
                     aria-hidden="true"></span>
-                <span
-                  class="shrink-0 font-['Barlow'] text-xs font-bold leading-none tabular-nums text-[#112F5C]">{{
-                  item.value }}</span>
+                  <span class="shrink-0 font-['Barlow'] text-xs font-bold leading-none tabular-nums text-[#112F5C]">{{
+                    item.value }}</span>
                 </span>
               </span>
             </div>

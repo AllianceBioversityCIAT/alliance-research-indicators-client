@@ -82,6 +82,7 @@ describe('ResultsCenterTableComponent', () => {
       resultsListForTable: computed(() => listSig()),
       resultsTablePaginatorFirst: signal(0),
       resultsTablePaginatorRows: signal(10),
+      resultsTableTotalRecords: signal(1),
       loading: signal(false),
       primaryContractId: jest.fn().mockReturnValue(null),
       getAllPathsAsArray: jest.fn(() => ['title']),
@@ -197,6 +198,26 @@ describe('ResultsCenterTableComponent', () => {
   it('getPlatformColors should return undefined for unknown code', () => {
     const colors = component.getPlatformColors('ROAR');
     expect(colors).toBeUndefined();
+  });
+
+  it('getVisibleColumns should remove project, lever, and explicitly excluded columns', () => {
+    mockService.tableColumns.set([
+      { field: 'title', path: 'title', header: 'Title', getValue: (r: any) => r.title, filter: true },
+      { field: 'project', path: 'project', header: 'Project', getValue: jest.fn() },
+      { field: 'lever', path: 'lever', header: 'Lever', getValue: jest.fn() },
+      { field: 'status', path: 'status', header: 'Status', getValue: jest.fn() }
+    ]);
+    component.showNewProjectResultButton = true;
+    component.excludedColumnFields = ['status'];
+
+    expect(component.getVisibleColumns().map(column => column.field)).toEqual(['title']);
+  });
+
+  it('should hide paginator when filters toolbar is hidden and there are no records', () => {
+    component.hideFiltersToolbar = true;
+    mockService.resultsTableTotalRecords.set(0);
+
+    expect(component.shouldShowPaginator()).toBe(false);
   });
 
   it('formatResultCode should pad numbers', () => {

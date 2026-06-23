@@ -326,5 +326,11 @@ describe('ProjectUtilsService', () => {
 
       expect(service.getProjectTitle(project)).toBe('Research indicators');
     });
+
+    it('should return an empty string when description is missing', () => {
+      const project = {} as GetProjectDetail;
+
+      expect(service.getProjectTitle(project)).toBe('');
+    });
   });
 });

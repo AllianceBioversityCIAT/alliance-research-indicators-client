@@ -92,16 +92,16 @@
 
       <div class="w-full flex flex-col">
         <div class="flex justify-between items-center pb-1">
-          <h2 class="label pb-1">Title<span class="text-[#CF0808]">*</span></h2>
+          <label class="label pb-1" for="create-result-title-input">Title<span class="text-[#CF0808]">*</span></label>
           <span style="font-size: 12px; font-weight: 500">
             <span style="color: #8d9299">Words used: </span>
             <span [style.color]="getWordCounterColor()">{{ getWordCount() }}/30</span>
           </span>
         </div>
-        <input pInputText id="username" class="!text-[16px]" aria-describedby="username-help" [(ngModel)]="body().title"
-          placeholder="Write the title"
+        <input pInputText id="create-result-title-input" class="!text-[16px]" aria-describedby="create-result-title-help"
+          [(ngModel)]="body().title" placeholder="Write the title"
           [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
-        <h4 class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">
+        <h4 id="create-result-title-help" class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">
           Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid
           abbreviations or (technical)
           jargon.
