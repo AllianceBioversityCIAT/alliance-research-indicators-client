@@ -1067,6 +1067,24 @@ describe('ApiService', () => {
       );
     });
 
+    it('should call GET_TopMainContactPersons', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_TopMainContactPersons('A100', 5);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'agresso/contracts/reports/top-main-contact-persons?contract-id=A100&limit=5',
+        {}
+      );
+    });
+
+    it('should call GET_TopMainContactPersons with the default limit', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+      service.GET_TopMainContactPersons('A100');
+      expect(mockToPromiseService.get).toHaveBeenCalledWith(
+        'agresso/contracts/reports/top-main-contact-persons?contract-id=A100&limit=5',
+        {}
+      );
+    });
+
     it('should call GET_TopPrimaryLevers', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
       service.GET_TopPrimaryLevers('A100', 5);
