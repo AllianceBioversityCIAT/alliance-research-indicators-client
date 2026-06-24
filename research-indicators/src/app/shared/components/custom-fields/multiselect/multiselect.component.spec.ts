@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MultiselectComponent } from './multiselect.component';
 import { ElementRef, PLATFORM_ID, signal } from '@angular/core';
-import { SimpleChanges } from '@angular/core';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
@@ -104,6 +103,7 @@ describe('MultiselectComponent', () => {
     expect(component.helperText).toBe('');
     expect(component.textSpan).toBe('');
     expect(component.columnsOnXl).toBe(false);
+    expect(component.columnsOnXlCount).toBe(2);
     expect(component.placeholder).toBe('');
     expect(component.scrollHeight).toBe('268px');
     expect(component.itemHeight).toBe(41);
@@ -582,6 +582,7 @@ describe('MultiselectComponent', () => {
     component.helperText = 'Helper text';
     component.textSpan = 'Text span';
     component.columnsOnXl = true;
+    component.columnsOnXlCount = 3;
     component.placeholder = 'Select options';
     component.scrollHeight = '400px';
     component.itemHeight = 50;
@@ -599,6 +600,7 @@ describe('MultiselectComponent', () => {
     expect(component.helperText).toBe('Helper text');
     expect(component.textSpan).toBe('Text span');
     expect(component.columnsOnXl).toBe(true);
+    expect(component.columnsOnXlCount).toBe(3);
     expect(component.placeholder).toBe('Select options');
     expect(component.scrollHeight).toBe('400px');
     expect(component.itemHeight).toBe(50);
@@ -1047,7 +1049,7 @@ describe('MultiselectComponent', () => {
       const host = document.createElement('div');
       const trigger = document.createElement('div');
       trigger.className = 'p-multiselect';
-      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 240 } as DOMRect);
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 240 });
       host.appendChild(trigger);
       (component as any).hostEl = { nativeElement: host };
 
@@ -1079,7 +1081,7 @@ describe('MultiselectComponent', () => {
       const host = document.createElement('div');
       const trigger = document.createElement('div');
       trigger.className = 'p-multiselect';
-      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 180 } as DOMRect);
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 180 });
       host.appendChild(trigger);
       (component as any).hostEl = { nativeElement: host };
       const root = document.createElement('div');
@@ -1104,7 +1106,7 @@ describe('MultiselectComponent', () => {
       const host = document.createElement('div');
       const trigger = document.createElement('div');
       trigger.className = 'p-multiselect';
-      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 0 } as DOMRect);
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 0 });
       host.appendChild(trigger);
       (component as any).hostEl = { nativeElement: host };
       const root = document.createElement('div');
@@ -1143,7 +1145,7 @@ describe('MultiselectComponent', () => {
       jest.spyOn(ngZone, 'runOutsideAngular').mockImplementation((fn: any) => {
         (fn as () => void)();
       });
-      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+      jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
         cb(0);
         return 0;
       });
