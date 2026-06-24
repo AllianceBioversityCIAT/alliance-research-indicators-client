@@ -1,7 +1,5 @@
 import { Component, computed, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
-import { GetLeversService } from '@services/control-list/get-levers.service';
-import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -22,6 +20,9 @@ import { Lever, LeverStrategicOutcome } from '@shared/interfaces/oicr-creation.i
 import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
+import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+
+const OTHER_LEVER_ID = 100;
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -33,14 +34,14 @@ import { AllianceLeverCardComponent } from './components/alliance-lever-card/all
     NavigationButtonsComponent,
     DatePipe,
     TooltipModule,
-    AllianceLeverCardComponent
+    AllianceLeverCardComponent,
+    InputComponent
   ],
   templateUrl: './alliance-alignment.component.html'
 })
 export default class AllianceAlignmentComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
-  private readonly getLeversService = inject(GetLeversService);
   body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
     result_sdgs: [],
@@ -68,6 +69,7 @@ export default class AllianceAlignmentComponent {
       result_lever_sdg_targets: ResultLeverSdgTargetPayload[];
     }>
   >();
+  private readonly leverCustomNameSignals = new Map<string | number, WritableSignal<{ custom_lever_name: string }>>();
 
   contractServiceParams = computed(() => {
     const indicatorId = this.cache.currentMetadata()?.indicator_id;
@@ -75,6 +77,7 @@ export default class AllianceAlignmentComponent {
       'exclude-pooled-funding': indicatorId !== 5
     };
   });
+  isOicrIndicator = computed(() => this.cache.currentMetadata()?.indicator_id === 5);
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -89,10 +92,14 @@ export default class AllianceAlignmentComponent {
     const response = await this.apiService.GET_Alignments(this.cache.getCurrentNumericResultId());
 
     const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
-      (sdgs ?? []).map(sdg => ({
-        ...sdg,
-        sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? sdg.clarisa_sdg_id ?? sdg.id
-      }));
+      (sdgs ?? []).map(sdg => {
+        const normalizedId = sdg.id ?? sdg.clarisa_sdg_id ?? (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? 0;
+        return {
+          ...sdg,
+          id: normalizedId,
+          sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? normalizedId
+        };
+      });
 
     const mapLevers = (levers: Lever[] | undefined): Lever[] =>
       (levers ?? []).map(l => ({
@@ -107,7 +114,7 @@ export default class AllianceAlignmentComponent {
     const legacyRootSdgs = normalizeSdgs(response.data.result_sdgs);
     const anyLeverHasSdgs = [...primary_levers, ...contributor_levers].some(l => l.result_lever_sdgs != null && l.result_lever_sdgs.length > 0);
 
-    if (legacyRootSdgs.length && !anyLeverHasSdgs) {
+    if (this.isOicrIndicator() && legacyRootSdgs.length && !anyLeverHasSdgs) {
       const total = primary_levers.length + contributor_levers.length;
       if (total === 1) {
         if (primary_levers.length === 1) {
@@ -120,7 +127,7 @@ export default class AllianceAlignmentComponent {
 
     this.body.set({
       contracts: response.data.contracts || [],
-      result_sdgs: [],
+      result_sdgs: this.isOicrIndicator() ? [] : legacyRootSdgs,
       primary_levers,
       contributor_levers
     });
@@ -135,36 +142,6 @@ export default class AllianceAlignmentComponent {
 
   getContributorLeversForOptions(): Lever[] {
     return this.body().contributor_levers || [];
-  }
-
-  getRequiredLeverIdsFromContracts(contracts: unknown[] | undefined): (string | number)[] {
-    const list = contracts ?? [];
-    const ordered: (string | number)[] = [];
-    const seen = new Set<string>();
-    for (const c of list) {
-      if (!this.isPrimaryContributingContract(c)) continue;
-      const id = this.getLeverIdFromContract(c);
-      if (id == null) continue;
-      const key = String(id);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      ordered.push(id);
-    }
-    return ordered;
-  }
-
-  private isPrimaryContributingContract(contract: unknown): boolean {
-    if (contract == null || typeof contract !== 'object') return false;
-    const v = (contract as Record<string, unknown>)['is_primary'];
-    return Number(v) === 1;
-  }
-
-  private getPrimaryContracts(contracts: unknown[] | undefined): unknown[] {
-    return (contracts ?? []).filter(c => this.isPrimaryContributingContract(c));
-  }
-
-  isLeverRequiredFromContributingProject(lever: Lever): boolean {
-    return this.getRequiredLeverIdsFromContracts(this.body().contracts).some(id => String(id) === String(lever.lever_id));
   }
 
   parseResultLeverSdgTargetEntry(x: unknown): ResultLeverSdgTargetPayload | null {
@@ -191,144 +168,6 @@ export default class AllianceAlignmentComponent {
     return out;
   }
 
-  private getLeverIdFromContract(contract: unknown): string | number | null {
-    if (contract == null || typeof contract !== 'object') return null;
-    const c = contract as Record<string, unknown>;
-    const raw = c['levers'];
-    let lv: unknown = raw;
-    if (Array.isArray(lv)) lv = lv[0];
-    if (lv && typeof lv === 'object') {
-      const levers = lv as Record<string, unknown>;
-      const name = levers['full_name'];
-      if (name === 'Not available') return null;
-      const id = levers['id'] ?? levers['lever_id'];
-      if (id != null && id !== '') return id as string | number;
-    }
-    const top = c['lever_id'];
-    if (top != null && top !== '') return top as string | number;
-    return null;
-  }
-
-  private leverFromCatalog(entry: GetLevers): Lever {
-    const lid = entry.lever_id ?? entry.id;
-    return {
-      result_lever_id: 0,
-      result_id: 0,
-      lever_id: lid,
-      lever_role_id: 1,
-      is_primary: true,
-      short_name: entry.short_name,
-      other_names: entry.other_names,
-      icon: undefined,
-      result_lever_sdgs: [],
-      result_lever_sdg_targets: [],
-      result_lever_strategic_outcomes: []
-    };
-  }
-
-  private leverFromContractNested(
-    nested: { id?: number; short_name?: string; other_names?: string; lever_url?: string },
-    leverId: string | number
-  ): Lever {
-    return {
-      result_lever_id: 0,
-      result_id: 0,
-      lever_id: leverId,
-      lever_role_id: 1,
-      is_primary: true,
-      short_name: nested.short_name,
-      other_names: nested.other_names,
-      icon: nested.lever_url,
-      result_lever_sdgs: [],
-      result_lever_sdg_targets: [],
-      result_lever_strategic_outcomes: []
-    };
-  }
-
-  private findCatalogLever(leverId: string | number): GetLevers | undefined {
-    const list = this.getLeversService.list() ?? [];
-    return list.find(l => String(l.lever_id ?? l.id) === String(leverId));
-  }
-
-  private findNestedLeverShape(
-    contracts: unknown[],
-    leverId: string | number
-  ): { short_name?: string; other_names?: string; lever_url?: string } | undefined {
-    for (const c of contracts) {
-      if (String(this.getLeverIdFromContract(c)) !== String(leverId)) continue;
-      const raw = (c as Record<string, unknown>)['levers'];
-      let lv: unknown = raw;
-      if (Array.isArray(lv)) lv = lv[0];
-      if (lv && typeof lv === 'object') return lv as { short_name?: string; other_names?: string; lever_url?: string };
-    }
-    return undefined;
-  }
-
-  private resolveLeverForPrimary(leverId: string | number, currentPrimaries: Lever[], contracts: unknown[]): Lever {
-    const existing = currentPrimaries.find(l => String(l.lever_id) === String(leverId));
-    if (existing) return existing;
-    const cat = this.findCatalogLever(leverId);
-    if (cat) return this.leverFromCatalog(cat);
-    const nested = this.findNestedLeverShape(this.getPrimaryContracts(contracts), leverId);
-    if (nested) return this.leverFromContractNested(nested, leverId);
-    return {
-      result_lever_id: 0,
-      result_id: 0,
-      lever_id: leverId,
-      lever_role_id: 1,
-      is_primary: true,
-      result_lever_sdgs: [],
-      result_lever_sdg_targets: [],
-      result_lever_strategic_outcomes: []
-    };
-  }
-
-  private computeMergedPrimaryLevers(): Lever[] {
-    const b = this.body();
-    const contracts = b.contracts ?? [];
-    const current = b.primary_levers ?? [];
-    const requiredIds = this.getRequiredLeverIdsFromContracts(contracts);
-    const requiredSet = new Set(requiredIds.map(String));
-
-    const requiredLevers = requiredIds.map(id => this.resolveLeverForPrimary(id, current, contracts));
-
-    const optional = current.filter(l => !requiredSet.has(String(l.lever_id)));
-
-    return [...requiredLevers, ...optional];
-  }
-
-  private samePrimaryLeverSequence(a: Lever[], b: Lever[]): boolean {
-    if (a.length !== b.length) return false;
-    return a.every((x, i) => String(x.lever_id) === String(b[i]?.lever_id));
-  }
-
-  private contributorLeversExcludingPrimary(primary: Lever[], contributors: Lever[] | undefined): Lever[] {
-    const primaryIds = new Set((primary ?? []).map(l => String(l.lever_id)));
-    return (contributors ?? []).filter(c => !primaryIds.has(String(c.lever_id)));
-  }
-
-  private readonly syncContractLeversToPrimaryEffect = effect(
-    () => {
-      this.body();
-      this.getLeversService.list();
-      const merged = this.computeMergedPrimaryLevers();
-      const currentPrimary = this.body().primary_levers ?? [];
-      const currentContributors = this.body().contributor_levers ?? [];
-      const primaryIds = new Set(merged.map(l => String(l.lever_id)));
-      const contributorsOverlapPrimary = currentContributors.some(c => primaryIds.has(String(c.lever_id)));
-
-      if (this.samePrimaryLeverSequence(currentPrimary, merged) && !contributorsOverlapPrimary) {
-        return;
-      }
-
-      this.body.update(prev => ({
-        ...prev,
-        primary_levers: merged,
-        contributor_levers: this.contributorLeversExcludingPrimary(merged, prev.contributor_levers ?? [])
-      }));
-    },
-    { allowSignalWrites: true }
-  );
 
   updateOptionsDisabledEffect = effect(
     () => {
@@ -339,10 +178,8 @@ export default class AllianceAlignmentComponent {
 
   updatePrimaryOptionsDisabledEffect = effect(
     () => {
-      const contracts = this.body().contracts;
       const contributor = this.getContributorLeversForOptions();
-      const lockedStubs = this.getRequiredLeverIdsFromContracts(contracts).map(id => ({ lever_id: id }) as Lever);
-      this.primaryOptionsDisabled.set([...contributor, ...lockedStubs]);
+      this.primaryOptionsDisabled.set(contributor);
     },
     { allowSignalWrites: true }
   );
@@ -370,14 +207,14 @@ export default class AllianceAlignmentComponent {
     if (this.submission.isEditableStatus()) {
       const normalizeOutcome = (value: unknown): LeverStrategicOutcome => {
         if (typeof value === 'number') {
-          return { lever_strategic_outcome_id: value } as LeverStrategicOutcome;
+          return { lever_strategic_outcome_id: value };
         }
         if (value && typeof value === 'object') {
           const obj = value as Partial<LeverStrategicOutcome> & { id?: number };
           const idFromObject = obj.lever_strategic_outcome_id ?? obj.id;
           return { ...(obj as LeverStrategicOutcome), lever_strategic_outcome_id: idFromObject as number };
         }
-        return { lever_strategic_outcome_id: 0 } as LeverStrategicOutcome;
+        return { lever_strategic_outcome_id: 0 };
       };
 
       const mergeLever = (l: Lever): Lever => {
@@ -401,27 +238,22 @@ export default class AllianceAlignmentComponent {
             .filter(t => Number.isFinite(t.sdg_target_id) && t.sdg_target_id > 0);
           next = { ...next, result_lever_sdg_targets: targets, result_lever_sdgs: [] };
         }
+        const customNameSig = this.leverCustomNameSignals.get(l.lever_id);
+        if (this.isOtherLever(l)) {
+          const custom_lever_name = (customNameSig?.().custom_lever_name ?? l.custom_lever_name ?? '').trim();
+          next = { ...next, custom_lever_name };
+        } else if ('custom_lever_name' in next) {
+          next = { ...next, custom_lever_name: undefined };
+        }
         return next;
       };
 
       const primary_levers = this.body().primary_levers.map(mergeLever);
       const contributor_levers = this.body().contributor_levers.map(mergeLever);
 
-      const sdgByKey = new Map<number, GetSdgs>();
-      for (const lever of [...primary_levers, ...contributor_levers]) {
-        for (const sdg of lever.result_lever_sdgs ?? []) {
-          const id = sdg.id ?? (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? sdg.clarisa_sdg_id;
-          if (id != null) sdgByKey.set(Number(id), sdg);
-        }
-      }
-
-      const result_sdgs = [...sdgByKey.values()].map(sdg => ({
-        created_at: sdg.created_at,
-        is_active: sdg.is_active,
-        updated_at: sdg.updated_at,
-        clarisa_sdg_id: sdg.id ?? sdg.clarisa_sdg_id,
-        result_id: numericResultId
-      }));
+      const result_sdgs = this.isOicrIndicator()
+        ? this.buildResultSdgsFromLevers([...primary_levers, ...contributor_levers], numericResultId)
+        : this.buildResultSdgsFromSelection(this.body().result_sdgs ?? [], numericResultId);
 
       const dataToSend = {
         ...this.body(),
@@ -444,6 +276,28 @@ export default class AllianceAlignmentComponent {
     if (page === 'back') navigateTo('general-information');
     else if (page === 'next') navigateTo(nextPath);
     this.loading.set(false);
+  }
+
+  private buildResultSdgsFromLevers(levers: Lever[], resultId: number) {
+    const sdgByKey = new Map<number, GetSdgs>();
+    for (const lever of levers) {
+      for (const sdg of lever.result_lever_sdgs ?? []) {
+        const id = sdg.id ?? (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? sdg.clarisa_sdg_id;
+        if (id != null) sdgByKey.set(Number(id), sdg);
+      }
+    }
+
+    return this.buildResultSdgsFromSelection([...sdgByKey.values()], resultId);
+  }
+
+  private buildResultSdgsFromSelection(sdgs: GetSdgs[], resultId: number) {
+    return sdgs.map(sdg => ({
+      created_at: sdg.created_at,
+      is_active: sdg.is_active,
+      updated_at: sdg.updated_at,
+      clarisa_sdg_id: sdg.id ?? sdg.clarisa_sdg_id,
+      result_id: resultId
+    }));
   }
 
   markAsPrimary(
@@ -487,9 +341,9 @@ export default class AllianceAlignmentComponent {
 
   removePrimaryLever(lever: Lever) {
     if (!this.submission.isEditableStatus()) return;
-    if (this.isLeverRequiredFromContributingProject(lever)) return;
     this.leverOutcomeSignals.delete(lever.lever_id);
     this.leverSdgSignals.delete(lever.lever_id);
+    this.leverCustomNameSignals.delete(lever.lever_id);
     this.body.update(current => ({
       ...current,
       primary_levers: current.primary_levers.filter(l => l.lever_id !== lever.lever_id)
@@ -501,6 +355,7 @@ export default class AllianceAlignmentComponent {
     if (!this.submission.isEditableStatus()) return;
     this.leverOutcomeSignals.delete(lever.lever_id);
     this.leverSdgSignals.delete(lever.lever_id);
+    this.leverCustomNameSignals.delete(lever.lever_id);
     this.body.update(current => ({
       ...current,
       contributor_levers: current.contributor_levers.filter(l => l.lever_id !== lever.lever_id)
@@ -545,6 +400,19 @@ export default class AllianceAlignmentComponent {
         result_lever_sdg_targets: lever.result_lever_sdg_targets || []
       });
       this.leverSdgSignals.set(lever.lever_id, s);
+    }
+    return s;
+  }
+
+  isOtherLever(lever: Lever): boolean {
+    return Number(lever.lever_id) === OTHER_LEVER_ID;
+  }
+
+  getLeverCustomNameSignal(lever: Lever) {
+    let s = this.leverCustomNameSignals.get(lever.lever_id);
+    if (!s) {
+      s = signal({ custom_lever_name: lever.custom_lever_name ?? '' });
+      this.leverCustomNameSignals.set(lever.lever_id, s);
     }
     return s;
   }

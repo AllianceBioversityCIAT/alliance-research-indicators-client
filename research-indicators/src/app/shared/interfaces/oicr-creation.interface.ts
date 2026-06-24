@@ -53,6 +53,7 @@ export interface Lever {
   result_lever_sdgs?: GetSdgs[];
   /** Primary levers: PATCH uses this list (not result_lever_sdgs). */
   result_lever_sdg_targets?: ResultLeverSdgTargetPayload[];
+  custom_lever_name?: string;
   icon?: string;
   short_name?: string;
   other_names?: string;

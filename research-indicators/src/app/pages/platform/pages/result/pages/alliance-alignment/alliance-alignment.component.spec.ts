@@ -1,25 +1,26 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, flush } from '@angular/core/testing';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 
 import AllianceAlignmentComponent from './alliance-alignment.component';
-import { ActivatedRoute } from '@angular/router';
-import { of } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { CacheService } from '../../../../../../shared/services/cache/cache.service';
 import { ActionsService } from '../../../../../../shared/services/actions.service';
-import { Router } from '@angular/router';
 import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
-import { GetLeversService } from '@services/control-list/get-levers.service';
+import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 
 class ApiServiceMock {
   GET_Alignments = jest.fn();
   PATCH_Alignments = jest.fn();
+  GET_Levers = jest.fn();
 }
 class CacheServiceMock {
-  metadata = signal<Record<string, unknown>>({});
+  metadata = signal<Record<string, unknown>>({ indicator_id: 5 });
   currentResultId = jest.fn().mockReturnValue(1);
   getCurrentNumericResultId = jest.fn().mockReturnValue(1);
   currentResultIndicatorSectionPath = jest.fn().mockReturnValue('next-section');
@@ -50,14 +51,6 @@ class GetContractsServiceMock {
   isOpenSearch = jest.fn().mockReturnValue(false);
 }
 
-let getLeversServiceMock: {
-  list: ReturnType<typeof signal<any[]>>;
-  loading: ReturnType<typeof signal<boolean>>;
-  isOpenSearch: ReturnType<typeof signal<boolean>>;
-  main: jest.Mock;
-  update: jest.Mock;
-};
-
 describe('AllianceAlignmentComponent', () => {
   let component: AllianceAlignmentComponent;
   let fixture: ComponentFixture<AllianceAlignmentComponent>;
@@ -69,13 +62,6 @@ describe('AllianceAlignmentComponent', () => {
   let route: any;
 
   beforeEach(async () => {
-    getLeversServiceMock = {
-      list: signal<any[]>([]),
-      loading: signal(false),
-      isOpenSearch: signal(false),
-      main: jest.fn().mockResolvedValue(undefined),
-      update: jest.fn()
-    };
     api = new ApiServiceMock();
     cache = new CacheServiceMock();
     actions = new ActionsServiceMock();
@@ -90,10 +76,15 @@ describe('AllianceAlignmentComponent', () => {
 
     // Mock GET_Alignments before component creation to avoid constructor error
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+    api.GET_Levers.mockResolvedValue({
+      data: [{ id: 100, name: 'Other', short_name: 'Other', full_name: 'Other', other_names: 'Other' }]
+    });
 
     await TestBed.configureTestingModule({
-      imports: [AllianceAlignmentComponent, HttpClientTestingModule],
+      imports: [AllianceAlignmentComponent],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         { provide: ApiService, useValue: api },
         { provide: CacheService, useValue: cache },
         { provide: ActionsService, useValue: actions },
@@ -101,8 +92,7 @@ describe('AllianceAlignmentComponent', () => {
         { provide: SubmissionService, useValue: submission },
         { provide: VersionWatcherService, useClass: VersionWatcherServiceMock },
         { provide: ActivatedRoute, useValue: route },
-        { provide: GetContractsService, useClass: GetContractsServiceMock },
-        { provide: GetLeversService, useValue: getLeversServiceMock }
+        { provide: GetContractsService, useClass: GetContractsServiceMock }
       ]
     }).compileComponents();
 
@@ -133,6 +123,114 @@ describe('AllianceAlignmentComponent', () => {
       primary_levers: [],
       contributor_levers: []
     });
+  });
+
+  it('should preserve root SDGs for non-OICR indicators', async () => {
+    cache.metadata.set({ indicator_id: 1 });
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [{ contract_id: 'A1' }],
+        result_sdgs: [{ clarisa_sdg_id: 2, id: 2, created_at: '2024-01-01', updated_at: '2024-01-02', is_active: true }],
+        primary_levers: [{ lever_id: 1, result_lever_sdgs: [] }],
+        contributor_levers: []
+      }
+    });
+
+    await component.getData();
+
+    expect(component.body().result_sdgs).toHaveLength(1);
+    expect(component.body().result_sdgs[0].sdg_id).toBe(2);
+    expect(component.body().primary_levers[0].result_lever_sdgs).toEqual([]);
+  });
+
+  it('should normalize result-level SDGs from clarisa_sdg_id when id is missing', async () => {
+    cache.metadata.set({ indicator_id: 1 });
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [],
+        result_sdgs: [{ result_sdg_id: 30439, result_id: 22604, clarisa_sdg_id: 13, created_at: '', updated_at: '', is_active: true }],
+        primary_levers: [],
+        contributor_levers: []
+      }
+    });
+
+    await component.getData();
+
+    expect(component.body().result_sdgs[0].id).toBe(13);
+    expect(component.body().result_sdgs[0].sdg_id).toBe(13);
+  });
+
+  it('should normalize result-level SDGs from sdg_id and default missing ids to zero', async () => {
+    cache.metadata.set({ indicator_id: 1 });
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [],
+        result_sdgs: [{ sdg_id: 7 }, {}],
+        primary_levers: [],
+        contributor_levers: []
+      }
+    });
+
+    await component.getData();
+
+    expect(component.body().result_sdgs[0].id).toBe(7);
+    expect(component.body().result_sdgs[0].sdg_id).toBe(7);
+    expect(component.body().result_sdgs[1].id).toBe(0);
+    expect(component.body().result_sdgs[1].sdg_id).toBe(0);
+  });
+
+  it('should save an empty result-level SDG list for non-OICR when selection is missing', async () => {
+    cache.metadata.set({ indicator_id: 1 });
+    api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+    component.body.set({
+      contracts: [],
+      primary_levers: [],
+      contributor_levers: []
+    } as any);
+
+    await component.saveData();
+
+    const payload = api.PATCH_Alignments.mock.calls[0][1];
+    expect(payload.result_sdgs).toEqual([]);
+  });
+
+  it('should render project selector and dedicated SDGs field for non-OICR indicators', () => {
+    cache.metadata.set({ indicator_id: 1 });
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Contribution to SDG targets');
+    expect(text).toContain('Contributing projects');
+  });
+
+  it('should use the SDG id as option value and XL columns because the SDGs service returns unique id values', () => {
+    cache.metadata.set({ indicator_id: 1 });
+    fixture.detectChanges();
+
+    const fields = fixture.debugElement
+      .queryAll(By.directive(MultiselectComponent))
+      .map(debugElement => debugElement.componentInstance as MultiselectComponent);
+    const sdgsField = fields.find(multiselect => multiselect.label === 'Contribution to SDG targets');
+    const primaryLeversField = fields.find(multiselect => multiselect.label === 'Primary Levers');
+    const contributingLeversField = fields.find(multiselect => multiselect.label === 'Contributing Levers');
+
+    expect(sdgsField?.optionValue).toBe('id');
+    expect(sdgsField?.textSpan).toBe('Indicate the SDGs to which the result is linked.');
+    expect(sdgsField?.columnsOnXl).toBe(true);
+    expect(sdgsField?.columnsOnXlCount).toBe(3);
+    expect(primaryLeversField?.textSpan).toBe('Primary Levers selected');
+    expect(primaryLeversField?.columnsOnXlCount).toBe(2);
+    expect(contributingLeversField?.textSpan).toBe('Contributing Levers selected');
+    expect(contributingLeversField?.columnsOnXlCount).toBe(2);
+  });
+
+  it('should keep contributing projects visible for OICR indicators', () => {
+    cache.metadata.set({ indicator_id: 5 });
+    fixture.detectChanges();
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('Contributing projects');
   });
 
   it('should call PATCH_Alignments and show toast on saveData', async () => {
@@ -166,6 +264,31 @@ describe('AllianceAlignmentComponent', () => {
     );
     expect(actions.showToast).toHaveBeenCalled();
     expect(component.getData).toHaveBeenCalled();
+  });
+
+  it('should send selected root SDGs for non-OICR indicators', async () => {
+    cache.metadata.set({ indicator_id: 1 });
+    api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+    component.body.set({
+      contracts: [],
+      result_sdgs: [{ clarisa_sdg_id: 7, id: 7, created_at: '2024-01-01', updated_at: '2024-01-02', is_active: true } as any],
+      primary_levers: [{ lever_id: 1, result_lever_sdgs: [{ clarisa_sdg_id: 99, id: 99 } as any] } as any],
+      contributor_levers: []
+    });
+
+    await component.saveData();
+
+    const payload = api.PATCH_Alignments.mock.calls[0][1];
+    expect(payload.result_sdgs).toEqual([
+      {
+        created_at: '2024-01-01',
+        is_active: true,
+        updated_at: '2024-01-02',
+        clarisa_sdg_id: 7,
+        result_id: 1
+      }
+    ]);
   });
 
   it('should not call showToast or getData if PATCH_Alignments fails', async () => {
@@ -613,6 +736,127 @@ describe('AllianceAlignmentComponent', () => {
     });
   });
 
+  describe('Other lever custom name', () => {
+    const otherLever = {
+      lever_id: 100,
+      result_lever_id: 1,
+      result_id: 1,
+      lever_role_id: 1,
+      is_primary: true,
+      short_name: 'Other',
+      other_names: 'Other',
+      result_lever_sdgs: [],
+      result_lever_sdg_targets: [],
+      result_lever_strategic_outcomes: []
+    } as any;
+
+    it('should identify Other lever by CLARISA lever id 100', () => {
+      expect(component.isOtherLever(otherLever)).toBe(true);
+      expect(component.isOtherLever({ ...otherLever, lever_id: 1 })).toBe(false);
+    });
+
+    it('should create custom name signal from existing lever value', () => {
+      const signal = component.getLeverCustomNameSignal({ ...otherLever, custom_lever_name: 'Team A' });
+      expect(signal().custom_lever_name).toBe('Team A');
+    });
+
+    it('should render custom name field when Other lever is selected', () => {
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [otherLever],
+        contributor_levers: []
+      });
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.textContent).toContain('Name of the team or area creating the result');
+    });
+
+    it('should send custom_lever_name for Other lever on save', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [otherLever],
+        contributor_levers: []
+      });
+      component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: 'Custom team' });
+
+      await component.saveData();
+
+      const payload = api.PATCH_Alignments.mock.calls[0][1];
+      expect(payload.primary_levers[0].custom_lever_name).toBe('Custom team');
+    });
+
+    it('should fall back to the existing custom_lever_name for Other lever on save', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [{ ...otherLever, custom_lever_name: ' Existing team ' }],
+        contributor_levers: []
+      });
+
+      await component.saveData();
+
+      const payload = api.PATCH_Alignments.mock.calls[0][1];
+      expect(payload.primary_levers[0].custom_lever_name).toBe('Existing team');
+    });
+
+    it('should fall back to lever custom name when Other signal value is missing', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+      const leverWithCustomName = { ...otherLever, custom_lever_name: 'Existing team' };
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [leverWithCustomName],
+        contributor_levers: []
+      });
+      component.getLeverCustomNameSignal(leverWithCustomName).set({} as any);
+
+      await component.saveData();
+
+      const payload = api.PATCH_Alignments.mock.calls[0][1];
+      expect(payload.primary_levers[0].custom_lever_name).toBe('Existing team');
+    });
+
+    it('should send an empty custom_lever_name for Other lever when no value exists', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [otherLever],
+        contributor_levers: []
+      });
+      component.getLeverCustomNameSignal(otherLever).set({} as any);
+
+      await component.saveData();
+
+      const payload = api.PATCH_Alignments.mock.calls[0][1];
+      expect(payload.primary_levers[0].custom_lever_name).toBe('');
+    });
+
+    it('should clear custom_lever_name from non-Other levers on save', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [{ ...otherLever, lever_id: 1, custom_lever_name: 'Should be cleared' }],
+        contributor_levers: []
+      });
+
+      await component.saveData();
+
+      const payload = api.PATCH_Alignments.mock.calls[0][1];
+      expect(payload.primary_levers[0].custom_lever_name).toBeUndefined();
+    });
+  });
+
   describe('getData', () => {
     it('should migrate legacy flat result_sdgs onto a single primary lever', async () => {
       api.GET_Alignments.mockResolvedValue({
@@ -889,70 +1133,19 @@ describe('AllianceAlignmentComponent', () => {
     });
   });
 
-  describe('getRequiredLeverIdsFromContracts', () => {
-    it('should collect unique lever ids only from primary contributing contracts', () => {
-      const ids = component.getRequiredLeverIdsFromContracts([
-        null,
-        { is_primary: false, lever_id: 999 },
-        { is_primary: true, levers: [{ id: 1, full_name: 'Not available' }] },
-        { is_primary: true, levers: [{ lever_id: 2, full_name: 'OK', short_name: 's' }] },
-        { is_primary: true, lever_id: 3 },
-        { is_primary: true, lever_id: 3 }
-      ]);
-      expect(ids).toEqual([2, 3]);
+  it('should not auto-add or lock the primary project lever', () => {
+    component.body.set({
+      contracts: [{ is_primary: true, lever_id: 42 } as any],
+      result_sdgs: [],
+      primary_levers: [],
+      contributor_levers: []
     });
 
-    it('should return empty array for undefined contracts', () => {
-      expect(component.getRequiredLeverIdsFromContracts(undefined)).toEqual([]);
-    });
+    fixture.detectChanges();
+    TestBed.flushEffects();
 
-    it('should skip contracts where nested lever has no resolvable id', () => {
-      expect(component.getRequiredLeverIdsFromContracts([{ is_primary: true, levers: [{}] }])).toEqual([]);
-    });
-
-    it('should ignore levers on non-primary contracts', () => {
-      expect(
-        component.getRequiredLeverIdsFromContracts([
-          { is_primary: false, lever_id: 50 },
-          { is_primary: true, lever_id: 7 }
-        ])
-      ).toEqual([7]);
-    });
-  });
-
-  describe('isLeverRequiredFromContributingProject', () => {
-    it('should return true when lever id matches the primary contributing contract lever', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 7 }],
-        result_sdgs: [],
-        primary_levers: [],
-        contributor_levers: []
-      });
-      expect(component.isLeverRequiredFromContributingProject({ lever_id: 7 } as any)).toBe(true);
-    });
-
-    it('should return false when no match', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 7 }],
-        result_sdgs: [],
-        primary_levers: [],
-        contributor_levers: []
-      });
-      expect(component.isLeverRequiredFromContributingProject({ lever_id: 99 } as any)).toBe(false);
-    });
-
-    it('should return false when lever is only on a non-primary contract', () => {
-      component.body.set({
-        contracts: [
-          { is_primary: true, lever_id: 1 },
-          { is_primary: false, lever_id: 50 }
-        ],
-        result_sdgs: [],
-        primary_levers: [],
-        contributor_levers: []
-      });
-      expect(component.isLeverRequiredFromContributingProject({ lever_id: 50 } as any)).toBe(false);
-    });
+    expect(component.body().primary_levers).toEqual([]);
+    expect(component.primaryOptionsDisabled()).toEqual([]);
   });
 
   describe('removePrimaryLever / removeContributorLever', () => {
@@ -998,7 +1191,7 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.body().primary_levers).toHaveLength(1);
     });
 
-    it('should not remove primary when lever is required by primary contract', () => {
+    it('should remove primary lever even when it matches the primary contract lever', () => {
       submission.isEditableStatus.mockReturnValue(true);
       component.body.set({
         contracts: [{ is_primary: true, lever_id: 42 }],
@@ -1007,7 +1200,7 @@ describe('AllianceAlignmentComponent', () => {
         contributor_levers: []
       });
       component.removePrimaryLever(lever);
-      expect(component.body().primary_levers).toHaveLength(1);
+      expect(component.body().primary_levers).toEqual([]);
     });
 
     it('should remove contributor lever when editable', () => {
@@ -1033,122 +1226,6 @@ describe('AllianceAlignmentComponent', () => {
       });
       component.removeContributorLever(lever);
       expect(component.body().contributor_levers).toHaveLength(1);
-    });
-  });
-
-  describe('syncContractLeversToPrimaryEffect and lever resolution', () => {
-    it('sync effect merges required levers into primary_levers', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 88 }],
-        result_sdgs: [],
-        primary_levers: [],
-        contributor_levers: []
-      });
-      fixture.detectChanges();
-      TestBed.flushEffects();
-      fixture.detectChanges();
-      expect(component.body().primary_levers.some(l => String(l.lever_id) === '88')).toBe(true);
-    });
-
-    it('sync effect drops the same lever from contributor_levers when it becomes primary', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 6 }],
-        result_sdgs: [],
-        primary_levers: [],
-        contributor_levers: [{ lever_id: 6, short_name: 'L6' } as any]
-      });
-      fixture.detectChanges();
-      TestBed.flushEffects();
-      fixture.detectChanges();
-      expect(component.body().primary_levers.some(l => String(l.lever_id) === '6')).toBe(true);
-      expect(component.body().contributor_levers.some(l => String(l.lever_id) === '6')).toBe(false);
-    });
-
-    it('findCatalogLever returns matching catalog row', () => {
-      getLeversServiceMock.list.set([{ lever_id: 77, id: 77, short_name: 'Cat', other_names: 'o' } as any]);
-      expect((component as any).findCatalogLever(77)?.short_name).toBe('Cat');
-    });
-
-    it('findCatalogLever matches catalog row by id when lever_id is absent', () => {
-      getLeversServiceMock.list.set([{ id: 82, short_name: 'ById', other_names: '' } as any]);
-      expect((component as any).findCatalogLever(82)?.short_name).toBe('ById');
-    });
-
-    it('findCatalogLever uses empty array when list() is undefined', () => {
-      const svc = (component as any).getLeversService;
-      const prev = svc.list;
-      svc.list = () => undefined as any;
-      expect((component as any).findCatalogLever(1)).toBeUndefined();
-      svc.list = prev;
-    });
-
-    it('leverFromCatalog maps catalog entry to Lever', () => {
-      const lever = (component as any).leverFromCatalog({
-        lever_id: 9,
-        id: 9,
-        short_name: 'S',
-        other_names: 'o'
-      });
-      expect(lever.lever_id).toBe(9);
-      expect(lever.short_name).toBe('S');
-    });
-
-    it('leverFromContractNested maps nested contract fields', () => {
-      const lever = (component as any).leverFromContractNested({ short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }, 66);
-      expect(lever.lever_id).toBe(66);
-      expect(lever.short_name).toBe('Sn');
-    });
-
-    it('findNestedLeverShape returns nested lever object', () => {
-      const contracts = [{ levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }] }];
-      expect((component as any).findNestedLeverShape(contracts, 66)?.short_name).toBe('Sn');
-    });
-
-    it('resolveLeverForPrimary returns existing primary when present', () => {
-      const existing = { lever_id: 5, short_name: 'Keep' } as any;
-      expect((component as any).resolveLeverForPrimary(5, [existing], [])).toBe(existing);
-    });
-
-    it('resolveLeverForPrimary prefers catalog over nested contract', () => {
-      getLeversServiceMock.list.set([{ lever_id: 77, id: 77, short_name: 'Cat', other_names: 'o' } as any]);
-      const contracts = [{ is_primary: true, lever_id: 77 }];
-      const lever = (component as any).resolveLeverForPrimary(77, [], contracts);
-      expect(lever.short_name).toBe('Cat');
-    });
-
-    it('resolveLeverForPrimary uses nested contract when catalog misses', () => {
-      getLeversServiceMock.list.set([]);
-      const contracts = [
-        {
-          is_primary: true,
-          levers: [{ id: 66, full_name: 'N', short_name: 'Sn', other_names: 'on', lever_url: 'http://x' }]
-        }
-      ];
-      const lever = (component as any).resolveLeverForPrimary(66, [], contracts);
-      expect(lever.short_name).toBe('Sn');
-    });
-
-    it('resolveLeverForPrimary falls back to minimal stub', () => {
-      const lever = (component as any).resolveLeverForPrimary(999, [], []);
-      expect(lever.lever_id).toBe(999);
-      expect(lever.result_lever_sdgs).toEqual([]);
-    });
-
-    it('computeMergedPrimaryLevers combines required and optional primaries', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 10 }],
-        result_sdgs: [],
-        primary_levers: [{ lever_id: 20, short_name: 'Opt' } as any],
-        contributor_levers: []
-      });
-      const merged = (component as any).computeMergedPrimaryLevers();
-      expect(merged.map((l: any) => l.lever_id)).toEqual([10, 20]);
-    });
-
-    it('samePrimaryLeverSequence returns true for identical id order', () => {
-      const a = [{ lever_id: 1 }, { lever_id: 2 }] as any[];
-      expect((component as any).samePrimaryLeverSequence(a, [{ lever_id: 1 }, { lever_id: 2 }])).toBe(true);
-      expect((component as any).samePrimaryLeverSequence(a, [{ lever_id: 2 }, { lever_id: 1 }])).toBe(false);
     });
   });
 
@@ -1211,7 +1288,7 @@ describe('AllianceAlignmentComponent', () => {
       const sdgSig = component.getLeverSdgSignal(lever);
       sdgSig.set({
         result_lever_sdgs: [],
-        result_lever_sdg_targets: [{ sdg_target_id: 21 }, { sdg_target_id: 0 }, { sdg_target_id: NaN } as any]
+        result_lever_sdg_targets: [{ sdg_target_id: 21 }, { sdg_target_id: 0 }, { sdg_target_id: Number.NaN } as any]
       });
 
       await component.saveData();
@@ -1303,25 +1380,6 @@ describe('AllianceAlignmentComponent', () => {
       expect(s().result_lever_sdg_targets).toEqual([]);
     });
 
-    it('sync effect skips body.update when merged sequence matches current', () => {
-      const updateSpy = jest.spyOn(component.body, 'update');
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 1 }],
-        result_sdgs: [],
-        primary_levers: [{ lever_id: 1, result_lever_strategic_outcomes: [] } as any],
-        contributor_levers: []
-      });
-      fixture.detectChanges();
-      TestBed.flushEffects();
-      expect(updateSpy).not.toHaveBeenCalled();
-    });
-
-    it('samePrimaryLeverSequence is false when lever ids differ at same index', () => {
-      expect((component as any).samePrimaryLeverSequence([{ lever_id: 1 }, { lever_id: 2 }] as any, [{ lever_id: 1 }, { lever_id: 9 }] as any)).toBe(
-        false
-      );
-    });
-
     it('normalizeSdgs picks clarisa_sdg_id when sdg_id missing in getData', async () => {
       api.GET_Alignments.mockResolvedValue({
         data: {
@@ -1358,34 +1416,6 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.body().primary_levers[0].result_lever_sdgs?.[0].sdg_id).toBe(99);
     });
 
-    it('computeMergedPrimaryLevers treats missing contracts and primary arrays as empty', () => {
-      component.body.set({
-        contracts: undefined as any,
-        result_sdgs: [],
-        primary_levers: undefined as any,
-        contributor_levers: []
-      });
-      const merged = (component as any).computeMergedPrimaryLevers();
-      expect(Array.isArray(merged)).toBe(true);
-    });
-
-    it('sync effect handles undefined primary_levers on body', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 3 }],
-        result_sdgs: [],
-        primary_levers: undefined as any,
-        contributor_levers: []
-      });
-      fixture.detectChanges();
-      TestBed.flushEffects();
-      expect(component.body().primary_levers?.length).toBeGreaterThan(0);
-    });
-
-    it('leverFromCatalog uses id when lever_id is missing', () => {
-      const lever = (component as any).leverFromCatalog({ id: 4, short_name: 'Z', other_names: 'oz' } as any);
-      expect(lever.lever_id).toBe(4);
-    });
-
     it('anyLeverHasSdgs handles null result_lever_sdgs on a lever', async () => {
       api.GET_Alignments.mockResolvedValue({
         data: {
@@ -1399,65 +1429,5 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.body().primary_levers[0].result_lever_sdgs).toEqual([]);
     });
 
-    it('findNestedLeverShape skips contracts until leverId matches', () => {
-      const contracts = [{ lever_id: 1 }, { levers: [{ id: 2, full_name: 'N', short_name: 'Second' }] }];
-      expect((component as any).findNestedLeverShape(contracts, 2)?.short_name).toBe('Second');
-    });
-
-    it('findNestedLeverShape returns undefined when no nested lever matches', () => {
-      expect((component as any).findNestedLeverShape([{ lever_id: 9 }], 2)).toBeUndefined();
-    });
-
-    it('findNestedLeverShape returns on first contract when it matches', () => {
-      const contracts = [{ levers: [{ id: 3, full_name: 'Y', short_name: 'First' }] }];
-      expect((component as any).findNestedLeverShape(contracts, 3)?.short_name).toBe('First');
-    });
-  });
-
-  describe('getPrimaryContracts and contributorLeversExcludingPrimary', () => {
-    it('getPrimaryContracts returns empty array when contracts is undefined or null', () => {
-      expect((component as any).getPrimaryContracts(undefined)).toEqual([]);
-      expect((component as any).getPrimaryContracts(null)).toEqual([]);
-    });
-
-    it('getPrimaryContracts filters out non-objects and non-primary contracts', () => {
-      expect((component as any).getPrimaryContracts([null, { is_primary: false, lever_id: 1 }, { is_primary: true, lever_id: 2 }])).toEqual([
-        { is_primary: true, lever_id: 2 }
-      ]);
-    });
-
-    it('isPrimaryContributingContract returns false for null and non-objects', () => {
-      expect((component as any).isPrimaryContributingContract(null)).toBe(false);
-      expect((component as any).isPrimaryContributingContract('x')).toBe(false);
-    });
-
-    it('getLeverIdFromContract returns null when contract is null, undefined, or not an object', () => {
-      expect((component as any).getLeverIdFromContract(null)).toBeNull();
-      expect((component as any).getLeverIdFromContract(undefined)).toBeNull();
-      expect((component as any).getLeverIdFromContract(42)).toBeNull();
-    });
-
-    it('contributorLeversExcludingPrimary treats undefined primary as empty id set', () => {
-      const c = [{ lever_id: 1 } as any];
-      expect((component as any).contributorLeversExcludingPrimary(undefined, c)).toEqual(c);
-    });
-
-    it('contributorLeversExcludingPrimary treats undefined contributors as empty', () => {
-      expect((component as any).contributorLeversExcludingPrimary([{ lever_id: 1 } as any], undefined)).toEqual([]);
-    });
-
-    it('sync effect uses prev.contributor_levers ?? [] when contributor_levers was undefined', () => {
-      component.body.set({
-        contracts: [{ is_primary: true, lever_id: 9 }],
-        result_sdgs: [],
-        primary_levers: [],
-        contributor_levers: undefined as any
-      });
-      fixture.detectChanges();
-      TestBed.flushEffects();
-      fixture.detectChanges();
-      expect(component.body().primary_levers.some(l => String(l.lever_id) === '9')).toBe(true);
-      expect(component.body().contributor_levers).toEqual([]);
-    });
   });
 });
