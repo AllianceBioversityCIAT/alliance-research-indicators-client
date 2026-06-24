@@ -13,6 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrl: './alliance-lever-card.component.scss'
 })
 export class AllianceLeverCardComponent {
+  private readonly otherLeverId = 100;
   readonly allowRemove = (): boolean => true;
   readonly selectedItemsSurfaceColor = '#E8EBED';
 
@@ -29,4 +30,8 @@ export class AllianceLeverCardComponent {
   @Input() strategicOutcomesRequired = false;
   @Input() sdgTargetsRequired = true;
   @Input() disabled = false;
+
+  isOtherLever(): boolean {
+    return Number(this.lever?.lever_id) === this.otherLeverId;
+  }
 }
