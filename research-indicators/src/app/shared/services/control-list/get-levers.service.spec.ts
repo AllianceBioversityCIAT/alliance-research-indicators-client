@@ -66,4 +66,9 @@ describe('GetLeversService', () => {
     expect(service.list()).toEqual(expectedData);
     expect(service.loading()).toBe(false);
   });
+
+  it('keeps the Other lever only when API returns it', async () => {
+    await setup({ data: [{ id: 100, name: 'Other', short_name: 'Other', full_name: 'Other' }] });
+    expect(service.list().filter(lever => Number(lever.id) === 100)).toHaveLength(1);
+  });
 });

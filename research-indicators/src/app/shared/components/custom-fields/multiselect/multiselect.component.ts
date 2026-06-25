@@ -51,7 +51,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly ngZone = inject(NgZone);
 
-  @ViewChild(MultiSelect) private primeMultiSelect?: MultiSelect;
+  @ViewChild(MultiSelect) private readonly primeMultiSelect?: MultiSelect;
 
   @ContentChild('rows') rows!: TemplateRef<any>;
   @ContentChild('selectedItems') selectedItems!: TemplateRef<any>;
@@ -82,6 +82,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() helperText = '';
   @Input() textSpan = '';
   @Input() columnsOnXl = false;
+  @Input() columnsOnXlCount: 2 | 3 = 2;
   @Input() placeholder = '';
   @Input() serviceParams: unknown;
 
@@ -101,7 +102,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   environment = environment;
 
   service: any;
-  private inFlightLoadByKey = new Map<string, Promise<void>>();
+  private readonly inFlightLoadByKey = new Map<string, Promise<void>>();
   optionsSig: WritableSignal<any[]> = signal<any[]>([]);
   loadingSig: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -310,7 +311,9 @@ export class MultiselectComponent implements OnInit, OnChanges {
       const nextItems = eventIds.map((id: number) => {
         const fromPrev = prevItems.find((item: any) => item[attr] == id);
         const fromOptions = optionsList.find((option: any) => option[attr] == id);
-        const merged: Record<string, unknown> = { ...(fromPrev ?? {}), ...(fromOptions ?? {}) };
+        const merged: Record<string, unknown> = {};
+        if (fromPrev) Object.assign(merged, fromPrev);
+        if (fromOptions) Object.assign(merged, fromOptions);
         merged[attr] ??= id;
         return merged as any;
       });

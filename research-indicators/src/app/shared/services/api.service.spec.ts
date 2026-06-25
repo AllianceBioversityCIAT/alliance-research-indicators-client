@@ -1883,6 +1883,32 @@ describe('ApiService', () => {
     });
   });
 
+  describe('GET_ResultPdfReport', () => {
+    it('should request the PDF report envelope with params and return the report URL response', async () => {
+      const response = {
+        data: 'https://microservice-reports.s3.amazonaws.com/STAR-result-22603_20260623_1457',
+        status: 200,
+        description: 'PDF report sections were found correctly',
+        timestamp: '2026-06-23T14:57:23.433Z',
+        path: '/api/reports/19821/pdf?is-html=false&report_name=cap_sharing&reportingPlatforms=STAR'
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue(response);
+
+      const result = await service.GET_ResultPdfReport('STAR-22603', 'STAR');
+
+      expect(result).toBe(response);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('reports/STAR-22603/pdf', {
+        params: expect.any(HttpParams)
+      });
+      expect(mockToPromiseService.getBlob).not.toHaveBeenCalledWith(expect.stringContaining('reports/STAR-22603/pdf'), expect.anything());
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('is-html')).toBe('false');
+      expect(params.get('report_name')).toBe('cap_sharing');
+      expect(params.get('reportingPlatforms')).toBe('STAR');
+    });
+  });
+
   describe('Additional GET methods', () => {
     it('should call GET_InformativeRoles', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });

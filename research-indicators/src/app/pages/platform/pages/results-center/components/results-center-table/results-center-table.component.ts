@@ -202,6 +202,39 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     }
   }
 
+  openStarPdfReport(result: Result): void {
+    const reportWindow = globalThis.open(this.getStarReportViewerUrl(result), '_blank', 'noopener,noreferrer');
+    if (reportWindow) reportWindow.opener = null;
+  }
+
+  getStarReportViewerUrl(result: Result): string {
+    const resultCode = this.getStarFrontendResultCode(result);
+    const version = this.getStarReportYear(result);
+    const query = version ? `?version=${encodeURIComponent(String(version))}` : '';
+    return `/reports/result/${encodeURIComponent(resultCode)}${query}`;
+  }
+
+  private getStarFrontendResultCode(result: Result): string {
+    const officialCode = String(result.result_official_code ?? '').trim();
+    if (officialCode.toUpperCase().startsWith(`${PLATFORM_CODES.STAR}-`)) {
+      return officialCode;
+    }
+    return `${PLATFORM_CODES.STAR}-${officialCode}`;
+  }
+
+  private getStarReportYear(result: Result): number | null {
+    if (typeof result.report_year_id === 'number') {
+      return result.report_year_id;
+    }
+
+    if (Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
+      return Math.max(...result.snapshot_years);
+    }
+
+    const parsedYear = Number(result.year);
+    return Number.isFinite(parsedYear) ? parsedYear : null;
+  }
+
   showFiltersSidebar() {
     this.resultsCenterService.showFiltersSidebar.set(true);
   }
@@ -342,7 +375,7 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
     };
 
     document.addEventListener('click', onDocClickCapture, { capture: true });
-    this.removeDocumentClickListener = () => document.removeEventListener('click', onDocClickCapture, { capture: true } as unknown as boolean);
+    this.removeDocumentClickListener = () => document.removeEventListener('click', onDocClickCapture, { capture: true });
   }
 
   private processRowClick(target: Element, event: MouseEvent) {

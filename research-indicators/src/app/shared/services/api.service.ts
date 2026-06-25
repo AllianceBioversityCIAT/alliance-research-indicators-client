@@ -303,6 +303,12 @@ export class ApiService {
     return this.TP.getBlob('reports/resultCenter/xlsx', { params });
   };
 
+  GET_ResultPdfReport = async (resultCode: string | number, reportingPlatform = 'STAR'): Promise<MainResponse<string>> => {
+    const params = new HttpParams().set('is-html', 'false').set('report_name', 'cap_sharing').set('reportingPlatforms', reportingPlatform);
+
+    return this.TP.get(`reports/${encodeURIComponent(String(resultCode))}/pdf`, { params });
+  };
+
   private unwrapV2ResultsResponse(raw: MainResponse<unknown>): MainResponse<GetResultsResponseData> {
     const payload = raw?.data;
     let rows: V2ResultListItem[] = [];
@@ -744,12 +750,8 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_TopContributorsContracts = (
-    contractId: string,
-    limit = 5
-  ): Promise<MainResponse<TopContributorsContractReport>> => {
-    const url = () =>
-      `agresso/contracts/reports/top-contributors-contracts?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+  GET_TopContributorsContracts = (contractId: string, limit = 5): Promise<MainResponse<TopContributorsContractReport>> => {
+    const url = () => `agresso/contracts/reports/top-contributors-contracts?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
@@ -759,14 +761,12 @@ export class ApiService {
   };
 
   GET_TopMainContactPersons = (contractId: string, limit = 5): Promise<MainResponse<TopMainContactPersonsReport>> => {
-    const url = () =>
-      `agresso/contracts/reports/top-main-contact-persons?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    const url = () => `agresso/contracts/reports/top-main-contact-persons?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
   GET_TopPrimaryLevers = (contractId: string, limit = 5): Promise<MainResponse<TopPrimaryLeversReport>> => {
-    const url = () =>
-      `agresso/contracts/reports/top-primary-levers?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    const url = () => `agresso/contracts/reports/top-primary-levers?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
