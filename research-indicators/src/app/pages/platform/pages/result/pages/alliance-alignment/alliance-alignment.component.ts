@@ -22,7 +22,7 @@ import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 
-const OTHER_LEVER_ID = 100;
+const OTHER_LEVER_ID = 9;
 
 @Component({
   selector: 'app-alliance-alignment',

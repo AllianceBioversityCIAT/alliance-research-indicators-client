@@ -77,7 +77,7 @@ describe('AllianceAlignmentComponent', () => {
     // Mock GET_Alignments before component creation to avoid constructor error
     api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
     api.GET_Levers.mockResolvedValue({
-      data: [{ id: 100, name: 'Other', short_name: 'Other', full_name: 'Other', other_names: 'Other' }]
+      data: [{ id: 9, name: 'Other', short_name: 'Other', full_name: 'Other', other_names: 'Other' }]
     });
 
     await TestBed.configureTestingModule({
@@ -738,7 +738,7 @@ describe('AllianceAlignmentComponent', () => {
 
   describe('Other lever custom name', () => {
     const otherLever = {
-      lever_id: 100,
+      lever_id: 9,
       result_lever_id: 1,
       result_id: 1,
       lever_role_id: 1,
@@ -750,7 +750,7 @@ describe('AllianceAlignmentComponent', () => {
       result_lever_strategic_outcomes: []
     } as any;
 
-    it('should identify Other lever by CLARISA lever id 100', () => {
+    it('should identify Other lever by CLARISA lever id 9', () => {
       expect(component.isOtherLever(otherLever)).toBe(true);
       expect(component.isOtherLever({ ...otherLever, lever_id: 1 })).toBe(false);
     });

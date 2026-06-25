@@ -59,8 +59,8 @@ describe('AllianceLeverCardComponent', () => {
     expect(component.removeLever.emit).toHaveBeenCalled();
   });
 
-  it('should identify Other lever by CLARISA lever id 100', () => {
-    fixture.componentRef.setInput('lever', { ...baseLever, lever_id: 100 });
+  it('should identify Other lever by CLARISA lever id 9', () => {
+    fixture.componentRef.setInput('lever', { ...baseLever, lever_id: 9 });
     expect(component.isOtherLever()).toBe(true);
   });
 
