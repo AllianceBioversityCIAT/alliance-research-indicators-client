@@ -135,6 +135,7 @@ Each flow is described as a sequence of screen transitions. These are the **gold
 | 20 | OICR Download | `/oicr/download` | No | Public download |
 | 21 | Fields | `/fields` | No | Dynamic form config |
 | 22 | Cache-test | `/cache-test` | No | Dev tool |
+| 23 | STAR Report Viewer | `/reports/result/:id?version=N` | No (auth required) | Loading surface + embedded STAR PDF |
 
 ---
 

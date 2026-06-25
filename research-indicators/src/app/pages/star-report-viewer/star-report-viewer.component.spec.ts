@@ -1,0 +1,105 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { convertToParamMap, ActivatedRoute } from '@angular/router';
+import { ApiService } from '@shared/services/api.service';
+import StarReportViewerComponent from './star-report-viewer.component';
+
+describe('StarReportViewerComponent', () => {
+  let fixture: ComponentFixture<StarReportViewerComponent>;
+  let component: StarReportViewerComponent;
+  let api: { GET_ResultPdfReport: jest.Mock };
+
+  const setup = async (id = 'STAR-8', version = '2026', response?: { data: string }) => {
+    api = {
+      GET_ResultPdfReport: jest.fn().mockResolvedValue(response ?? { data: 'https://reports.example.com/star-8.pdf' })
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [StarReportViewerComponent],
+      providers: [
+        { provide: ApiService, useValue: api },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id }),
+              queryParamMap: convertToParamMap(version ? { version } : {})
+            }
+          }
+        }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(StarReportViewerComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  };
+
+  afterEach(() => {
+    TestBed.resetTestingModule();
+  });
+
+  it('should show loading while the PDF URL is being generated', async () => {
+    let resolveReport!: (value: { data: string }) => void;
+    api = {
+      GET_ResultPdfReport: jest.fn().mockReturnValue(
+        new Promise(resolve => {
+          resolveReport = resolve;
+        })
+      )
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [StarReportViewerComponent],
+      providers: [
+        { provide: ApiService, useValue: api },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id: 'STAR-8' }),
+              queryParamMap: convertToParamMap({ version: '2026' })
+            }
+          }
+        }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(StarReportViewerComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Generating pdf, please wait...');
+    expect(fixture.nativeElement.textContent).toContain('Preparing your report');
+    expect(fixture.nativeElement.querySelector('img[alt="STAR"]')).toBeTruthy();
+    if (!component.isProductionEnvironment) {
+      expect(fixture.nativeElement.querySelector('[aria-label="Testing Environment"]')?.textContent).toContain('Testing');
+    }
+    expect(component.loading()).toBe(true);
+
+    resolveReport({ data: 'https://reports.example.com/star-8.pdf' });
+    await fixture.whenStable();
+  });
+
+  it('should load and sanitize the STAR PDF URL from the route result code', async () => {
+    await setup();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR');
+    expect(component.resultCode).toBe('STAR-8');
+    expect(component.version).toBe('2026');
+    expect(component.loading()).toBe(false);
+    expect(component.safePdfUrl()).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('iframe')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('header')?.classList.contains('bottom-5')).toBe(true);
+  });
+
+  it('should show an error when the report URL is empty', async () => {
+    await setup('STAR-8', '2026', { data: '' });
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(component.safePdfUrl()).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('The STAR PDF report is not available yet.');
+  });
+});

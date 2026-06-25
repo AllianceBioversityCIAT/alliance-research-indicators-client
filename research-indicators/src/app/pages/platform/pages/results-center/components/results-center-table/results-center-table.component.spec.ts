@@ -130,7 +130,8 @@ describe('ResultsCenterTableComponent', () => {
     };
 
     mockApiService = {
-      GET_ResultCenterXlsx: jest.fn().mockResolvedValue(new Blob(['x'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
+      GET_ResultCenterXlsx: jest.fn().mockResolvedValue(new Blob(['x'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })),
+      GET_ResultPdfReport: jest.fn().mockResolvedValue({ data: 'https://reports.example.com/star-report.pdf' })
     };
 
     mockCreateResultManagementService = {
@@ -794,6 +795,28 @@ describe('ResultsCenterTableComponent', () => {
     await component.exportTable();
     expect(consoleErrorSpy).toHaveBeenCalledWith('Downloaded file is empty or invalid');
     consoleErrorSpy.mockRestore();
+  });
+
+  it('getStarReportViewerUrl should include STAR result code and version', () => {
+    expect(component.getStarReportViewerUrl({ ...mockResult, platform_code: 'STAR' })).toBe('/reports/result/STAR-7?version=2024');
+  });
+
+  it('getStarReportViewerUrl should omit version when no report year is available', () => {
+    const result = { ...mockResult, result_official_code: 8, report_year_id: undefined, snapshot_years: [], year: undefined };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8');
+  });
+
+  it('openStarPdfReport should open the internal STAR report viewer URL in a new tab', () => {
+    const openedWindow = { opener: {} };
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue(openedWindow as any);
+
+    component.openStarPdfReport({ ...mockResult, platform_code: 'STAR' });
+
+    expect(mockApiService.GET_ResultPdfReport).not.toHaveBeenCalled();
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-7?version=2024', '_blank', 'noopener,noreferrer');
+    expect(openedWindow.opener).toBeNull();
+
+    openSpy.mockRestore();
   });
 
   it('buildResultsCenterExportFileName should use single-letter initials when only one name is present', () => {
