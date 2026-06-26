@@ -58,4 +58,9 @@ describe('AllianceAlignment20262030Component', () => {
     expect(component.shouldShowImpactOutcomes()).toBe(false);
     expect(fixture.nativeElement.textContent).not.toContain('Impact Outcomes');
   });
+
+  it('should use default input callbacks', () => {
+    expect(component.getShortDescription('A long description')).toBe('A long description');
+    expect(component.canRemove({ id: 1 })).toBe(true);
+  });
 });
