@@ -147,8 +147,8 @@
                 <div class="flex w-full min-w-0 flex-col gap-3">
                 <app-alliance-lever-card [lever]="lever" [sdgSignal]="getLeverSdgSignal(lever)"
                   [outcomeSignal]="getLeverSignal(lever)"
-                  [showStrategicOutcomes]="cache.currentMetadata().indicator_id === 5"
-                  [strategicOutcomesRequired]="cache.currentMetadata().indicator_id === 5" [sdgTargetsRequired]="true"
+                  [showStrategicOutcomes]="cache.currentMetadata().indicator_id === 5 && !isOtherLever(lever)"
+                  [strategicOutcomesRequired]="cache.currentMetadata().indicator_id === 5 && !isOtherLever(lever)" [sdgTargetsRequired]="true"
                   [disabled]="!submission.isEditableStatus()" (removeLever)="removePrimaryLever(lever)">
                   @if (isOtherLever(lever)) {
                   <app-input lever-card-extra-fields label="Name of the team or area creating the result"

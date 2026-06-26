@@ -13,6 +13,7 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
+import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 
 class ApiServiceMock {
   GET_Alignments = jest.fn();
@@ -789,6 +790,21 @@ describe('AllianceAlignmentComponent', () => {
       fixture.detectChanges();
 
       expect(fixture.nativeElement.textContent).toContain('Name of the team or area creating the result');
+    });
+
+    it('should not show or require strategic outcomes when Other lever is selected for OICR', () => {
+      cache.metadata.set({ indicator_id: 5 });
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [otherLever],
+        contributor_levers: []
+      });
+      fixture.detectChanges();
+
+      const leverCard = fixture.debugElement.query(By.directive(AllianceLeverCardComponent)).componentInstance as AllianceLeverCardComponent;
+      expect(leverCard.showStrategicOutcomes).toBe(false);
+      expect(leverCard.strategicOutcomesRequired).toBe(false);
     });
 
     it('should send custom_lever_name for Other lever on save', async () => {
