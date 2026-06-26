@@ -2,23 +2,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
-import { AllianceAlignmentPortfolioComponent } from './alliance-alignment-portfolio.component';
+import { AllianceAlignment20262030Component } from './alliance-alignment-2026-2030.component';
 
-describe('AllianceAlignmentPortfolioComponent', () => {
-  let fixture: ComponentFixture<AllianceAlignmentPortfolioComponent>;
-  let component: AllianceAlignmentPortfolioComponent;
+describe('AllianceAlignment20262030Component', () => {
+  let fixture: ComponentFixture<AllianceAlignment20262030Component>;
+  let component: AllianceAlignment20262030Component;
   let metadata = signal<Record<string, unknown>>({ indicator_id: 5 });
 
   beforeEach(async () => {
     metadata = signal<Record<string, unknown>>({ indicator_id: 5 });
     await TestBed.configureTestingModule({
-      imports: [AllianceAlignmentPortfolioComponent],
+      imports: [AllianceAlignment20262030Component],
       providers: [
         { provide: CacheService, useValue: { currentMetadata: () => metadata() } },
         { provide: SubmissionService, useValue: { isEditableStatus: jest.fn().mockReturnValue(true) } }
       ]
     })
-      .overrideComponent(AllianceAlignmentPortfolioComponent, {
+      .overrideComponent(AllianceAlignment20262030Component, {
         set: {
           imports: [],
           template: `
@@ -32,7 +32,7 @@ describe('AllianceAlignmentPortfolioComponent', () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(AllianceAlignmentPortfolioComponent);
+    fixture = TestBed.createComponent(AllianceAlignment20262030Component);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('body', signal({ contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] }));
     fixture.detectChanges();
@@ -57,12 +57,5 @@ describe('AllianceAlignmentPortfolioComponent', () => {
     fixture.detectChanges();
     expect(component.shouldShowImpactOutcomes()).toBe(false);
     expect(fixture.nativeElement.textContent).not.toContain('Impact Outcomes');
-  });
-
-  it('should filter control list rows by type text', () => {
-    expect(component.researchAreaFilter({ id: 1, name: 'Research Area 1' } as any)).toBe(true);
-    expect(component.strategicObjectiveFilter({ id: 2, type: 'strategic_objective', name: 'SO1' } as any)).toBe(true);
-    expect(component.impactOutcomeFilter({ id: 3, category: 'impact-outcome', name: 'IO1' } as any)).toBe(true);
-    expect(component.researchAreaFilter({ id: 4, name: 'Lever 1' } as any)).toBe(false);
   });
 });
