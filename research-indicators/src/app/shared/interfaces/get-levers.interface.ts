@@ -10,4 +10,14 @@ export interface GetLevers {
   other_names: string;
   icon?: string;
   lever_url?: string;
+  type?: string;
+  group?: string;
+  category?: string;
+  parent_id?: number;
+  portfolio_id?: number;
+}
+
+export interface GetLeversParams {
+  portfolioId?: number | null;
+  reportYear?: number | null;
 }

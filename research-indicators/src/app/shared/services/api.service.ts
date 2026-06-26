@@ -71,7 +71,7 @@ import { IssueCategory } from '../interfaces/issue-category.interface';
 import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
-import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -148,9 +148,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+  GET_Levers = (params?: GetLeversParams): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
-    return this.TP.get(url(), {});
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
   };
 
   GET_ClarisaSdgTargets = (): Promise<MainResponse<LeverSdgTargetApi[]>> => {

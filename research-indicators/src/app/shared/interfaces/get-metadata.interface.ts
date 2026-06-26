@@ -10,6 +10,8 @@ export interface GetMetadata {
   result_title?: string;
   created_by?: number;
   report_year?: number;
+  portfolio_id?: number;
+  portfolioId?: number;
   is_principal_investigator?: boolean;
   is_main_contact_person?: boolean;
   has_result_edit_grant?: boolean;

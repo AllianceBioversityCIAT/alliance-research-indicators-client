@@ -1596,6 +1596,35 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should get research areas from direct result research areas', () => {
+      const columns = service.tableColumns();
+      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
+      const getValue = researchAreasColumn?.getValue;
+
+      if (getValue) {
+        const result = {
+          result_research_areas: [{ research_area: { short_name: 'RA1' } }, { short_name: 'RA2' }]
+        } as unknown as Result;
+        expect(getValue(result)).toBe('RA1, RA2');
+      }
+    });
+
+    it('should get research areas from result levers when classified as research area', () => {
+      const columns = service.tableColumns();
+      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
+      const getValue = researchAreasColumn?.getValue;
+
+      if (getValue) {
+        const result = {
+          result_levers: [
+            { type: 'lever', lever: { short_name: 'L1' } },
+            { type: 'research_area', lever: { short_name: 'RA1' } }
+          ]
+        } as unknown as Result;
+        expect(getValue(result)).toBe('RA1');
+      }
+    });
+
     it('should get year value correctly', () => {
       const columns = service.tableColumns();
       const yearColumn = columns.find(col => col.field === 'year');
