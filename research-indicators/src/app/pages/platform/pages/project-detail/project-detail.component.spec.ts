@@ -7,6 +7,7 @@ import { ApiService } from '@services/api.service';
 import { RolesService } from '@services/cache/roles.service';
 import { ResultsCenterService } from '../results-center/results-center.service';
 import { BilateralService } from '@shared/services/bilateral.service';
+import { GetContractStaffService } from '@shared/services/get-contract-staff.service';
 
 describe('ProjectDetailComponent', () => {
   let component: ProjectDetailComponent;
@@ -18,6 +19,12 @@ describe('ProjectDetailComponent', () => {
     events: Subject<NavigationEnd>;
     navigate: jest.Mock;
     parseUrl: jest.Mock;
+  };
+  let contractStaffService: {
+    staff: ReturnType<typeof signal<any[]>>;
+    loading: ReturnType<typeof signal<boolean>>;
+    loadError: ReturnType<typeof signal<boolean>>;
+    main: jest.Mock;
   };
   let resultsCenterService: {
     primaryContractId: ReturnType<typeof signal<string>>;
@@ -78,6 +85,12 @@ describe('ProjectDetailComponent', () => {
       navigate: jest.fn(),
       parseUrl: jest.fn((url: string) => parseUrlWithSegments(...url.split('/').filter(Boolean)))
     };
+    contractStaffService = {
+      staff: signal([]),
+      loading: signal(false),
+      loadError: signal(false),
+      main: jest.fn()
+    };
     resultsCenterService = {
       primaryContractId: signal(''),
       showFiltersSidebar: signal(true),
@@ -121,7 +134,8 @@ describe('ProjectDetailComponent', () => {
       .overrideComponent(ProjectDetailComponent, {
         set: {
           imports: [],
-          template: '<div class="w-full"></div>'
+          template: '<div class="w-full"></div>',
+          providers: [{ provide: GetContractStaffService, useValue: contractStaffService }]
         }
       })
       .compileComponents();
@@ -171,6 +185,7 @@ describe('ProjectDetailComponent', () => {
     expect(getProjectDetailSpy).toHaveBeenCalled();
     expect(bilateralService.getContract).toHaveBeenCalledWith('mock-id');
 
+    expect(contractStaffService.main).toHaveBeenCalledWith('mock-id');
     getProjectDetailSpy.mockRestore();
   });
 
@@ -241,7 +256,7 @@ describe('ProjectDetailComponent', () => {
   it('should ignore router events that are not NavigationEnd', () => {
     const getLastSegmentSpy = jest.spyOn(component, 'getLastSegment');
 
-    router.events.next({ type: 'NavigationStart' });
+    router.events.next(new NavigationEnd(1, '/projects/mock-id/project-dashboard', '/projects/mock-id/project-dashboard'));
 
     expect(getLastSegmentSpy).not.toHaveBeenCalled();
   });

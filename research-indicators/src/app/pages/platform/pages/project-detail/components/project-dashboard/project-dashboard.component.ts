@@ -1,4 +1,3 @@
-import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
@@ -8,7 +7,6 @@ import { GetTopMainContactPersonsService } from '@services/get-top-main-contact-
 import { GetTopPartnersService } from '@services/get-top-partners.service';
 import { GetTopPrimaryLeversService } from '@services/get-top-primary-levers.service';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
-import { GetContractStaffService } from '@services/get-contract-staff.service';
 import { ApiService } from '@shared/services/api.service';
 import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
 import { ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
@@ -28,14 +26,13 @@ interface ProjectStatusChartItem {
 @Component({
   selector: 'app-project-dashboard',
   standalone: true,
-  imports: [DatePipe, ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent],
+  imports: [ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent],
   providers: [
     GetTopContributorsContractsService,
     GetTopMainContactPersonsService,
     GetTopPartnersService,
     GetTopPrimaryLeversService,
-    GetGeoScopeService,
-    GetContractStaffService
+    GetGeoScopeService
   ],
   templateUrl: './project-dashboard.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -48,11 +45,6 @@ export class ProjectDashboardComponent {
 
   readonly contractId = computed(() => this.route.parent?.snapshot.paramMap.get('id') ?? '');
   readonly project = signal<GetProjectDetail>({});
-
-  readonly projectLeverName = computed(() => this.projectUtils.getLeverName(this.project()));
-  readonly projectGrantAmount = computed(() => formatBudgetAmount(this.project().grant_amount));
-  readonly projectDivisionLabel = computed(() => formatCodeLabel(this.project().divisionId, this.project().division));
-  readonly projectUnitLabel = computed(() => formatCodeLabel(this.project().unitId, this.project().unit));
 
   readonly indicatorSummaries = computed(() => {
     const indicators = this.projectUtils.sortIndicators([...(this.project().indicators ?? [])]);
@@ -87,7 +79,6 @@ export class ProjectDashboardComponent {
   readonly topMainContactPersons = inject(GetTopMainContactPersonsService);
   readonly topPartners = inject(GetTopPartnersService);
   readonly topPrimaryLevers = inject(GetTopPrimaryLeversService);
-  readonly contractStaff = inject(GetContractStaffService);
   private readonly geoScope = inject(GetGeoScopeService);
 
   readonly contributorItems = computed(() =>
@@ -150,8 +141,6 @@ export class ProjectDashboardComponent {
     () => !this.topPrimaryLevers.loading() && !this.topPrimaryLevers.loadError() && this.topPrimaryLevers.list().length === 0
   );
 
-  readonly staffEmpty = computed(() => !this.contractStaff.loading() && !this.contractStaff.loadError() && this.contractStaff.staff().length === 0);
-
   readonly pendingRevisionExcludedColumns = ['status', 'year', 'versions', 'creation_date', 'public_link', 'project'] as const;
 
   constructor() {
@@ -164,7 +153,6 @@ export class ProjectDashboardComponent {
         this.topMainContactPersons.main(contractId, 4);
         this.topPartners.main(contractId, 4);
         this.topPrimaryLevers.main(contractId, 4);
-        this.contractStaff.main(contractId);
         this.geoScope.main(contractId);
         this.resultsCenterService.initializeProjectDashboardResultsTable(contractId);
       }
@@ -178,10 +166,6 @@ export class ProjectDashboardComponent {
     } else {
       this.project.set({});
     }
-  }
-
-  getContactInitials(name: string): string {
-    return getContactInitialsFromName(name);
   }
 
   indicatorSharePercent(value: number): number {
@@ -230,28 +214,6 @@ function formatLeverDisplayLabel(shortName: string, fullName: string): string {
   }
 
   return (fullName || shortName || '—').toUpperCase();
-}
-
-function formatBudgetAmount(value: string | number | undefined): string {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) {
-    return '—';
-  }
-
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0
-  }).format(amount);
-}
-
-function formatCodeLabel(code: string | undefined, label: string | undefined): string {
-  const cleanCode = code?.trim();
-  const cleanLabel = label?.trim();
-  if (cleanCode && cleanLabel) {
-    return `${cleanCode} - ${cleanLabel}`;
-  }
-  return cleanLabel || cleanCode || '—';
 }
 
 function formatMainContactPersonName(item: ProjectDashboardRankedItem): string | undefined {
@@ -329,19 +291,3 @@ function getIndicatorChartColor(indicator: GetProjectDetailIndicator, fallbackIn
     : projectDashboardBarColor(fallbackIndex, totalIndicators);
 }
 
-function getContactInitialsFromName(name: string): string {
-  const parts = name
-    .split(',')
-    .map(part => part.trim())
-    .filter(Boolean);
-  if (parts.length >= 2) {
-    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
-  }
-
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 2) {
-    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
-  }
-
-  return (words[0]?.charAt(0) ?? '?').toUpperCase();
-}
