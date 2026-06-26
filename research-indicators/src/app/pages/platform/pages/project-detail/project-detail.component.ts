@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { ResultsCenterTableComponent } from '../results-center/components/results-center-table/results-center-table.component';
 import { TableFiltersSidebarComponent } from '../results-center/components/table-filters-sidebar/table-filters-sidebar.component';
@@ -12,6 +13,7 @@ import { GetProjectDetail, GetProjectDetailIndicator } from '../../../../shared/
 import { ResultsCenterService } from '../results-center/results-center.service';
 import { filter } from 'rxjs';
 import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
+import { GetContractStaffService } from '@shared/services/get-contract-staff.service';
 
 interface ViewTab {
   label: string;
@@ -27,8 +29,10 @@ interface ViewTab {
     TableConfigurationComponent,
     SectionSidebarComponent,
     CustomTagComponent,
+    DatePipe,
     RouterOutlet
   ],
+  providers: [GetContractStaffService],
   templateUrl: './project-detail.component.html'
 })
 export default class ProjectDetailComponent implements OnInit, OnDestroy {
@@ -36,11 +40,17 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   api = inject(ApiService);
   router = inject(Router);
   resultsCenterService = inject(ResultsCenterService);
+  readonly contractStaff = inject(GetContractStaffService);
   private readonly projectUtils = inject(ProjectUtilsService);
   private readonly destroyRef = inject(DestroyRef);
   contractId = signal('');
   lastSegment = signal('project-results');
   currentProject = signal<GetProjectDetail>({});
+  readonly projectLeverName = computed(() => this.projectUtils.getLeverName(this.currentProject() ?? {}));
+  readonly projectGrantAmount = computed(() => formatBudgetAmount(this.currentProject()?.grant_amount));
+  readonly projectDivisionLabel = computed(() => formatCodeLabel(this.currentProject()?.divisionId, this.currentProject()?.division));
+  readonly projectUnitLabel = computed(() => formatCodeLabel(this.currentProject()?.unitId, this.currentProject()?.unit));
+  readonly staffEmpty = computed(() => !this.contractStaff.loading() && !this.contractStaff.loadError() && this.contractStaff.staff().length === 0);
 
   tabs = computed<ViewTab[]>(() => [
     { label: 'Project Dashboard', route: 'project-dashboard' },
@@ -49,6 +59,9 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.contractId.set(this.activatedRoute.snapshot.params['id']);
+    if (this.contractId()) {
+      this.contractStaff.main(this.contractId());
+    }
     this.getLastSegment();
 
     if (this.lastSegment() === 'project-results' && this.activateProjectResultsState()) {
@@ -72,11 +85,15 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
   }
 
   projectTitle(): string {
-    return this.projectUtils.getProjectTitle(this.currentProject());
+    return this.projectUtils.getProjectTitle(this.currentProject() ?? {});
   }
 
   projectStatus(): { statusId: number; statusName: string } {
-    return this.projectUtils.getStatusDisplay(this.currentProject());
+    return this.projectUtils.getStatusDisplay(this.currentProject() ?? {});
+  }
+
+  getContactInitials(name: string): string {
+    return getContactInitialsFromName(name);
   }
 
   onTabClick(tab: ViewTab): void {
@@ -192,4 +209,43 @@ export default class ProjectDetailComponent implements OnInit, OnDestroy {
       createUserCodes.length === 0
     );
   }
+}
+
+function formatBudgetAmount(value: string | number | undefined): string {
+  const amount = Number(value);
+  if (!Number.isFinite(amount)) {
+    return '—';
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+function formatCodeLabel(code: string | undefined, label: string | undefined): string {
+  const cleanCode = code?.trim();
+  const cleanLabel = label?.trim();
+  if (cleanCode && cleanLabel) {
+    return `${cleanCode} - ${cleanLabel}`;
+  }
+  return cleanLabel || cleanCode || '—';
+}
+
+function getContactInitialsFromName(name: string): string {
+  const parts = name
+    .split(',')
+    .map(part => part.trim())
+    .filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0].charAt(0)}${parts[1].charAt(0)}`.toUpperCase();
+  }
+
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return `${words[0].charAt(0)}${words[1].charAt(0)}`.toUpperCase();
+  }
+
+  return (words[0]?.charAt(0) ?? '?').toUpperCase();
 }
