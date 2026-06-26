@@ -78,8 +78,8 @@ import {
   PoolFundingSciencePrograms,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
-import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
+import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -156,9 +156,12 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+  GET_Levers = (params?: GetLeversParams): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
-    return this.TP.get(url(), {});
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
   };
 
   GET_SciencePrograms = (): Promise<MainResponse<GetSciencePrograms[]>> => {
@@ -702,10 +705,7 @@ export class ApiService {
     return this.TP.get(url(), { params });
   };
 
-  PATCH_PoolFundingTag = (
-    code: string,
-    body: PoolFundingTagPatchBody
-  ): Promise<MainResponse<PoolFundingTagPatchResponse>> => {
+  PATCH_PoolFundingTag = (code: string, body: PoolFundingTagPatchBody): Promise<MainResponse<PoolFundingTagPatchResponse>> => {
     const url = () => `agresso/contracts/${encodeURIComponent(code)}/pool-funding-tag`;
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
@@ -738,10 +738,7 @@ export class ApiService {
     return this.TP.get(this.bilateralPath(resultCode, '/hlos-indicators'), {});
   };
 
-  PATCH_PoolFundingAlignment = (
-    resultCode: string,
-    body: UpdatePoolFundingAlignmentDto
-  ): Promise<MainResponse<AlignmentResponse>> => {
+  PATCH_PoolFundingAlignment = (resultCode: string, body: UpdatePoolFundingAlignmentDto): Promise<MainResponse<AlignmentResponse>> => {
     return this.TP.patch(this.bilateralPath(resultCode), body, {});
   };
 

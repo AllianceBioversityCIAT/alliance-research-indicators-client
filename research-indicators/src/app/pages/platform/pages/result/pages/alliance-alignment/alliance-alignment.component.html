@@ -1,5 +1,9 @@
 <div class="app-page-wrapper">
   <app-form-header />
+  @if (isPortfolioAlignment()) {
+  <app-alliance-alignment-portfolio [body]="body" [serviceParams]="leverServiceParams()"
+    [getShortDescription]="getShortDescription" [canRemove]="canRemove" [contractServiceParams]="contractServiceParams()" />
+  } @else {
   <div class="flex flex-col gap-5">
     <div class="content-section">
       <div class="flex flex-col bg-[#fcfcfc] rounded-[13px] p-[30px] mb-10 border border-[#e8ebed] bg-[#ffffff]">
@@ -118,7 +122,8 @@
               optionValue="lever_id" signalOptionValue="primary_levers" [isRequired]="true"
               [hideRemoveIcon]="isOicrIndicator()" [disabledSelectedScroll]="true" [filterBy]="'short_name,other_names'"
               [textSpan]="isOicrIndicator() ? '' : 'Primary Levers selected'" scrollHeight="260px" serviceName="levers"
-              [optionsDisabled]="primaryOptionsDisabled" placeholder="Select the levers">
+              [serviceParams]="leverServiceParams()" [optionsDisabled]="primaryOptionsDisabled"
+              placeholder="Select the levers">
               <ng-template #selectedItems let-value>
                 @if (value?.length > 0) {
                 <div class="flex items-center gap-2">
@@ -182,8 +187,8 @@
               [disabled]="!submission.isEditableStatus()" [signal]="body" optionValue="lever_id"
               signalOptionValue="contributor_levers" scrollHeight="260px" [hideRemoveIcon]="isOicrIndicator()"
               [disabledSelectedScroll]="true" [textSpan]="isOicrIndicator() ? '' : 'Contributing Levers selected'"
-              serviceName="levers" [filterBy]="'short_name,other_names'" [optionsDisabled]="optionsDisabled"
-              placeholder="Select the levers">
+              serviceName="levers" [serviceParams]="leverServiceParams()" [filterBy]="'short_name,other_names'"
+              [optionsDisabled]="optionsDisabled" placeholder="Select the levers">
               <ng-template #selectedItems let-value>
                 @if (value?.length > 0) {
                 <div class="flex items-center gap-2">
@@ -286,6 +291,7 @@
       </div>
     </div>
   </div>
+  }
 
   <app-navigation-buttons (back)="saveData('back')" (next)="saveData('next')" (save)="saveData()" />
 </div>

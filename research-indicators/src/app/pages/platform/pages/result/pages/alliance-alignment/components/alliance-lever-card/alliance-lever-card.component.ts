@@ -13,7 +13,7 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrl: './alliance-lever-card.component.scss'
 })
 export class AllianceLeverCardComponent {
-  private readonly otherLeverId = 100;
+  private readonly otherLeverId = 9;
   readonly allowRemove = (): boolean => true;
   readonly selectedItemsSurfaceColor = '#E8EBED';
 

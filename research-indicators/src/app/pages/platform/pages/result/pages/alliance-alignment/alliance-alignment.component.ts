@@ -21,8 +21,9 @@ import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
+import { AllianceAlignmentPortfolioComponent } from './alliance-alignment-portfolio.component';
 
-const OTHER_LEVER_ID = 100;
+const OTHER_LEVER_ID = 9;
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -35,7 +36,8 @@ const OTHER_LEVER_ID = 100;
     DatePipe,
     TooltipModule,
     AllianceLeverCardComponent,
-    InputComponent
+    InputComponent,
+    AllianceAlignmentPortfolioComponent
   ],
   templateUrl: './alliance-alignment.component.html'
 })
@@ -78,6 +80,14 @@ export default class AllianceAlignmentComponent {
     };
   });
   isOicrIndicator = computed(() => this.cache.currentMetadata()?.indicator_id === 5);
+  isPortfolioAlignment = computed(() => {
+    const reportYear = Number(this.cache.currentMetadata()?.report_year);
+    return Number.isFinite(reportYear) && reportYear >= 2026 && reportYear <= 2030;
+  });
+  leverServiceParams = computed(() => ({
+    portfolioId: this.getCurrentPortfolioId(),
+    reportYear: this.getCurrentReportYear()
+  }));
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -129,7 +139,10 @@ export default class AllianceAlignmentComponent {
       contracts: response.data.contracts || [],
       result_sdgs: this.isOicrIndicator() ? [] : legacyRootSdgs,
       primary_levers,
-      contributor_levers
+      contributor_levers,
+      research_areas: response.data.research_areas || [],
+      strategic_objectives: response.data.strategic_objectives || [],
+      impact_outcomes: response.data.impact_outcomes || []
     });
   }
 
@@ -363,7 +376,7 @@ export default class AllianceAlignmentComponent {
     this.actions.saveCurrentSection();
   }
 
-  getShortDescription(description: string): string {
+  getShortDescription = (description: string): string => {
     let max: number;
     if (this.containerWidth < 900) {
       max = 73;
@@ -375,7 +388,7 @@ export default class AllianceAlignmentComponent {
       max = 155;
     }
     return description.length > max ? description.slice(0, max) + '...' : description;
-  }
+  };
 
   getLeverName(leverId: string | number): string {
     return `Lever ${leverId}`;
@@ -406,6 +419,17 @@ export default class AllianceAlignmentComponent {
 
   isOtherLever(lever: Lever): boolean {
     return Number(lever.lever_id) === OTHER_LEVER_ID;
+  }
+
+  private getCurrentReportYear(): number | null {
+    const year = Number(this.cache.currentMetadata()?.report_year);
+    return Number.isFinite(year) ? year : null;
+  }
+
+  private getCurrentPortfolioId(): number | null {
+    const metadata = this.cache.currentMetadata() as { portfolio_id?: number; portfolioId?: number } | undefined;
+    const portfolioId = Number(metadata?.portfolio_id ?? metadata?.portfolioId);
+    return Number.isFinite(portfolioId) ? portfolioId : null;
   }
 
   getLeverCustomNameSignal(lever: Lever) {

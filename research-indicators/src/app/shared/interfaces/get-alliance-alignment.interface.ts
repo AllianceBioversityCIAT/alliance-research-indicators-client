@@ -6,6 +6,9 @@ export interface GetAllianceAlignment {
   result_sdgs: GetSdgs[];
   primary_levers: Lever[];
   contributor_levers: Lever[];
+  research_areas?: Lever[];
+  strategic_objectives?: Lever[];
+  impact_outcomes?: Lever[];
 }
 
 interface Contract {

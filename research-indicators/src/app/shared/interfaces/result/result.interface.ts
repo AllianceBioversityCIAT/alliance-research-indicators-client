@@ -1,5 +1,17 @@
 import { ResultStatus } from '../result-config.interface';
 
+export interface ResultPortfolioListItem {
+  is_primary?: number | boolean;
+  type?: string;
+  group?: string;
+  category?: string;
+  lever?: { short_name?: string; name?: string; full_name?: string };
+  research_area?: { short_name?: string; name?: string; full_name?: string };
+  short_name?: string;
+  name?: string;
+  full_name?: string;
+}
+
 export interface Result {
   is_active: boolean;
   result_id: number;
@@ -18,7 +30,9 @@ export interface Result {
   contract_id?: string | null;
   contract_description?: string | null;
   result_contracts?: { contract_id: string; contract?: { description?: string }; is_primary?: number };
-  result_levers?: { lever: { short_name: string } };
+  result_levers?: ResultPortfolioListItem[] | { lever: { short_name: string } };
+  result_research_areas?: ResultPortfolioListItem[];
+  research_areas?: ResultPortfolioListItem[];
   report_year_id?: number;
   created_by_user?: { first_name: string; last_name: string };
   created_at?: string;

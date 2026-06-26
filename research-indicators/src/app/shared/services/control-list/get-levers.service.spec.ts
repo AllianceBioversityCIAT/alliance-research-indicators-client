@@ -68,7 +68,18 @@ describe('GetLeversService', () => {
   });
 
   it('keeps the Other lever only when API returns it', async () => {
-    await setup({ data: [{ id: 100, name: 'Other', short_name: 'Other', full_name: 'Other' }] });
-    expect(service.list().filter(lever => Number(lever.id) === 100)).toHaveLength(1);
+    await setup({ data: [{ id: 9, name: 'Other', short_name: 'Other', full_name: 'Other' }] });
+    expect(service.list().filter(lever => Number(lever.id) === 9)).toHaveLength(1);
+  });
+
+  it('keeps parameterized lever lists separate', async () => {
+    await setup({ data: [] });
+    apiMock.GET_Levers.mockResolvedValueOnce({ data: [{ id: 10, name: 'Research Area' }] });
+
+    await service.main({ portfolioId: 1, reportYear: 2026 });
+
+    expect(apiMock.GET_Levers).toHaveBeenLastCalledWith({ portfolioId: 1, reportYear: 2026 });
+    expect(service.getList({ portfolioId: 1, reportYear: 2026 })()).toEqual([{ id: 10, name: 'Research Area', lever_id: 10 }]);
+    expect(service.list()).toEqual([]);
   });
 });

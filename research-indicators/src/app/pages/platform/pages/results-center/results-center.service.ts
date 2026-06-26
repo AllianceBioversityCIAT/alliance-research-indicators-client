@@ -1,6 +1,12 @@
 import { inject, Injectable, signal, effect, computed } from '@angular/core';
 import { GetResultsService } from '../../../../shared/services/control-list/get-results.service';
-import { GetResultsPaginationOptions, Result, ResultConfig, ResultFilter } from '../../../../shared/interfaces/result/result.interface';
+import {
+  GetResultsPaginationOptions,
+  Result,
+  ResultConfig,
+  ResultFilter,
+  ResultPortfolioListItem
+} from '../../../../shared/interfaces/result/result.interface';
 import { normalizeSnapshotYears } from '../../../../shared/interfaces/result/map-v2-result-list-item';
 import { MenuItem } from 'primeng/api';
 import { tableSortPathToApiSortField } from './result-table-sort.util';
@@ -131,6 +137,13 @@ export class ResultsCenterService {
       }
     },
     {
+      field: 'research_areas',
+      path: 'researchAreasSort',
+      header: 'Research Areas',
+      maxWidth: 'max-w-[140px]',
+      getValue: (result: Result) => this.getResearchAreasDisplay(result)
+    },
+    {
       field: 'year',
       path: 'report_year_id',
       header: 'Live Version',
@@ -179,6 +192,42 @@ export class ResultsCenterService {
       .filter(column => column.filter)
       .flatMap(column => column.filterPaths ?? [column.path])
   );
+
+  private getResearchAreasDisplay(result: Result): string {
+    const directRows = this.asArray(result.result_research_areas ?? result.research_areas);
+    const rows = directRows.length ? directRows : this.getResearchAreasFromResultLevers(result);
+    const names = rows.map(row => this.getPortfolioItemLabel(row)).filter(Boolean);
+    return names.length ? names.join(', ') : '-';
+  }
+
+  private getResearchAreasFromResultLevers(result: Result): ResultPortfolioListItem[] {
+    if (!Array.isArray(result.result_levers)) return [];
+    return result.result_levers.filter(row => this.isResearchAreaRow(row));
+  }
+
+  private isResearchAreaRow(row: ResultPortfolioListItem): boolean {
+    const text = [row.type, row.group, row.category].filter(Boolean).join(' ').toLowerCase();
+    return text.includes('research area') || text.includes('research_area') || text.includes('research-area');
+  }
+
+  private getPortfolioItemLabel(row: ResultPortfolioListItem): string {
+    return (
+      row.research_area?.short_name ??
+      row.research_area?.name ??
+      row.research_area?.full_name ??
+      row.lever?.short_name ??
+      row.lever?.name ??
+      row.lever?.full_name ??
+      row.short_name ??
+      row.name ??
+      row.full_name ??
+      ''
+    );
+  }
+
+  private asArray(rows: ResultPortfolioListItem[] | undefined): ResultPortfolioListItem[] {
+    return Array.isArray(rows) ? rows : [];
+  }
 
   /** Current page rows (search is applied server-side via `search` query param). */
   resultsListForTable = computed(() => this.list());

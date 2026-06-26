@@ -140,6 +140,17 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/levers', {});
     });
 
+    it('should call GET_Levers with portfolio params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Levers({ portfolioId: 2, reportYear: 2026 });
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params;
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/levers', { params });
+      expect(params.get('portfolioId')).toBe('2');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
     it('should call GET_ClarisaSdgTargets', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
