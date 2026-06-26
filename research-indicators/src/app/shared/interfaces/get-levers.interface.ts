@@ -1,3 +1,5 @@
+import { PortfolioScopedParams } from './portfolio-config.interface';
+
 export interface GetLevers {
   created_at: string;
   updated_at: string;
@@ -17,7 +19,4 @@ export interface GetLevers {
   portfolio_id?: number;
 }
 
-export interface GetLeversParams {
-  portfolioId?: number | null;
-  reportYear?: number | null;
-}
+export type GetLeversParams = PortfolioScopedParams;

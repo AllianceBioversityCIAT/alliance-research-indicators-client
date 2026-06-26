@@ -48,6 +48,8 @@ import { ApplicationOptionsService } from './short-control-list/application-opti
 import { GetLeversService } from './control-list/get-levers.service';
 import { GetScienceProgramsService } from './control-list/get-science-programs.service';
 import { GetBilateralScienceProgramsService } from './control-list/get-bilateral-science-programs.service';
+import { GetStrategicObjectivesService } from './control-list/get-strategic-objectives.service';
+import { GetImpactOutcomesService } from './control-list/get-impact-outcomes.service';
 import { GetProjectStatusService } from './control-list/get-project-status.service';
 import { GetInitiativesService } from './control-list/get-initiatives.service';
 import { GetTagsService } from './control-list/get-tags.service';
@@ -250,6 +252,10 @@ export class ServiceLocatorService {
         return this.getFromInjector(GetScienceProgramsService);
       case 'bilateralSciencePrograms':
         return this.getFromInjector(GetBilateralScienceProgramsService);
+      case 'strategicObjectives':
+        return this.getFromInjector(GetStrategicObjectivesService);
+      case 'impactOutcomes':
+        return this.getFromInjector(GetImpactOutcomesService);
       case 'leverStrategicOutcomes':
         return this.getFromInjector(GetLeverStrategicOutcomesService);
       case 'leverSdgTargets':

@@ -44,24 +44,25 @@
           </ng-template>
         </app-multiselect>
 
-        <app-multiselect label="Research Areas" [signal]="body" optionLabel="short_name" optionValue="lever_id"
+        <app-multiselect label="Research Areas" [signal]="body" optionLabel="full_name" optionValue="id"
           signalOptionValue="research_areas" [isRequired]="true" [disabled]="!submission.isEditableStatus()"
           [disabledSelectedScroll]="true" [filterBy]="'short_name,other_names,full_name,name'" serviceName="levers"
-          [serviceParams]="serviceParams" [optionFilter]="researchAreaFilter" placeholder="Select the research areas">
+          [serviceParams]="serviceParams" placeholder="Select the research areas">
         </app-multiselect>
 
-        <app-multiselect label="Strategic Objectives" [signal]="body" optionLabel="short_name" optionValue="lever_id"
+        <app-multiselect label="Strategic Objectives" [signal]="body" optionLabel="name" optionValue="id"
           signalOptionValue="strategic_objectives" [isRequired]="true" [disabled]="!submission.isEditableStatus()"
-          [disabledSelectedScroll]="true" [filterBy]="'short_name,other_names,full_name,name'" serviceName="levers"
-          [serviceParams]="serviceParams" [optionFilter]="strategicObjectiveFilter"
+          [disabledSelectedScroll]="true" [filterBy]="'name,description'" serviceName="strategicObjectives"
+          [serviceParams]="serviceParams" [enableVirtualScroll]="false" scrollHeight="205px"
           placeholder="Select the strategic objectives">
         </app-multiselect>
 
         @if (shouldShowImpactOutcomes()) {
-        <app-multiselect label="Impact Outcomes" [signal]="body" optionLabel="short_name" optionValue="lever_id"
+        <app-multiselect label="Impact Outcomes" [signal]="body" optionLabel="name" optionValue="id"
           signalOptionValue="impact_outcomes" [isRequired]="true" [disabled]="!submission.isEditableStatus()"
-          [disabledSelectedScroll]="true" [filterBy]="'short_name,other_names,full_name,name'" serviceName="levers"
-          [serviceParams]="serviceParams" [optionFilter]="impactOutcomeFilter" placeholder="Select the impact outcomes">
+          [disabledSelectedScroll]="true" [filterBy]="'name,description'" serviceName="impactOutcomes"
+          [serviceParams]="serviceParams" [enableVirtualScroll]="false" scrollHeight="205px"
+          placeholder="Select the impact outcomes">
         </app-multiselect>
         }
       </div>

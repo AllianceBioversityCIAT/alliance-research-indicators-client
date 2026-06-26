@@ -82,4 +82,20 @@ describe('GetLeversService', () => {
     expect(service.getList({ portfolioId: 1, reportYear: 2026 })()).toEqual([{ id: 10, name: 'Research Area', lever_id: 10 }]);
     expect(service.list()).toEqual([]);
   });
+
+  it('falls back to root signals when cached parameter signals are missing', async () => {
+    await setup({ data: [] });
+    (service as any).listsByParams.set('4:2029', undefined);
+    (service as any).loadingByParams.set('4:2029', undefined);
+
+    expect(service.getList({ portfolioId: 4, reportYear: 2029 })).toBe(service.list);
+    expect(service.getLoading({ portfolioId: 4, reportYear: 2029 })).toBe(service.loading);
+  });
+
+  it('handles empty parameter keys', async () => {
+    await setup({ data: [] });
+
+    expect(service.getList({})()).toEqual([]);
+    expect(service.getLoading({})()).toBe(true);
+  });
 });

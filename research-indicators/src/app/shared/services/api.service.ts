@@ -80,6 +80,7 @@ import {
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
+import { PortfolioConfigItem, PortfolioScopedParams } from '@shared/interfaces/portfolio-config.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -167,6 +168,22 @@ export class ApiService {
   GET_SciencePrograms = (): Promise<MainResponse<GetSciencePrograms[]>> => {
     const url = () => `tools/clarisa/science-programs`;
     return this.TP.get(url(), {});
+  };
+
+  GET_StrategicObjectives = (params?: PortfolioScopedParams): Promise<MainResponse<PortfolioConfigItem[]>> => {
+    const url = () => `strategic-objectives`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_ImpactOutcomes = (params?: PortfolioScopedParams): Promise<MainResponse<PortfolioConfigItem[]>> => {
+    const url = () => `impact-outcomes`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
   };
 
   GET_ClarisaSdgTargets = (): Promise<MainResponse<LeverSdgTargetApi[]>> => {

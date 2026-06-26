@@ -51,6 +51,8 @@ export type ControlListServices =
   | 'levers'
   | 'sciencePrograms'
   | 'bilateralSciencePrograms'
+  | 'strategicObjectives'
+  | 'impactOutcomes'
   | 'leverStrategicOutcomes'
   | 'leverSdgTargets'
   | 'clarisaSdgTargets'
