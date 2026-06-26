@@ -8,7 +8,7 @@ describe('StarReportViewerComponent', () => {
   let component: StarReportViewerComponent;
   let api: { GET_ResultPdfReport: jest.Mock };
 
-  const setup = async (id = 'STAR-8', version = '2026', response?: { data: string }) => {
+  const setup = async (id: string | null = 'STAR-8', version: string | null = '2026', response?: { data: string }) => {
     api = {
       GET_ResultPdfReport: jest.fn().mockResolvedValue(response ?? { data: 'https://reports.example.com/star-8.pdf' })
     };
@@ -21,8 +21,8 @@ describe('StarReportViewerComponent', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({ id }),
-              queryParamMap: convertToParamMap(version ? { version } : {})
+              paramMap: convertToParamMap(id === null ? {} : { id }),
+              queryParamMap: convertToParamMap(version === null ? {} : { version })
             }
           }
         }
@@ -101,5 +101,40 @@ describe('StarReportViewerComponent', () => {
 
     expect(component.safePdfUrl()).toBeNull();
     expect(fixture.nativeElement.textContent).toContain('The STAR PDF report is not available yet.');
+  });
+
+  it('should show an error when the route result code is invalid', async () => {
+    await setup('   ', '2026');
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(api.GET_ResultPdfReport).not.toHaveBeenCalled();
+    expect(component.loading()).toBe(false);
+    expect(component.errorMessage()).toBe('The STAR result code is missing or invalid.');
+  });
+
+  it('should default missing route params to empty strings', async () => {
+    await setup(null, null);
+    await fixture.whenStable();
+
+    expect(component.resultCode).toBe('');
+    expect(component.version).toBe('');
+  });
+
+  it('should use the raw result code when it is not prefixed with STAR', async () => {
+    await setup('8', '2026');
+    await fixture.whenStable();
+
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR');
+  });
+
+  it('should show an error when generating the PDF fails', async () => {
+    await setup('STAR-8', '2026');
+    api.GET_ResultPdfReport.mockRejectedValueOnce(new Error('fail'));
+
+    await (component as any).loadPdf();
+
+    expect(component.loading()).toBe(false);
+    expect(component.errorMessage()).toBe('We could not generate the STAR PDF report. Please try again.');
   });
 });
