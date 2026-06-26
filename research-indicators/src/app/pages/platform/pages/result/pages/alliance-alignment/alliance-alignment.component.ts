@@ -21,7 +21,7 @@ import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
-import { AllianceAlignmentPortfolioComponent } from './alliance-alignment-portfolio.component';
+import { AllianceAlignment20262030Component } from './portfolio/alliance-alignment-2026-2030.component';
 
 const OTHER_LEVER_ID = 9;
 
@@ -37,7 +37,7 @@ const OTHER_LEVER_ID = 9;
     TooltipModule,
     AllianceLeverCardComponent,
     InputComponent,
-    AllianceAlignmentPortfolioComponent
+    AllianceAlignment20262030Component
   ],
   templateUrl: './alliance-alignment.component.html'
 })
