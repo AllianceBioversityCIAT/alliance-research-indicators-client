@@ -49,6 +49,8 @@ export type ControlListServices =
   | 'innResults'
   | 'applicationOptions'
   | 'levers'
+  | 'strategicObjectives'
+  | 'impactOutcomes'
   | 'leverStrategicOutcomes'
   | 'leverSdgTargets'
   | 'clarisaSdgTargets'
