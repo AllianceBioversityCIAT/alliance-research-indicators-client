@@ -72,6 +72,7 @@ import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
+import { PortfolioConfigItem, PortfolioScopedParams } from '@shared/interfaces/portfolio-config.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -150,6 +151,22 @@ export class ApiService {
 
   GET_Levers = (params?: GetLeversParams): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_StrategicObjectives = (params?: PortfolioScopedParams): Promise<MainResponse<PortfolioConfigItem[]>> => {
+    const url = () => `strategic-objectives`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_ImpactOutcomes = (params?: PortfolioScopedParams): Promise<MainResponse<PortfolioConfigItem[]>> => {
+    const url = () => `impact-outcomes`;
     let httpParams = new HttpParams();
     if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
     if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
