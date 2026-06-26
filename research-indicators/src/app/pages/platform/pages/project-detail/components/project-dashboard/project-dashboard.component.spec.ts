@@ -4,7 +4,6 @@ import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { ApiService } from '@shared/services/api.service';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ResultsCenterService } from '../../../results-center/results-center.service';
-import { GetContractStaffService } from '@shared/services/get-contract-staff.service';
 import { GetGeoScopeService } from '@shared/services/get-geo-scope.service';
 import { GetTopContributorsContractsService } from '@shared/services/get-top-contributors-contracts.service';
 import { GetTopMainContactPersonsService } from '@shared/services/get-top-main-contact-persons.service';
@@ -61,7 +60,6 @@ describe('ProjectDashboardComponent', () => {
   let topMainContactsMock: ReturnType<typeof createRankedServiceMock>;
   let topPartnersMock: ReturnType<typeof createRankedServiceMock>;
   let topLeversMock: ReturnType<typeof createRankedServiceMock>;
-  let contractStaffMock: ReturnType<typeof createContractStaffMock>;
   let geoScopeMock: { main: jest.Mock };
   let resultsCenterServiceMock: { initializeProjectDashboardResultsTable: jest.Mock };
 
@@ -75,21 +73,11 @@ describe('ProjectDashboardComponent', () => {
     };
   }
 
-  function createContractStaffMock() {
-    return {
-      staff: signal<any[]>([]),
-      loading: signal(false),
-      loadError: signal(false),
-      main: jest.fn()
-    };
-  }
-
   async function setup(contractId: string | null = 'C-1') {
     topContributorsMock = createRankedServiceMock();
     topMainContactsMock = createRankedServiceMock();
     topPartnersMock = createRankedServiceMock();
     topLeversMock = createRankedServiceMock();
-    contractStaffMock = createContractStaffMock();
     geoScopeMock = { main: jest.fn() };
     resultsCenterServiceMock = { initializeProjectDashboardResultsTable: jest.fn() };
     apiMock = {
@@ -142,8 +130,7 @@ describe('ProjectDashboardComponent', () => {
             GetTopMainContactPersonsService,
             GetTopPartnersService,
             GetTopPrimaryLeversService,
-            GetGeoScopeService,
-            GetContractStaffService
+            GetGeoScopeService
           ]
         },
         add: {
@@ -153,8 +140,7 @@ describe('ProjectDashboardComponent', () => {
             { provide: GetTopMainContactPersonsService, useValue: topMainContactsMock },
             { provide: GetTopPartnersService, useValue: topPartnersMock },
             { provide: GetTopPrimaryLeversService, useValue: topLeversMock },
-            { provide: GetGeoScopeService, useValue: geoScopeMock },
-            { provide: GetContractStaffService, useValue: contractStaffMock }
+            { provide: GetGeoScopeService, useValue: geoScopeMock }
           ]
         }
       })
@@ -175,16 +161,16 @@ describe('ProjectDashboardComponent', () => {
     await setup();
 
     expect(apiMock.GET_ResultsCount).toHaveBeenCalledWith('C-1');
-    expect(apiMock.GET_Results).toHaveBeenCalledWith(
-      { 'contract-codes': ['C-1'] },
-      undefined,
-      { page: 1, limit: 10000, sortField: 'code', sortOrder: 'DESC' }
-    );
+    expect(apiMock.GET_Results).toHaveBeenCalledWith({ 'contract-codes': ['C-1'] }, undefined, {
+      page: 1,
+      limit: 10000,
+      sortField: 'code',
+      sortOrder: 'DESC'
+    });
     expect(topContributorsMock.main).toHaveBeenCalledWith('C-1', 4);
     expect(topMainContactsMock.main).toHaveBeenCalledWith('C-1', 4);
     expect(topPartnersMock.main).toHaveBeenCalledWith('C-1', 4);
     expect(topLeversMock.main).toHaveBeenCalledWith('C-1', 4);
-    expect(contractStaffMock.main).toHaveBeenCalledWith('C-1');
     expect(geoScopeMock.main).toHaveBeenCalledWith('C-1');
     expect(resultsCenterServiceMock.initializeProjectDashboardResultsTable).toHaveBeenCalledWith('C-1');
   });
@@ -192,10 +178,6 @@ describe('ProjectDashboardComponent', () => {
   it('should compute project summaries and formatted labels', async () => {
     await setup();
 
-    expect(component.projectLeverName()).toBe('Lever name');
-    expect(component.projectGrantAmount()).toBe('$1,234');
-    expect(component.projectDivisionLabel()).toBe('D1 - Division');
-    expect(component.projectUnitLabel()).toBe('U1 - Unit');
     expect(component.indicatorSummaries().map(item => item.label)).toEqual(['Fallback indicator', 'Output', 'Indicator']);
     expect(component.totalProjectResults()).toBe(6);
     expect(component.indicatorsWithResults().map(item => item.value)).toEqual([4, 2]);
@@ -207,9 +189,6 @@ describe('ProjectDashboardComponent', () => {
 
     expect(apiMock.GET_ResultsCount).not.toHaveBeenCalled();
     expect(component.contractId()).toBe('');
-    expect(component.projectGrantAmount()).toBe('—');
-    expect(component.projectDivisionLabel()).toBe('—');
-    expect(component.projectUnitLabel()).toBe('—');
     expect(component.indicatorSharePercent(1)).toBe(0);
   });
 
@@ -284,19 +263,16 @@ describe('ProjectDashboardComponent', () => {
     expect(component.mainContactPersonsEmpty()).toBe(true);
     expect(component.partnersEmpty()).toBe(true);
     expect(component.leversEmpty()).toBe(true);
-    expect(component.staffEmpty()).toBe(true);
 
     topContributorsMock.loading.set(true);
     topMainContactsMock.loadError.set(true);
     topPartnersMock.list.set([{}]);
     topLeversMock.list.set([{}]);
-    contractStaffMock.staff.set([{}]);
 
     expect(component.contributorsEmpty()).toBe(false);
     expect(component.mainContactPersonsEmpty()).toBe(false);
     expect(component.partnersEmpty()).toBe(false);
     expect(component.leversEmpty()).toBe(false);
-    expect(component.staffEmpty()).toBe(false);
   });
 
   it('should compute status chart values and handle failures', async () => {
@@ -320,23 +296,9 @@ describe('ProjectDashboardComponent', () => {
     expect(component.statusBarFillPercent(1)).toBe(0);
   });
 
-  it('should compute contact initials from different name formats', async () => {
+  it('should compute zero share when indicator value is not positive', async () => {
     await setup();
 
-    expect(component.getContactInitials('Doe, Jane')).toBe('DJ');
-    expect(component.getContactInitials('Jane Doe')).toBe('JD');
-    expect(component.getContactInitials('Jane')).toBe('J');
-    expect(component.getContactInitials('')).toBe('?');
-  });
-
-  it('should format project labels when only one side is available', async () => {
-    await setup();
-
-    component.project.set({ grant_amount: 'invalid', division: 'Division only', unitId: 'U-only' });
-
-    expect(component.projectGrantAmount()).toBe('—');
-    expect(component.projectDivisionLabel()).toBe('Division only');
-    expect(component.projectUnitLabel()).toBe('U-only');
     expect(component.indicatorSharePercent(0)).toBe(0);
   });
 });
