@@ -801,6 +801,27 @@ describe('ResultsCenterTableComponent', () => {
     expect(component.getStarReportViewerUrl({ ...mockResult, platform_code: 'STAR' })).toBe('/reports/result/STAR-7?version=2024');
   });
 
+  it('getStarReportViewerUrl should not duplicate STAR prefix', () => {
+    expect(component.getStarReportViewerUrl({ ...mockResult, result_official_code: 'STAR-7', platform_code: 'STAR' })).toBe(
+      '/reports/result/STAR-7?version=2024'
+    );
+  });
+
+  it('getStarReportViewerUrl should use the latest snapshot year when report_year_id is missing', () => {
+    const result = { ...mockResult, report_year_id: undefined, snapshot_years: [2022, 2026, 2024], platform_code: 'STAR' };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?version=2026');
+  });
+
+  it('getStarReportViewerUrl should use year when report_year_id and snapshot years are missing', () => {
+    const result = { ...mockResult, report_year_id: undefined, snapshot_years: [], year: '2025', platform_code: 'STAR' };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?version=2025');
+  });
+
+  it('getStarReportViewerUrl should handle missing official code', () => {
+    const result = { ...mockResult, result_official_code: undefined, platform_code: 'STAR' };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-?version=2024');
+  });
+
   it('getStarReportViewerUrl should omit version when no report year is available', () => {
     const result = { ...mockResult, result_official_code: 8, report_year_id: undefined, snapshot_years: [], year: undefined };
     expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8');

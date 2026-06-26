@@ -1625,6 +1625,39 @@ describe('ResultsCenterService', () => {
       }
     });
 
+    it('should return dash when research areas are missing', () => {
+      const columns = service.tableColumns();
+      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
+      const getValue = researchAreasColumn?.getValue;
+
+      if (getValue) {
+        expect(getValue({ result_research_areas: [], result_levers: null } as unknown as Result)).toBe('-');
+      }
+    });
+
+    it('should format research areas from alternate label fields', () => {
+      const columns = service.tableColumns();
+      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
+      const getValue = researchAreasColumn?.getValue;
+
+      if (getValue) {
+        const result = {
+          research_areas: [
+            { research_area: { short_name: null } },
+            { research_area: { name: 'Research Area Name' } },
+            { research_area: { full_name: 'Research Area Full Name' } },
+            { lever: { name: 'Lever Name' } },
+            { lever: { full_name: 'Lever Full Name' } },
+            { name: 'Direct Name' },
+            { full_name: 'Direct Full Name' }
+          ]
+        } as unknown as Result;
+        expect(getValue(result)).toBe(
+          'Research Area Name, Research Area Full Name, Lever Name, Lever Full Name, Direct Name, Direct Full Name'
+        );
+      }
+    });
+
     it('should get year value correctly', () => {
       const columns = service.tableColumns();
       const yearColumn = columns.find(col => col.field === 'year');
