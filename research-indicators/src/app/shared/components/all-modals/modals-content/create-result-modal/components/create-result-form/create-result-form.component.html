@@ -33,7 +33,7 @@
     </div>
 
     <div class="flex-col flex gap-[20px] bg-white border-[#E8EBED] border-1 rounded-[15px] p-6">
-      <p class="text-[15px] font-[800] text-[#173F6F]">NEW RESULT</p>
+      <p class="text-[15px] font-[800] text-[#112F5C]">NEW RESULT</p>
 
       <app-shared-result-form [contracts]="getContractsService.list()" [showWarning]="true"
         [getContractStatusClasses]="getContractStatusClasses" title="Reporting Project"
@@ -92,16 +92,16 @@
 
       <div class="w-full flex flex-col">
         <div class="flex justify-between items-center pb-1">
-          <h2 class="label pb-1">Title<span class="text-[#CF0808]">*</span></h2>
+          <label class="label pb-1" for="create-result-title-input">Title<span class="text-[#CF0808]">*</span></label>
           <span style="font-size: 12px; font-weight: 500">
             <span style="color: #8d9299">Words used: </span>
             <span [style.color]="getWordCounterColor()">{{ getWordCount() }}/30</span>
           </span>
         </div>
-        <input pInputText id="username" class="!text-[16px]" aria-describedby="username-help" [(ngModel)]="body().title"
-          placeholder="Write the title"
+        <input pInputText id="create-result-title-input" class="!text-[16px]" aria-describedby="create-result-title-help"
+          [(ngModel)]="body().title" placeholder="Write the title"
           [style]="isTitleMissing ? { width: '100%', border: '2px solid #E69F00' } : { width: '100%' }" />
-        <h4 class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">
+        <h4 id="create-result-title-help" class="text-[14px] text-[#8D9299] font-[400] leading-4 pt-1">
           Provide a clear, informative name for the result, for a non-specialist reader and without acronyms. Avoid
           abbreviations or (technical)
           jargon.
@@ -143,7 +143,7 @@
           <img [src]="'images/upload-ai.svg' | s3ImageUrl" alt="upload-ai" style="width: 100%" />
         </div>
         <div class="flex text-justify flex-col pr-9 pl-5">
-          <p class="text-[14px] font-[700] text-[#173F6F]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
+          <p class="text-[14px] font-[700] text-[#112F5C]">REUSE INFORMATION WITHOUT DUPLICATING EFFORT</p>
           <p class="text-[14px] text-[#777C83] leading-4.5 pt-1 font-[400]">
             Our AI will scan your file to identify results and extract the relevant data to help complete the result
             forms, so you don't have to

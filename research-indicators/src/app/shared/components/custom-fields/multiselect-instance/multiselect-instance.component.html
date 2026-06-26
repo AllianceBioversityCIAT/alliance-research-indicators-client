@@ -24,6 +24,7 @@
       placeholder="Select items"
       [(ngModel)]="this.body().value"
       (onChange)="this.setValue($event)"
+      appendTo="body"
       [virtualScroll]="true"
       [virtualScrollItemSize]="41">
       <ng-template let-value pTemplate="selectedItems"> {{ this.body().value?.length }} items selected </ng-template>

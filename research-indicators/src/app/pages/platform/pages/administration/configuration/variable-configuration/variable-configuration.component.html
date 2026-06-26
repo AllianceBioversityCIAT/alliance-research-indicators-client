@@ -3,7 +3,7 @@
     <div class="content-section w-full">
       <div class="variable-configuration flex w-full min-w-0 flex-col gap-[18px]">
         <div class="flex flex-col gap-[2px]">
-          <h1 class="font-['Barlow'] text-[17px] font-bold leading-normal text-[#173f6f] m-0">Configuration variables
+          <h1 class="font-['Barlow'] text-[17px] font-bold leading-normal text-[#112F5C] m-0">Configuration variables
           </h1>
           <p class="font-['Barlow'] text-[14px] leading-[1.2] text-[#777C83] m-0">Manage environment variables across
             the system.</p>
@@ -76,49 +76,49 @@
               styleClass="p-datatable-gridlines table-custom-styles p-datatable-hoverable-rows variable-configuration-table">
               <ng-template pTemplate="header">
                 <tr>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="category"
+                  <th class="!text-[#112F5C]" scope="col" pSortableColumn="category"
                     [style]="fixedColumnStyle(columnWidths.category)">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Category
                       <p-sortIcon field="category"></p-sortIcon>
                     </div>
                   </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="subcategory"
+                  <th class="!text-[#112F5C]" scope="col" pSortableColumn="subcategory"
                     [style]="fixedColumnStyle(columnWidths.subcategory)">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Subcategory
                       <p-sortIcon field="subcategory"></p-sortIcon>
                     </div>
                   </th>
-                  <th class="!text-[#173F6F]" scope="col" pSortableColumn="key"
+                  <th class="!text-[#112F5C]" scope="col" pSortableColumn="key"
                     [style]="fixedColumnStyle(columnWidths.variableName)">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Variable name
                       <p-sortIcon field="key"></p-sortIcon>
                     </div>
                   </th>
-                  <th class="!text-[#173F6F]" scope="col" [style]="descriptionColumnStyle()">
+                  <th class="!text-[#112F5C]" scope="col" [style]="descriptionColumnStyle()">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Description
                     </div>
                   </th>
-                  <th class="!text-[#173F6F]" scope="col" [style]="fixedColumnStyle(columnWidths.value)">
+                  <th class="!text-[#112F5C]" scope="col" [style]="fixedColumnStyle(columnWidths.value)">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Value
                     </div>
                   </th>
-                  <th class="!text-[#173F6F]" scope="col" [style]="fixedColumnStyle(columnWidths.lastUpdated)">
+                  <th class="!text-[#112F5C]" scope="col" [style]="fixedColumnStyle(columnWidths.lastUpdated)">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Last updated
                     </div>
                   </th>
-                  <th class="!text-[#173F6F]" scope="col" [style]="fixedColumnStyle(columnWidths.updatedBy)">
+                  <th class="!text-[#112F5C]" scope="col" [style]="fixedColumnStyle(columnWidths.updatedBy)">
                     <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
                       Updated by
                     </div>
                   </th>
                   @if (roles.canEditAppConfiguration()) {
-                  <th class="variable-config-actions-col !text-[#173F6F]" scope="col"
+                  <th class="variable-config-actions-col !text-[#112F5C]" scope="col"
                     [style]="fixedColumnStyle(columnWidths.actions)">
                     <div class="flex items-center justify-center font-[500] leading-tight text-[14px] text-center">
                       Actions

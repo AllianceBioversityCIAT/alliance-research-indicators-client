@@ -1,5 +1,6 @@
 <!-- Results Table -->
-<div class="flex flex-col">
+<div class="flex flex-col {{roundedBottom ? 'rounded-b-lg' : ''}}">
+  @if (!hideFiltersToolbar) {
   <div class="flex flex-col px-5 py-4 bg-white">
     <div class="flex items-center justify-between w-full">
       <app-search-export-controls [applyLabel]="'Apply Filters'"
@@ -44,17 +45,18 @@
     </div>
     }
   </div>
+  }
 
   @if (resultsCenterService.loading()) {
   <app-custom-progress-bar></app-custom-progress-bar>
   } @else {
-  <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED]">
-    <p-table #dt2 [value]="resultsCenterService.resultsListForTable()" [paginator]="true" [lazy]="true"
+  <div #tableRppScope class="rpp-dropup w-full border border-[#E8EBED] {{roundedBottom ? 'rounded-b-lg pb-1' : ''}}">
+    <p-table #dt2 [value]="resultsCenterService.resultsListForTable()" [paginator]="shouldShowPaginator()" [lazy]="true"
       [first]="resultsCenterService.resultsTablePaginatorFirst()"
       [rows]="resultsCenterService.resultsTablePaginatorRows()"
       [totalRecords]="resultsCenterService.resultsTableTotalRecords()"
       (onLazyLoad)="resultsCenterService.handleResultsTableLazyLoad($event)" [paginatorDropdownAppendTo]="tableRppScope"
-      [showCurrentPageReport]="true" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }"
+      [showCurrentPageReport]="shouldShowPaginator()" [scrollable]="true" [tableStyle]="{ 'min-width': '100%' }"
       [rowsPerPageOptions]="[5, 10, 25, 50]"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} results"
       [sortField]="resultsCenterService.resultsTableSortField()"
@@ -64,7 +66,7 @@
         <tr>
           @for (column of getVisibleColumns(); track column.field) {
           @if (!column.hideIf || !column.hideIf()) {
-          <th class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#173F6F]"
+          <th class="{{ column.minWidth }} {{ column.maxWidth }}   !text-[#112F5C]"
             [pSortableColumn]="column?.hideFilterIf?.() ? '' : column.path" scope="col">
             <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
               {{ column.header }}
@@ -140,11 +142,16 @@
           <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()"
             (keydown.enter)="$event.stopPropagation()">
             @if (result.public_link) {
-            <button type="button" data-public-link-action (click)="openPublicLink(result.public_link); $event.stopPropagation()"
-              [pTooltip]="result.public_link" tooltipPosition="left"
-              [attr.aria-label]="'Open public link for ' + result.result_official_code"
+            <button type="button" data-public-link-action
+              (click)="openPublicLink(result.public_link); $event.stopPropagation()" [pTooltip]="result.public_link"
+              tooltipPosition="left"
+              [attr.aria-label]="(result.platform_code === 'STAR' ? 'Open PDF for ' : 'Open public link for ') + result.result_official_code"
               class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9]">
+              @if (result.platform_code === 'STAR') {
+              <i class="pi pi-file-pdf !text-[16px]"></i>
+              } @else {
               <i class="pi pi-external-link !text-[16px]"></i>
+              }
             </button>
             } @else {
             <span>None</span>
@@ -191,7 +198,7 @@
 
               <p-popover #popover [baseZIndex]="10000" [appendTo]="'self'"
                 styleClass="rounded-lg p-1 -ml-4 text-center">
-                <div class="mb-3 text-[14px] text-[#173F6F]">Approved Versions</div>
+                <div class="mb-3 text-[14px] text-[#112F5C]">Approved Versions</div>
                 <div class="grid grid-cols-2 gap-2">
                   @for (year of versions; track year) {
                   <span (keydown.enter)="openResultByYear(result.result_official_code, year, result.platform_code)"
@@ -226,6 +233,19 @@
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
+        @if (hideFiltersToolbar && emptyMessage) {
+        <tr>
+          <td [attr.colspan]="getVisibleColumns().length" class="text-center p-8">
+            <div class="flex flex-col items-center gap-2">
+              <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
+                <i class="pi pi-inbox text-3xl text-blue-500"></i>
+              </div>
+              <span class="text-900 font-semibold m-0 text-[14px]">{{ emptyMessage }}</span>
+
+            </div>
+          </td>
+        </tr>
+        } @else if (!hideFiltersToolbar) {
         @if (resultsCenterService.countFiltersSelected()) {
         <tr>
           <td [attr.colspan]="getVisibleColumns().length" class="text-center p-8">
@@ -234,7 +254,7 @@
                 <div class="w-16 h-16 flex items-center justify-center rounded-xl bg-primary-50">
                   <i class="pi pi-filter-slash text-3xl text-primary-500"></i>
                 </div>
-                <h2 class="text-900 font-semibold m-0">No Results Found</h2>
+                <span class="text-900 font-semibold m-0 text-[14px]">No Results Found</span>
                 <p class="text-600 text-center m-0 max-w-[30rem] leading-relaxed">
                   We couldn't find any results matching your current filters. Try adjusting your search criteria or
                   clearing the filters.
@@ -267,6 +287,7 @@
             </div>
           </td>
         </tr>
+        }
         }
       </ng-template>
     </p-table>

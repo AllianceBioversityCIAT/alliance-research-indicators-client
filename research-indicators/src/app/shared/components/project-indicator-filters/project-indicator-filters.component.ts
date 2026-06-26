@@ -1,22 +1,17 @@
-import { Component, Input, OnInit, OnChanges, SimpleChanges, inject, output, computed } from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, computed, inject, output } from '@angular/core';
 import { GetContractsByUser, IndicatorElement } from '@shared/interfaces/get-contracts-by-user.interface';
 import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
 import { FindContracts } from '@shared/interfaces/find-contracts.interface';
-import { CustomTagComponent } from '@shared/components/custom-tag/custom-tag.component';
 import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ResultsCenterService } from '@pages/platform/pages/results-center/results-center.service';
 
 @Component({
-  selector: 'app-project-item',
-  imports: [DatePipe, CustomTagComponent],
-  templateUrl: './project-item.component.html',
-  styleUrl: './project-item.component.scss'
+  selector: 'app-project-indicator-filters',
+  templateUrl: './project-indicator-filters.component.html'
 })
-export class ProjectItemComponent implements OnInit, OnChanges {
-  @Input() isHeader = false;
+export class ProjectIndicatorFiltersComponent implements OnInit, OnChanges {
   @Input() project: GetContractsByUser | GetProjectDetail | FindContracts = {};
-  @Input() enableIndicatorFilter = false;
+  @Input() enableFilter = false;
 
   indicatorClick = output<{ indicator_id: number; name: string }>();
 
@@ -24,13 +19,12 @@ export class ProjectItemComponent implements OnInit, OnChanges {
   private readonly resultsCenterService = inject(ResultsCenterService, { optional: true });
 
   filteredIndicatorIds = computed(() => {
-    if (!this.resultsCenterService || !this.enableIndicatorFilter) {
+    if (!this.resultsCenterService || !this.enableFilter) {
       return new Set<number>();
     }
     return new Set(this.resultsCenterService.tableFilters().indicators.map(ind => ind.indicator_id));
   });
 
-  // Local property for processed indicators
   processedIndicators: (IndicatorElement | GetProjectDetailIndicator)[] = [];
 
   ngOnInit(): void {
@@ -45,39 +39,27 @@ export class ProjectItemComponent implements OnInit, OnChanges {
 
   private processIndicators(): void {
     if (this.project?.indicators && this.project.indicators.length > 0) {
-      // Create a local copy of indicators and process them
       this.processedIndicators = this.projectUtils.sortIndicators([...this.project.indicators]);
     } else {
       this.processedIndicators = [];
     }
   }
 
-  getStatusDisplay() {
-    return this.projectUtils.getStatusDisplay(this.project);
-  }
-
-  getLeverName(): string {
-    return this.projectUtils.getLeverName(this.project);
-  }
-
-  hasField(fieldName: string): boolean {
-    return this.projectUtils.hasField(this.project, fieldName);
-  }
-
   onIndicatorClick(indicator: IndicatorElement | GetProjectDetailIndicator, event: Event): void {
-    if (this.enableIndicatorFilter) {
-      event.preventDefault();
-      event.stopPropagation();
-      const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
-      const indicatorName = indicator.indicator?.name || '';
-      if (indicatorId) {
-        this.indicatorClick.emit({ indicator_id: indicatorId, name: indicatorName });
-      }
+    if (!this.enableFilter) {
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;
+    const indicatorName = indicator.indicator?.name || '';
+    if (indicatorId) {
+      this.indicatorClick.emit({ indicator_id: indicatorId, name: indicatorName });
     }
   }
 
   isIndicatorFiltered(indicator: IndicatorElement | GetProjectDetailIndicator): boolean {
-    if (!this.enableIndicatorFilter || !this.resultsCenterService) {
+    if (!this.enableFilter || !this.resultsCenterService) {
       return false;
     }
     const indicatorId = indicator.indicator_id || indicator.indicator?.indicator_id;

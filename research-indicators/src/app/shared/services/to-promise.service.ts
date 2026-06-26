@@ -59,6 +59,10 @@ export class ToPromiseService {
       headers = headers.set('X-Use-Year', 'true');
     }
 
+    if (config?.clarisaApiKey) {
+      headers = headers.set('X-API-Key', environment.clarisaApiKey);
+    }
+
     return this.TP(this.http.post<T>(this.getEnv(config?.isAuth) + url, body, { headers }));
   };
 
@@ -161,4 +165,5 @@ interface Config {
   platform?: string;
   noCache?: boolean;
   noAuthInterceptor?: boolean;
+  clarisaApiKey?: boolean;
 }

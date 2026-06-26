@@ -32,8 +32,12 @@ describe('TextMiningService', () => {
     expect(httpClientMock.post).toHaveBeenCalledWith(
       `${environment.textMiningUrl}/star/text-mining`,
       expect.any(FormData),
-      expect.objectContaining({ headers: expect.anything() })
+      expect.any(Object)
     );
+
+    const requestOptions = httpClientMock.post.mock.calls[0][2];
+    expect(requestOptions.headers.get('access-token')).toBe(cacheServiceMock.dataCache().access_token);
+    expect(requestOptions.headers.get('X-API-Key')).toBe(environment.clarisaApiKey);
   });
 
   it('executeTextMining should throw error on failure', async () => {

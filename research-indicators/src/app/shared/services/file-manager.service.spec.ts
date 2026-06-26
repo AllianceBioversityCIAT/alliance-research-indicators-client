@@ -9,7 +9,8 @@ import { environment } from '@envs/environment';
 jest.mock('@envs/environment', () => ({
   environment: {
     managementApiUrl: 'https://test-management-api.com',
-    fileManagerUrl: 'https://test-file-manager.com'
+    fileManagerUrl: 'https://test-file-manager.com',
+    clarisaApiKey: 'test-clarisa-api-key'
   }
 }));
 
@@ -102,6 +103,7 @@ describe('FileManagerService', () => {
 
       expect(headers.get('access-token')).toBe('test-access-token');
       expect(headers.get('environment-url')).toBe(environment.managementApiUrl);
+      expect(headers.get('X-API-Key')).toBe(environment.clarisaApiKey);
     });
 
     it('should handle HTTP error', async () => {

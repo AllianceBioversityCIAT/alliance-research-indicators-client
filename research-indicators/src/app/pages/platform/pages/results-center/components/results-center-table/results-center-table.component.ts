@@ -56,8 +56,11 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   private readonly apiService = inject(ApiService);
 
   @Input() showNewProjectResultButton = false;
+  @Input() hideFiltersToolbar = false;
+  @Input() excludedColumnFields: readonly string[] = [];
+  @Input() emptyMessage = '';
   @Input() resultEntryContext: 'results-center' | 'project' = 'project';
-
+  @Input() roundedBottom = false;
   private dt2Table: Table | undefined;
 
   @ViewChild('dt2')
@@ -127,11 +130,19 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   }
 
   getVisibleColumns() {
-    const columns = this.resultsCenterService.tableColumns();
-    if (!this.showNewProjectResultButton) {
-      return columns;
+    let columns = this.resultsCenterService.tableColumns();
+    if (this.showNewProjectResultButton) {
+      columns = columns.filter(column => column.field !== 'project' && column.field !== 'lever');
     }
-    return columns.filter(column => column.field !== 'project' && column.field !== 'lever');
+    if (this.excludedColumnFields.length) {
+      const excluded = new Set(this.excludedColumnFields);
+      columns = columns.filter(column => !excluded.has(column.field));
+    }
+    return columns;
+  }
+
+  shouldShowPaginator(): boolean {
+    return !(this.hideFiltersToolbar && this.resultsCenterService.resultsTableTotalRecords() === 0);
   }
 
   getPlatformColors(platformCode: string): { text: string; background: string } | undefined {
