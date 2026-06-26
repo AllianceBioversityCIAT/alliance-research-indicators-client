@@ -283,6 +283,64 @@ describe('GeneralInformationComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
+  it('should show a warning and avoid service calls when reporting year changed before saving', async () => {
+    const originalData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2025',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ successfulRequest: true, status: 200 });
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (actionsService.showGlobalAlert as jest.Mock).mockClear();
+
+    await component.getData();
+    component.body.update(current => ({ ...current, year: '2026' }));
+    await component.saveData();
+
+    expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'warning',
+        summary: 'Reporting Year Change',
+        detail: expect.stringContaining('This change could affect the portfolio period'),
+        confirmCallback: expect.objectContaining({ label: 'Continue' }),
+        cancelCallback: expect.objectContaining({ label: 'Cancel' })
+      })
+    );
+    expect((apiService as any).PATCH_GeneralInformation).not.toHaveBeenCalled();
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should continue saving after confirming the reporting year warning', async () => {
+    const originalData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2025',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    const updatedData = { ...originalData, year: '2026' };
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValueOnce({ data: originalData }).mockResolvedValue({ data: updatedData });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ successfulRequest: true, status: 200 });
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (actionsService.showGlobalAlert as jest.Mock).mockClear();
+
+    await component.getData();
+    component.body.update(current => ({ ...current, year: '2026' }));
+    await component.saveData();
+
+    const warning = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+    warning.confirmCallback.event();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect((apiService as any).PATCH_GeneralInformation).toHaveBeenCalledWith(123, expect.objectContaining({ year: '2026' }));
+  });
+
   it('should show error toast when status is 409 (conflict)', async () => {
     const mockData: GeneralInformation = {
       title: 'Test Title',
