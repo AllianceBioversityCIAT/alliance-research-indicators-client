@@ -117,12 +117,31 @@ describe('AllianceAlignmentComponent', () => {
   it('should handle getData with empty response', async () => {
     api.GET_Alignments.mockResolvedValue({ data: {} });
     await component.getData();
-    expect(component.body()).toEqual({
+    expect(component.body()).toEqual(expect.objectContaining({
       contracts: [],
       result_sdgs: [],
       primary_levers: [],
-      contributor_levers: []
-    });
+      contributor_levers: [],
+      research_areas: [],
+      strategic_objectives: [],
+      impact_outcomes: []
+    }));
+  });
+
+  it('should use portfolio alignment for report years 2026 to 2030', () => {
+    cache.metadata.set({ indicator_id: 4, report_year: 2026, portfolio_id: 3 });
+    expect(component.isPortfolioAlignment()).toBe(true);
+    expect(component.leverServiceParams()).toEqual({ portfolioId: 3, reportYear: 2026 });
+
+    cache.metadata.set({ indicator_id: 4, report_year: 2030, portfolioId: 4 });
+    expect(component.isPortfolioAlignment()).toBe(true);
+    expect(component.leverServiceParams()).toEqual({ portfolioId: 4, reportYear: 2030 });
+  });
+
+  it('should keep legacy alignment before 2026', () => {
+    cache.metadata.set({ indicator_id: 4, report_year: 2025, portfolio_id: 3 });
+    expect(component.isPortfolioAlignment()).toBe(false);
+    expect(component.leverServiceParams()).toEqual({ portfolioId: 3, reportYear: 2025 });
   });
 
   it('should preserve root SDGs for non-OICR indicators', async () => {
