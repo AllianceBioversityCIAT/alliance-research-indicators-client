@@ -151,6 +151,44 @@ describe('ApiService', () => {
       expect(params.get('reportYear')).toBe('2026');
     });
 
+    it('should call GET_StrategicObjectives with portfolio params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_StrategicObjectives({ portfolioId: 2, reportYear: 2026 });
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params;
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('strategic-objectives', { params });
+      expect(params.get('portfolioId')).toBe('2');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should call GET_StrategicObjectives without params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_StrategicObjectives();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('strategic-objectives', {});
+    });
+
+    it('should call GET_ImpactOutcomes with portfolio params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ImpactOutcomes({ portfolioId: 2, reportYear: 2026 });
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params;
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('impact-outcomes', { params });
+      expect(params.get('portfolioId')).toBe('2');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should call GET_ImpactOutcomes without params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ImpactOutcomes();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('impact-outcomes', {});
+    });
+
     it('should call GET_ClarisaSdgTargets', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
@@ -1733,6 +1771,15 @@ describe('ApiService', () => {
       const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
       expect(params.get('is-html')).toBe('false');
       expect(params.get('report_name')).toBe('cap_sharing');
+      expect(params.get('reportingPlatforms')).toBe('STAR');
+    });
+
+    it('should use STAR as the default reporting platform', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('STAR-8');
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
       expect(params.get('reportingPlatforms')).toBe('STAR');
     });
   });
