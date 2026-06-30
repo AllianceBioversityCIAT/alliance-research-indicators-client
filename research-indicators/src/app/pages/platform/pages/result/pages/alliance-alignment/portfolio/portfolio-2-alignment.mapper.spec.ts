@@ -110,11 +110,105 @@ describe('portfolio-2-alignment.mapper', () => {
 
     expect(normalized.primary_levers).toEqual([]);
     expect(normalized.contributor_levers).toEqual([]);
-    expect(normalized.research_areas[0].lever_id).toBe('42');
+    expect(normalized.research_areas[0].lever_id).toBe(42);
     expect(normalized.research_areas[0].id).toBe(42);
     expect(normalized.strategic_objectives[0].id).toBe(3);
     expect(normalized.impact_outcomes[0].id).toBe(5);
     expect(normalized.result_sdgs[0].id).toBe(2);
+  });
+
+  it('normalizes real portfolio 2 GET payload with link-only contracts and empty collections', () => {
+    const normalized = normalizePortfolio2AlignmentGet(
+      {
+        contracts: [
+          {
+            created_at: '2026-01-21T13:06:55.836Z',
+            updated_at: '2026-06-30T21:38:49.000Z',
+            is_active: true,
+            result_contract_id: 11085,
+            result_id: 8579,
+            contract_id: 'A1048',
+            contract_role_id: 1,
+            is_primary: true
+          } as never
+        ],
+        result_sdgs: [],
+        research_areas: [],
+        strategic_objectives: [],
+        impact_outcomes: []
+      },
+      {
+        contracts: [
+          {
+            agreement_id: 'A1048',
+            description: 'Project A1048',
+            contract_id: 'A1048',
+            select_label: 'A1048 - Project A1048',
+            project_lead_description: 'Lead',
+            start_date: '2024-01-01',
+            endDateGlobal: '2025-01-01',
+            is_active: true,
+            center_amount: '',
+            center_amount_usd: '',
+            client: '',
+            contract_status: null,
+            department: null,
+            departmentId: null,
+            division: null,
+            divisionId: null,
+            donor: null,
+            is_science_program: false,
+            donor_reference: null,
+            endDatefinance: '',
+            end_date: null,
+            entity: null,
+            extension_date: null,
+            funding_type: null,
+            grant_amount: '',
+            lever_id: 1,
+            grant_amount_usd: '',
+            project: null,
+            projectDescription: null,
+            short_title: '',
+            ubwClientDescription: '',
+            unit: null,
+            unitId: null,
+            office: null,
+            officeId: null,
+            display_label: ''
+          }
+        ]
+      }
+    );
+
+    expect(normalized.contracts[0].agreement_id).toBe('A1048');
+    expect(normalized.contracts[0].description).toBe('Project A1048');
+    expect(normalized.contracts[0].select_label).toBe('A1048 - Project A1048');
+    expect(normalized.contracts[0].is_primary).toBe(true);
+    expect(normalized.result_sdgs).toEqual([]);
+    expect(normalized.research_areas).toEqual([]);
+    expect(normalized.strategic_objectives).toEqual([]);
+    expect(normalized.impact_outcomes).toEqual([]);
+  });
+
+  it('uses contract_id as agreement_id when catalog match is unavailable', () => {
+    const enriched = enrichPortfolio2Contracts(
+      [
+        {
+          contract_id: 'A1048',
+          is_primary: true,
+          is_active: true,
+          result_contract_id: 11085,
+          result_id: 8579,
+          contract_role_id: 1
+        } as never
+      ],
+      []
+    );
+
+    expect(enriched[0].agreement_id).toBe('A1048');
+    expect(enriched[0].contract_id).toBe('A1048');
+    expect(enriched[0].select_label).toBe('A1048');
   });
 
   it('builds portfolio 2 PATCH payload without legacy lever fields', () => {
@@ -143,7 +237,7 @@ describe('portfolio-2-alignment.mapper', () => {
     });
   });
 
-  it('sends empty impact_outcomes when indicator does not use them', () => {
+  it('omits impact_outcomes when indicator does not use them', () => {
     const body: GetAllianceAlignment = {
       contracts: [],
       result_sdgs: [],
@@ -153,7 +247,21 @@ describe('portfolio-2-alignment.mapper', () => {
       impact_outcomes: [{ id: 5, name: 'IO 5' }]
     };
 
-    expect(buildPortfolio2AlignmentPatch(body, false).impact_outcomes).toEqual([]);
+    expect(buildPortfolio2AlignmentPatch(body, false).impact_outcomes).toBeUndefined();
+    expect(buildPortfolio2AlignmentPatch(body, false)).not.toHaveProperty('impact_outcomes');
+  });
+
+  it('includes empty impact_outcomes when indicator uses them but none are selected', () => {
+    const body: GetAllianceAlignment = {
+      contracts: [],
+      result_sdgs: [],
+      primary_levers: [],
+      contributor_levers: [],
+      strategic_objectives: [],
+      impact_outcomes: []
+    };
+
+    expect(buildPortfolio2AlignmentPatch(body, true).impact_outcomes).toEqual([]);
   });
 
   it('sends empty result_sdgs only when explicitly excluded (OICR rule)', () => {

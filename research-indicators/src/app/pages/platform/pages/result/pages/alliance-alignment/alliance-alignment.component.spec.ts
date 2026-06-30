@@ -12,6 +12,10 @@ import { ActionsService } from '../../../../../../shared/services/actions.servic
 import { SubmissionService } from '@shared/services/submission.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
+import { GetLeversService } from '@services/control-list/get-levers.service';
+import { GetStrategicObjectivesService } from '@services/control-list/get-strategic-objectives.service';
+import { GetImpactOutcomesService } from '@services/control-list/get-impact-outcomes.service';
+import { GetSdgsService } from '@services/control-list/get-sdgs.service';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 
@@ -58,6 +62,23 @@ class GetContractsServiceMock {
   }
 }
 
+class PortfolioCatalogServiceMock {
+  private readonly catalog = signal<unknown[]>([]);
+  list = this.catalog;
+  loading = signal(false);
+  isOpenSearch = signal(false);
+  main = jest.fn().mockImplementation(async () => undefined);
+  getList = jest.fn().mockImplementation(() => this.catalog);
+  getLoading = jest.fn().mockImplementation(() => this.loading);
+  setCatalog(items: unknown[]) {
+    this.catalog.set(items);
+  }
+}
+
+const defaultLeversCatalog = [
+  { id: 9, lever_id: 9, name: 'Other', short_name: 'Other', full_name: 'Other', other_names: 'Other' }
+];
+
 describe('AllianceAlignmentComponent', () => {
   let component: AllianceAlignmentComponent;
   let fixture: ComponentFixture<AllianceAlignmentComponent>;
@@ -67,6 +88,10 @@ describe('AllianceAlignmentComponent', () => {
   let router: RouterMock;
   let submission: SubmissionServiceMock;
   let getContractsService: GetContractsServiceMock;
+  let getLeversService: PortfolioCatalogServiceMock;
+  let getStrategicObjectivesService: PortfolioCatalogServiceMock;
+  let getImpactOutcomesService: PortfolioCatalogServiceMock;
+  let getSdgsService: PortfolioCatalogServiceMock;
   let route: any;
 
   beforeEach(async () => {
@@ -76,6 +101,11 @@ describe('AllianceAlignmentComponent', () => {
     router = new RouterMock();
     submission = new SubmissionServiceMock();
     getContractsService = new GetContractsServiceMock();
+    getLeversService = new PortfolioCatalogServiceMock();
+    getStrategicObjectivesService = new PortfolioCatalogServiceMock();
+    getImpactOutcomesService = new PortfolioCatalogServiceMock();
+    getSdgsService = new PortfolioCatalogServiceMock();
+    getLeversService.setCatalog(defaultLeversCatalog);
     route = {
       snapshot: {
         paramMap: { get: (k: string) => (k === 'id' ? '1' : null) },
@@ -101,7 +131,11 @@ describe('AllianceAlignmentComponent', () => {
         { provide: SubmissionService, useValue: submission },
         { provide: VersionWatcherService, useClass: VersionWatcherServiceMock },
         { provide: ActivatedRoute, useValue: route },
-        { provide: GetContractsService, useValue: getContractsService }
+        { provide: GetContractsService, useValue: getContractsService },
+        { provide: GetLeversService, useValue: getLeversService },
+        { provide: GetStrategicObjectivesService, useValue: getStrategicObjectivesService },
+        { provide: GetImpactOutcomesService, useValue: getImpactOutcomesService },
+        { provide: GetSdgsService, useValue: getSdgsService }
       ]
     }).compileComponents();
 
@@ -154,6 +188,51 @@ describe('AllianceAlignmentComponent', () => {
     expect(component.alignmentRequestParams()).toEqual({ portfolioId: 1, return: true });
   });
 
+  it('should load portfolio 2 GET link-only contracts enriched for multiselect display', async () => {
+    cache.metadata.set({ indicator_id: 1, portfolio_id: 2 });
+    getContractsService.setCatalog([
+      {
+        agreement_id: 'A1048',
+        description: 'Project A1048',
+        contract_id: 'A1048',
+        select_label: 'A1048 - Project A1048',
+        project_lead_description: 'Lead',
+        start_date: '2024-01-01',
+        endDateGlobal: '2025-01-01'
+      }
+    ]);
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [
+          {
+            created_at: '2026-01-21T13:06:55.836Z',
+            updated_at: '2026-06-30T21:38:49.000Z',
+            is_active: true,
+            result_contract_id: 11085,
+            result_id: 8579,
+            contract_id: 'A1048',
+            contract_role_id: 1,
+            is_primary: true
+          }
+        ],
+        result_sdgs: [],
+        research_areas: [],
+        strategic_objectives: [],
+        impact_outcomes: []
+      }
+    });
+
+    await component.getData();
+
+    expect(getLeversService.main).toHaveBeenCalledWith({ portfolioId: 2 });
+    expect(component.body().contracts[0].agreement_id).toBe('A1048');
+    expect(component.body().contracts[0].description).toBe('Project A1048');
+    expect(component.body().contracts[0].select_label).toBe('A1048 - Project A1048');
+    expect(component.body().research_areas).toEqual([]);
+    expect(component.body().strategic_objectives).toEqual([]);
+    expect(component.body().impact_outcomes).toEqual([]);
+  });
+
   it('should load and save portfolio 2 alignment with portfolio-specific payload', async () => {
     cache.metadata.set({ indicator_id: 4, portfolio_id: 2 });
     getContractsService.setCatalog([
@@ -188,7 +267,7 @@ describe('AllianceAlignmentComponent', () => {
     expect(component.body().contracts[0].agreement_id).toBe('abc');
     expect(component.body().contracts[0].description).toBe('Project ABC');
     expect(component.body().contracts[0].select_label).toBe('abc - Project ABC');
-    expect(component.body().research_areas[0].lever_id).toBe('42');
+    expect(component.body().research_areas[0].lever_id).toBe(42);
     expect(component.body().strategic_objectives[0].id).toBe(3);
 
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
@@ -229,7 +308,7 @@ describe('AllianceAlignmentComponent', () => {
 
     await component.saveData();
 
-    expect(api.PATCH_Alignments.mock.calls[0][1].impact_outcomes).toEqual([]);
+    expect(api.PATCH_Alignments.mock.calls[0][1].impact_outcomes).toBeUndefined();
     expect(api.PATCH_Alignments.mock.calls[0][1].result_sdgs).toEqual([{ clarisa_sdg_id: 3 }]);
   });
 
@@ -904,6 +983,11 @@ describe('AllianceAlignmentComponent', () => {
       result_lever_strategic_outcomes: []
     } as any;
 
+    beforeEach(() => {
+      cache.metadata.set({ indicator_id: 5, portafolio_id: 1 });
+      getLeversService.setCatalog(defaultLeversCatalog);
+    });
+
     it('should identify Other lever by CLARISA lever id 9', () => {
       expect(component.isOtherLever(otherLever)).toBe(true);
       expect(component.isOtherLever({ ...otherLever, lever_id: 1 })).toBe(false);
@@ -927,7 +1011,6 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('should not show or require strategic outcomes when Other lever is selected for OICR', () => {
-      cache.metadata.set({ indicator_id: 5 });
       component.body.set({
         contracts: [],
         result_sdgs: [],
