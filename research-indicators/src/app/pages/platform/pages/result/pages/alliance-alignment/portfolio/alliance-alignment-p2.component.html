@@ -109,7 +109,7 @@
           </ng-template>
         </app-multiselect>
 
-        <app-multiselect label="Research Areas" [signal]="body" optionLabel="full_name" optionValue="id"
+        <app-multiselect label="Research Areas" [signal]="body" optionLabel="full_name" optionValue="lever_id"
           signalOptionValue="research_areas" [isRequired]="true" [disabled]="!submission.isEditableStatus()"
           [disabledSelectedScroll]="true" [filterBy]="'short_name,other_names,full_name,name'" serviceName="levers"
           [serviceParams]="serviceParams" placeholder="Select the research areas">
@@ -128,6 +128,45 @@
           [disabledSelectedScroll]="true" [filterBy]="'name,description'" serviceName="impactOutcomes"
           [serviceParams]="serviceParams" [enableVirtualScroll]="false" scrollHeight="205px"
           placeholder="Select the impact outcomes">
+        </app-multiselect>
+        }
+
+        @if (!isOicrIndicator()) {
+        <app-multiselect label="Contribution to SDG" [disabled]="!submission.isEditableStatus()" [signal]="body"
+          textSpan="Indicate the SDGs to which the result is linked." optionLabel="short_name" optionValue="id"
+          signalOptionValue="result_sdgs" serviceName="sdgs" [isRequired]="true" [disabledSelectedScroll]="true"
+          [columnsOnXl]="true" [columnsOnXlCount]="3" scrollHeight="260px" placeholder="Select the SDG">
+          <ng-template #selectedItems let-value>
+            @if (value?.length > 0) {
+            <div class="flex items-center gap-2">
+              <span>{{ value?.length }} SDG target{{ value?.length === 1 ? '' : 's' }} selected </span>
+            </div>
+            }
+          </ng-template>
+          <ng-template #item let-sdg>
+            <div class="flex w-full min-w-0 items-center gap-3">
+              @if (sdg?.icon) {
+              <img [src]="sdg.icon" [alt]="sdg.short_name || 'SDG target'"
+                class="h-[35px] w-[35px] shrink-0 rounded-[3px] object-contain" />
+              }
+              <span class="min-w-0 font-[550] leading-[18px] text-[#4C5158]">
+                SDG {{ sdg?.short_name?.split(':')[0] }} -
+                <span class="font-['Barlow'] font-normal">{{ sdg?.short_name?.split(':')[1]?.trim() }}</span>
+              </span>
+            </div>
+          </ng-template>
+          <ng-template #rows let-sdg>
+            <div class="flex w-full min-w-0 items-center gap-3">
+              @if (sdg?.icon) {
+              <img [src]="sdg.icon" [alt]="sdg.short_name || 'SDG target'"
+                class="h-[35px] w-[35px] shrink-0 rounded-[3px] object-contain" />
+              }
+              <span class="min-w-0 font-[550] leading-[18px] text-[#4C5158] text-[15px]">
+                SDG {{ sdg?.short_name?.split(':')[0] }} -
+                <span class="font-['Barlow'] font-normal">{{ sdg?.short_name?.split(':')[1]?.trim() }}</span>
+              </span>
+            </div>
+          </ng-template>
         </app-multiselect>
         }
       </div>

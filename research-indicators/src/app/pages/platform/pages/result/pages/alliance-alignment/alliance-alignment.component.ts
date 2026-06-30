@@ -22,6 +22,10 @@ import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { AllianceAlignmentP2Component } from './portfolio/alliance-alignment-p2.component';
+import {
+  buildPortfolio2AlignmentPatch,
+  normalizePortfolio2AlignmentGet
+} from './portfolio/portfolio-2-alignment.mapper';
 
 const OTHER_LEVER_ID = 9;
 const PORTFOLIO_P2_ID = 2;
@@ -81,7 +85,12 @@ export default class AllianceAlignmentComponent {
     };
   });
   isOicrIndicator = computed(() => this.cache.currentMetadata()?.indicator_id === 5);
+  isPolicyChangeIndicator = computed(() => this.cache.currentMetadata()?.indicator_id === 4);
   isPortfolioP2Alignment = computed(() => this.getCurrentPortfolioId() === PORTFOLIO_P2_ID);
+  alignmentRequestParams = computed(() => {
+    const portfolioId = this.getCurrentPortfolioId();
+    return portfolioId != null ? { portfolioId, return: true as const } : { return: true as const };
+  });
   leverServiceParams = computed(() => ({
     portfolioId: this.getCurrentPortfolioId()
   }));
@@ -96,7 +105,21 @@ export default class AllianceAlignmentComponent {
     this.leverOutcomeSignals.clear();
     this.leverSdgSignals.clear();
 
-    const response = await this.apiService.GET_Alignments(this.cache.getCurrentNumericResultId());
+    const response = await this.apiService.GET_Alignments(
+      this.cache.getCurrentNumericResultId(),
+      this.alignmentRequestParams()
+    );
+
+    if (this.isPortfolioP2Alignment()) {
+      await this.getContractsService.main(this.contractServiceParams());
+      const catalog = this.getContractsService.getList(this.contractServiceParams())();
+      const normalized = normalizePortfolio2AlignmentGet(response.data, catalog);
+      this.body.set({
+        ...normalized,
+        result_sdgs: this.isOicrIndicator() ? [] : normalized.result_sdgs
+      });
+      return;
+    }
 
     const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
       (sdgs ?? []).map(sdg => {
@@ -215,6 +238,27 @@ export default class AllianceAlignmentComponent {
     const nextPath = this.cache.currentResultIndicatorSectionPath();
 
     if (this.submission.isEditableStatus()) {
+      if (this.isPortfolioP2Alignment()) {
+        const dataToSend = buildPortfolio2AlignmentPatch(
+          this.body(),
+          this.isOicrIndicator() || this.isPolicyChangeIndicator(),
+          !this.isOicrIndicator()
+        );
+        const response = await this.apiService.PATCH_Alignments(
+          numericResultId,
+          dataToSend,
+          this.alignmentRequestParams()
+        );
+        if (response.successfulRequest) {
+          this.actions.showToast({
+            severity: 'success',
+            summary: 'Alliance Alignment',
+            detail: 'Data saved successfully'
+          });
+
+          await this.getData();
+        }
+      } else {
       const normalizeOutcome = (value: unknown): LeverStrategicOutcome => {
         if (typeof value === 'number') {
           return { lever_strategic_outcome_id: value };
@@ -272,7 +316,7 @@ export default class AllianceAlignmentComponent {
         result_sdgs
       };
 
-      const response = await this.apiService.PATCH_Alignments(numericResultId, dataToSend);
+      const response = await this.apiService.PATCH_Alignments(numericResultId, dataToSend, this.alignmentRequestParams());
       if (response.successfulRequest) {
         this.actions.showToast({
           severity: 'success',
@@ -281,6 +325,7 @@ export default class AllianceAlignmentComponent {
         });
 
         await this.getData();
+      }
       }
     }
     if (page === 'back') navigateTo('general-information');

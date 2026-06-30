@@ -2,8 +2,8 @@
   <app-form-header />
   @if (isPortfolioP2Alignment()) {
   <app-alliance-alignment-p2 [body]="body" [serviceParams]="leverServiceParams()"
-    [getShortDescription]="getShortDescription" [canRemove]="canRemove" [contractServiceParams]="contractServiceParams()"
-    [markAsPrimary]="markAsPrimaryHandler" />
+    [getShortDescription]="getShortDescription" [canRemove]="canRemove"
+    [contractServiceParams]="contractServiceParams()" [markAsPrimary]="markAsPrimaryHandler" />
   } @else {
   <div class="flex flex-col gap-5">
     <div class="content-section">
@@ -146,37 +146,38 @@
               <ng-template #rows let-lever>
                 @if (isOicrIndicator()) {
                 <div class="flex w-full min-w-0 flex-col gap-3">
-                <app-alliance-lever-card [lever]="lever" [sdgSignal]="getLeverSdgSignal(lever)"
-                  [outcomeSignal]="getLeverSignal(lever)"
-                  [showStrategicOutcomes]="cache.currentMetadata().indicator_id === 5 && !isOtherLever(lever)"
-                  [strategicOutcomesRequired]="cache.currentMetadata().indicator_id === 5 && !isOtherLever(lever)" [sdgTargetsRequired]="true"
-                  [disabled]="!submission.isEditableStatus()" (removeLever)="removePrimaryLever(lever)">
-                  @if (isOtherLever(lever)) {
-                  <app-input lever-card-extra-fields label="Name of the team or area creating the result"
-                    [signal]="getLeverCustomNameSignal(lever)" optionValue="custom_lever_name" [isRequired]="true"
-                    [disabled]="!submission.isEditableStatus()" placeholder="Write the team or area name"></app-input>
-                  }
-                </app-alliance-lever-card>
+                  <app-alliance-lever-card [lever]="lever" [sdgSignal]="getLeverSdgSignal(lever)"
+                    [outcomeSignal]="getLeverSignal(lever)"
+                    [showStrategicOutcomes]="cache.currentMetadata().indicator_id === 5 && !isOtherLever(lever)"
+                    [strategicOutcomesRequired]="cache.currentMetadata().indicator_id === 5 && !isOtherLever(lever)"
+                    [sdgTargetsRequired]="true" [disabled]="!submission.isEditableStatus()"
+                    (removeLever)="removePrimaryLever(lever)">
+                    @if (isOtherLever(lever)) {
+                    <app-input lever-card-extra-fields label="Name of the team or area creating the result"
+                      [signal]="getLeverCustomNameSignal(lever)" optionValue="custom_lever_name" [isRequired]="true"
+                      [disabled]="!submission.isEditableStatus()" placeholder="Write the team or area name"></app-input>
+                    }
+                  </app-alliance-lever-card>
                 </div>
                 } @else {
                 <div class="flex w-full min-w-0 flex-col gap-3">
-                <div class="flex w-full min-w-0 items-center gap-2">
-                  @if (lever?.icon || lever?.lever_url) {
-                  <img [src]="lever.icon || lever.lever_url" [alt]="lever?.short_name || 'Lever'"
-                    class="h-[28px] w-[28px] shrink-0 object-contain" />
-                  }
-                  <span class="font-[550] text-[#4C5158] leading-[18px] text-[15px]">
-                    {{ lever?.short_name || getLeverName(lever?.lever_id) }}
-                    @if (lever?.other_names) {
-                    <span class="font-['Barlow'] font-normal">: {{ lever.other_names }}</span>
+                  <div class="flex w-full min-w-0 items-center gap-2">
+                    @if (lever?.icon || lever?.lever_url) {
+                    <img [src]="lever.icon || lever.lever_url" [alt]="lever?.short_name || 'Lever'"
+                      class="h-[28px] w-[28px] shrink-0 object-contain" />
                     }
-                  </span>
-                </div>
-                @if (isOtherLever(lever)) {
-                <app-input label="Name of the team or area creating the result" [signal]="getLeverCustomNameSignal(lever)"
-                  optionValue="custom_lever_name" [isRequired]="true" [disabled]="!submission.isEditableStatus()"
-                  placeholder="Write the team or area name"></app-input>
-                }
+                    <span class="font-[550] text-[#4C5158] leading-[18px] text-[15px]">
+                      {{ lever?.short_name || getLeverName(lever?.lever_id) }}
+                      @if (lever?.other_names) {
+                      <span class="font-['Barlow'] font-normal">: {{ lever.other_names }}</span>
+                      }
+                    </span>
+                  </div>
+                  @if (isOtherLever(lever)) {
+                  <app-input label="Name of the team or area creating the result"
+                    [signal]="getLeverCustomNameSignal(lever)" optionValue="custom_lever_name" [isRequired]="true"
+                    [disabled]="!submission.isEditableStatus()" placeholder="Write the team or area name"></app-input>
+                  }
                 </div>
                 }
               </ng-template>
@@ -211,36 +212,36 @@
               <ng-template #rows let-lever>
                 @if (isOicrIndicator()) {
                 <div class="flex w-full min-w-0 flex-col gap-3">
-                <app-alliance-lever-card [lever]="lever" [sdgSignal]="getLeverSdgSignal(lever)"
-                  [outcomeSignal]="getLeverSignal(lever)" [showStrategicOutcomes]="false"
-                  [strategicOutcomesRequired]="false" [sdgTargetsRequired]="false"
-                  [disabled]="!submission.isEditableStatus()" (removeLever)="removeContributorLever(lever)">
-                  @if (isOtherLever(lever)) {
-                  <app-input lever-card-extra-fields label="Name of the team or area creating the result"
-                    [signal]="getLeverCustomNameSignal(lever)" optionValue="custom_lever_name" [isRequired]="true"
-                    [disabled]="!submission.isEditableStatus()" placeholder="Write the team or area name"></app-input>
-                  }
-                </app-alliance-lever-card>
+                  <app-alliance-lever-card [lever]="lever" [sdgSignal]="getLeverSdgSignal(lever)"
+                    [outcomeSignal]="getLeverSignal(lever)" [showStrategicOutcomes]="false"
+                    [strategicOutcomesRequired]="false" [sdgTargetsRequired]="false"
+                    [disabled]="!submission.isEditableStatus()" (removeLever)="removeContributorLever(lever)">
+                    @if (isOtherLever(lever)) {
+                    <app-input lever-card-extra-fields label="Name of the team or area creating the result"
+                      [signal]="getLeverCustomNameSignal(lever)" optionValue="custom_lever_name" [isRequired]="true"
+                      [disabled]="!submission.isEditableStatus()" placeholder="Write the team or area name"></app-input>
+                    }
+                  </app-alliance-lever-card>
                 </div>
                 } @else {
                 <div class="flex w-full min-w-0 flex-col gap-3">
-                <div class="flex w-full min-w-0 items-center gap-2">
-                  @if (lever?.icon || lever?.lever_url) {
-                  <img [src]="lever.icon || lever.lever_url" [alt]="lever?.short_name || 'Lever'"
-                    class="h-[28px] w-[28px] shrink-0 object-contain" />
-                  }
-                  <span class="font-[550] text-[#4C5158] leading-[18px] text-[15px]">
-                    {{ lever?.short_name || getLeverName(lever?.lever_id) }}
-                    @if (lever?.other_names) {
-                    <span class="font-['Barlow'] font-normal">: {{ lever.other_names }}</span>
+                  <div class="flex w-full min-w-0 items-center gap-2">
+                    @if (lever?.icon || lever?.lever_url) {
+                    <img [src]="lever.icon || lever.lever_url" [alt]="lever?.short_name || 'Lever'"
+                      class="h-[28px] w-[28px] shrink-0 object-contain" />
                     }
-                  </span>
-                </div>
-                @if (isOtherLever(lever)) {
-                <app-input label="Name of the team or area creating the result" [signal]="getLeverCustomNameSignal(lever)"
-                  optionValue="custom_lever_name" [isRequired]="true" [disabled]="!submission.isEditableStatus()"
-                  placeholder="Write the team or area name"></app-input>
-                }
+                    <span class="font-[550] text-[#4C5158] leading-[18px] text-[15px]">
+                      {{ lever?.short_name || getLeverName(lever?.lever_id) }}
+                      @if (lever?.other_names) {
+                      <span class="font-['Barlow'] font-normal">: {{ lever.other_names }}</span>
+                      }
+                    </span>
+                  </div>
+                  @if (isOtherLever(lever)) {
+                  <app-input label="Name of the team or area creating the result"
+                    [signal]="getLeverCustomNameSignal(lever)" optionValue="custom_lever_name" [isRequired]="true"
+                    [disabled]="!submission.isEditableStatus()" placeholder="Write the team or area name"></app-input>
+                  }
                 </div>
                 }
               </ng-template>
@@ -249,11 +250,10 @@
 
           @if (!isOicrIndicator()) {
           <div class="flex flex-col" [class.pt-3]="isOicrIndicator()">
-            <app-multiselect label="Contribution to SDG targets" [disabled]="!submission.isEditableStatus()"
-              [signal]="body" textSpan="Indicate the SDGs to which the result is linked." optionLabel="short_name"
-              optionValue="id" signalOptionValue="result_sdgs" serviceName="sdgs" [isRequired]="true"
-              [disabledSelectedScroll]="true" [columnsOnXl]="true" [columnsOnXlCount]="3" scrollHeight="260px"
-              placeholder="Select the SDG targets">
+            <app-multiselect label="Contribution to SDG" [disabled]="!submission.isEditableStatus()" [signal]="body"
+              textSpan="Indicate the SDGs to which the result is linked." optionLabel="short_name" optionValue="id"
+              signalOptionValue="result_sdgs" serviceName="sdgs" [isRequired]="true" [disabledSelectedScroll]="true"
+              [columnsOnXl]="true" [columnsOnXlCount]="3" scrollHeight="260px" placeholder="Select the SDG">
               <ng-template #selectedItems let-value>
                 @if (value?.length > 0) {
                 <div class="flex items-center gap-2">
