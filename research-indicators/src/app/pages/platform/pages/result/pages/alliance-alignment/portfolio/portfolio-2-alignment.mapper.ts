@@ -1,0 +1,223 @@
+import { GetAllianceAlignment } from '@shared/interfaces/get-alliance-alignment.interface';
+import { GetContracts, GetContractsExtended } from '@shared/interfaces/get-contracts.interface';
+import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
+import { PortfolioConfigItem } from '@shared/interfaces/portfolio-config.interface';
+
+type ContractCatalogItem = GetContracts & Partial<GetContractsExtended>;
+type LeverNameValue = string | { short_name?: string; name?: string };
+
+type Portfolio2AlignmentContract = GetAllianceAlignment['contracts'][number] &
+  Partial<GetContractsExtended> & {
+    agresso_contract?: Partial<GetContractsExtended>;
+    agreement_id?: string;
+    lever?: LeverNameValue;
+    lever_name?: string;
+    leverUrl?: string;
+    lever_url?: string;
+  };
+
+export interface Portfolio2AlignmentContractPayload {
+  contract_id: string;
+  is_primary: boolean;
+}
+
+export interface Portfolio2AlignmentPatchBody {
+  contracts: Portfolio2AlignmentContractPayload[];
+  result_sdgs: Array<{ clarisa_sdg_id: number }>;
+  research_areas: Array<{ lever_id: string | number }>;
+  strategic_objectives: Array<{ strategic_objective_id: number }>;
+  impact_outcomes: Array<{ impact_outcome_id: number }>;
+}
+
+const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
+  (sdgs ?? []).map(sdg => {
+    const normalizedId = sdg.id ?? sdg.clarisa_sdg_id ?? (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? 0;
+    return {
+      ...sdg,
+      id: normalizedId,
+      clarisa_sdg_id: sdg.clarisa_sdg_id ?? normalizedId,
+      sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? normalizedId
+    };
+  });
+
+const normalizeResearchAreas = (areas: GetLevers[] | undefined): GetLevers[] =>
+  (areas ?? []).map(area => {
+    const leverId = area.lever_id ?? area.id;
+    return {
+      ...area,
+      id: area.id ?? Number(leverId),
+      lever_id: leverId
+    };
+  });
+
+const normalizePortfolioConfigItems = (
+  items: PortfolioConfigItem[] | undefined,
+  idKey: 'strategic_objective_id' | 'impact_outcome_id'
+): PortfolioConfigItem[] =>
+  (items ?? []).map(item => {
+    const persistedId = Number((item as PortfolioConfigItem & Record<string, unknown>)[idKey] ?? item.id);
+    return {
+      ...item,
+      id: item.id ?? persistedId
+    };
+  });
+
+const contractLookupKeys = (contract: Portfolio2AlignmentContract): string[] => {
+  const keys = new Set<string>();
+  if (contract.contract_id) keys.add(String(contract.contract_id));
+  if (contract.agreement_id) keys.add(String(contract.agreement_id));
+  return [...keys];
+};
+
+const catalogItemMatchesKeys = (catalogItem: ContractCatalogItem, keys: string[]): boolean => {
+  const catalogKeys = [catalogItem.contract_id, catalogItem.agreement_id].filter(Boolean).map(String);
+  return catalogKeys.some(key => keys.includes(key));
+};
+
+const resolveLeverFullName = (leverName: LeverNameValue | undefined | null): string => {
+  if (!leverName) return 'Not available';
+  if (typeof leverName === 'string') return leverName;
+  return leverName.name ?? leverName.short_name ?? 'Not available';
+};
+
+const resolveLeverShortName = (leverName: LeverNameValue | undefined | null): string => {
+  if (!leverName) return '';
+  if (typeof leverName === 'string') return leverName;
+  return leverName.short_name ?? leverName.name ?? '';
+};
+
+export const flattenAlignmentContract = (contract: Portfolio2AlignmentContract): Portfolio2AlignmentContract => {
+  const nested = contract.agresso_contract;
+  if (!nested || typeof nested !== 'object') {
+    return contract;
+  }
+
+  const { agresso_contract: _nested, ...rest } = contract;
+  return {
+    ...nested,
+    ...rest,
+    agreement_id: nested.agreement_id ?? rest.agreement_id,
+    description: nested.description ?? rest.description,
+    project_lead_description: nested.project_lead_description ?? rest.project_lead_description,
+    start_date: nested.start_date ?? rest.start_date,
+    end_date: nested.end_date ?? rest.end_date,
+    endDateGlobal: nested.endDateGlobal ?? rest.endDateGlobal,
+    contract_status: nested.contract_status ?? rest.contract_status
+  };
+};
+
+export const normalizeContractLevers = (
+  contract: Portfolio2AlignmentContract
+): GetContractsExtended['levers'] | undefined => {
+  const leverData = contract.levers;
+  if (leverData && typeof leverData === 'object' && !Array.isArray(leverData)) {
+    return leverData;
+  }
+  if (Array.isArray(leverData) && leverData[0] && typeof leverData[0] === 'object') {
+    return leverData[0];
+  }
+
+  const leverName = (contract.lever ?? contract.lever_name) as LeverNameValue | undefined;
+  const leverUrl = contract.leverUrl ?? contract.lever_url;
+  if (!leverName && !leverUrl) {
+    return undefined;
+  }
+
+  return {
+    id: contract.lever_id ?? 0,
+    full_name: resolveLeverFullName(leverName),
+    short_name: resolveLeverShortName(leverName),
+    other_names: '',
+    lever_url: leverUrl ?? ''
+  };
+};
+
+export const enrichPortfolio2Contracts = (
+  contracts: GetAllianceAlignment['contracts'] | undefined,
+  catalog?: ContractCatalogItem[]
+): GetAllianceAlignment['contracts'] =>
+  (contracts ?? []).map(rawContract => {
+    const flattened = flattenAlignmentContract(rawContract as Portfolio2AlignmentContract);
+    const lookupKeys = contractLookupKeys(flattened);
+    const catalogMatch = catalog?.find(item => catalogItemMatchesKeys(item, lookupKeys));
+
+    if (catalogMatch) {
+      const agreementId = catalogMatch.agreement_id ?? flattened.agreement_id ?? '';
+      const description = catalogMatch.description ?? flattened.description ?? '';
+      return {
+        ...catalogMatch,
+        ...flattened,
+        agreement_id: agreementId,
+        description,
+        contract_id: catalogMatch.contract_id ?? agreementId,
+        is_primary: Boolean(flattened.is_primary),
+        select_label: catalogMatch.select_label ?? (description ? `${agreementId} - ${description}` : agreementId),
+        levers: normalizeContractLevers({ ...catalogMatch, ...flattened })
+      } as GetAllianceAlignment['contracts'][number];
+    }
+
+    if (flattened.agreement_id) {
+      const agreementId = String(flattened.agreement_id);
+      const description = flattened.description ?? '';
+      return {
+        ...flattened,
+        contract_id: agreementId,
+        select_label: flattened.select_label ?? (description ? `${agreementId} - ${description}` : agreementId),
+        levers: normalizeContractLevers(flattened)
+      } as GetAllianceAlignment['contracts'][number];
+    }
+
+    return {
+      ...flattened,
+      levers: normalizeContractLevers(flattened)
+    } as GetAllianceAlignment['contracts'][number];
+  });
+
+export const normalizePortfolio2AlignmentGet = (
+  data: Partial<GetAllianceAlignment> | undefined,
+  catalog?: ContractCatalogItem[]
+): GetAllianceAlignment => ({
+  contracts: enrichPortfolio2Contracts(data?.contracts, catalog),
+  result_sdgs: normalizeSdgs(data?.result_sdgs),
+  primary_levers: [],
+  contributor_levers: [],
+  research_areas: normalizeResearchAreas(data?.research_areas),
+  strategic_objectives: normalizePortfolioConfigItems(data?.strategic_objectives, 'strategic_objective_id'),
+  impact_outcomes: normalizePortfolioConfigItems(data?.impact_outcomes, 'impact_outcome_id')
+});
+
+export const buildPortfolio2AlignmentPatch = (
+  body: GetAllianceAlignment,
+  includeImpactOutcomes: boolean,
+  includeResultSdgs = true
+): Portfolio2AlignmentPatchBody => ({
+  contracts: (body.contracts ?? [])
+    .filter(contract => contract.contract_id)
+    .map(contract => ({
+      contract_id: String(contract.contract_id),
+      is_primary: Boolean(contract.is_primary)
+    })),
+  result_sdgs: includeResultSdgs
+    ? normalizeSdgs(body.result_sdgs)
+        .map(sdg => ({ clarisa_sdg_id: Number(sdg.clarisa_sdg_id ?? sdg.id) }))
+        .filter(item => Number.isFinite(item.clarisa_sdg_id) && item.clarisa_sdg_id > 0)
+    : [],
+  research_areas: (body.research_areas ?? [])
+    .map(area => ({ lever_id: String(area.lever_id ?? area.id) }))
+    .filter(item => item.lever_id),
+  strategic_objectives: (body.strategic_objectives ?? [])
+    .map(item => ({
+      strategic_objective_id: Number(
+        (item as PortfolioConfigItem & { strategic_objective_id?: number }).strategic_objective_id ?? item.id
+      )
+    }))
+    .filter(item => Number.isFinite(item.strategic_objective_id) && item.strategic_objective_id > 0),
+  impact_outcomes: includeImpactOutcomes
+    ? (body.impact_outcomes ?? [])
+        .map(item => ({
+          impact_outcome_id: Number((item as PortfolioConfigItem & { impact_outcome_id?: number }).impact_outcome_id ?? item.id)
+        }))
+        .filter(item => Number.isFinite(item.impact_outcome_id) && item.impact_outcome_id > 0)
+    : []
+});

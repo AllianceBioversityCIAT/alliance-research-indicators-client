@@ -162,8 +162,8 @@ export class MultiselectComponent implements OnInit, OnChanges {
             current,
             this.signalOptionValue,
             this.utils.getNestedProperty(current, this.signalOptionValue)?.map((item: any) => {
-              const itemFound = this.optionsSig()?.find((option: any) => option[this.optionValue] === item[this.optionValue]);
-              return { ...item, ...itemFound };
+              const itemFound = this.findOptionForItem(item, this.optionsSig() ?? []);
+              return itemFound ? { ...item, ...itemFound } : item;
             })
           );
           return {
@@ -262,6 +262,27 @@ export class MultiselectComponent implements OnInit, OnChanges {
     return undefined;
   }
 
+  private findOptionForItem(item: Record<string, unknown>, optionsList: Record<string, unknown>[]): Record<string, unknown> | undefined {
+    const key = this.optionValue;
+    const id = item[key];
+    let found = optionsList.find(option => option[key] == id);
+    if (found) return found;
+
+    const agreementId = item['agreement_id'];
+    if (agreementId != null && agreementId !== '') {
+      found = optionsList.find(
+        option => option['agreement_id'] == agreementId || option[key] == agreementId
+      );
+      if (found) return found;
+    }
+
+    if (id != null && id !== '') {
+      return optionsList.find(option => option['agreement_id'] == id);
+    }
+
+    return undefined;
+  }
+
   private loadKey(): string {
     return `${String(this.serviceName)}::${JSON.stringify(this.serviceParams)}`;
   }
@@ -310,7 +331,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
       const nextItems = eventIds.map((id: number) => {
         const fromPrev = prevItems.find((item: any) => item[attr] == id);
-        const fromOptions = optionsList.find((option: any) => option[attr] == id);
+        const fromOptions = this.findOptionForItem({ [attr]: id }, optionsList);
         const merged: Record<string, unknown> = {};
         if (fromPrev) Object.assign(merged, fromPrev);
         if (fromOptions) Object.assign(merged, fromOptions);
