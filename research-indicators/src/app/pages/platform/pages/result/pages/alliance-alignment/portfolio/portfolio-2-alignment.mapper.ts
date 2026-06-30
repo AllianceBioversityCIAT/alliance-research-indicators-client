@@ -114,11 +114,6 @@ const enrichPortfolioConfigItems = (
     })
     .filter((item): item is PortfolioConfigItem => item != null);
 
-const normalizePortfolioConfigItems = (
-  items: PortfolioConfigItem[] | undefined,
-  idKey: 'strategic_objective_id' | 'impact_outcome_id'
-): PortfolioConfigItem[] => enrichPortfolioConfigItems(items, undefined, idKey);
-
 const contractLookupKeys = (contract: Portfolio2AlignmentContract): string[] => {
   const keys = new Set<string>();
   if (contract.contract_id) keys.add(String(contract.contract_id));

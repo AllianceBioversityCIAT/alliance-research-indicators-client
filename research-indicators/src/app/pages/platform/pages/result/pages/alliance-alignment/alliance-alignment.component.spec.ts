@@ -69,10 +69,15 @@ class PortfolioCatalogServiceMock {
   isOpenSearch = signal(false);
   main = jest.fn().mockImplementation(async () => undefined);
   getList = jest.fn().mockImplementation(() => this.catalog);
+  getLoading = jest.fn().mockImplementation(() => this.loading);
   setCatalog(items: unknown[]) {
     this.catalog.set(items);
   }
 }
+
+const defaultLeversCatalog = [
+  { id: 9, lever_id: 9, name: 'Other', short_name: 'Other', full_name: 'Other', other_names: 'Other' }
+];
 
 describe('AllianceAlignmentComponent', () => {
   let component: AllianceAlignmentComponent;
@@ -100,6 +105,7 @@ describe('AllianceAlignmentComponent', () => {
     getStrategicObjectivesService = new PortfolioCatalogServiceMock();
     getImpactOutcomesService = new PortfolioCatalogServiceMock();
     getSdgsService = new PortfolioCatalogServiceMock();
+    getLeversService.setCatalog(defaultLeversCatalog);
     route = {
       snapshot: {
         paramMap: { get: (k: string) => (k === 'id' ? '1' : null) },
@@ -977,6 +983,11 @@ describe('AllianceAlignmentComponent', () => {
       result_lever_strategic_outcomes: []
     } as any;
 
+    beforeEach(() => {
+      cache.metadata.set({ indicator_id: 5, portafolio_id: 1 });
+      getLeversService.setCatalog(defaultLeversCatalog);
+    });
+
     it('should identify Other lever by CLARISA lever id 9', () => {
       expect(component.isOtherLever(otherLever)).toBe(true);
       expect(component.isOtherLever({ ...otherLever, lever_id: 1 })).toBe(false);
@@ -1000,7 +1011,6 @@ describe('AllianceAlignmentComponent', () => {
     });
 
     it('should not show or require strategic outcomes when Other lever is selected for OICR', () => {
-      cache.metadata.set({ indicator_id: 5 });
       component.body.set({
         contracts: [],
         result_sdgs: [],
