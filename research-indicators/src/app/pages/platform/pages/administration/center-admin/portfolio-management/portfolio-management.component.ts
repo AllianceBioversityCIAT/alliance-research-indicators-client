@@ -15,6 +15,7 @@ import { Portfolio, PortfolioPayload } from '@shared/interfaces/portfolio.interf
 import { ApiService } from '@shared/services/api.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ActionsService } from '@shared/services/actions.service';
+import { RolesService } from '@shared/services/cache/roles.service';
 
 type PortfolioFormYearValue = Date | string | number | null;
 
@@ -49,6 +50,7 @@ export default class PortfolioManagementComponent implements OnInit {
   private readonly api = inject(ApiService);
   readonly modals = inject(AllModalsService);
   private readonly actions = inject(ActionsService);
+  readonly roles = inject(RolesService);
 
   readonly portfolios = signal<Portfolio[]>([]);
   readonly loading = signal(true);
@@ -73,6 +75,7 @@ export default class PortfolioManagementComponent implements OnInit {
   };
 
   readonly isEditing = computed(() => this.editingPortfolioId() !== null);
+  readonly canEditPortfolioDates = computed(() => !this.isEditing() || this.roles.isSystemAdmin());
   readonly modalTitle = computed(() => (this.isEditing() ? 'Edit portfolio' : 'Create portfolio'));
   readonly formInvalid = computed(() => {
     const value = this.form();
@@ -232,6 +235,18 @@ export default class PortfolioManagementComponent implements OnInit {
 
   private buildPayload(): PortfolioPayload {
     const value = this.form();
+    const editingId = this.editingPortfolioId();
+
+    if (editingId !== null && !this.roles.isSystemAdmin()) {
+      const portfolio = this.portfolios().find(item => this.portfolioId(item) === editingId);
+      return {
+        name: value.name.trim(),
+        description: value.description.trim(),
+        start_year: Number(portfolio?.start_year ?? this.extractYear(value.start_year)),
+        end_year: Number(portfolio?.end_year ?? this.extractYear(value.end_year))
+      };
+    }
+
     return {
       name: value.name.trim(),
       description: value.description.trim(),

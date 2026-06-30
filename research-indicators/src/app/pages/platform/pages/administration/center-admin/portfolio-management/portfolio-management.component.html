@@ -165,11 +165,13 @@
     </app-textarea>
     <div class="w-full">
       <app-calendar-input label="Start date" [signal]="form" [isRequired]="true" optionValue="start_year"
-        [maxDate]="form().end_year" placeholder="Select the start date"></app-calendar-input>
+        [maxDate]="form().end_year" [disabled]="!canEditPortfolioDates()" placeholder="Select the start date">
+      </app-calendar-input>
     </div>
     <div class="w-full">
       <app-calendar-input label="End date" [signal]="form" [isRequired]="true" optionValue="end_year"
-        [minDate]="form().start_year" placeholder="Select the end date"></app-calendar-input>
+        [minDate]="form().start_year" [disabled]="!canEditPortfolioDates()" placeholder="Select the end date">
+      </app-calendar-input>
     </div>
 
   </div>
