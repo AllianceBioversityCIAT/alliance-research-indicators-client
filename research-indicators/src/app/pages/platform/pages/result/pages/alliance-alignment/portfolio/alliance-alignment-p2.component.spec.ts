@@ -2,23 +2,23 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { SubmissionService } from '@shared/services/submission.service';
-import { AllianceAlignment20262030Component } from './alliance-alignment-2026-2030.component';
+import { AllianceAlignmentP2Component } from './alliance-alignment-p2.component';
 
-describe('AllianceAlignment20262030Component', () => {
-  let fixture: ComponentFixture<AllianceAlignment20262030Component>;
-  let component: AllianceAlignment20262030Component;
+describe('AllianceAlignmentP2Component', () => {
+  let fixture: ComponentFixture<AllianceAlignmentP2Component>;
+  let component: AllianceAlignmentP2Component;
   let metadata = signal<Record<string, unknown>>({ indicator_id: 5 });
 
   beforeEach(async () => {
     metadata = signal<Record<string, unknown>>({ indicator_id: 5 });
     await TestBed.configureTestingModule({
-      imports: [AllianceAlignment20262030Component],
+      imports: [AllianceAlignmentP2Component],
       providers: [
         { provide: CacheService, useValue: { currentMetadata: () => metadata() } },
         { provide: SubmissionService, useValue: { isEditableStatus: jest.fn().mockReturnValue(true) } }
       ]
     })
-      .overrideComponent(AllianceAlignment20262030Component, {
+      .overrideComponent(AllianceAlignmentP2Component, {
         set: {
           imports: [],
           template: `
@@ -32,13 +32,13 @@ describe('AllianceAlignment20262030Component', () => {
       })
       .compileComponents();
 
-    fixture = TestBed.createComponent(AllianceAlignment20262030Component);
+    fixture = TestBed.createComponent(AllianceAlignmentP2Component);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('body', signal({ contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] }));
     fixture.detectChanges();
   });
 
-  it('should render portfolio fields for OICR', () => {
+  it('should render P2 portfolio fields for OICR', () => {
     const text = fixture.nativeElement.textContent;
     expect(text).toContain('Research Areas');
     expect(text).toContain('Strategic Objectives');

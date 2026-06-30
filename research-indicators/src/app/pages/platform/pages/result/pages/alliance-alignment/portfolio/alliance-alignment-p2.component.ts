@@ -9,11 +9,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { getContractStatusClasses } from '@shared/constants/status-classes.constants';
 
 @Component({
-  selector: 'app-alliance-alignment-2026-2030',
+  selector: 'app-alliance-alignment-p2',
   imports: [MultiselectComponent, DatePipe, TooltipModule],
-  templateUrl: './alliance-alignment-2026-2030.component.html'
+  templateUrl: './alliance-alignment-p2.component.html'
 })
-export class AllianceAlignment20262030Component {
+export class AllianceAlignmentP2Component {
   @Input({ required: true }) body!: WritableSignal<GetAllianceAlignment>;
   @Input() serviceParams: GetLeversParams | undefined;
   @Input() getShortDescription: (description: string) => string = description => description;
