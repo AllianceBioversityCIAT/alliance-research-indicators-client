@@ -19,6 +19,10 @@ export class AllianceAlignmentP2Component {
   @Input() getShortDescription: (description: string) => string = description => description;
   @Input() canRemove: (item: unknown) => boolean = () => true;
   @Input() contractServiceParams: Record<string, unknown> = {};
+  @Input() markAsPrimary: (
+    item: { is_primary: boolean; contract_id?: string | number; lever_id?: string | number; sdg_id?: number },
+    type: 'contract' | 'lever' | 'sdg'
+  ) => void = () => undefined;
 
   readonly submission = inject(SubmissionService);
   readonly cache = inject(CacheService);

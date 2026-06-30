@@ -349,6 +349,11 @@ export default class AllianceAlignmentComponent {
     this.actions.saveCurrentSection();
   }
 
+  markAsPrimaryHandler = (
+    item: { is_primary: boolean; contract_id?: string | number; lever_id?: string | number; sdg_id?: number },
+    type: 'contract' | 'lever' | 'sdg'
+  ) => this.markAsPrimary(item, type);
+
   removePrimaryLever(lever: Lever) {
     if (!this.submission.isEditableStatus()) return;
     this.leverOutcomeSignals.delete(lever.lever_id);
