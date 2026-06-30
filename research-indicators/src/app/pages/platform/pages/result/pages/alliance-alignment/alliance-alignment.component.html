@@ -1,7 +1,7 @@
 <div class="app-page-wrapper">
   <app-form-header />
-  @if (isPortfolioAlignment()) {
-  <app-alliance-alignment-2026-2030 [body]="body" [serviceParams]="leverServiceParams()"
+  @if (isPortfolioP2Alignment()) {
+  <app-alliance-alignment-p2 [body]="body" [serviceParams]="leverServiceParams()"
     [getShortDescription]="getShortDescription" [canRemove]="canRemove" [contractServiceParams]="contractServiceParams()" />
   } @else {
   <div class="flex flex-col gap-5">

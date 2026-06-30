@@ -129,20 +129,20 @@ describe('AllianceAlignmentComponent', () => {
     }));
   });
 
-  it('should use portfolio alignment for report years 2026 to 2030', () => {
-    cache.metadata.set({ indicator_id: 4, report_year: 2026, portfolio_id: 3 });
-    expect(component.isPortfolioAlignment()).toBe(true);
-    expect(component.leverServiceParams()).toEqual({ portfolioId: 3, reportYear: 2026 });
+  it('should use P2 portfolio alignment only when portfolio id is 2', () => {
+    cache.metadata.set({ indicator_id: 4, portfolio_id: 2 });
+    expect(component.isPortfolioP2Alignment()).toBe(true);
+    expect(component.leverServiceParams()).toEqual({ portfolioId: 2 });
 
-    cache.metadata.set({ indicator_id: 4, report_year: 2030, portfolioId: 4 });
-    expect(component.isPortfolioAlignment()).toBe(true);
-    expect(component.leverServiceParams()).toEqual({ portfolioId: 4, reportYear: 2030 });
+    cache.metadata.set({ indicator_id: 4, portfolio: { id: 2, name: 'Portfolio 2' } });
+    expect(component.isPortfolioP2Alignment()).toBe(true);
+    expect(component.leverServiceParams()).toEqual({ portfolioId: 2 });
   });
 
-  it('should keep legacy alignment before 2026', () => {
-    cache.metadata.set({ indicator_id: 4, report_year: 2025, portfolio_id: 3 });
-    expect(component.isPortfolioAlignment()).toBe(false);
-    expect(component.leverServiceParams()).toEqual({ portfolioId: 3, reportYear: 2025 });
+  it('should keep P1 legacy alignment when portfolio id is not 2', () => {
+    cache.metadata.set({ indicator_id: 4, portafolio_id: 1 });
+    expect(component.isPortfolioP2Alignment()).toBe(false);
+    expect(component.leverServiceParams()).toEqual({ portfolioId: 1 });
   });
 
   it('should preserve root SDGs for non-OICR indicators', async () => {
