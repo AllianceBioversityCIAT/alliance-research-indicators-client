@@ -24,10 +24,10 @@ export interface Portfolio2AlignmentContractPayload {
 
 export interface Portfolio2AlignmentPatchBody {
   contracts: Portfolio2AlignmentContractPayload[];
-  result_sdgs: Array<{ clarisa_sdg_id: number }>;
-  research_areas: Array<{ lever_id: string | number }>;
-  strategic_objectives: Array<{ strategic_objective_id: number }>;
-  impact_outcomes: Array<{ impact_outcome_id: number }>;
+  result_sdgs: { clarisa_sdg_id: number }[];
+  research_areas: { lever_id: string | number }[];
+  strategic_objectives: { strategic_objective_id: number }[];
+  impact_outcomes: { impact_outcome_id: number }[];
 }
 
 const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
@@ -93,7 +93,8 @@ export const flattenAlignmentContract = (contract: Portfolio2AlignmentContract):
     return contract;
   }
 
-  const { agresso_contract: _nested, ...rest } = contract;
+  const rest = { ...contract };
+  delete rest.agresso_contract;
   return {
     ...nested,
     ...rest,
