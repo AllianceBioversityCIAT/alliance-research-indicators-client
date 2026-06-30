@@ -443,6 +443,19 @@ describe('ApiService', () => {
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/alignments', body, { useResultInterceptor: true });
     });
 
+    it('should call PATCH_Alignments with portfolio query params', () => {
+      const id = 123;
+      const body = { contracts: [] };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_Alignments(id, body, { portfolioId: 2, return: true });
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/alignments', body, {
+        params: expect.any(Object),
+        useResultInterceptor: true
+      });
+    });
+
     it('should call PATCH_ReportingCycle', () => {
       const resultCode = 123;
       const newReportYear = '2024';
@@ -985,7 +998,23 @@ describe('ApiService', () => {
 
       service.GET_Alignments(id);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', { loadingTrigger: true, useResultInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', {
+        loadingTrigger: true,
+        useResultInterceptor: true
+      });
+    });
+
+    it('should call GET_Alignments with portfolio query params', () => {
+      const id = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_Alignments(id, { portfolioId: 2, return: true });
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', {
+        params: expect.any(Object),
+        loadingTrigger: true,
+        useResultInterceptor: true
+      });
     });
 
     it('should call GET_SessionFormat', () => {
