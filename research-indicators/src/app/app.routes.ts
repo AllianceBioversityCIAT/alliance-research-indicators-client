@@ -271,6 +271,16 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'administration/center-admin/portfolio-management',
+        loadComponent: () =>
+          import('@platform/pages/administration/center-admin/portfolio-management/portfolio-management.component').then(m => m.default),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'Portfolio Management',
+          isLoggedIn: true
+        }
+      },
+      {
         path: 'administration/configuration/variables',
         loadComponent: () =>
           import('@platform/pages/administration/configuration/variable-configuration/variable-configuration.component').then(m => m.default),
