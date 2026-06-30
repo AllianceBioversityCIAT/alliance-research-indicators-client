@@ -19,7 +19,7 @@ import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interfac
 import { PatchPartners } from '../interfaces/patch-partners.interface';
 import { Degree, Gender, GetCapSharing, IpOwners, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
-import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
+import { AlignmentRequestParams, GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
 import { UserStaff } from '../interfaces/get-user-staff.interface';
 import { GetCountries } from '../interfaces/get-countries.interface';
@@ -638,14 +638,31 @@ export class ApiService {
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
-  GET_Alignments = (id: number): Promise<MainResponse<GetAllianceAlignment>> => {
+  GET_Alignments = (id: number, params?: AlignmentRequestParams): Promise<MainResponse<GetAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.return != null) httpParams = httpParams.set('return', String(params.return));
+    return this.TP.get(url(), {
+      ...(httpParams.keys().length ? { params: httpParams } : {}),
+      loadingTrigger: true,
+      useResultInterceptor: true
+    });
   };
 
-  PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {
+  PATCH_Alignments = <T>(
+    id: number,
+    body: T,
+    params?: AlignmentRequestParams
+  ): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.patch(url(), body, { useResultInterceptor: true });
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.return != null) httpParams = httpParams.set('return', String(params.return));
+    return this.TP.patch(url(), body, {
+      ...(httpParams.keys().length ? { params: httpParams } : {}),
+      useResultInterceptor: true
+    });
   };
 
   GET_SessionFormat = (): Promise<MainResponse<SessionFormat[]>> => {

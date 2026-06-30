@@ -27,6 +27,9 @@ describe('AllianceAlignmentP2Component', () => {
             @if (shouldShowImpactOutcomes()) {
               <span>Impact Outcomes</span>
             }
+            @if (!isOicrIndicator()) {
+              <span>Contribution to SDG</span>
+            }
           `
         }
       })
@@ -56,7 +59,17 @@ describe('AllianceAlignmentP2Component', () => {
     metadata.set({ indicator_id: 1 });
     fixture.detectChanges();
     expect(component.shouldShowImpactOutcomes()).toBe(false);
+    expect(component.isOicrIndicator()).toBe(false);
     expect(fixture.nativeElement.textContent).not.toContain('Impact Outcomes');
+    expect(fixture.nativeElement.textContent).toContain('Contribution to SDG');
+  });
+
+  it('should hide SDGs for OICR and show impact outcomes', () => {
+    metadata.set({ indicator_id: 5 });
+    fixture.detectChanges();
+    expect(component.isOicrIndicator()).toBe(true);
+    expect(fixture.nativeElement.textContent).toContain('Impact Outcomes');
+    expect(fixture.nativeElement.textContent).not.toContain('Contribution to SDG');
   });
 
   it('should use default input callbacks', () => {

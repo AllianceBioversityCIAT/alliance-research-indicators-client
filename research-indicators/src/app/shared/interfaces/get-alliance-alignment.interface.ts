@@ -13,6 +13,11 @@ export interface GetAllianceAlignment {
   impact_outcomes?: PortfolioConfigItem[];
 }
 
+export interface AlignmentRequestParams {
+  portfolioId?: number | null;
+  return?: boolean;
+}
+
 interface Contract {
   is_active: boolean;
   result_contract_id: number;

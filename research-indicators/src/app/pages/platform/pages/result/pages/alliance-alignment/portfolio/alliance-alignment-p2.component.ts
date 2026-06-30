@@ -32,4 +32,8 @@ export class AllianceAlignmentP2Component {
     const indicatorId = Number(this.cache.currentMetadata()?.indicator_id);
     return indicatorId === 4 || indicatorId === 5;
   }
+
+  isOicrIndicator(): boolean {
+    return Number(this.cache.currentMetadata()?.indicator_id) === 5;
+  }
 }

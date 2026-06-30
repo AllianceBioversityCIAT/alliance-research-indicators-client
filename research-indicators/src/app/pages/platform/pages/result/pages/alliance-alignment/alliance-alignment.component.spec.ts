@@ -47,9 +47,15 @@ class VersionWatcherServiceMock {
   onVersionChange = jest.fn();
 }
 class GetContractsServiceMock {
+  private readonly catalog = signal<Record<string, unknown>[]>([]);
   list = jest.fn().mockReturnValue([]);
   loading = jest.fn().mockReturnValue(false);
   isOpenSearch = jest.fn().mockReturnValue(false);
+  main = jest.fn().mockImplementation(async () => undefined);
+  getList = jest.fn().mockImplementation(() => this.catalog);
+  setCatalog(items: Record<string, unknown>[]) {
+    this.catalog.set(items);
+  }
 }
 
 describe('AllianceAlignmentComponent', () => {
@@ -60,6 +66,7 @@ describe('AllianceAlignmentComponent', () => {
   let actions: ActionsServiceMock;
   let router: RouterMock;
   let submission: SubmissionServiceMock;
+  let getContractsService: GetContractsServiceMock;
   let route: any;
 
   beforeEach(async () => {
@@ -68,6 +75,7 @@ describe('AllianceAlignmentComponent', () => {
     actions = new ActionsServiceMock();
     router = new RouterMock();
     submission = new SubmissionServiceMock();
+    getContractsService = new GetContractsServiceMock();
     route = {
       snapshot: {
         paramMap: { get: (k: string) => (k === 'id' ? '1' : null) },
@@ -93,7 +101,7 @@ describe('AllianceAlignmentComponent', () => {
         { provide: SubmissionService, useValue: submission },
         { provide: VersionWatcherService, useClass: VersionWatcherServiceMock },
         { provide: ActivatedRoute, useValue: route },
-        { provide: GetContractsService, useClass: GetContractsServiceMock }
+        { provide: GetContractsService, useValue: getContractsService }
       ]
     }).compileComponents();
 
@@ -111,7 +119,7 @@ describe('AllianceAlignmentComponent', () => {
       data: { contracts: [{ is_primary: false, is_active: true, result_contract_id: 1, result_id: 1, contract_id: '1', contract_role_id: 1 }] }
     });
     await component.getData();
-    expect(api.GET_Alignments).toHaveBeenCalledWith(1);
+    expect(api.GET_Alignments).toHaveBeenCalledWith(1, { return: true });
     expect(component.body().contracts[0].contract_id).toBe('1');
   });
 
@@ -143,6 +151,131 @@ describe('AllianceAlignmentComponent', () => {
     cache.metadata.set({ indicator_id: 4, portafolio_id: 1 });
     expect(component.isPortfolioP2Alignment()).toBe(false);
     expect(component.leverServiceParams()).toEqual({ portfolioId: 1 });
+    expect(component.alignmentRequestParams()).toEqual({ portfolioId: 1, return: true });
+  });
+
+  it('should load and save portfolio 2 alignment with portfolio-specific payload', async () => {
+    cache.metadata.set({ indicator_id: 4, portfolio_id: 2 });
+    getContractsService.setCatalog([
+      {
+        agreement_id: 'abc',
+        description: 'Project ABC',
+        contract_id: 'abc',
+        select_label: 'abc - Project ABC',
+        project_lead_description: 'Lead',
+        start_date: '2024-01-01',
+        endDateGlobal: '2025-01-01'
+      }
+    ]);
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [{ contract_id: 'abc', is_primary: true }],
+        result_sdgs: [{ clarisa_sdg_id: 2, id: 2 }],
+        research_areas: [{ lever_id: '42', full_name: 'Area 42' }],
+        strategic_objectives: [{ strategic_objective_id: 3, name: 'SO 3' }],
+        impact_outcomes: [{ impact_outcome_id: 5, name: 'IO 5' }],
+        primary_levers: [{ lever_id: 1 }],
+        contributor_levers: [{ lever_id: 2 }]
+      }
+    });
+
+    await component.getData();
+
+    expect(getContractsService.main).toHaveBeenCalled();
+    expect(api.GET_Alignments).toHaveBeenCalledWith(1, { portfolioId: 2, return: true });
+    expect(component.body().primary_levers).toEqual([]);
+    expect(component.body().contributor_levers).toEqual([]);
+    expect(component.body().contracts[0].agreement_id).toBe('abc');
+    expect(component.body().contracts[0].description).toBe('Project ABC');
+    expect(component.body().contracts[0].select_label).toBe('abc - Project ABC');
+    expect(component.body().research_areas[0].lever_id).toBe('42');
+    expect(component.body().strategic_objectives[0].id).toBe(3);
+
+    api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+    component.body.update(current => ({
+      ...current,
+      contracts: [{ contract_id: 'abc', is_primary: true } as never],
+      research_areas: [{ lever_id: 10, id: 10 } as never],
+      strategic_objectives: [{ id: 1, name: 'SO 1' }],
+      impact_outcomes: [{ id: 5, name: 'IO 5' }]
+    }));
+
+    await component.saveData();
+
+    expect(api.PATCH_Alignments).toHaveBeenCalledWith(
+      1,
+      {
+        contracts: [{ contract_id: 'abc', is_primary: true }],
+        result_sdgs: [{ clarisa_sdg_id: 2 }],
+        research_areas: [{ lever_id: '10' }],
+        strategic_objectives: [{ strategic_objective_id: 1 }],
+        impact_outcomes: [{ impact_outcome_id: 5 }]
+      },
+      { portfolioId: 2, return: true }
+    );
+  });
+
+  it('should send empty impact_outcomes for portfolio 2 when indicator is not OICR or Policy Change', async () => {
+    cache.metadata.set({ indicator_id: 1, portfolio_id: 2 });
+    api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+    component.body.set({
+      contracts: [],
+      result_sdgs: [{ id: 3, clarisa_sdg_id: 3 } as never],
+      primary_levers: [],
+      contributor_levers: [],
+      strategic_objectives: [],
+      impact_outcomes: [{ id: 5, name: 'IO 5' }]
+    });
+
+    await component.saveData();
+
+    expect(api.PATCH_Alignments.mock.calls[0][1].impact_outcomes).toEqual([]);
+    expect(api.PATCH_Alignments.mock.calls[0][1].result_sdgs).toEqual([{ clarisa_sdg_id: 3 }]);
+  });
+
+  it('should preserve result_sdgs for non-OICR indicators on portfolio 2 load', async () => {
+    cache.metadata.set({ indicator_id: 1, portfolio_id: 2 });
+    getContractsService.setCatalog([]);
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [],
+        result_sdgs: [{ clarisa_sdg_id: 7, id: 7 }],
+        research_areas: [],
+        strategic_objectives: [],
+        impact_outcomes: []
+      }
+    });
+
+    await component.getData();
+
+    expect(component.body().result_sdgs).toHaveLength(1);
+    expect(component.body().result_sdgs[0].id).toBe(7);
+  });
+
+  it('should clear result_sdgs for OICR on portfolio 2 load', async () => {
+    cache.metadata.set({ indicator_id: 5, portfolio_id: 2 });
+    getContractsService.setCatalog([]);
+    api.GET_Alignments.mockResolvedValue({
+      data: {
+        contracts: [],
+        result_sdgs: [{ clarisa_sdg_id: 7, id: 7 }],
+        research_areas: [],
+        strategic_objectives: [],
+        impact_outcomes: []
+      }
+    });
+
+    await component.getData();
+
+    expect(component.body().result_sdgs).toEqual([]);
+  });
+
+  it('should render SDG field for non-OICR indicators on portfolio 2', () => {
+    cache.metadata.set({ indicator_id: 1, portfolio_id: 2 });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('Contribution to SDG');
+    expect(fixture.nativeElement.textContent).not.toContain('Primary Levers');
   });
 
   it('should preserve root SDGs for non-OICR indicators', async () => {
@@ -216,22 +349,22 @@ describe('AllianceAlignmentComponent', () => {
   });
 
   it('should render project selector and dedicated SDGs field for non-OICR indicators', () => {
-    cache.metadata.set({ indicator_id: 1 });
+    cache.metadata.set({ indicator_id: 1, portafolio_id: 1 });
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Contribution to SDG targets');
+    expect(text).toContain('Contribution to SDG');
     expect(text).toContain('Contributing projects');
   });
 
   it('should use the SDG id as option value and XL columns because the SDGs service returns unique id values', () => {
-    cache.metadata.set({ indicator_id: 1 });
+    cache.metadata.set({ indicator_id: 1, portafolio_id: 1 });
     fixture.detectChanges();
 
     const fields = fixture.debugElement
       .queryAll(By.directive(MultiselectComponent))
       .map(debugElement => debugElement.componentInstance as MultiselectComponent);
-    const sdgsField = fields.find(multiselect => multiselect.label === 'Contribution to SDG targets');
+    const sdgsField = fields.find(multiselect => multiselect.label === 'Contribution to SDG');
     const primaryLeversField = fields.find(multiselect => multiselect.label === 'Primary Levers');
     const contributingLeversField = fields.find(multiselect => multiselect.label === 'Contributing Levers');
 
@@ -280,7 +413,8 @@ describe('AllianceAlignmentComponent', () => {
       expect.objectContaining({
         contracts: expect.any(Array),
         result_sdgs: expect.any(Array)
-      })
+      }),
+      { return: true }
     );
     expect(actions.showToast).toHaveBeenCalled();
     expect(component.getData).toHaveBeenCalled();

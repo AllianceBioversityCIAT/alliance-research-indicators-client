@@ -5,6 +5,7 @@ import { Portfolio } from '@shared/interfaces/portfolio.interface';
 import { ApiService } from '@shared/services/api.service';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { ActionsService } from '@shared/services/actions.service';
+import { RolesService } from '@shared/services/cache/roles.service';
 import { ModalComponent } from '@shared/components/modal/modal.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
@@ -62,6 +63,7 @@ class CalendarInputStubComponent {
   @Input() isRequired = false;
   @Input() minDate: unknown = null;
   @Input() maxDate: unknown = null;
+  @Input() disabled = false;
 }
 
 describe('PortfolioManagementComponent', () => {
@@ -76,6 +78,9 @@ describe('PortfolioManagementComponent', () => {
   let actions: {
     showToast: jest.Mock;
     showGlobalAlert: jest.Mock;
+  };
+  let roles: {
+    isSystemAdmin: jest.Mock;
   };
   const api = {
     GET_Portfolios: jest.fn(),
@@ -109,6 +114,9 @@ describe('PortfolioManagementComponent', () => {
       showToast: jest.fn(),
       showGlobalAlert: jest.fn()
     };
+    roles = {
+      isSystemAdmin: jest.fn().mockReturnValue(true)
+    };
     api.GET_Portfolios.mockResolvedValue({ data: portfolios });
     api.POST_Portfolio.mockResolvedValue({ data: portfolio });
     api.PATCH_Portfolio.mockResolvedValue({ data: portfolio });
@@ -119,7 +127,8 @@ describe('PortfolioManagementComponent', () => {
       providers: [
         { provide: ApiService, useValue: api as unknown as ApiService },
         { provide: AllModalsService, useValue: modals as unknown as AllModalsService },
-        { provide: ActionsService, useValue: actions as unknown as ActionsService }
+        { provide: ActionsService, useValue: actions as unknown as ActionsService },
+        { provide: RolesService, useValue: roles as unknown as RolesService }
       ]
     })
       .overrideComponent(PortfolioManagementComponent, {
@@ -175,6 +184,9 @@ describe('PortfolioManagementComponent', () => {
       showToast: jest.fn(),
       showGlobalAlert: jest.fn()
     };
+    roles = {
+      isSystemAdmin: jest.fn().mockReturnValue(true)
+    };
     api.GET_Portfolios.mockImplementationOnce(() => {
       throw new Error('fail');
     });
@@ -184,7 +196,8 @@ describe('PortfolioManagementComponent', () => {
       providers: [
         { provide: ApiService, useValue: api as unknown as ApiService },
         { provide: AllModalsService, useValue: modals as unknown as AllModalsService },
-        { provide: ActionsService, useValue: actions as unknown as ActionsService }
+        { provide: ActionsService, useValue: actions as unknown as ActionsService },
+        { provide: RolesService, useValue: roles as unknown as RolesService }
       ]
     })
       .overrideComponent(PortfolioManagementComponent, {
@@ -237,6 +250,7 @@ describe('PortfolioManagementComponent', () => {
 
     component.startEdit(portfolio);
     expect(component.isEditing()).toBe(true);
+    expect(component.canEditPortfolioDates()).toBe(true);
     expect(component.form().start_year).toEqual(new Date(2026, 0, 1));
     expect(modalConfig().portfolioManagement.title).toBe('Edit portfolio');
     expect(modalConfig().portfolioManagement.confirmText).toBe('Update portfolio');
@@ -256,6 +270,36 @@ describe('PortfolioManagementComponent', () => {
       summary: 'Portfolio management',
       detail: 'Portfolio updated successfully'
     });
+  });
+
+  it('disables portfolio dates when editing without system admin role', async () => {
+    await setup();
+    roles.isSystemAdmin.mockReturnValue(false);
+
+    component.startEdit(portfolio);
+    component.form.update(current => ({
+      ...current,
+      start_year: new Date(2020, 0, 1),
+      end_year: new Date(2040, 0, 1)
+    }));
+
+    expect(component.canEditPortfolioDates()).toBe(false);
+
+    await component.save();
+
+    expect(api.PATCH_Portfolio).toHaveBeenCalledWith(1, {
+      name: 'Alliance 2026-2030',
+      description: 'New strategy portfolio',
+      start_year: 2026,
+      end_year: 2030
+    });
+  });
+
+  it('allows portfolio dates when creating without system admin role', async () => {
+    await setup([]);
+    roles.isSystemAdmin.mockReturnValue(false);
+
+    expect(component.canEditPortfolioDates()).toBe(true);
   });
 
   it('does not save when form is invalid or already saving', async () => {
