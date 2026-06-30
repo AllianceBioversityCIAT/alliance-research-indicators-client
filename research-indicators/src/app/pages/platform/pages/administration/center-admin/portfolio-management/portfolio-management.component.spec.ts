@@ -150,6 +150,8 @@ describe('PortfolioManagementComponent', () => {
     expect(component.loadError()).toBe(false);
     expect(component.portfolios()[0].name).toBe('Alliance 2026-2030');
     expect(fixture.nativeElement.textContent).toContain('Alliance 2026-2030');
+    expect(fixture.nativeElement.querySelector('[aria-label="Edit portfolio"]')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('[aria-label="Delete portfolio"]')).toBeNull();
     expect(component.tableStyle()).toEqual(expect.objectContaining({ width: '100%', 'table-layout': 'fixed' }));
   });
 

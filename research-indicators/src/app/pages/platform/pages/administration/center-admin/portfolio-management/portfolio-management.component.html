@@ -117,11 +117,6 @@
                         class="inline-flex h-[27px] w-[27px] cursor-pointer items-center justify-center rounded-[8px] bg-[#D9E1EB] p-[2px] hover:bg-[#D9E1EB] transition-colors duration-150">
                         <i class="pi pi-pencil !text-[12px] text-[#035BA9]"></i>
                       </button>
-                      <button type="button" (click)="delete(portfolio)" aria-label="Delete portfolio"
-                        pTooltip="Delete portfolio" tooltipPosition="top" [disabled]="deletingId() !== null"
-                        class="inline-flex h-[27px] w-[27px] cursor-pointer items-center justify-center rounded-[8px] bg-[#FCE8E8] p-[2px] transition-colors duration-150 disabled:cursor-default disabled:opacity-60">
-                        <i class="pi {{ deletingId() === portfolioId(portfolio) ? 'pi-spinner pi-spin' : 'pi-trash' }} !text-[12px] text-[#CF0808]"></i>
-                      </button>
                     </div>
                   </td>
                 </tr>
