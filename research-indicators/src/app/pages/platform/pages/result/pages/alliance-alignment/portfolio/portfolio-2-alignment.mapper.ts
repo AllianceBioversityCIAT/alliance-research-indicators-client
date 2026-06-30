@@ -17,6 +17,14 @@ type Portfolio2AlignmentContract = GetAllianceAlignment['contracts'][number] &
     lever_url?: string;
   };
 
+export interface Portfolio2AlignmentCatalogs {
+  contracts?: ContractCatalogItem[];
+  levers?: GetLevers[];
+  strategicObjectives?: PortfolioConfigItem[];
+  impactOutcomes?: PortfolioConfigItem[];
+  sdgs?: GetSdgs[];
+}
+
 export interface Portfolio2AlignmentContractPayload {
   contract_id: string;
   is_primary: boolean;
@@ -27,7 +35,7 @@ export interface Portfolio2AlignmentPatchBody {
   result_sdgs: { clarisa_sdg_id: number }[];
   research_areas: { lever_id: string | number }[];
   strategic_objectives: { strategic_objective_id: number }[];
-  impact_outcomes: { impact_outcome_id: number }[];
+  impact_outcomes?: { impact_outcome_id: number }[];
 }
 
 const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
@@ -42,26 +50,74 @@ const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
   });
 
 const normalizeResearchAreas = (areas: GetLevers[] | undefined): GetLevers[] =>
-  (areas ?? []).map(area => {
-    const leverId = area.lever_id ?? area.id;
+  (areas ?? [])
+    .map(area => {
+      const leverId = area.lever_id ?? area.id;
+      if (leverId == null || String(leverId).trim() === '') return null;
+      return {
+        ...area,
+        id: area.id ?? Number(leverId),
+        lever_id: Number(leverId)
+      } as GetLevers;
+    })
+    .filter((area): area is GetLevers => area != null);
+
+export const enrichResearchAreas = (areas: GetLevers[] | undefined, catalog?: GetLevers[]): GetLevers[] =>
+  normalizeResearchAreas(areas).map(area => {
+    const leverKey = String(area.lever_id ?? area.id);
+    const match = catalog?.find(item => String(item.lever_id ?? item.id) === leverKey);
+    if (!match) return area;
     return {
+      ...match,
       ...area,
-      id: area.id ?? Number(leverId),
-      lever_id: leverId
-    };
+      id: match.id ?? area.id,
+      lever_id: match.lever_id ?? match.id ?? area.lever_id ?? area.id,
+      full_name: area.full_name ?? match.full_name,
+      short_name: area.short_name ?? match.short_name
+    } as GetLevers;
   });
+
+const enrichResultSdgs = (sdgs: GetSdgs[] | undefined, catalog?: GetSdgs[]): GetSdgs[] =>
+  normalizeSdgs(sdgs)
+    .map(sdg => {
+      const sdgId = Number(sdg.id ?? sdg.clarisa_sdg_id);
+      if (!Number.isFinite(sdgId) || sdgId <= 0) return null;
+      const match = catalog?.find(
+        item => Number(item.id) === sdgId || Number(item.clarisa_sdg_id) === sdgId
+      );
+      return {
+        ...(match ?? {}),
+        ...sdg,
+        id: sdgId,
+        clarisa_sdg_id: sdg.clarisa_sdg_id ?? match?.clarisa_sdg_id ?? sdgId,
+        sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? match?.id ?? sdgId
+      } as GetSdgs;
+    })
+    .filter((sdg): sdg is GetSdgs => sdg != null);
+
+const enrichPortfolioConfigItems = (
+  items: PortfolioConfigItem[] | undefined,
+  catalog: PortfolioConfigItem[] | undefined,
+  idKey: 'strategic_objective_id' | 'impact_outcome_id'
+): PortfolioConfigItem[] =>
+  (items ?? [])
+    .map(item => {
+      const persistedId = Number((item as PortfolioConfigItem & Record<string, unknown>)[idKey] ?? item.id);
+      if (!Number.isFinite(persistedId) || persistedId <= 0) return null;
+      const match = catalog?.find(entry => entry.id === persistedId);
+      return {
+        ...(match ?? {}),
+        ...item,
+        id: persistedId,
+        name: item.name ?? match?.name ?? ''
+      } as PortfolioConfigItem;
+    })
+    .filter((item): item is PortfolioConfigItem => item != null);
 
 const normalizePortfolioConfigItems = (
   items: PortfolioConfigItem[] | undefined,
   idKey: 'strategic_objective_id' | 'impact_outcome_id'
-): PortfolioConfigItem[] =>
-  (items ?? []).map(item => {
-    const persistedId = Number((item as PortfolioConfigItem & Record<string, unknown>)[idKey] ?? item.id);
-    return {
-      ...item,
-      id: item.id ?? persistedId
-    };
-  });
+): PortfolioConfigItem[] => enrichPortfolioConfigItems(items, undefined, idKey);
 
 const contractLookupKeys = (contract: Portfolio2AlignmentContract): string[] => {
   const keys = new Set<string>();
@@ -169,6 +225,18 @@ export const enrichPortfolio2Contracts = (
       } as GetAllianceAlignment['contracts'][number];
     }
 
+    if (flattened.contract_id) {
+      const agreementId = String(flattened.contract_id);
+      return {
+        ...flattened,
+        agreement_id: agreementId,
+        contract_id: agreementId,
+        is_primary: Boolean(flattened.is_primary),
+        select_label: flattened.select_label ?? agreementId,
+        levers: normalizeContractLevers(flattened)
+      } as GetAllianceAlignment['contracts'][number];
+    }
+
     return {
       ...flattened,
       levers: normalizeContractLevers(flattened)
@@ -177,48 +245,57 @@ export const enrichPortfolio2Contracts = (
 
 export const normalizePortfolio2AlignmentGet = (
   data: Partial<GetAllianceAlignment> | undefined,
-  catalog?: ContractCatalogItem[]
+  catalogs: Portfolio2AlignmentCatalogs = {}
 ): GetAllianceAlignment => ({
-  contracts: enrichPortfolio2Contracts(data?.contracts, catalog),
-  result_sdgs: normalizeSdgs(data?.result_sdgs),
+  contracts: enrichPortfolio2Contracts(data?.contracts, catalogs.contracts),
+  result_sdgs: enrichResultSdgs(data?.result_sdgs, catalogs.sdgs),
   primary_levers: [],
   contributor_levers: [],
-  research_areas: normalizeResearchAreas(data?.research_areas),
-  strategic_objectives: normalizePortfolioConfigItems(data?.strategic_objectives, 'strategic_objective_id'),
-  impact_outcomes: normalizePortfolioConfigItems(data?.impact_outcomes, 'impact_outcome_id')
+  research_areas: enrichResearchAreas(data?.research_areas, catalogs.levers),
+  strategic_objectives: enrichPortfolioConfigItems(
+    data?.strategic_objectives,
+    catalogs.strategicObjectives,
+    'strategic_objective_id'
+  ),
+  impact_outcomes: enrichPortfolioConfigItems(data?.impact_outcomes, catalogs.impactOutcomes, 'impact_outcome_id')
 });
 
 export const buildPortfolio2AlignmentPatch = (
   body: GetAllianceAlignment,
   includeImpactOutcomes: boolean,
   includeResultSdgs = true
-): Portfolio2AlignmentPatchBody => ({
-  contracts: (body.contracts ?? [])
-    .filter(contract => contract.contract_id)
-    .map(contract => ({
-      contract_id: String(contract.contract_id),
-      is_primary: Boolean(contract.is_primary)
-    })),
-  result_sdgs: includeResultSdgs
-    ? normalizeSdgs(body.result_sdgs)
-        .map(sdg => ({ clarisa_sdg_id: Number(sdg.clarisa_sdg_id ?? sdg.id) }))
-        .filter(item => Number.isFinite(item.clarisa_sdg_id) && item.clarisa_sdg_id > 0)
-    : [],
-  research_areas: (body.research_areas ?? [])
-    .map(area => ({ lever_id: String(area.lever_id ?? area.id) }))
-    .filter(item => item.lever_id),
-  strategic_objectives: (body.strategic_objectives ?? [])
-    .map(item => ({
-      strategic_objective_id: Number(
-        (item as PortfolioConfigItem & { strategic_objective_id?: number }).strategic_objective_id ?? item.id
-      )
-    }))
-    .filter(item => Number.isFinite(item.strategic_objective_id) && item.strategic_objective_id > 0),
-  impact_outcomes: includeImpactOutcomes
-    ? (body.impact_outcomes ?? [])
-        .map(item => ({
-          impact_outcome_id: Number((item as PortfolioConfigItem & { impact_outcome_id?: number }).impact_outcome_id ?? item.id)
-        }))
-        .filter(item => Number.isFinite(item.impact_outcome_id) && item.impact_outcome_id > 0)
-    : []
-});
+): Portfolio2AlignmentPatchBody => {
+  const payload: Portfolio2AlignmentPatchBody = {
+    contracts: (body.contracts ?? [])
+      .filter(contract => contract.contract_id)
+      .map(contract => ({
+        contract_id: String(contract.contract_id),
+        is_primary: Boolean(contract.is_primary)
+      })),
+    result_sdgs: includeResultSdgs
+      ? normalizeSdgs(body.result_sdgs)
+          .map(sdg => ({ clarisa_sdg_id: Number(sdg.clarisa_sdg_id ?? sdg.id) }))
+          .filter(item => Number.isFinite(item.clarisa_sdg_id) && item.clarisa_sdg_id > 0)
+      : [],
+    research_areas: (body.research_areas ?? [])
+      .map(area => ({ lever_id: String(area.lever_id ?? area.id) }))
+      .filter(item => item.lever_id),
+    strategic_objectives: (body.strategic_objectives ?? [])
+      .map(item => ({
+        strategic_objective_id: Number(
+          (item as PortfolioConfigItem & { strategic_objective_id?: number }).strategic_objective_id ?? item.id
+        )
+      }))
+      .filter(item => Number.isFinite(item.strategic_objective_id) && item.strategic_objective_id > 0)
+  };
+
+  if (includeImpactOutcomes) {
+    payload.impact_outcomes = (body.impact_outcomes ?? [])
+      .map(item => ({
+        impact_outcome_id: Number((item as PortfolioConfigItem & { impact_outcome_id?: number }).impact_outcome_id ?? item.id)
+      }))
+      .filter(item => Number.isFinite(item.impact_outcome_id) && item.impact_outcome_id > 0);
+  }
+
+  return payload;
+};

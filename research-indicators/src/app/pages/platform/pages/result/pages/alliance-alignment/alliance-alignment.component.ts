@@ -1,5 +1,9 @@
 import { Component, computed, effect, ElementRef, inject, signal, ViewChild, WritableSignal } from '@angular/core';
 import { GetContractsService } from '@services/control-list/get-contracts.service';
+import { GetLeversService } from '@services/control-list/get-levers.service';
+import { GetStrategicObjectivesService } from '@services/control-list/get-strategic-objectives.service';
+import { GetImpactOutcomesService } from '@services/control-list/get-impact-outcomes.service';
+import { GetSdgsService } from '@services/control-list/get-sdgs.service';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -49,11 +53,18 @@ const PORTFOLIO_P2_ID = 2;
 export default class AllianceAlignmentComponent {
   environment = environment;
   getContractsService = inject(GetContractsService);
+  getLeversService = inject(GetLeversService);
+  getStrategicObjectivesService = inject(GetStrategicObjectivesService);
+  getImpactOutcomesService = inject(GetImpactOutcomesService);
+  getSdgsService = inject(GetSdgsService);
   body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
     result_sdgs: [],
     primary_levers: [],
-    contributor_levers: []
+    contributor_levers: [],
+    research_areas: [],
+    strategic_objectives: [],
+    impact_outcomes: []
   });
   apiService = inject(ApiService);
   cache = inject(CacheService);
@@ -111,9 +122,24 @@ export default class AllianceAlignmentComponent {
     );
 
     if (this.isPortfolioP2Alignment()) {
-      await this.getContractsService.main(this.contractServiceParams());
-      const catalog = this.getContractsService.getList(this.contractServiceParams())();
-      const normalized = normalizePortfolio2AlignmentGet(response.data, catalog);
+      const portfolioParams = this.leverServiceParams();
+      const contractParams = this.contractServiceParams();
+
+      await Promise.all([
+        this.getContractsService.main(contractParams),
+        this.getLeversService.main(portfolioParams),
+        this.getStrategicObjectivesService.main(portfolioParams),
+        this.getImpactOutcomesService.main(portfolioParams),
+        this.getSdgsService.main()
+      ]);
+
+      const normalized = normalizePortfolio2AlignmentGet(response.data, {
+        contracts: this.getContractsService.getList(contractParams)(),
+        levers: this.getLeversService.getList(portfolioParams)(),
+        strategicObjectives: this.getStrategicObjectivesService.getList(portfolioParams)(),
+        impactOutcomes: this.getImpactOutcomesService.getList(portfolioParams)(),
+        sdgs: this.getSdgsService.list()
+      });
       this.body.set({
         ...normalized,
         result_sdgs: this.isOicrIndicator() ? [] : normalized.result_sdgs
