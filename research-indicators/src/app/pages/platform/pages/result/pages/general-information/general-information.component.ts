@@ -130,7 +130,16 @@ export default class GeneralInformationComponent {
     const initialReportingYear = this.initialReportingYear ?? this.cache.currentMetadata()?.report_year ?? null;
     if (initialReportingYear === null || initialReportingYear === undefined) return false;
     const nextYear = this.body().year;
-    return String(nextYear ?? '') !== String(initialReportingYear);
+    if (String(nextYear ?? '') === String(initialReportingYear)) return false;
+
+    const portfolio = this.cache.currentMetadata()?.portfolio;
+    const startYear = Number(portfolio?.start_year);
+    const endYear = Number(portfolio?.end_year);
+    const parsedNextYear = Number(nextYear);
+
+    if (!Number.isFinite(startYear) || !Number.isFinite(endYear) || !Number.isFinite(parsedNextYear)) return false;
+
+    return parsedNextYear < startYear || parsedNextYear > endYear;
   }
 
   private showReportingYearChangeWarning(page?: 'next'): void {
