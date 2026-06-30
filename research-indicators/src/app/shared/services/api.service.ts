@@ -31,6 +31,7 @@ import { ContactPersonResponse } from '../interfaces/contact-person.interface';
 import { GlobalTarget } from '../interfaces/global-target.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
+import { Portfolio, PortfolioPayload } from '../interfaces/portfolio.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
@@ -171,6 +172,22 @@ export class ApiService {
     if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
     if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
     return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_Portfolios = (): Promise<MainResponse<Portfolio[]>> => {
+    return this.TP.get('portfolios', {});
+  };
+
+  POST_Portfolio = (body: PortfolioPayload): Promise<MainResponse<Portfolio>> => {
+    return this.TP.post('portfolios', body, {});
+  };
+
+  PATCH_Portfolio = (portfolioId: number, body: PortfolioPayload): Promise<MainResponse<Portfolio>> => {
+    return this.TP.patch(`portfolios/${portfolioId}`, body, {});
+  };
+
+  DELETE_Portfolio = (portfolioId: number): Promise<MainResponse<unknown>> => {
+    return this.TP.delete(`portfolios/${portfolioId}`, {});
   };
 
   GET_ClarisaSdgTargets = (): Promise<MainResponse<LeverSdgTargetApi[]>> => {

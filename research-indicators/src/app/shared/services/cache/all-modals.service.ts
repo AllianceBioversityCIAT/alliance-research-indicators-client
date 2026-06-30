@@ -142,6 +142,10 @@ export class AllModalsService {
     editEnvironmentVariable: {
       isOpen: false,
       title: 'Environment variables'
+    },
+    portfolioManagement: {
+      isOpen: false,
+      title: 'Portfolio management'
     }
   });
 
@@ -258,7 +262,8 @@ export class AllModalsService {
       resultInformation: { ...this.modalConfig().resultInformation, isOpen: false, isWide: false, title: 'Result Information' },
       addContactPerson: { ...this.modalConfig().addContactPerson, isOpen: false, isWide: false },
       selectLinkedResults: { ...this.modalConfig().selectLinkedResults, isOpen: false, isWide: false },
-      editEnvironmentVariable: { ...this.modalConfig().editEnvironmentVariable, isOpen: false, isWide: false }
+      editEnvironmentVariable: { ...this.modalConfig().editEnvironmentVariable, isOpen: false, isWide: false },
+      portfolioManagement: { ...this.modalConfig().portfolioManagement, isOpen: false, isWide: false }
     });
 
     this.setSubmitResultOrigin(null);

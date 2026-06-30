@@ -7,4 +7,5 @@ export type ModalName =
   | 'resultInformation'
   | 'addContactPerson'
   | 'selectLinkedResults'
-  | 'editEnvironmentVariable';
+  | 'editEnvironmentVariable'
+  | 'portfolioManagement';

@@ -74,6 +74,7 @@ describe('AllModalsService', () => {
       expect(config.askForHelp.isOpen).toBe(false);
       expect(config.resultInformation.isOpen).toBe(false);
       expect(config.addContactPerson.isOpen).toBe(false);
+      expect(config.portfolioManagement.isOpen).toBe(false);
     });
 
     it('should initialize with default signals', () => {
@@ -388,6 +389,7 @@ describe('AllModalsService', () => {
       expect(config.askForHelp.isOpen).toBe(false);
       expect(config.resultInformation.isOpen).toBe(false);
       expect(config.addContactPerson.isOpen).toBe(false);
+      expect(config.portfolioManagement.isOpen).toBe(false);
 
       expect(service.submitResultOrigin()).toBeNull();
       expect(mockCreateResultManagementService.resetModal).toHaveBeenCalled();
