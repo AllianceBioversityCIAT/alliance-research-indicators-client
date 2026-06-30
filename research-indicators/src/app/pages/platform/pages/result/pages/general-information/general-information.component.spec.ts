@@ -283,7 +283,7 @@ describe('GeneralInformationComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
-  it('should show a warning and avoid service calls when reporting year changed before saving', async () => {
+  it('should show a warning and avoid service calls when portafolio change before saving', async () => {
     const originalData: GeneralInformation = {
       title: 'Test Title',
       description: 'Test Description',
@@ -304,7 +304,7 @@ describe('GeneralInformationComponent', () => {
     expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(
       expect.objectContaining({
         severity: 'warning',
-        summary: 'Reporting Year Change',
+        summary: 'Portafolio Change',
         detail: expect.stringContaining('This change could affect the portfolio period'),
         confirmCallback: expect.objectContaining({ label: 'Continue' }),
         cancelCallback: expect.objectContaining({ label: 'Cancel' })
@@ -314,7 +314,7 @@ describe('GeneralInformationComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
-  it('should continue saving after confirming the reporting year warning', async () => {
+  it('should continue saving after confirming the portafolio change warning', async () => {
     const originalData: GeneralInformation = {
       title: 'Test Title',
       description: 'Test Description',

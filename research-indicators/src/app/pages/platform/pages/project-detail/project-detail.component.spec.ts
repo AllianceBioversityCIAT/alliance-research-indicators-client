@@ -5,12 +5,14 @@ import ProjectDetailComponent from './project-detail.component';
 import { ApiService } from '@services/api.service';
 import { signal } from '@angular/core';
 import { ResultsCenterService } from '../results-center/results-center.service';
+import { GetContractStaffService } from '@shared/services/get-contract-staff.service';
 
 describe('ProjectComponent', () => {
   let component: ProjectDetailComponent;
   let fixture: ComponentFixture<ProjectDetailComponent>;
   let apiService: { GET_ResultsCount: jest.Mock };
   let router: { events: Subject<unknown>; navigate: jest.Mock; parseUrl: jest.Mock; url: string };
+  let contractStaffService: { staff: ReturnType<typeof signal<any[]>>; loading: ReturnType<typeof signal<boolean>>; loadError: ReturnType<typeof signal<boolean>>; main: jest.Mock };
   let resultsCenterService: {
     primaryContractId: ReturnType<typeof signal<string>>;
     showFiltersSidebar: ReturnType<typeof signal<boolean>>;
@@ -68,6 +70,12 @@ describe('ProjectComponent', () => {
       })),
       url: '/projects/mock-id/project-results'
     };
+    contractStaffService = {
+      staff: signal([]),
+      loading: signal(false),
+      loadError: signal(false),
+      main: jest.fn()
+    };
     resultsCenterService = {
       primaryContractId: signal(''),
       showFiltersSidebar: signal(true),
@@ -104,6 +112,7 @@ describe('ProjectComponent', () => {
       .overrideComponent(ProjectDetailComponent, {
         set: {
           imports: [],
+          providers: [{ provide: GetContractStaffService, useValue: contractStaffService }],
           template: `<div class="w-full"></div>`
         }
       })
@@ -148,6 +157,7 @@ describe('ProjectComponent', () => {
     expect(resultsCenterService.primaryContractId()).toBe('mock-id');
     expect(resultsCenterService.activateStatePersistence).toHaveBeenCalledWith('project-detail:mock-id');
     expect(resultsCenterService.resetState).toHaveBeenCalled();
+    expect(contractStaffService.main).toHaveBeenCalledWith('mock-id');
     getProjectDetailSpy.mockRestore();
   });
 
