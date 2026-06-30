@@ -189,6 +189,14 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('impact-outcomes', {});
     });
 
+    it('should call GET_Portfolios', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Portfolios();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('portfolios', {});
+    });
+
     it('should call GET_ClarisaSdgTargets', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
@@ -424,6 +432,20 @@ describe('ApiService', () => {
       service.POST_PartnerRequest(body);
 
       expect(mockToPromiseService.post).toHaveBeenCalledWith('tools/clarisa/manager/partner-request/create', body, {});
+    });
+
+    it('should call POST_Portfolio', () => {
+      const body = {
+        name: 'Portfolio',
+        description: 'Description',
+        start_year: 2026,
+        end_year: 2030
+      };
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.POST_Portfolio(body);
+
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('portfolios', body, {});
     });
   });
 
@@ -2131,10 +2153,32 @@ describe('ApiService', () => {
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('lever-sdg-targets', body, {});
     });
 
+    it('should call PATCH_Portfolio with id in path', () => {
+      const body = {
+        name: 'Portfolio',
+        description: 'Description',
+        start_year: 2026,
+        end_year: 2030
+      };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_Portfolio(7, body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('portfolios/7', body, {});
+    });
+
     it('should call DELETE_LeverSdgTargetMapping for id in path', () => {
       (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
       service.DELETE_LeverSdgTargetMapping(42);
       expect(mockToPromiseService.delete).toHaveBeenCalledWith('lever-sdg-targets/42', {});
+    });
+
+    it('should call DELETE_Portfolio with id in path', () => {
+      (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.DELETE_Portfolio(7);
+
+      expect(mockToPromiseService.delete).toHaveBeenCalledWith('portfolios/7', {});
     });
 
     it('should call GET_AutorContact with resultCode', () => {

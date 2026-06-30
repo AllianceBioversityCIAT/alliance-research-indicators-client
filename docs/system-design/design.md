@@ -131,11 +131,12 @@ Each flow is described as a sequence of screen transitions. These are the **gold
 | 16 | About | `/about` | Yes | App info |
 | 17 | Bulk Upload | `/administration/center-admin/bulk-upload` | Yes (center-admin only) | Capacity sharing |
 | 18 | SDG Management | `/administration/center-admin/sdg-management` | Yes (center-admin only) | Center SDG alignment |
-| 19 | Room | `/room/:id` | No | Real-time collab |
-| 20 | OICR Download | `/oicr/download` | No | Public download |
-| 21 | Fields | `/fields` | No | Dynamic form config |
-| 22 | Cache-test | `/cache-test` | No | Dev tool |
-| 23 | STAR Report Viewer | `/reports/result/:id?version=N` | No (auth required) | Loading surface + embedded STAR PDF |
+| 19 | Portfolio Management | `/administration/center-admin/portfolio-management` | Yes (center-admin only) | Strategy portfolio administration |
+| 20 | Room | `/room/:id` | No | Real-time collab |
+| 21 | OICR Download | `/oicr/download` | No | Public download |
+| 22 | Fields | `/fields` | No | Dynamic form config |
+| 23 | Cache-test | `/cache-test` | No | Dev tool |
+| 24 | STAR Report Viewer | `/reports/result/:id?version=N` | No (auth required) | Loading surface + embedded STAR PDF |
 
 ---
 

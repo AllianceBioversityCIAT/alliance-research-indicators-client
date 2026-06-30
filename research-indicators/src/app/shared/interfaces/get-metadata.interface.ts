@@ -12,9 +12,19 @@ export interface GetMetadata {
   report_year?: number;
   portfolio_id?: number;
   portfolioId?: number;
+  portafolio_id?: number;
+  portfolio?: GetPortfolios;
   is_principal_investigator?: boolean;
   is_main_contact_person?: boolean;
   has_result_edit_grant?: boolean;
   result_contract_id?: string;
   result_status?: ResultStatus;
+}
+
+export interface GetPortfolios {
+  id?: number;
+  name?: string;
+  description?: string;
+  start_year?: number;
+  end_year?: number;
 }

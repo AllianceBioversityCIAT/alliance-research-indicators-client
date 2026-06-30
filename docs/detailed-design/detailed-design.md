@@ -47,26 +47,26 @@ The repository contains a **single Angular 19 SPA** (under `research-indicators/
 
 The Angular app is organized by **page domain** under `src/app/pages/` with cross-cutting code in `src/app/shared/`. Spec work should follow the same domain split (see [`../specs/general-setup/`](../specs/general-setup/)).
 
-| Module | Path | Responsibility |
-|--------|------|----------------|
-| **Platform shell** | `src/app/pages/platform/` | Authenticated shell — navbar, sidebar, outlet for children |
-| **Home** | `pages/platform/pages/home/` | Logged-in dashboard / entry actions |
-| **Indicator** | `pages/platform/pages/indicator/`, `about-indicators/` | Indicator catalog & detail |
-| **Results** | `pages/platform/pages/result/`, `results-center/`, `search-a-result/`, `load-result/` | Result lifecycle: create, edit (11 tabs + the conditionally-rendered Pool Funding alignment tab), search, hub |
-| **Projects** | `pages/platform/pages/my-projects/`, `project-detail/` | Project portfolio & detail |
-| **Dashboard** | `pages/platform/pages/dashboard/` | Aggregate analytics, Chart.js views |
-| **Notifications** | `pages/platform/pages/notifications/` | Real-time feed |
-| **Profile** | `pages/platform/pages/profile/` | User settings, theme |
-| **About** | `pages/platform/pages/about/` | App info |
-| **Administration / Center Admin** | `pages/platform/pages/administration/center-admin/` | Bulk upload, SDG management, AGRESSO Pool Funding tag override |
-| **Auth** | `pages/login/`, `pages/auth/` | Cognito entry & callback |
-| **Landing** | `pages/landing/` | Public surface |
-| **Real-time** | `pages/room/` | WebSocket collaboration |
-| **OICR Download** | `pages/oicr-download/` | Public template download |
-| **Dynamic Fields** | `pages/dynamic-fields/` | Form-field configuration utility |
-| **Shared** | `src/app/shared/` | Components, services, pipes, utilities, interfaces |
-| **Theme** | `src/app/theme/` | PrimeNG Aura preset (`roartheme.ts`) |
-| **Testing** | `src/app/testing/` | Test harness, mocks |
+| Module                            | Path                                                                                  | Responsibility                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Platform shell**                | `src/app/pages/platform/`                                                             | Authenticated shell — navbar, sidebar, outlet for children                                                    |
+| **Home**                          | `pages/platform/pages/home/`                                                          | Logged-in dashboard / entry actions                                                                           |
+| **Indicator**                     | `pages/platform/pages/indicator/`, `about-indicators/`                                | Indicator catalog & detail                                                                                    |
+| **Results**                       | `pages/platform/pages/result/`, `results-center/`, `search-a-result/`, `load-result/` | Result lifecycle: create, edit (11 tabs + the conditionally-rendered Pool Funding alignment tab), search, hub |
+| **Projects**                      | `pages/platform/pages/my-projects/`, `project-detail/`                                | Project portfolio & detail                                                                                    |
+| **Dashboard**                     | `pages/platform/pages/dashboard/`                                                     | Aggregate analytics, Chart.js views                                                                           |
+| **Notifications**                 | `pages/platform/pages/notifications/`                                                 | Real-time feed                                                                                                |
+| **Profile**                       | `pages/platform/pages/profile/`                                                       | User settings, theme                                                                                          |
+| **About**                         | `pages/platform/pages/about/`                                                         | App info                                                                                                      |
+| **Administration / Center Admin** | `pages/platform/pages/administration/center-admin/`                                   | Bulk upload, SDG management, AGRESSO Pool Funding tag override, portfolio management                          |
+| **Auth**                          | `pages/login/`, `pages/auth/`                                                         | Cognito entry & callback                                                                                      |
+| **Landing**                       | `pages/landing/`                                                                      | Public surface                                                                                                |
+| **Real-time**                     | `pages/room/`                                                                         | WebSocket collaboration                                                                                       |
+| **OICR Download**                 | `pages/oicr-download/`                                                                | Public template download                                                                                      |
+| **Dynamic Fields**                | `pages/dynamic-fields/`                                                               | Form-field configuration utility                                                                              |
+| **Shared**                        | `src/app/shared/`                                                                     | Components, services, pipes, utilities, interfaces                                                            |
+| **Theme**                         | `src/app/theme/`                                                                      | PrimeNG Aura preset (`roartheme.ts`)                                                                          |
+| **Testing**                       | `src/app/testing/`                                                                    | Test harness, mocks                                                                                           |
 
 ---
 
@@ -109,11 +109,11 @@ Three backend services are consumed; URLs come from `src/environments/environmen
 
 ### 4.1 Service URLs
 
-| Env var | Purpose | Owner |
-|---------|---------|-------|
-| `environment.mainApiUrl` | Primary REST backend (NestJS-style) | Main API team |
-| `environment.textMiningUrl` | AI/NLP auto-fill & extraction | Text-mining team |
-| `environment.fileManagerUrl` | Evidence file upload/serve | File-manager team |
+| Env var                      | Purpose                             | Owner             |
+| ---------------------------- | ----------------------------------- | ----------------- |
+| `environment.mainApiUrl`     | Primary REST backend (NestJS-style) | Main API team     |
+| `environment.textMiningUrl`  | AI/NLP auto-fill & extraction       | Text-mining team  |
+| `environment.fileManagerUrl` | Evidence file upload/serve          | File-manager team |
 
 ### 4.2 Response envelope
 
@@ -184,14 +184,14 @@ The backend is authoritative; the client must mirror these rules so users don't 
 
 ### 6.2 State boundaries
 
-| Layer | Primary tool | Where it lives |
-|-------|--------------|----------------|
-| Server cache | `ApiService` + per-domain services + `MainResponse<T>` | `src/app/shared/services/` |
-| Client cache (cross-cutting state) | **Angular Signals** (`signal`, `computed`, `WritableSignal<T>`) | `shared/services/cache.service.ts` |
-| Reactive streams (HTTP, WebSocket) | **RxJS** | services + interceptors |
-| Local component state | Signals (preferred) or component fields | inside components |
-| Persisted state | `localStorage` (tokens, theme) via cache services | `cache.service.ts`, `dark-mode.service.ts` |
-| URL state | Angular Router (route params, query params) | `app.routes.ts` |
+| Layer                              | Primary tool                                                    | Where it lives                             |
+| ---------------------------------- | --------------------------------------------------------------- | ------------------------------------------ |
+| Server cache                       | `ApiService` + per-domain services + `MainResponse<T>`          | `src/app/shared/services/`                 |
+| Client cache (cross-cutting state) | **Angular Signals** (`signal`, `computed`, `WritableSignal<T>`) | `shared/services/cache.service.ts`         |
+| Reactive streams (HTTP, WebSocket) | **RxJS**                                                        | services + interceptors                    |
+| Local component state              | Signals (preferred) or component fields                         | inside components                          |
+| Persisted state                    | `localStorage` (tokens, theme) via cache services               | `cache.service.ts`, `dark-mode.service.ts` |
+| URL state                          | Angular Router (route params, query params)                     | `app.routes.ts`                            |
 
 - **No NgRx.** Service-per-domain + signals is the established pattern.
 - **No two-way binding** for cross-cutting state; use signals + setters.
@@ -223,19 +223,19 @@ Three are registered (order matters):
 
 ## 7. Integration Points
 
-| Integration | Mechanism | Service / file |
-|-------------|-----------|----------------|
-| **AWS Cognito** | OAuth-style redirect → `/auth` callback → token exchange | `cognito.service.ts`, `login.component`, `auth.component` |
-| **Main API** | REST over HTTPS, `MainResponse<T>` envelope | `api.service.ts`, `to-promise.service.ts` |
-| **Text-mining service** | REST | `text-mining.service.ts` |
-| **File-manager service** | REST multipart upload, returns persistent URL | `file-manager.service.ts` |
-| **WebSocket gateway** | Socket.IO via `ngx-socket-io` | `sockets/websocket.service.ts` |
-| **CLARISA** | Indirect via main API endpoints (`/tools/clarisa/*`) | `get-clarisa-institutions-*.service.ts`, `get-subnational-by-iso-alpha.service.ts` |
-| **Hotjar** | Browser SDK | `hotjar.service.ts`, `tracking-tools.service.ts` |
-| **Microsoft Clarity** | Browser SDK | `clarity.service.ts` |
-| **Google Analytics** | Browser SDK | `google-analytics.service.ts` |
-| **BugHerd** | Browser SDK | `bug-herd.service.ts` |
-| **Service worker** | Angular ngsw, production builds only | `ngsw-config.json`, `app.config.ts` |
+| Integration              | Mechanism                                                | Service / file                                                                     |
+| ------------------------ | -------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| **AWS Cognito**          | OAuth-style redirect → `/auth` callback → token exchange | `cognito.service.ts`, `login.component`, `auth.component`                          |
+| **Main API**             | REST over HTTPS, `MainResponse<T>` envelope              | `api.service.ts`, `to-promise.service.ts`                                          |
+| **Text-mining service**  | REST                                                     | `text-mining.service.ts`                                                           |
+| **File-manager service** | REST multipart upload, returns persistent URL            | `file-manager.service.ts`                                                          |
+| **WebSocket gateway**    | Socket.IO via `ngx-socket-io`                            | `sockets/websocket.service.ts`                                                     |
+| **CLARISA**              | Indirect via main API endpoints (`/tools/clarisa/*`)     | `get-clarisa-institutions-*.service.ts`, `get-subnational-by-iso-alpha.service.ts` |
+| **Hotjar**               | Browser SDK                                              | `hotjar.service.ts`, `tracking-tools.service.ts`                                   |
+| **Microsoft Clarity**    | Browser SDK                                              | `clarity.service.ts`                                                               |
+| **Google Analytics**     | Browser SDK                                              | `google-analytics.service.ts`                                                      |
+| **BugHerd**              | Browser SDK                                              | `bug-herd.service.ts`                                                              |
+| **Service worker**       | Angular ngsw, production builds only                     | `ngsw-config.json`, `app.config.ts`                                                |
 
 Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client — it follows deep-link URLs supplied by the main API.
 
@@ -275,7 +275,7 @@ Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client
   1. `httpErrorInterceptor` — central HTTP error trap.
   2. `ActionsService` — converts errors into toasts (`global-toast`), alerts (`global-alert`, `alert-tag`), and structured form-field errors.
   3. Components subscribe to `ActionsService` signals for surface-specific behavior.
-- **User-facing rule**: every error reaches the user as a *human-readable* toast or alert. Never `console.log` and walk away in production paths.
+- **User-facing rule**: every error reaches the user as a _human-readable_ toast or alert. Never `console.log` and walk away in production paths.
 - **Form-validation errors** are rendered inline using `errorDetail.errors[]` from the response envelope.
 - **409 / conflicts** route to dedicated flows (duplicate-result link prompt; stale-version reload prompt).
 
@@ -287,7 +287,7 @@ Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client
 - **SonarCloud** — static analysis via `.github/workflows/sonarcloud-analysis.yml`.
 - **Version watcher** — `VersionWatcherService` surfaces app-update banners when a new build is deployed.
 
-### 9.3 What is *not* observable today (open gaps)
+### 9.3 What is _not_ observable today (open gaps)
 
 - No browser-side error reporting service (e.g., Sentry).
 - No structured RUM (real-user-monitoring) for Web Vitals beyond what GA reports.
@@ -342,7 +342,7 @@ Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client
 - CLARISA endpoints stay stable across versions; client-side caching is safe.
 - Cognito region/userpool configuration is supplied via `environment*.ts` at build/deploy time.
 - WebSocket gateway is hosted on the same domain (or a CORS-permitted one) and uses transports compatible with `ngx-socket-io` 4.x.
-- *(2026-06-10 — ToC Mapping v2)* The bilateral ToC catalog flow assumes the backend's reshaped `hlos-indicators` endpoint performs the upstream lambda-toc reads server-side with its own 5-min cache (warm-stale on upstream failure; cold-cache → 503). The FE does **not** cache the response itself; the catalog is fetched **once per section load** (one of the section's 3 GETs in `PoolFundingAlignmentComponent`), not per interaction — the modal-open-per-fetch pattern was retired with the modal flow. On a catalog 503 the FE keeps the prior value and surfaces an error/retry. If backend cache TTL changes, the FE preload pattern may need re-tuning.
+- _(2026-06-10 — ToC Mapping v2)_ The bilateral ToC catalog flow assumes the backend's reshaped `hlos-indicators` endpoint performs the upstream lambda-toc reads server-side with its own 5-min cache (warm-stale on upstream failure; cold-cache → 503). The FE does **not** cache the response itself; the catalog is fetched **once per section load** (one of the section's 3 GETs in `PoolFundingAlignmentComponent`), not per interaction — the modal-open-per-fetch pattern was retired with the modal flow. On a catalog 503 the FE keeps the prior value and surfaces an error/retry. If backend cache TTL changes, the FE preload pattern may need re-tuning.
 
 ### 11.4 Known technical debt / future work
 
@@ -351,4 +351,4 @@ Federation with STAR / TIP / PRMS / AICCRA is **read/link-only** from the client
 - No first-class error-reporting integration (Sentry-like).
 - No e2e suite; consider Playwright if the surface grows.
 - `ngsw-config.json` currently has no asset/data groups defined — service worker is effectively a no-op for offline.
-- *(2026-05-27)* Bilateral indicator-mapping's per-row enrichment fields — `is_quantitative`, `disabled_reason` — are derived client-side in `BilateralService.materializeRows()` because the backend's safe-bundle additions (per [`../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md` §7.1](../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md#71-backends-verdict-per-oq)) target `IndicatorPanelIndicatorResponse`, which the new flow does not consume. When backend mirrors the fields onto `PrmsTocIndicator` (or a sibling enrichment DTO), the derivation in `materializeRows()` should be replaced with direct reads — single seam, single PR.
+- _(2026-05-27)_ Bilateral indicator-mapping's per-row enrichment fields — `is_quantitative`, `disabled_reason` — are derived client-side in `BilateralService.materializeRows()` because the backend's safe-bundle additions (per [`../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md` §7.1](../specs/bilateral-module/indicator-mapping/open-questions-for-ba.md#71-backends-verdict-per-oq)) target `IndicatorPanelIndicatorResponse`, which the new flow does not consume. When backend mirrors the fields onto `PrmsTocIndicator` (or a sibling enrichment DTO), the derivation in `materializeRows()` should be replaced with direct reads — single seam, single PR.

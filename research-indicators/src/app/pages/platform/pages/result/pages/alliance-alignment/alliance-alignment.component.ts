@@ -21,9 +21,10 @@ import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
-import { AllianceAlignment20262030Component } from './portfolio/alliance-alignment-2026-2030.component';
+import { AllianceAlignmentP2Component } from './portfolio/alliance-alignment-p2.component';
 
 const OTHER_LEVER_ID = 9;
+const PORTFOLIO_P2_ID = 2;
 
 @Component({
   selector: 'app-alliance-alignment',
@@ -37,7 +38,7 @@ const OTHER_LEVER_ID = 9;
     TooltipModule,
     AllianceLeverCardComponent,
     InputComponent,
-    AllianceAlignment20262030Component
+    AllianceAlignmentP2Component
   ],
   templateUrl: './alliance-alignment.component.html'
 })
@@ -80,13 +81,9 @@ export default class AllianceAlignmentComponent {
     };
   });
   isOicrIndicator = computed(() => this.cache.currentMetadata()?.indicator_id === 5);
-  isPortfolioAlignment = computed(() => {
-    const reportYear = Number(this.cache.currentMetadata()?.report_year);
-    return Number.isFinite(reportYear) && reportYear >= 2026 && reportYear <= 2030;
-  });
+  isPortfolioP2Alignment = computed(() => this.getCurrentPortfolioId() === PORTFOLIO_P2_ID);
   leverServiceParams = computed(() => ({
-    portfolioId: this.getCurrentPortfolioId(),
-    reportYear: this.getCurrentReportYear()
+    portfolioId: this.getCurrentPortfolioId()
   }));
 
   constructor() {
@@ -421,14 +418,16 @@ export default class AllianceAlignmentComponent {
     return Number(lever.lever_id) === OTHER_LEVER_ID;
   }
 
-  private getCurrentReportYear(): number | null {
-    const year = Number(this.cache.currentMetadata()?.report_year);
-    return Number.isFinite(year) ? year : null;
-  }
-
   private getCurrentPortfolioId(): number | null {
-    const metadata = this.cache.currentMetadata() as { portfolio_id?: number; portfolioId?: number } | undefined;
-    const portfolioId = Number(metadata?.portfolio_id ?? metadata?.portfolioId);
+    const metadata = this.cache.currentMetadata() as
+      | {
+          portfolio_id?: number;
+          portfolioId?: number;
+          portafolio_id?: number;
+          portfolio?: { id?: number };
+        }
+      | undefined;
+    const portfolioId = Number(metadata?.portfolio_id ?? metadata?.portfolioId ?? metadata?.portafolio_id ?? metadata?.portfolio?.id);
     return Number.isFinite(portfolioId) ? portfolioId : null;
   }
 

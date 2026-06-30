@@ -66,6 +66,7 @@ export default class GeneralInformationComponent {
   });
   loading = signal(false);
   submission = inject(SubmissionService);
+  private initialReportingYear: string | number | null = null;
 
   constructor() {
     this.versionWatcher.onVersionChange(() => {
@@ -77,18 +78,24 @@ export default class GeneralInformationComponent {
     const response = await this.api.GET_GeneralInformation(this.cache.getCurrentNumericResultId());
     if (response.data?.main_contact_person?.user_id) response.data.user_id = response.data.main_contact_person.user_id;
     this.body.set(response.data);
+    this.initialReportingYear = response.data?.year ?? null;
   }
 
-  async saveData(page?: 'next') {
+  async saveData(page?: 'next', skipReportingYearWarning = false) {
     if (this.submission.isEditableStatus()) {
+      if (!skipReportingYearWarning && this.hasReportingYearChanged()) {
+        this.showReportingYearChangeWarning(page);
+        return;
+      }
+
       this.loading.set(true);
       this.body.update((current: GeneralInformation) => {
         current.main_contact_person = { user_id: current.user_id };
         return { ...current };
       });
-      
+
       const response = await this.api.PATCH_GeneralInformation(this.cache.getCurrentNumericResultId(), this.body());
-      
+
       if (response.successfulRequest && response.status !== 409) {
         this.actions.showToast({ severity: 'success', summary: 'General Information', detail: 'Data saved successfully' });
         this.getResultsService.updateList();
@@ -117,5 +124,41 @@ export default class GeneralInformationComponent {
       });
     }
     this.loading.set(false);
+  }
+
+  private hasReportingYearChanged(): boolean {
+    const initialReportingYear = this.initialReportingYear ?? this.cache.currentMetadata()?.report_year ?? null;
+    if (initialReportingYear === null || initialReportingYear === undefined) return false;
+    const nextYear = this.body().year;
+    if (String(nextYear ?? '') === String(initialReportingYear)) return false;
+
+    const portfolio = this.cache.currentMetadata()?.portfolio;
+    const startYear = Number(portfolio?.start_year);
+    const endYear = Number(portfolio?.end_year);
+    const parsedNextYear = Number(nextYear);
+
+    if (!Number.isFinite(startYear) || !Number.isFinite(endYear) || !Number.isFinite(parsedNextYear)) return false;
+
+    return parsedNextYear < startYear || parsedNextYear > endYear;
+  }
+
+  private showReportingYearChangeWarning(page?: 'next'): void {
+    this.actions.showGlobalAlert({
+      severity: 'warning',
+      summary: 'Portafolio Change',
+      detail:
+        `You changed the reporting year for this result. ` +
+        `This change could affect the portfolio period. If it does, part of the current information may be deleted and you may need to complete it again.`,
+      confirmCallback: {
+        label: 'Continue',
+        event: () => {
+          void this.saveData(page, true);
+        }
+      },
+      cancelCallback: {
+        label: 'Cancel'
+      },
+      buttonColor: '#035BA9'
+    });
   }
 }

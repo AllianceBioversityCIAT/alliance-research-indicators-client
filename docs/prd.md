@@ -92,7 +92,7 @@ The product is optimized around four primary personas. All four are first-class 
 - Indicator catalog browser and "About Indicators" educational surface.
 - Results Center hub, dashboard / charts, and full-text search.
 - Project portfolio view ("My Projects") and project detail with linked results.
-- Center Admin tools: capacity-sharing bulk upload, SDG management.
+- Center Admin tools: capacity-sharing bulk upload, SDG management, portfolio management.
 - Real-time presence / notifications / alerts via WebSocket.
 - Multi-platform federation: cross-platform result linking and duplicate detection (409 handling).
 - Excel export (ExcelJS), PDF preview (pdfjs-dist), OICR download workflows.
