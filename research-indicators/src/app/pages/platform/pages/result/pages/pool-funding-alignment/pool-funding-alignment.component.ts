@@ -109,10 +109,6 @@ export default class PoolFundingAlignmentComponent {
   readonly REJECTED_SP_MESSAGE_PREFIX = 'These Science Programs are no longer valid for this result: ';
   readonly REJECTED_SP_MESSAGE_SUFFIX = '. Remove them and save again.';
   readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
-  // REQ-BIL-SGU-05 — Save-disabled hint: surfaces when Save is blocked only because a
-  // rendered "Yes" block is an incomplete ToC alignment (D-9), so the contributor
-  // knows to finish or clear it rather than guessing why Save is disabled.
-  readonly SAVE_BLOCKED_HINT = 'Answer the Theory of Change question for each Science Program, and complete any "Yes" alignment, before saving.';
   // AC-09.1 — live-version gate notice (2026-only ToC mapping).
   readonly VERSION_LOCKED_BANNER =
     'Theory of Change alignment is only editable on the live 2026 version of this result. The alignment below is read-only.';
@@ -220,20 +216,6 @@ export default class PoolFundingAlignmentComponent {
       }
     }
     return true;
-  });
-
-  // REQ-BIL-SGU-05 — surfaces the Save-disabled hint when a selected SP still needs
-  // a ToC answer or cascade selection (Level/HLO/Indicator). Omits the case where
-  // only quantitative contribution is missing — that field is already visible inline.
-  readonly saveBlockedByIncompleteToc = computed(() => {
-    const form = this.formData();
-    const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
-    if (!this.editable() || this.isReadOnly() || !this.isDirty() || !hasMinimalSelection) return false;
-    if (!(this.showHloSection() && this.showTocBlocks() && !this.versionLocked())) return false;
-    return form.selected_sps.some(sp => {
-      const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
-      return !draft || this.isDraftMissingTocCascadeAnswers(draft);
-    });
   });
 
   readonly isDirty = computed(() => {
@@ -689,13 +671,6 @@ export default class PoolFundingAlignmentComponent {
       draft.quantitative_contribution !== null &&
       draft.quantitative_contribution >= 0
     );
-  }
-
-  /** True when the per-SP ToC question or cascade picks are still outstanding (not contribution). */
-  private isDraftMissingTocCascadeAnswers(draft: SpAlignmentDraft): boolean {
-    if (draft.aligns_with_toc === null) return true;
-    if (draft.aligns_with_toc === false) return false;
-    return draft.level === null || draft.toc_result_id === null || draft.indicator_id === null;
   }
 
   private sameCodeSet(a: string[], b: string[]): boolean {

@@ -1380,23 +1380,17 @@ describe('PoolFundingAlignmentComponent', () => {
       });
     });
 
-    describe('REQ-BIL-SGU-05 — Save-disabled hint', () => {
-      it('saveBlockedByIncompleteToc is true (and the hint renders) for an incomplete "Yes" draft', async () => {
+    describe('REQ-BIL-SGU-05 — Save gating (no global footer hint)', () => {
+      it('canSave is false for an incomplete "Yes" draft', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
-        // "Yes" but missing indicator + contribution → incomplete (D-9).
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: null, quantitative_contribution: null });
 
-        expect(component.saveBlockedByIncompleteToc()).toBe(true);
-        // Save is correspondingly disabled by the existing D-9 gate.
         expect(component.canSave()).toBe(false);
-
-        sciencePrograms.set([{ code: 'SP01', name: 'A', category: null, color: null, icon_key: 'SP01', allocation: 100 }]);
         fixture.detectChanges();
-        const root: HTMLElement = fixture.nativeElement;
-        expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).not.toBeNull();
+        expect(fixture.nativeElement.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
       });
 
-      it('saveBlockedByIncompleteToc is false when only quantitative contribution is missing', async () => {
+      it('canSave is false when only quantitative contribution is missing', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({
           sp_code: 'SP01',
@@ -1408,14 +1402,9 @@ describe('PoolFundingAlignmentComponent', () => {
         });
 
         expect(component.canSave()).toBe(false);
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
-
-        sciencePrograms.set([{ code: 'SP01', name: 'A', category: null, color: null, icon_key: 'SP01', allocation: 100 }]);
-        fixture.detectChanges();
-        expect(fixture.nativeElement.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
       });
 
-      it('saveBlockedByIncompleteToc is false when the "Yes" draft is complete with contribution 0', async () => {
+      it('canSave is true when the "Yes" draft is complete with contribution 0', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({
           sp_code: 'SP01',
@@ -1426,32 +1415,25 @@ describe('PoolFundingAlignmentComponent', () => {
           quantitative_contribution: 0
         });
 
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
         expect(component.canSave()).toBe(true);
       });
 
-      it('saveBlockedByIncompleteToc is false when the "Yes" draft is complete', async () => {
+      it('canSave is true when the "Yes" draft is complete', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 });
 
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
-        fixture.detectChanges();
-        const root: HTMLElement = fixture.nativeElement;
-        expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
+        expect(component.canSave()).toBe(true);
       });
 
-      it('saveBlockedByIncompleteToc is false when the draft answers "No" (not a blocking "Yes")', async () => {
+      it('canSave is true when the draft answers "No"', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: false, level: null, toc_result_id: null, indicator_id: null, quantitative_contribution: null });
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+        expect(component.canSave()).toBe(true);
       });
 
-      it('saveBlockedByIncompleteToc is true when the draft is unanswered (required *)', async () => {
+      it('canSave is false when the draft is unanswered (required *)', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
-        // Fresh empty draft (aligns_with_toc === null) — the per-SP ToC question is
-        // required, so an unanswered block blocks save and surfaces the hint.
         expect(component.draftForSp('SP01').aligns_with_toc).toBeNull();
-        expect(component.saveBlockedByIncompleteToc()).toBe(true);
         expect(component.canSave()).toBe(false);
       });
     });
