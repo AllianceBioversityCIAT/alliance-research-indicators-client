@@ -2080,19 +2080,22 @@ describe('MyProjectsService', () => {
       expect(passed).not.toHaveProperty('pool-funding-contributor');
     });
 
-    it('getActiveFilters returns a single POOL FUNDING chip when enabled', () => {
+    it('getActiveFilters returns a single contribution-to-pool-funding chip when enabled', () => {
       service.appliedFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
 
       const chips = service.getActiveFilters();
-      const poolChips = chips.filter(c => c.label === 'POOL FUNDING');
+      const poolChips = chips.filter(c => c.label === 'CONTRIBUTING TO POOL FUNDING');
       expect(poolChips).toHaveLength(1);
-      expect(poolChips[0]).toEqual({ label: 'POOL FUNDING', value: 'Only Pool Funding' });
+      expect(poolChips[0]).toEqual({
+        label: 'CONTRIBUTING TO POOL FUNDING',
+        value: 'Contributing to Pool Funding'
+      });
     });
 
-    it('removeFilter("POOL FUNDING") resets poolFundingOnly to false', () => {
+    it('removeFilter("CONTRIBUTING TO POOL FUNDING") resets poolFundingOnly to false', () => {
       service.tableFilters.set({ ...new MyProjectsFilters(), poolFundingOnly: true });
 
-      service.removeFilter('POOL FUNDING');
+      service.removeFilter('CONTRIBUTING TO POOL FUNDING');
 
       expect(service.tableFilters().poolFundingOnly).toBe(false);
     });

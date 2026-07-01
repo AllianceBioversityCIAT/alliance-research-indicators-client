@@ -276,6 +276,32 @@ describe('ResultSidebarComponent', () => {
         expect(poolFundingOption?.greenCheckKey).toBe('pool_funding_alignment');
       });
 
+      it('AR.3 — section completion counter excludes Pool Funding alignment from total and completed', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+        cacheService.greenChecks?.set({
+          general_information: 0,
+          alignment: 1,
+          geo_location: 0,
+          partners: 0,
+          evidences: 0,
+          policy_change: 0,
+          cap_sharing_ip: 0,
+          completness: 0,
+          link_result: 0,
+          innovation_dev: 0,
+          oicr: 0
+        } as GreenChecks);
+        cacheService.currentMetadata?.set({ ...cacheService.currentMetadata(), indicator_id: 1 });
+
+        const visibleRequired = component
+          .allOptionsWithGreenChecks()
+          .filter(o => !o.hide && o.path !== 'pool-funding-alignment');
+
+        expect(component.getTotalCount()).toBe(visibleRequired.length);
+        expect(component.getCompletedCount()).toBe(1);
+        expect(component.getTotalCount()).toBe(component.getCompletedCount() + visibleRequired.filter(o => !o.greenCheck).length);
+      });
+
       it('regression — existing indicator_id filtering and green-check decoration unaffected by alignment state', () => {
         (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
         cacheService.currentMetadata?.set({ ...cacheService.currentMetadata(), indicator_id: 2 });

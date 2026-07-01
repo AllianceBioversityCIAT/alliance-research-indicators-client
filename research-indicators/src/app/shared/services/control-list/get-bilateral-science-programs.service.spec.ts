@@ -37,6 +37,7 @@ describe('GetBilateralScienceProgramsService', () => {
     sciencePrograms.set([
       { code: 'SP09', name: 'Scaling for Impact', category: 'Scaling programs', color: '#ec4899', icon_key: 'SP09', allocation: 25 }
     ]);
+    TestBed.flushEffects();
 
     expect(service.list()).toEqual([
       {
@@ -78,9 +79,9 @@ describe('GetBilateralScienceProgramsService', () => {
     expect(getSciencePrograms).not.toHaveBeenCalled();
   });
 
-  it('main() does not fetch while a load is already in flight', async () => {
+  it('main() delegates to BilateralService.getSciencePrograms even while a load is in flight (deduped server-side)', async () => {
     loadingSciencePrograms.set(true);
     await service.main();
-    expect(getSciencePrograms).not.toHaveBeenCalled();
+    expect(getSciencePrograms).toHaveBeenCalledWith('19792');
   });
 });

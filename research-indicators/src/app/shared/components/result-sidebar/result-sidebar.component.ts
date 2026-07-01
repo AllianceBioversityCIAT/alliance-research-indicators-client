@@ -82,6 +82,11 @@ export class ResultSidebarComponent {
     return !alignment || alignment.eligible === false;
   }
 
+  /** Pool Funding Alignment is optional for submission (AR.3) — exclude from progress counter. */
+  private countsTowardSectionCompletion(option: SidebarOption): boolean {
+    return option.path !== 'pool-funding-alignment';
+  }
+
   showOicrStatusDropdown = computed(() => {
     const meta = this.cache.currentMetadata();
     return this.roles.isAdmin() && meta.indicator_id === 5 && meta.status_id !== this.publishedOicrStatusId;
@@ -195,11 +200,15 @@ export class ResultSidebarComponent {
   );
 
   getCompletedCount(): number {
-    return this.allOptionsWithGreenChecks().filter(option => option.greenCheck).length;
+    return this.allOptionsWithGreenChecks()
+      .filter(option => !option.hide && this.countsTowardSectionCompletion(option) && option.greenCheck)
+      .length;
   }
 
   getTotalCount(): number {
-    return this.allOptionsWithGreenChecks().filter(option => !option.hide).length;
+    return this.allOptionsWithGreenChecks()
+      .filter(option => !option.hide && this.countsTowardSectionCompletion(option))
+      .length;
   }
 
   submmitConfirm() {

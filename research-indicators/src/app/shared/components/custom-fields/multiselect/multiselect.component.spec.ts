@@ -555,6 +555,7 @@ describe('MultiselectComponent', () => {
     component.optionsDisabled.set([{ id: 1 }]);
     mockService.list.mockReturnValue(mockServiceList);
     component.ngOnInit();
+    TestBed.flushEffects();
 
     const result = component.listWithDisabled();
 
@@ -1174,6 +1175,25 @@ describe('MultiselectComponent', () => {
       expect(component.optionsSig).toBe(listSig);
       expect(component.loadingSig).toBe(loadSig);
     });
+
+    it('should sync service.list into optionsSig via effect (service.list branch)', () => {
+      const sourceList = signal([{ official_code: 'SP03', name: 'Animal Foods' }]);
+      (component as any).service = {
+        list: sourceList,
+        loading: signal(false),
+        isOpenSearch: () => false
+      };
+      (component as any).bindServiceSignals();
+      TestBed.flushEffects();
+      expect(component.availableOptions()).toEqual([{ official_code: 'SP03', name: 'Animal Foods' }]);
+
+      sourceList.set([
+        { official_code: 'SP03', name: 'Animal Foods' },
+        { official_code: 'SP06', name: 'Climate Action' }
+      ]);
+      TestBed.flushEffects();
+      expect(component.availableOptions()).toHaveLength(2);
+    });
   });
 
   it('multiselectPanelStyle returns full width when appendTo is self', () => {
@@ -1184,6 +1204,44 @@ describe('MultiselectComponent', () => {
   it('virtualScrollEstimateSize returns 60 when optionLabel2 is set', () => {
     component.optionLabel2 = 'secondary';
     expect(component.virtualScrollEstimateSize()).toBe(60);
+  });
+
+  describe('effectiveVirtualScroll / effectiveScrollHeight (short-list panel sizing)', () => {
+    beforeEach(() => {
+      component.enableVirtualScroll = true;
+      component.scrollHeight = '268px';
+      component.itemHeight = 41;
+      (component as any).service = { isOpenSearch: () => false };
+    });
+
+    it('disables virtual scroll when fewer than 7 options are available', () => {
+      component.optionsSig.set([
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' }
+      ]);
+      expect(component.effectiveVirtualScroll()).toBe(false);
+    });
+
+    it('keeps virtual scroll enabled for long lists (e.g. levers)', () => {
+      component.optionsSig.set(Array.from({ length: 7 }, (_, i) => ({ id: i, name: `Item ${i}` })));
+      expect(component.effectiveVirtualScroll()).toBe(true);
+      expect(component.effectiveScrollHeight()).toBe('268px');
+    });
+
+    it('sizes scrollHeight to content for short lists', () => {
+      component.optionsSig.set([
+        { id: 1, name: 'A' },
+        { id: 2, name: 'B' }
+      ]);
+      // filter (52) + 2 rows (82) + padding (4) = 138
+      expect(component.effectiveScrollHeight()).toBe('138px');
+    });
+
+    it('respects enableVirtualScroll=false even for long lists', () => {
+      component.enableVirtualScroll = false;
+      component.optionsSig.set(Array.from({ length: 10 }, (_, i) => ({ id: i, name: `Item ${i}` })));
+      expect(component.effectiveVirtualScroll()).toBe(false);
+    });
   });
 
   describe('trackSelectedOptionRow / optionRowTrackKeyFromRow', () => {
@@ -1268,6 +1326,7 @@ describe('MultiselectComponent', () => {
       { id: 2, name: 'B' }
     ]);
     component.ngOnInit();
+    TestBed.flushEffects();
     mockUtilsService.getNestedProperty.mockReturnValue([]);
     const opts = component.availableOptions();
     expect(opts.some(o => o.id === 1)).toBe(true);
