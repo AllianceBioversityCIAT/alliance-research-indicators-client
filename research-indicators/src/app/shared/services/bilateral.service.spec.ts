@@ -200,18 +200,39 @@ describe('BilateralService', () => {
   });
 
   describe('isBilateral', () => {
-    it('true when funding_type contains "bilateral" (any case)', () => {
+    it('true for AGRESSO bilateral codes (BLR, BILATERAL) with trim/case normalization', () => {
+      expect(service.isBilateral({ funding_type: 'BLR' })).toBe(true);
+      expect(service.isBilateral({ funding_type: ' blr ' })).toBe(true);
+      expect(service.isBilateral({ funding_type: 'BILATERAL' })).toBe(true);
       expect(service.isBilateral({ funding_type: 'Bilateral' })).toBe(true);
-      expect(service.isBilateral({ funding_type: 'BILATERAL CONTRACT' })).toBe(true);
-      expect(service.isBilateral({ funding_type: 'mixed bilateral' })).toBe(true);
     });
 
-    it('false when funding_type is missing or non-bilateral', () => {
+    it('false when funding_type is missing, pooled (POL), or other non-bilateral values', () => {
       expect(service.isBilateral(null)).toBe(false);
       expect(service.isBilateral(undefined)).toBe(false);
       expect(service.isBilateral({})).toBe(false);
+      expect(service.isBilateral({ funding_type: 'POL' })).toBe(false);
       expect(service.isBilateral({ funding_type: 'Pool Funding' })).toBe(false);
+      expect(service.isBilateral({ funding_type: 'mixed bilateral' })).toBe(false);
       expect(service.isBilateral({ funding_type: null })).toBe(false);
+    });
+
+    it('false when funding is bilateral but an active pooled-funding contract exists (backend parity)', () => {
+      expect(
+        service.isBilateral({
+          funding_type: 'BLR',
+          pooled_funding_contracts: [{ is_active: true }]
+        })
+      ).toBe(false);
+    });
+
+    it('true when pooled-funding rows exist but none are active', () => {
+      expect(
+        service.isBilateral({
+          funding_type: 'BLR',
+          pooled_funding_contracts: [{ is_active: false }]
+        })
+      ).toBe(true);
     });
   });
 

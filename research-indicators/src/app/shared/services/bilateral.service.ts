@@ -15,6 +15,7 @@ import {
 import { RolesService } from './cache/roles.service';
 import { CurrentResultService } from './cache/current-result.service';
 import { ErrorResponse } from '@shared/interfaces/responses.interface';
+import { hasActivePooledFundingContract, isBilateralFundingType } from '@shared/constants/agresso-funding.constants';
 
 export type PatchTagResult =
   | { ok: true; data: PoolFundingTagPatchResponse }
@@ -124,9 +125,10 @@ export class BilateralService {
   }
 
   isBilateral(contract: AgressoContractRow | null | undefined): boolean {
-    const fundingType = contract?.funding_type;
-    if (!fundingType) return false;
-    return fundingType.toLowerCase().includes('bilateral');
+    if (!contract) return false;
+    if (!isBilateralFundingType(contract.funding_type)) return false;
+    // Parity with backend isBilateralTagTarget — reject when pooled-funding rows are active.
+    return !hasActivePooledFundingContract(contract);
   }
 
   async getAlignment(resultCode: string): Promise<AlignmentResponse | null> {

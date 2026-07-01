@@ -6,6 +6,7 @@ import { BilateralService } from '@services/bilateral.service';
 import { ActionsService } from '@services/actions.service';
 import { ClarityService } from '@services/clarity.service';
 import { AgressoContractRow } from '@interfaces/bilateral/agresso-contract.interface';
+import { hasActivePooledFundingContract, isBilateralFundingType } from '@shared/constants/agresso-funding.constants';
 
 describe('AgressoPoolFundingTagComponent', () => {
   let fixture: ComponentFixture<AgressoPoolFundingTagComponent>;
@@ -38,7 +39,7 @@ describe('AgressoPoolFundingTagComponent', () => {
       getContract: jest.fn(),
       patchTag: jest.fn(),
       isBilateral: jest.fn((c: AgressoContractRow | null | undefined) =>
-        !!c?.funding_type && c.funding_type.toLowerCase().includes('bilateral')
+        !!c && isBilateralFundingType(c.funding_type) && !hasActivePooledFundingContract(c)
       )
     };
 
