@@ -79,22 +79,6 @@
     border: 1px solid var(--ac-grey-200);
   }
 
-  &__callout {
-    border-left: 4px solid var(--ac-primary-blue-500);
-    padding-left: 10px;
-  }
-
-  &__callout-icon {
-    color: var(--ac-primary-blue-500);
-    font-weight: 300;
-  }
-
-  &__callout-text {
-    color: var(--ac-grey-700);
-    font-size: 14px;
-    line-height: 18px;
-  }
-
   &__readonly-label {
     color: var(--ac-grey-600);
     font-size: 12px;

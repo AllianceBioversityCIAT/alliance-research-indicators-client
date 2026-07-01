@@ -192,6 +192,14 @@ describe('PoolFundingAlignmentComponent', () => {
     expect(getAlignmentMock).toHaveBeenCalledWith('RES-001');
   });
 
+  it('renders the section title info icon aligned with tooltip text matching the info banner', () => {
+    fixture.detectChanges();
+    const icon = fixture.nativeElement.querySelector('[data-testid="pf-alignment-title-info-icon"]') as HTMLElement;
+    expect(icon).not.toBeNull();
+    expect(icon.getAttribute('aria-label')).toBe(component.INFO_BANNER);
+    expect(icon.classList.contains('pf-alignment-section-heading__icon')).toBe(true);
+  });
+
   it('falls back to cache.getCurrentNumericResultId when route param is absent', async () => {
     TestBed.resetTestingModule();
     const altRoute = { snapshot: { paramMap: { get: () => null } } };
@@ -880,6 +888,55 @@ describe('PoolFundingAlignmentComponent', () => {
       patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
       await component.onSave();
       expect(patchAlignmentMock).toHaveBeenCalledWith('RES-001', { has_contribution: true, sp_codes: ['SP01'] });
+    });
+  });
+
+  describe('HLO section visibility while ToC catalog loads (Issue 5)', () => {
+    const selectOneSpWhileCatalogPending = async () => {
+      tocCatalog.set(null);
+      loadingTocCatalog.set(true);
+      tocCatalogError.set(false);
+      mappingStatus.set('mapped');
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      component.onSpSelectionChange();
+      await Promise.resolve();
+      fixture.detectChanges();
+    };
+
+    it('shows the HLO section with a loading affordance when SPs are selected but the catalog is still fetching', async () => {
+      await selectOneSpWhileCatalogPending();
+      const root: HTMLElement = fixture.nativeElement;
+      expect(component.showHloSection()).toBe(true);
+      expect(component.hloSectionVisible()).toBe(true);
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-section"]')).not.toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-loading"]')).not.toBeNull();
+      expect(root.querySelector('app-sp-toc-alignment-block')).toBeNull();
+    });
+
+    it('renders ToC blocks once the catalog resolves after SP selection', async () => {
+      await selectOneSpWhileCatalogPending();
+      loadingTocCatalog.set(false);
+      tocCatalog.set(TOC_CATALOG_CAPSHARING_FIXTURE);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelectorAll('app-sp-toc-alignment-block').length).toBe(1);
+    });
+
+    it('refetches the catalog when SPs are selected and no catalog is loaded yet', async () => {
+      tocCatalog.set(null);
+      loadingTocCatalog.set(false);
+      tocCatalogError.set(false);
+      getTocCatalogMock.mockClear();
+      mappingStatus.set('mapped');
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      component.onSpSelectionChange();
+      await Promise.resolve();
+      expect(getTocCatalogMock).toHaveBeenCalledWith('RES-001');
     });
   });
 

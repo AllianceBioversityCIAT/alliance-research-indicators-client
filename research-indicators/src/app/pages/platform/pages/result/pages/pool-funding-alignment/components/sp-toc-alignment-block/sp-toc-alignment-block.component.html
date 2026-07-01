@@ -223,9 +223,13 @@
           aria-live="polite"
           [attr.aria-label]="'Quantitative contribution for ' + spCode()"
           [attr.data-testid]="'sp-toc-contribution-' + spCode()">
-          <div role="note" class="sp-toc-block__callout flex items-start gap-2">
-            <span class="material-symbols-rounded rotate-180 sp-toc-block__callout-icon" aria-hidden="true">info</span>
-            <p class="sp-toc-block__callout-text">{{ CONTRIBUTION_CALLOUT }}</p>
+          <div role="note"
+               class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5"
+               [attr.data-testid]="'sp-toc-contribution-callout-' + spCode()">
+            <span class="!text-[#074b86] !font-[300] material-symbols-rounded rotate-180" aria-hidden="true">info</span>
+            <p class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              {{ CONTRIBUTION_CALLOUT }}
+            </p>
           </div>
 
           <div class="flex flex-wrap gap-6">

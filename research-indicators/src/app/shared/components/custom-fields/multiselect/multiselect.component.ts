@@ -358,6 +358,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
   setValue(event: number[]) {
     this.body.set({ value: event });
+    let nextState: any;
 
     this.signal.update((current: any) => {
       const attr = this.optionValue;
@@ -373,11 +374,11 @@ export class MultiselectComponent implements OnInit, OnChanges {
         return merged as any;
       });
 
-      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, nextItems);
-
-      this.selectEvent.emit(current);
-      return { ...current };
+      nextState = { ...current, [this.signalOptionValue]: nextItems };
+      return nextState;
     });
+
+    queueMicrotask(() => this.selectEvent.emit(nextState));
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {

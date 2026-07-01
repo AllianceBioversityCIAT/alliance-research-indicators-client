@@ -162,6 +162,17 @@ export default class PoolFundingAlignmentComponent {
     return form.has_contribution === true && form.selected_sps.length >= 1;
   });
 
+  // Renders the HLO shell while the ToC catalog is in flight or failed, and once
+  // allowed_levels are known — avoids hiding the whole section during slow loads.
+  readonly hloSectionVisible = computed(() => {
+    if (this.loadingTocCatalog() && !this.tocCatalog()) return true;
+    if (this.tocCatalogError() && !this.tocCatalog()) return true;
+    return this.showTocBlocks();
+  });
+
+  readonly HLO_CATALOG_LOADING_MESSAGE = 'Loading the Theory of Change catalog…';
+  readonly HLO_CATALOG_ERROR_MESSAGE = "We couldn't load the Theory of Change catalog. Try again.";
+
   // T-BIL-TM2-04 — ToC catalog signals (T-02 seams) surfaced for the template.
   readonly loadingTocCatalog = this.bilateralService.loadingTocCatalog;
   readonly tocCatalogError = this.bilateralService.tocCatalogError;
@@ -339,7 +350,18 @@ export default class PoolFundingAlignmentComponent {
   // stays synchronous (D-6a destructive-deselect confirm internals unchanged).
   onSpSelectionChange(): void {
     this.clearRejectedSpError();
-    queueMicrotask(() => this.reconcileDrafts());
+    // Defer until MultiselectComponent's formData write settles, then reconcile
+    // drafts and (re)fetch the ToC catalog if the initial section load missed it.
+    queueMicrotask(() => {
+      this.reconcileDrafts();
+      this.ensureTocCatalogLoaded();
+    });
+  }
+
+  private ensureTocCatalogLoaded(): void {
+    if (this.formData().selected_sps.length === 0) return;
+    if (this.tocCatalog() || this.loadingTocCatalog()) return;
+    void this.bilateralService.getTocCatalog(this.resultCode());
   }
 
   private reconcileDrafts(): void {

@@ -280,6 +280,19 @@ describe('SpTocAlignmentBlockComponent', () => {
       expect(component.CONTRIBUTION_CALLOUT).not.toContain('2025');
     });
 
+    it('renders the contribution callout with the same banner layout as the HLO info banner', () => {
+      setup({ catalog: SP01_CAT, draft: fullDraft() });
+      fixture.detectChanges();
+      const callout = fixture.nativeElement.querySelector('[data-testid="sp-toc-contribution-callout-SP01"]') as HTMLElement;
+      expect(callout).not.toBeNull();
+      expect(callout.classList.contains('items-center')).toBe(true);
+      expect(callout.classList.contains('border-l-[5px]')).toBe(true);
+      expect(callout.classList.contains('bg-[#F4F7F9]')).toBe(true);
+      const text = callout.querySelector('p');
+      expect(text?.classList.contains('leading-[17px]')).toBe(true);
+      expect(text?.textContent).toContain('2026 target');
+    });
+
     it('emits the entered contribution value', () => {
       setup({ catalog: SP01_CAT, draft: fullDraft() });
       const emitted: SpAlignmentDraft[] = [];

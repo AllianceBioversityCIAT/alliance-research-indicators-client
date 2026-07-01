@@ -86,6 +86,8 @@ export class BilateralService {
   readonly tocCatalog = signal<BilateralTocCatalogResponse | null>(null);
   readonly loadingTocCatalog = signal(false);
   readonly tocCatalogError = signal(false);
+  private tocCatalogInflight = new Map<string, Promise<BilateralTocCatalogResponse | null>>();
+  private tocCatalogRequestSeq = 0;
 
   async getContract(code: string): Promise<AgressoContractRow | null> {
     this.loadingContract.set(true);
@@ -295,9 +297,30 @@ export class BilateralService {
   // `tocCatalogError`; a later success clears it. `loadingTocCatalog` is managed
   // in try/finally so the AC-11.1/AC-11.2 state machine never sticks on loading.
   async getTocCatalog(resultCode: string): Promise<BilateralTocCatalogResponse | null> {
+    const key = resultCode.replace(/^STAR-/i, '');
+    const inflight = this.tocCatalogInflight.get(key);
+    if (inflight) return inflight;
+
+    const requestSeq = ++this.tocCatalogRequestSeq;
+    const promise = this.fetchTocCatalog(resultCode, requestSeq).finally(() => {
+      if (this.tocCatalogInflight.get(key) === promise) {
+        this.tocCatalogInflight.delete(key);
+      }
+    });
+    this.tocCatalogInflight.set(key, promise);
+    return promise;
+  }
+
+  private async fetchTocCatalog(
+    resultCode: string,
+    requestSeq: number
+  ): Promise<BilateralTocCatalogResponse | null> {
     this.loadingTocCatalog.set(true);
     try {
       const res = await this.api.GET_PoolFundingHlosIndicators(resultCode);
+      if (requestSeq !== this.tocCatalogRequestSeq) {
+        return this.tocCatalog();
+      }
       if (!res?.successfulRequest) {
         this.tocCatalogError.set(true);
         return null;
@@ -306,7 +329,9 @@ export class BilateralService {
       this.tocCatalogError.set(false);
       return res.data;
     } finally {
-      this.loadingTocCatalog.set(false);
+      if (requestSeq === this.tocCatalogRequestSeq) {
+        this.loadingTocCatalog.set(false);
+      }
     }
   }
 
