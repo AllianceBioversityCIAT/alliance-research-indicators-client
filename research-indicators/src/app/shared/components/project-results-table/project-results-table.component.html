@@ -7,7 +7,8 @@
     <div class="header">
       <div class="search-box">
         <i class="material-symbols-rounded">search</i>
-        <input [(ngModel)]="cacheService.projectResultsSearchValue" type="text"
+        <label class="sr-only" for="project-results-search-input">Search project results</label>
+        <input id="project-results-search-input" [(ngModel)]="cacheService.projectResultsSearchValue" type="text"
           placeholder="Search by code, title or creator" />
       </div>
       <div class="options">
