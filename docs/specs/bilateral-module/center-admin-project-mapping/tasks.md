@@ -62,7 +62,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-02 — `BilateralMappingService` (data access + result objects)
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: T-BIL-CAM-01
 - **Discharges ACs**: AC-03.3, AC-05.5, AC-05.6, AC-06.3, AC-07.3, REQ-BIL-CAM-NF-06
 - **Touches**:

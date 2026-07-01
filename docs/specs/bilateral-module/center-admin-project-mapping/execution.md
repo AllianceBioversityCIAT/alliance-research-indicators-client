@@ -37,6 +37,23 @@
 
 ---
 
+### T-BIL-CAM-02 — `BilateralMappingService` (data access + result objects) — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01
+- **Attempts:** 1
+- **Requirements covered:** AC-03.3, AC-05.5, AC-05.6, AC-06.3, AC-07.3, REQ-BIL-CAM-NF-06
+
+**Attempt 1**
+- **Implementer** (general-purpose):
+  - Files (both NEW): `research-indicators/src/app/shared/services/bilateral-mapping.service.ts`, `.../bilateral-mapping.service.spec.ts` (15 tests).
+  - Service: `@Injectable({providedIn:'root'})`, injects `ApiService`; `list`/`get` → data|null; `create`/`update`/`deactivate` → `MappingMutationResult<T>` union; `loadAgressoOptions` (maps `GET_FindContracts({'pool-funding-contributor':true})`, drops missing `agreement_id`, `[]` on failure); `loadClarisaProjectOptions` (`[]` on failure). Private `extractApiError` = `errorDetail.errors → description → ''`.
+  - Verification: `npm run test -- bilateral-mapping.service` → 15/15 passed; `npm run lint` clean.
+  - Notes: mocked `ApiService` via `{provide:ApiService,useValue:mockApi}` (no HttpTestingController — service delegates to ApiService). 409 message read from `errorDetail.errors`.
+- **Reviewer** (read-only): **STATUS: PASS.** `extractApiError` resolves `errorDetail.errors → description → ''`, never the `ConflictException` class name; spec asserts the 409 errors-not-exception-name guard + all read/mutation/picker branches; no T-01 files/interfaces/tsconfig touched; re-ran `npm run test -- bilateral-mapping.service` green (15/15).
+- **Outcome:** PASS on attempt 1 → task `[x]`.
+
+---
+
 ## 3. Summary
 
-_In progress — T-BIL-CAM-01 complete; T-BIL-CAM-02 (BilateralMappingService) next._
+_In progress — T-BIL-CAM-01, T-BIL-CAM-02 complete. Next: T-BIL-CAM-03 (list page) and T-BIL-CAM-04 (route + sidebar), both now unblocked._
