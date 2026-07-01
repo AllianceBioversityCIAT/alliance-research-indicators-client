@@ -1396,6 +1396,40 @@ describe('PoolFundingAlignmentComponent', () => {
         expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).not.toBeNull();
       });
 
+      it('saveBlockedByIncompleteToc is false when only quantitative contribution is missing', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        component.onDraftChange({
+          sp_code: 'SP01',
+          aligns_with_toc: true,
+          level: 'OUTPUT',
+          toc_result_id: 5187,
+          indicator_id: 5973,
+          quantitative_contribution: null
+        });
+
+        expect(component.canSave()).toBe(false);
+        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+
+        sciencePrograms.set([{ code: 'SP01', name: 'A', category: null, color: null, icon_key: 'SP01', allocation: 100 }]);
+        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
+      });
+
+      it('saveBlockedByIncompleteToc is false when the "Yes" draft is complete with contribution 0', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        component.onDraftChange({
+          sp_code: 'SP01',
+          aligns_with_toc: true,
+          level: 'OUTPUT',
+          toc_result_id: 5187,
+          indicator_id: 5973,
+          quantitative_contribution: 0
+        });
+
+        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+        expect(component.canSave()).toBe(true);
+      });
+
       it('saveBlockedByIncompleteToc is false when the "Yes" draft is complete', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 });

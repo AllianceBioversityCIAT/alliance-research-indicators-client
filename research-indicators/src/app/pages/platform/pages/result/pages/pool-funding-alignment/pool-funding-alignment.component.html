@@ -262,21 +262,21 @@
                data-testid="pf-alignment-error-global">{{ msg }}</div>
         }
       </div>
-
-      @if (saveBlockedByIncompleteToc()) {
-        <div role="status" aria-live="polite"
-             class="mb-3 p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm"
-             data-testid="pf-alignment-save-hint">
-          {{ SAVE_BLOCKED_HINT }}
-        </div>
-      }
-
-      <app-navigation-buttons
-        [showBack]="true"
-        [showNext]="false"
-        [showSave]="editable() && !isReadOnly()"
-        [disableSave]="!canSave() || saving()"
-        (save)="onSave()" />
     </div>
   </div>
+
+  @if (saveBlockedByIncompleteToc()) {
+    <div role="status" aria-live="polite"
+         class="mb-3 p-3 rounded border border-[var(--ac-grey-700)] bg-[var(--ac-grey-100)] text-sm text-[var(--ac-grey-800)]"
+         data-testid="pf-alignment-save-hint">
+      {{ SAVE_BLOCKED_HINT }}
+    </div>
+  }
+
+  <app-navigation-buttons
+    [showBack]="true"
+    [showNext]="false"
+    [showSave]="editable() && !isReadOnly()"
+    [disableSave]="!canSave() || saving()"
+    (save)="onSave()" />
 </div>

@@ -222,13 +222,9 @@ export default class PoolFundingAlignmentComponent {
     return true;
   });
 
-  // REQ-BIL-SGU-05 — true when the section is otherwise saveable but Save is blocked
-  // specifically by an incomplete "Yes" block (D-9). Mirrors the canSave gate without
-  // touching it: same editable/dirty/minimal-selection preconditions + same render
-  // gate (showHloSection && showTocBlocks && !versionLocked), then narrows to drafts
-  // that are a "Yes" (aligns_with_toc === true) AND not yet saveable. Drives the
-  // inline Save-disabled hint only — it never changes whether Save is enabled.
-  // @sdd-spec docs/specs/bilateral-module/toc-mapping-save-gating-ux
+  // REQ-BIL-SGU-05 — surfaces the Save-disabled hint when a selected SP still needs
+  // a ToC answer or cascade selection (Level/HLO/Indicator). Omits the case where
+  // only quantitative contribution is missing — that field is already visible inline.
   readonly saveBlockedByIncompleteToc = computed(() => {
     const form = this.formData();
     const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
@@ -236,9 +232,7 @@ export default class PoolFundingAlignmentComponent {
     if (!(this.showHloSection() && this.showTocBlocks() && !this.versionLocked())) return false;
     return form.selected_sps.some(sp => {
       const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
-      // Hint whenever a rendered SP isn't yet saveable: unanswered (required *)
-      // or an incomplete "Yes" (D-9).
-      return !draft || !this.isDraftSaveable(draft);
+      return !draft || this.isDraftMissingTocCascadeAnswers(draft);
     });
   });
 
@@ -695,6 +689,13 @@ export default class PoolFundingAlignmentComponent {
       draft.quantitative_contribution !== null &&
       draft.quantitative_contribution >= 0
     );
+  }
+
+  /** True when the per-SP ToC question or cascade picks are still outstanding (not contribution). */
+  private isDraftMissingTocCascadeAnswers(draft: SpAlignmentDraft): boolean {
+    if (draft.aligns_with_toc === null) return true;
+    if (draft.aligns_with_toc === false) return false;
+    return draft.level === null || draft.toc_result_id === null || draft.indicator_id === null;
   }
 
   private sameCodeSet(a: string[], b: string[]): boolean {
