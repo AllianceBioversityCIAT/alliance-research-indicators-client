@@ -479,6 +479,118 @@ describe('SpTocAlignmentBlockComponent', () => {
     }));
   });
 
+  // --- Indicator-type guidance: cross-type selection warning ------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-04)
+  describe('cross-type selection warning (REQ-BIL-ITG-03 / AC-03.x)', () => {
+    const GUIDANCE_SP01_CAT: TocCatalogSp = TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.catalogs[0];
+    const WARNING_SELECTOR = '[data-testid="sp-toc-crosstype-warning-SP01"]';
+    /** AC-03.1 — exact copy (design §4.2): canonical indicator type + result type label. */
+    const EXPECTED_COPY =
+      'This indicator is typed “Number of knowledge products”; this result is “Capacity Sharing for Development”. Confirm the contribution belongs here.';
+
+    /** Renders the block against the guidance catalog (mixed HLO 7201 / unclassified-only 7202). */
+    function warningSetup(draftOverrides: Partial<SpAlignmentDraft>, resultType: string | null = 'capacity_sharing'): void {
+      setup({
+        catalog: GUIDANCE_SP01_CAT,
+        resultType,
+        draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', ...draftOverrides })
+      });
+    }
+
+    function warningEl(): HTMLElement | null {
+      return fixture.nativeElement.querySelector(WARNING_SELECTOR);
+    }
+
+    it('AC-03.1 — selecting the `other` indicator 7302 on HLO 7201 shows the warning naming BOTH types', () => {
+      warningSetup({ toc_result_id: 7201, indicator_id: null });
+      fixture.detectChanges();
+      expect(warningEl()).toBeNull();
+
+      // Selection round-trips through the pure block: the parent echoes the
+      // emitted draft back as a new input — model that echo directly.
+      fixture.componentRef.setInput('draft', emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7201, indicator_id: 7302 }));
+      fixture.detectChanges();
+
+      const el = warningEl();
+      expect(el).not.toBeNull();
+      expect(el?.textContent).toContain('Number of knowledge products'); // indicator type
+      expect(el?.textContent).toContain('Capacity Sharing for Development'); // result type
+      expect(el?.textContent?.replace(/\s+/g, ' ').trim()).toBe(EXPECTED_COPY);
+    });
+
+    it('NF-02 — warning is a polite status with an aria-hidden icon (color never the sole signal)', () => {
+      warningSetup({ toc_result_id: 7201, indicator_id: 7302 });
+      fixture.detectChanges();
+      const el = warningEl();
+      expect(el?.getAttribute('role')).toBe('status');
+      expect(el?.getAttribute('aria-live')).toBe('polite');
+      expect(el?.classList.contains('sp-toc-block__notice--warning')).toBe(true);
+      const icon = el?.querySelector('i.pi');
+      expect(icon).not.toBeNull();
+      expect(icon?.getAttribute('aria-hidden')).toBe('true');
+    });
+
+    it('AC-03.2 — no warning for type-match (7301) or wildcard (7303) selections', () => {
+      const expectedByIndicator: Record<number, string> = { 7301: 'type-match', 7303: 'wildcard' };
+      for (const [indicatorId, classification] of Object.entries(expectedByIndicator)) {
+        warningSetup({ toc_result_id: 7201, indicator_id: Number(indicatorId) });
+        fixture.detectChanges();
+        expect(component.selectedIndicatorClassification()).toBe(classification);
+        expect(warningEl()).toBeNull();
+      }
+    });
+
+    it('AC-03.2 — no warning for unclassified selections (7304/7305 on HLO 7202)', () => {
+      for (const indicatorId of [7304, 7305]) {
+        warningSetup({ toc_result_id: 7202, indicator_id: indicatorId });
+        fixture.detectChanges();
+        expect(component.selectedIndicatorClassification()).toBe('unclassified');
+        expect(warningEl()).toBeNull();
+      }
+    });
+
+    it('AC-03.4 — pre-populated saved cross-type draft warns on FIRST render with ZERO draftChange emissions', () => {
+      warningSetup({ toc_result_id: 7201, indicator_id: 7302, quantitative_contribution: 12 });
+      const emitted: SpAlignmentDraft[] = [];
+      component.draftChange.subscribe(d => emitted.push(d));
+
+      fixture.detectChanges();
+
+      expect(warningEl()).not.toBeNull();
+      expect(emitted.length).toBe(0);
+    });
+
+    it('AC-03.4 — saved indicator that no longer resolves in the catalog renders NO warning (stale path untouched)', () => {
+      warningSetup({ toc_result_id: 7201, indicator_id: 999999 });
+      fixture.detectChanges();
+      expect(component.selectedIndicatorClassification()).toBeNull();
+      expect(warningEl()).toBeNull();
+      // Existing staleness behavior preserved: nothing resolved ⇒ no panel either.
+      expect(fixture.nativeElement.querySelector('[data-testid="sp-toc-contribution-SP01"]')).toBeNull();
+    });
+
+    it('AC-05.1 — guidance disabled (resultType oicr): same cross-type selection, no warning', () => {
+      warningSetup({ toc_result_id: 7201, indicator_id: 7302 }, 'oicr');
+      fixture.detectChanges();
+      expect(warningEl()).toBeNull();
+    });
+
+    it('AC-03.3 — warning never gates the contribution panel or its emissions', () => {
+      warningSetup({ toc_result_id: 7201, indicator_id: 7302 });
+      fixture.detectChanges();
+      expect(warningEl()).not.toBeNull();
+      // Panel reveals normally with the cross-type indicator's unit + target.
+      expect(fixture.nativeElement.querySelector('[data-testid="sp-toc-contribution-SP01"]')).not.toBeNull();
+      const unit = fixture.nativeElement.querySelector('[data-testid="sp-toc-unit-SP01"]') as HTMLElement;
+      expect(unit.textContent?.trim()).toBe('Number');
+
+      const emitted: SpAlignmentDraft[] = [];
+      component.draftChange.subscribe(d => emitted.push(d));
+      component.onContributionChange(12);
+      expect(emitted[0]).toEqual(expect.objectContaining({ indicator_id: 7302, quantitative_contribution: 12 }));
+    });
+  });
+
   // --- Contribution panel (AC-07.1/07.2/07.3) --------------------------------
   describe('Contribution panel (AC-07.x)', () => {
     function fullDraft(): SpAlignmentDraft {

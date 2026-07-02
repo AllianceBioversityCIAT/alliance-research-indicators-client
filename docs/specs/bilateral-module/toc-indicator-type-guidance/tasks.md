@@ -79,7 +79,7 @@ T-BIL-ITG-02 (fixture extension, no deps)
 
 #### T-BIL-ITG-04 — *Cross-type selection warning*
 
-- **Status**: `pending`
+- **Status**: `completed` ✅ (2026-07-02, Reviewer PASS attempt 1 — see `execution.md`)
 - **Depends on**: T-BIL-ITG-03
 - **Discharges ACs**: AC-03.1, AC-03.2, AC-03.3, AC-03.4
 - **Touches**: block `.ts` (`selectedIndicatorClassification`, `CROSS_TYPE_WARNING`), `.html` (notice under indicator select), `.scss` (`__notice--warning`)

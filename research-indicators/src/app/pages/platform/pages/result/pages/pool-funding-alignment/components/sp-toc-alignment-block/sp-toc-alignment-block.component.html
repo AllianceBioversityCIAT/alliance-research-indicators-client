@@ -226,6 +226,19 @@
               </p-select>
             </div>
           }
+          <!-- Cross-type selection warning (REQ-BIL-ITG-03 / T-BIL-ITG-04) —
+               non-blocking: icon + text (never color-only, NF-02); contribution
+               panel, validation, and save are untouched (AC-03.3). -->
+          @if (crossTypeWarningMessage(); as msg) {
+            <div
+              role="status"
+              aria-live="polite"
+              class="sp-toc-block__notice sp-toc-block__notice--warning flex items-center gap-2"
+              [attr.data-testid]="'sp-toc-crosstype-warning-' + spCode()">
+              <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+              <span>{{ msg }}</span>
+            </div>
+          }
         </div>
       }
 

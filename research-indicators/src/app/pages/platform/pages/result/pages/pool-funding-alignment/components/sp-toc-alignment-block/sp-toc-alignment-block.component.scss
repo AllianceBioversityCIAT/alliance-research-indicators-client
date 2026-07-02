@@ -45,6 +45,19 @@
       border-color: var(--ac-red-1);
       color: var(--ac-red-1);
     }
+
+    // Cross-type selection warning (T-BIL-ITG-04): amber via --ac-orange-1 —
+    // the platform's warning-toned token (light #f58220 / dark #ff9d56, both
+    // defined in styles/colors.scss). Border + icon carry the amber; body text
+    // stays the notice's --ac-grey-800 for AA contrast — the icon + wording are
+    // the signal, never color alone (NF-02).
+    &--warning {
+      border-color: var(--ac-orange-1);
+
+      .pi {
+        color: var(--ac-orange-1);
+      }
+    }
   }
 
   &__retry {

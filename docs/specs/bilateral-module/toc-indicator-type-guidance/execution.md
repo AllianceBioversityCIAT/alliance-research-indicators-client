@@ -57,3 +57,18 @@
   - jsdom harness notes (documented inline in spec): describe-scoped `window.matchMedia` stub (PrimeNG Overlay probes it); filter tests invoke `onFilterInputChange` directly (synthetic `input` doesn't reach the zone-bound listener) and avoid `flush()` between filter and assert (ngModel's deferred `writeValue(null)` → `resetFilter()` artifact).
 - **Issues encountered**: none blocking. Reviewer minor note for T-06: add `afterAll` restore for the `matchMedia` stub (harmless in jsdom today). Manual overlay-width/wrapping check with badges deferred to the T-06 live golden path (as planned).
 - **Final verification**: 264/264 scoped tests, lint clean, scoped stylelint clean (independently reproduced by Reviewer).
+
+### T-BIL-ITG-04 — Cross-type selection warning — ✅ PASS (attempt 1) — 2026-07-02
+
+- **Attempts**: 1 Implementer run, 1 Reviewer run.
+- **Files changed** (4, additive 175+/0−): block `.ts/.html/.scss/.spec.ts`.
+- **What was added**: `CROSS_TYPE_WARNING(indTypeLabel, resTypeLabel)` copy (design §4.2 exact wording); computeds `selectedIndicatorClassification` (null when unselected or saved id unresolvable ⇒ AC-03.4 stale path) and `crossTypeWarningMessage` (non-null iff `guidanceEnabled()` && `'other'`); notice below the indicator select with `role="status"`, `aria-live="polite"`, icon `aria-hidden`, `data-testid="sp-toc-crosstype-warning-<sp>"`; scss `__notice--warning`.
+- **Implementer verification**: `npm run test -- sp-toc-alignment-block indicator-type-guidance` → 191/191 (+8 nuevos); lint clean; scoped stylelint clean.
+- **Reviewer verdict**: `STATUS: PASS` — AC-03.1..03.4 discharged; copy character-identical to design; provably non-blocking (panel + emit tested under the warning); purely additive diff; no T-05 scope leak; evidence independently reproduced.
+- **Requirements covered**: REQ-BIL-ITG-03 (AC-03.1..03.4).
+- **Decisions made**:
+  - Indicator-side label in the copy = canonical `type_value` (trimmed, unambiguous upstream name); result side = `RESULT_TYPE_LABELS` (Leader decision, documented in code).
+  - **Warning token: `--ac-orange-1`** (only amber token; defined light `#f58220` / dark `#ff9d56`). Contrast decision: amber tints border + icon only; body text stays `--ac-grey-800` because amber-on-white ≈ 2.5:1 fails AA for text (NF-02) — commented in scss.
+  - `guidanceEnabled()` checked explicitly in the warning computed (belt-and-braces; `'other'` is unreachable for unmatrixed types anyway).
+- **Issues encountered**: none.
+- **Final verification**: 191/191 scoped tests, lint + scoped stylelint clean (independently reproduced by Reviewer).

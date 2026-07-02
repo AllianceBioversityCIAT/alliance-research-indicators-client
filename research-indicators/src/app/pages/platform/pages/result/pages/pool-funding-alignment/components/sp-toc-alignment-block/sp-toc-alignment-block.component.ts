@@ -64,6 +64,15 @@ interface IndicatorSelectGroup {
 }
 
 /**
+ * AC-03.1 — exact cross-type warning copy (design §4.2, NF-05). The indicator
+ * side uses the canonical upstream `type_value` string (unambiguous), the
+ * result side the display label from `RESULT_TYPE_LABELS`.
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-04)
+ */
+const CROSS_TYPE_WARNING = (indTypeLabel: string, resTypeLabel: string): string =>
+  `This indicator is typed “${indTypeLabel}”; this result is “${resTypeLabel}”. Confirm the contribution belongs here.`;
+
+/**
  * Per-SP ToC alignment cascade block (Level → HLO → Indicator → Contribution).
  *
  * PURE presentational component: it renders one SP's alignment from its inputs
@@ -264,6 +273,34 @@ export class SpTocAlignmentBlockComponent {
         indicator => this.normalizeNumericId(indicator.indicator_id) === id
       ) ?? null
     );
+  });
+
+  // --- Cross-type selection warning (REQ-BIL-ITG-03) ---------------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-04)
+
+  /**
+   * Classification of the currently selected indicator, or null while none is
+   * selected / the saved id no longer resolves in the catalog (AC-03.4 stale
+   * path: no indicator ⇒ no warning). Pure derivation from draft + catalog, so
+   * a pre-populated saved cross-type draft classifies on first render with no
+   * draft mutation or emission.
+   */
+  readonly selectedIndicatorClassification = computed<IndicatorTypeClassification | null>(() => {
+    const indicator = this.selectedIndicator();
+    return indicator ? classifyIndicator(this.resultType(), indicator.type_value) : null;
+  });
+
+  /**
+   * AC-03.1/03.2 — warning copy when guidance is enabled AND the selected
+   * indicator classifies `other`; null otherwise. Non-blocking by construction:
+   * nothing else reads this — contribution reveal, validation, and the emitted
+   * draft are untouched (AC-03.3).
+   */
+  readonly crossTypeWarningMessage = computed<string | null>(() => {
+    if (!this.guidanceEnabled() || this.selectedIndicatorClassification() !== 'other') return null;
+    const indicatorTypeLabel = this.selectedIndicator()?.type_value?.trim() ?? '';
+    const resultTypeLabel = RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? '';
+    return CROSS_TYPE_WARNING(indicatorTypeLabel, resultTypeLabel);
   });
 
   // --- Emission helpers (cascade resets applied; inputs never mutated) --------
