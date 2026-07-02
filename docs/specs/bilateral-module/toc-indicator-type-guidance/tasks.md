@@ -48,7 +48,7 @@ T-BIL-ITG-02 (fixture extension, no deps)
 
 #### T-BIL-ITG-02 — *Fixture: full classification coverage*
 
-- **Status**: `pending`
+- **Status**: `completed` ✅ (2026-07-02, Reviewer PASS attempt 1 — see `execution.md`)
 - **Depends on**: none
 - **Discharges ACs**: (enabler for AC-02.*, AC-03.*, AC-04.*)
 - **Touches**: `research-indicators/src/app/testing/toc-catalog.fixture.ts`

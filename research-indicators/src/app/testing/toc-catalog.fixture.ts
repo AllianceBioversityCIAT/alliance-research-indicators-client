@@ -988,3 +988,109 @@ export const SAVED_TOC_ALIGNMENTS_FIXTURE: SavedTocAlignment[] = [
     target_year: null
   }
 ];
+
+// ---------------------------------------------------------------------------
+// @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-02) — classification coverage: type-match / wildcard / other / unclassified states
+//
+// APPEND-ONLY extension: everything above stays byte-identical (consumers
+// assert exact counts/ids on it, e.g. "22 HLOs for SP01 OUTPUT", "5 indicators
+// on 5187"). The guidance suites (T-BIL-ITG-03..05) use the exports below.
+// ---------------------------------------------------------------------------
+
+/**
+ * Extra SP01 OUTPUT-level HLOs covering the classification states the live
+ * snapshot lacks at this level (`classifyIndicator` matrix, D-ITG-6):
+ * - 7201 is MIXED for `capacity_sharing`: a trained-people type-match (7301)
+ *   next to an `other` canonical type (7302) and a `custom` wildcard (7303).
+ * - 7202 has ZERO type-matches for `capacity_sharing`: only unclassified
+ *   indicators — a `null` `type_value` (7304) and an `_n_*` free-text one (7305).
+ * Ids (72xx / 73xx) collide with nothing above.
+ */
+export const SP01_OUTPUT_GUIDANCE_TOC_RESULTS_FIXTURE: TocCatalogResult[] = [
+  {
+    toc_result_id: 7201,
+    title: 'HLO23.AOW5.IO2 Grow shared skills',
+    description: 'Capacity-sharing curricula and materials are co-developed and delivered with breeding network partners',
+    aow_code: 'AOW05',
+    indicators: [
+      {
+        indicator_id: 7301,
+        indicator_description: 'Number of partner staff trained through co-developed capacity-sharing curricula',
+        unit_of_measurement: 'Number',
+        type_value: 'Number of people trained (capacity sharing for development)',
+        target_value: '120',
+        target_year: 2026
+      },
+      {
+        indicator_id: 7302,
+        indicator_description: 'Number of training manuals and curricula published for breeding network partners',
+        unit_of_measurement: 'Number',
+        type_value: 'Number of knowledge products',
+        target_value: '4',
+        target_year: 2026
+      },
+      {
+        indicator_id: 7303,
+        indicator_description: 'Number of partner institutions hosting co-delivered training events',
+        unit_of_measurement: 'Number',
+        type_value: 'custom',
+        target_value: '8',
+        target_year: 2026
+      }
+    ]
+  },
+  {
+    toc_result_id: 7202,
+    title: 'HLO24.AOW5.IO3 Track partner engagement',
+    description: 'Engagement of Global South research partners in breeding network governance is monitored and reported',
+    aow_code: 'AOW05',
+    indicators: [
+      {
+        indicator_id: 7304,
+        indicator_description: 'Number of partner engagement monitoring reports produced',
+        unit_of_measurement: 'Number',
+        type_value: null,
+        target_value: '2',
+        target_year: 2026
+      },
+      {
+        indicator_id: 7305,
+        indicator_description: 'Number of Global South research partners engaged in network governance',
+        unit_of_measurement: 'Number',
+        type_value: '_n_Number of research partners from the Global South that collaborate with CGIAR.',
+        target_value: '15',
+        target_year: 2026
+      }
+    ]
+  }
+];
+
+/**
+ * CapSharing guidance catalog (`result_type: 'capacity_sharing'`, OUTPUT only)
+ * composed WITHOUT mutating the frozen arrays above. Classification states:
+ * - (a) MIXED HLO — SP01/OUTPUT/7201 (type-match 7301 + other 7302 + wildcard 7303).
+ *   SP01/OUTPUT/5186 stays the pure single-type-match HLO (indicator 5971).
+ * - (b) ZERO-type-match HLO — SP01/OUTPUT/7202 (unclassified only: null 7304,
+ *   `_n_*` 7305); SP01/OUTPUT/5172 is the other-canonical-only variant.
+ * - (c) Anywhere-empty level (AC-04.4) — SP03/OUTPUT: no trained-people
+ *   type-match in ANY of its HLOs (only knowledge-product / innovation /
+ *   custom types).
+ */
+export const TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE: BilateralTocCatalogResponse = {
+  result_code: 'STAR-5238',
+  mapping_status: 'mapped',
+  clarisa_project: { id: 123, short_name: 'EMBRAPA - Test project' },
+  result_type: 'capacity_sharing',
+  allowed_levels: ['OUTPUT'],
+  version_locked: false,
+  catalogs: [
+    {
+      sp_code: 'SP01',
+      levels: [{ level: 'OUTPUT', toc_results: [...SP01_OUTPUT_TOC_RESULTS_FIXTURE, ...SP01_OUTPUT_GUIDANCE_TOC_RESULTS_FIXTURE] }]
+    },
+    {
+      sp_code: 'SP03',
+      levels: [{ level: 'OUTPUT', toc_results: SP03_OUTPUT_TOC_RESULTS_FIXTURE }]
+    }
+  ]
+};
