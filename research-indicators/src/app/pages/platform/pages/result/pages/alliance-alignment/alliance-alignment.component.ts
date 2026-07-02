@@ -4,6 +4,7 @@ import { GetLeversService } from '@services/control-list/get-levers.service';
 import { GetStrategicObjectivesService } from '@services/control-list/get-strategic-objectives.service';
 import { GetImpactOutcomesService } from '@services/control-list/get-impact-outcomes.service';
 import { GetSdgsService } from '@services/control-list/get-sdgs.service';
+import { GetLeverSdgTargetsService } from '@services/control-list/get-lever-sdg-targets.service';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../../../../shared/services/api.service';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -27,7 +28,12 @@ import { AllianceLeverCardComponent } from './components/alliance-lever-card/all
 import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { AllianceAlignmentP2Component } from './portfolio/alliance-alignment-p2.component';
 import {
+  AlignmentSdgTargetRow,
   buildPortfolio2AlignmentPatch,
+  enrichAlignmentLevers,
+  enrichAlignmentSdgTargets,
+  enrichPortfolio2Contracts,
+  enrichResultSdgs,
   normalizePortfolio2AlignmentGet
 } from './portfolio/portfolio-2-alignment.mapper';
 
@@ -57,6 +63,7 @@ export default class AllianceAlignmentComponent {
   getStrategicObjectivesService = inject(GetStrategicObjectivesService);
   getImpactOutcomesService = inject(GetImpactOutcomesService);
   getSdgsService = inject(GetSdgsService);
+  getLeverSdgTargetsService = inject(GetLeverSdgTargetsService);
   body: WritableSignal<GetAllianceAlignment> = signal({
     contracts: [],
     result_sdgs: [],
@@ -84,7 +91,7 @@ export default class AllianceAlignmentComponent {
     string | number,
     WritableSignal<{
       result_lever_sdgs: GetSdgs[];
-      result_lever_sdg_targets: ResultLeverSdgTargetPayload[];
+      result_lever_sdg_targets: AlignmentSdgTargetRow[];
     }>
   >();
   private readonly leverCustomNameSignals = new Map<string | number, WritableSignal<{ custom_lever_name: string }>>();
@@ -115,22 +122,23 @@ export default class AllianceAlignmentComponent {
   async getData() {
     this.leverOutcomeSignals.clear();
     this.leverSdgSignals.clear();
+    this.leverCustomNameSignals.clear();
 
-    const response = await this.apiService.GET_Alignments(
-      this.cache.getCurrentNumericResultId(),
-      this.alignmentRequestParams()
-    );
+    const portfolioParams = this.leverServiceParams();
+    const contractParams = this.contractServiceParams();
+
+    const [response] = await Promise.all([
+      this.apiService.GET_Alignments(this.cache.getCurrentNumericResultId(), this.alignmentRequestParams()),
+      this.getContractsService.main(contractParams),
+      this.getLeversService.main(portfolioParams),
+      this.getSdgsService.main()
+    ]);
 
     if (this.isPortfolioP2Alignment()) {
-      const portfolioParams = this.leverServiceParams();
-      const contractParams = this.contractServiceParams();
-
       await Promise.all([
-        this.getContractsService.main(contractParams),
-        this.getLeversService.main(portfolioParams),
         this.getStrategicObjectivesService.main(portfolioParams),
         this.getImpactOutcomesService.main(portfolioParams),
-        this.getSdgsService.main()
+        ...(this.isOicrIndicator() ? [] : [this.getSdgsService.main()])
       ]);
 
       const normalized = normalizePortfolio2AlignmentGet(response.data, {
@@ -147,27 +155,36 @@ export default class AllianceAlignmentComponent {
       return;
     }
 
-    const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
-      (sdgs ?? []).map(sdg => {
-        const normalizedId = sdg.id ?? sdg.clarisa_sdg_id ?? (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? 0;
-        return {
-          ...sdg,
-          id: normalizedId,
-          sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? normalizedId
-        };
-      });
+    const leversCatalog = this.getLeversService.getList(portfolioParams)();
+    const contractsCatalog = this.getContractsService.getList(contractParams)();
+    const sdgsCatalog = this.getSdgsService.list();
+
+    const leverIdsFromResponse = [
+      ...new Set(
+        [...(response.data.primary_levers ?? []), ...(response.data.contributor_levers ?? [])]
+          .map(lever => lever.lever_id)
+          .filter(leverId => leverId != null && leverId !== '')
+      )
+    ];
+
+    if (leverIdsFromResponse.length) {
+      await Promise.all(leverIdsFromResponse.map(leverId => this.getLeverSdgTargetsService.main(leverId)));
+    }
 
     const mapLevers = (levers: Lever[] | undefined): Lever[] =>
-      (levers ?? []).map(l => ({
-        ...l,
-        result_lever_sdgs: normalizeSdgs(l.result_lever_sdgs),
-        result_lever_sdg_targets: this.normalizeResultLeverSdgTargets((l as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets)
+      (levers ?? []).map(lever => ({
+        ...lever,
+        result_lever_sdgs: enrichResultSdgs(lever.result_lever_sdgs, sdgsCatalog),
+        result_lever_sdg_targets: enrichAlignmentSdgTargets(
+          (lever as Lever & { result_lever_sdg_targets?: unknown }).result_lever_sdg_targets,
+          this.getLeverSdgTargetsService.getList(lever.lever_id)()
+        )
       }));
 
-    let primary_levers = mapLevers(response.data.primary_levers);
-    let contributor_levers = mapLevers(response.data.contributor_levers);
+    let primary_levers = enrichAlignmentLevers(mapLevers(response.data.primary_levers), leversCatalog);
+    let contributor_levers = enrichAlignmentLevers(mapLevers(response.data.contributor_levers), leversCatalog);
 
-    const legacyRootSdgs = normalizeSdgs(response.data.result_sdgs);
+    const legacyRootSdgs = enrichResultSdgs(response.data.result_sdgs, sdgsCatalog);
     const anyLeverHasSdgs = [...primary_levers, ...contributor_levers].some(l => l.result_lever_sdgs != null && l.result_lever_sdgs.length > 0);
 
     if (this.isOicrIndicator() && legacyRootSdgs.length && !anyLeverHasSdgs) {
@@ -181,8 +198,10 @@ export default class AllianceAlignmentComponent {
       }
     }
 
+    this.populateLeverChildSignals([...primary_levers, ...contributor_levers]);
+
     this.body.set({
-      contracts: response.data.contracts || [],
+      contracts: enrichPortfolio2Contracts(response.data.contracts, contractsCatalog),
       result_sdgs: this.isOicrIndicator() ? [] : legacyRootSdgs,
       primary_levers,
       contributor_levers,
@@ -190,6 +209,29 @@ export default class AllianceAlignmentComponent {
       strategic_objectives: response.data.strategic_objectives || [],
       impact_outcomes: response.data.impact_outcomes || []
     });
+  }
+
+  private populateLeverChildSignals(levers: Lever[]) {
+    for (const lever of levers) {
+      this.leverOutcomeSignals.set(
+        lever.lever_id,
+        signal({ result_lever_strategic_outcomes: lever.result_lever_strategic_outcomes ?? [] })
+      );
+      this.leverSdgSignals.set(
+        lever.lever_id,
+        signal({
+          result_lever_sdgs: lever.result_lever_sdgs ?? [],
+          result_lever_sdg_targets: (lever.result_lever_sdg_targets ?? []) as AlignmentSdgTargetRow[]
+        })
+      );
+
+      if (this.isOtherLever(lever)) {
+        this.leverCustomNameSignals.set(
+          lever.lever_id,
+          signal({ custom_lever_name: lever.custom_lever_name ?? '' })
+        );
+      }
+    }
   }
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
@@ -217,12 +259,13 @@ export default class AllianceAlignmentComponent {
     return { sdg_target_id: n };
   }
 
-  normalizeResultLeverSdgTargets(raw: unknown): ResultLeverSdgTargetPayload[] {
+  normalizeResultLeverSdgTargets(raw: unknown): AlignmentSdgTargetRow[] {
     if (!Array.isArray(raw)) return [];
-    const out: ResultLeverSdgTargetPayload[] = [];
+    const out: AlignmentSdgTargetRow[] = [];
     for (const x of raw) {
       const parsed = this.parseResultLeverSdgTargetEntry(x);
-      if (parsed) out.push(parsed);
+      if (!parsed) continue;
+      out.push(x && typeof x === 'object' ? { ...(x as AlignmentSdgTargetRow), ...parsed } : parsed);
     }
     return out;
   }
@@ -464,6 +507,7 @@ export default class AllianceAlignmentComponent {
   };
 
   getLeverName(leverId: string | number): string {
+    if (Number(leverId) === OTHER_LEVER_ID) return 'Other';
     return `Lever ${leverId}`;
   }
 

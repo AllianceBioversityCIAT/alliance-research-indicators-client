@@ -163,7 +163,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
             this.signalOptionValue,
             this.utils.getNestedProperty(current, this.signalOptionValue)?.map((item: any) => {
               const itemFound = this.findOptionForItem(item, this.optionsSig() ?? []);
-              return itemFound ? { ...item, ...itemFound } : item;
+              return itemFound ? { ...itemFound, ...item } : item;
             })
           );
           return {
@@ -333,8 +333,8 @@ export class MultiselectComponent implements OnInit, OnChanges {
         const fromPrev = prevItems.find((item: any) => item[attr] == id);
         const fromOptions = this.findOptionForItem({ [attr]: id }, optionsList);
         const merged: Record<string, unknown> = {};
-        if (fromPrev) Object.assign(merged, fromPrev);
         if (fromOptions) Object.assign(merged, fromOptions);
+        if (fromPrev) Object.assign(merged, fromPrev);
         merged[attr] ??= id;
         return merged as any;
       });

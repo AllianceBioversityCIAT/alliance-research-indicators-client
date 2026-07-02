@@ -3,6 +3,10 @@ import { GetContracts, GetContractsExtended } from '@shared/interfaces/get-contr
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
 import { GetSdgs } from '@shared/interfaces/get-sdgs.interface';
 import { PortfolioConfigItem } from '@shared/interfaces/portfolio-config.interface';
+import { Lever } from '@shared/interfaces/oicr-creation.interface';
+import { LeverSdgTargetOption, ResultLeverSdgTargetPayload } from '@shared/interfaces/lever-sdg-target.interface';
+
+const OTHER_LEVER_ID = 9;
 
 type ContractCatalogItem = GetContracts & Partial<GetContractsExtended>;
 type LeverNameValue = string | { short_name?: string; name?: string };
@@ -62,6 +66,29 @@ const normalizeResearchAreas = (areas: GetLevers[] | undefined): GetLevers[] =>
     })
     .filter((area): area is GetLevers => area != null);
 
+export const enrichAlignmentLevers = (levers: Lever[] | undefined, catalog?: GetLevers[]): Lever[] =>
+  (levers ?? []).map(lever => {
+    const leverKey = String(lever.lever_id);
+    const match = catalog?.find(item => String(item.lever_id ?? item.id) === leverKey);
+    const otherDefaults =
+      Number(lever.lever_id) === OTHER_LEVER_ID
+        ? { short_name: 'Other', other_names: 'Other', full_name: 'Other' }
+        : {};
+
+    if (!match) {
+      return { ...otherDefaults, ...lever } as Lever;
+    }
+
+    return {
+      ...match,
+      ...lever,
+      lever_id: lever.lever_id,
+      short_name: lever.short_name ?? match.short_name,
+      other_names: lever.other_names ?? match.other_names,
+      icon: lever.icon ?? match.icon ?? match.lever_url
+    } as Lever;
+  });
+
 export const enrichResearchAreas = (areas: GetLevers[] | undefined, catalog?: GetLevers[]): GetLevers[] =>
   normalizeResearchAreas(areas).map(area => {
     const leverKey = String(area.lever_id ?? area.id);
@@ -77,7 +104,45 @@ export const enrichResearchAreas = (areas: GetLevers[] | undefined, catalog?: Ge
     } as GetLevers;
   });
 
-const enrichResultSdgs = (sdgs: GetSdgs[] | undefined, catalog?: GetSdgs[]): GetSdgs[] =>
+export type AlignmentSdgTargetRow = ResultLeverSdgTargetPayload & Partial<LeverSdgTargetOption>;
+
+const resolveSdgTargetId = (raw: unknown): number | null => {
+  if (typeof raw === 'number' && Number.isFinite(raw) && raw > 0) return raw;
+  if (!raw || typeof raw !== 'object') return null;
+  const id = (raw as Record<string, unknown>)['sdg_target_id'] ?? (raw as Record<string, unknown>)['id'];
+  const parsed = typeof id === 'number' ? id : typeof id === 'string' && id !== '' ? Number(id) : Number.NaN;
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+export const enrichAlignmentSdgTargets = (
+  targets: unknown[] | undefined,
+  catalog?: LeverSdgTargetOption[]
+): AlignmentSdgTargetRow[] => {
+  if (!Array.isArray(targets)) return [];
+
+  return targets
+    .map(raw => {
+      const sdgTargetId = resolveSdgTargetId(raw);
+      if (sdgTargetId == null) return null;
+
+      const saved = raw && typeof raw === 'object' ? (raw as AlignmentSdgTargetRow) : { sdg_target_id: sdgTargetId };
+      const match = catalog?.find(item => Number(item.sdg_target_id ?? item.id) === sdgTargetId);
+
+      if (!match) {
+        return { ...saved, sdg_target_id: sdgTargetId };
+      }
+
+      return {
+        ...match,
+        ...saved,
+        sdg_target_id: sdgTargetId,
+        select_label: saved.select_label ?? match.select_label
+      };
+    })
+    .filter((target): target is AlignmentSdgTargetRow => target != null);
+};
+
+export const enrichResultSdgs = (sdgs: GetSdgs[] | undefined, catalog?: GetSdgs[]): GetSdgs[] =>
   normalizeSdgs(sdgs)
     .map(sdg => {
       const sdgId = Number(sdg.id ?? sdg.clarisa_sdg_id);
