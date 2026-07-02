@@ -33,7 +33,7 @@ T-BIL-ITG-02 (fixture extension, no deps)
 
 #### T-BIL-ITG-01 — *Classification util: matrix, labels, `classifyIndicator()`*
 
-- **Status**: `pending`
+- **Status**: `completed` ✅ (2026-07-02, Reviewer PASS attempt 1 — see `execution.md`)
 - **Depends on**: none
 - **Discharges ACs**: AC-01.1, AC-01.2, AC-01.3, AC-01.4, AC-05.3
 - **Touches**:
