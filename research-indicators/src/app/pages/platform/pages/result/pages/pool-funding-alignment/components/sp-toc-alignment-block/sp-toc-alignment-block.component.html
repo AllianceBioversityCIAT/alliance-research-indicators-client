@@ -168,7 +168,9 @@
         }
       }
 
-      <!-- Indicator select (searchable, unfiltered by type — D-5) -->
+      <!-- Indicator select (searchable, unfiltered by type — D-5; grouped/badged
+           by the indicator-type guidance when the result type is matrixed,
+           REQ-BIL-ITG-02 / T-BIL-ITG-03) -->
       @if (d.toc_result_id !== null) {
         <div class="flex flex-col gap-1">
           <label [for]="'sp-toc-indicator-' + spCode()" class="label inline-block">
@@ -187,9 +189,12 @@
               <p-select
                 #indicatorSelect
                 [inputId]="'sp-toc-indicator-' + spCode()"
-                [options]="indicatorOptions()"
+                [options]="indicatorSelectOptions()"
+                [group]="indicatorGroupsEnabled()"
                 optionLabel="label"
                 optionValue="value"
+                optionGroupLabel="label"
+                optionGroupChildren="items"
                 [filter]="true"
                 filterBy="label"
                 [autoOptionFocus]="false"
@@ -206,8 +211,17 @@
                 (onShow)="onSelectPanelShow(indicatorSelect, indicatorSelectTrigger)"
                 [style]="{ width: '100%' }"
                 [attr.data-testid]="'sp-toc-indicator-' + spCode()">
+                <!-- AC-02.1 — text-only group header (announced via PrimeNG group semantics, NF-02). -->
+                <ng-template let-group pTemplate="group">
+                  <span class="sp-toc-block__group-label">{{ group.label }}</span>
+                </ng-template>
                 <ng-template let-option pTemplate="item">
-                  <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">{{ option.label }}</span>
+                  <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">
+                    {{ option.label }}
+                    @if (option.badge) {
+                      <span class="sp-toc-block__type-badge">{{ option.badge }}</span>
+                    }
+                  </span>
                 </ng-template>
               </p-select>
             </div>

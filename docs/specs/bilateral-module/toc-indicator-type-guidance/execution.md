@@ -41,3 +41,19 @@
 - **Decisions made**: did NOT append into `SP01_OUTPUT_TOC_RESULTS_FIXTURE` / `TOC_CATALOG_CAPSHARING_FIXTURE` (consumers hard-assert counts/identity); new composed catalog instead. **T-03..05 must use `TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE`** (its SP01 OUTPUT has 24 HLOs, not 22).
 - **Issues encountered**: pre-existing, unrelated `multiselect.component.spec.ts:426` failure on the branch (also fails on clean HEAD) — out of scope; flagged for the T-06 sweep.
 - **Final verification**: fixture-consumer suites 305/305 green; lint clean.
+
+### T-BIL-ITG-03 — Grouped + badged indicator dropdown, `resultType` wiring — ✅ PASS (attempt 1) — 2026-07-02
+
+- **Attempts**: 1 Implementer run, 1 Reviewer run.
+- **Files changed** (8): block `.ts/.html/.scss/.spec.ts`, page `.ts/.html/.spec.ts`, `pool-funding-alignment.interface.ts` (comment-only).
+- **What was added**: `resultType` signal input (D-ITG-3, block stays pure); `IndicatorSelectOption {label, value, badge, classification}` view-model; computeds `guidanceEnabled` (`Object.hasOwn(TOC_TYPE_MATRIX, …)`), `classifiedIndicators`, `indicatorGroupsEnabled`, `indicatorSelectOptions` (Recommended = type-matches then wildcards; Other = other + unclassified in catalog order; empty Other dropped; flat fallback otherwise); `recommendedGroupLabel` computed + `OTHER_GROUP_LABEL`; template `[group]` + `pTemplate="group"` text header + badge chip in item template; scss `__type-badge`/`__group-label` token-only (`--ac-grey-*`, defined for light+dark in `src/styles/colors.scss`); page `resultType` computed + binding.
+- **Implementer verification**: `npm run test -- sp-toc-alignment-block pool-funding-alignment indicator-type-guidance` → 3 suites / 264 tests pass; `npm run lint` clean; scoped stylelint clean (repo-wide `s-lint` has 350 pre-existing errors in untouched files, reproduced on clean HEAD via stash control).
+- **Reviewer verdict**: `STATUS: PASS` — AC-02.1..02.5 + AC-05.1/05.2 each discharged by non-vacuous tests; independently reproduced 264/264 + lint + scoped stylelint; no T-04/T-05 scope leak (grep); interface diff comment-only; strict TS held.
+- **Requirements covered**: REQ-BIL-ITG-02 (AC-02.1..02.5), AC-05.1, AC-05.2.
+- **Decisions made**:
+  - **R-2 resolved: native PrimeNG 19 group+filter works — no custom filter fallback.** Verified in PrimeNG source (`visibleOptions()` filters group children and drops emptied groups) and via overlay-DOM tests through the template-bound `onFilterInputChange` handler (3 states: Recommended-only, Other-only, no-match ⇒ zero orphaned headers).
+  - Old `indicatorOptions` kept as documented back-compat alias of `classifiedIndicators` (same objects; `{label, value}` preserved) ⇒ AC-06.2 with **zero** existing assertions modified.
+  - Badges render whenever guidance is enabled, including flat-fallback lists (AC-02.2 not conditioned on grouping); suppressed wholesale for unmatrixed result types.
+  - jsdom harness notes (documented inline in spec): describe-scoped `window.matchMedia` stub (PrimeNG Overlay probes it); filter tests invoke `onFilterInputChange` directly (synthetic `input` doesn't reach the zone-bound listener) and avoid `flush()` between filter and assert (ngModel's deferred `writeValue(null)` → `resetFilter()` artifact).
+- **Issues encountered**: none blocking. Reviewer minor note for T-06: add `afterAll` restore for the `matchMedia` stub (harmless in jsdom today). Manual overlay-width/wrapping check with badges deferred to the T-06 live golden path (as planned).
+- **Final verification**: 264/264 scoped tests, lint clean, scoped stylelint clean (independently reproduced by Reviewer).

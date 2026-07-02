@@ -61,7 +61,7 @@ T-BIL-ITG-02 (fixture extension, no deps)
 
 #### T-BIL-ITG-03 — *Grouped + badged indicator dropdown, `resultType` wiring*
 
-- **Status**: `pending`
+- **Status**: `completed` ✅ (2026-07-02, Reviewer PASS attempt 1 — see `execution.md`)
 - **Depends on**: T-BIL-ITG-01, T-BIL-ITG-02
 - **Discharges ACs**: AC-02.1, AC-02.2, AC-02.3, AC-02.4, AC-02.5, AC-05.1, AC-05.2
 - **Touches**:

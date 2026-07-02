@@ -10,6 +10,13 @@ import {
   TocCatalogSp,
   TocLevel
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
+import {
+  IndicatorTypeClassification,
+  RESULT_TYPE_LABELS,
+  TOC_TYPE_MATRIX,
+  TYPE_BADGE_LABELS,
+  classifyIndicator
+} from '../../utils/indicator-type-guidance.util';
 
 /**
  * Minimal SP shape this block needs. Mirrors the page's local
@@ -34,6 +41,26 @@ interface HloSelectOption {
   value: number;
   aowCode: string | null;
   title: string;
+}
+
+/**
+ * Indicator option enriched with its type classification + badge label
+ * (REQ-BIL-ITG-02). `badge` is null for `unclassified` options (AC-02.2) —
+ * which includes EVERY option when guidance is disabled (AC-05.1), so the flat
+ * fallback renders exactly like today's list apart from these inert fields.
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+ */
+export interface IndicatorSelectOption {
+  label: string;
+  value: number;
+  badge: string | null;
+  classification: IndicatorTypeClassification;
+}
+
+/** Grouped shape fed to `p-select [group]` (`optionGroupLabel`/`optionGroupChildren`). */
+interface IndicatorSelectGroup {
+  label: string;
+  items: IndicatorSelectOption[];
 }
 
 /**
@@ -69,6 +96,13 @@ export class SpTocAlignmentBlockComponent {
   readonly disabled = input<boolean>(false);
   readonly inlineErrors = input<Record<string, string> | null>(null);
   readonly catalogState = input<'loading' | 'ready' | 'error'>('ready');
+  /**
+   * The result's backend-owned `result_type` key (catalog envelope). Enters as
+   * an input so the block stays pure — no service injection (D-ITG-3). Null /
+   * unmatrixed keys disable all indicator-type guidance (AC-05.1).
+   * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+   */
+  readonly resultType = input<string | null>(null);
 
   // --- Outputs ----------------------------------------------------------------
   readonly draftChange = output<SpAlignmentDraft>();
@@ -96,6 +130,8 @@ export class SpTocAlignmentBlockComponent {
   /** AC-07.3 — callout wording uses the active reporting year (2026), not 2025. */
   readonly CONTRIBUTION_CALLOUT =
     'Enter this result’s quantitative contribution toward the selected indicator’s 2026 target. Use the indicator’s unit of measurement.';
+  /** AC-02.1 — second group header of the grouped indicator dropdown (NF-05). */
+  readonly OTHER_GROUP_LABEL = 'Other indicators';
 
   /** Dropdown panel height — long HLO/indicator labels scroll inside the panel. */
   readonly SELECT_SCROLL_HEIGHT = '280px';
@@ -148,16 +184,71 @@ export class SpTocAlignmentBlockComponent {
     return this.tocResultsForLevel().find(result => this.normalizeNumericId(result.toc_result_id) === id) ?? null;
   });
 
+  // --- Indicator-type guidance (REQ-BIL-ITG-02 / AC-05.1) ---------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+
+  /** True when the result type has a compatibility-matrix row (AC-05.1 gate). */
+  readonly guidanceEnabled = computed(() => {
+    const resultType = this.resultType();
+    return resultType !== null && Object.hasOwn(TOC_TYPE_MATRIX, resultType);
+  });
+
   /**
-   * Indicator options for the chosen HLO — UNFILTERED (D-5). `type_value` is
-   * retained on the catalog item for a future type filter but is not applied.
+   * Indicator options for the chosen HLO — UNFILTERED (parent D-5, superseded
+   * by toc-indicator-type-guidance): every indicator stays present and
+   * selectable (AC-02.5); classification only annotates. When guidance is
+   * disabled, `classifyIndicator` returns `unclassified` for everything, so
+   * `badge` is null across the board and the list behaves exactly like today's.
    */
-  readonly indicatorOptions = computed<SelectOption<number>[]>(() =>
-    (this.selectedTocResult()?.indicators ?? []).map(indicator => ({
-      label: indicator.indicator_description?.trim() || '—',
-      value: indicator.indicator_id
-    }))
+  readonly classifiedIndicators = computed<IndicatorSelectOption[]>(() => {
+    const resultType = this.resultType();
+    return (this.selectedTocResult()?.indicators ?? []).map(indicator => {
+      const classification = classifyIndicator(resultType, indicator.type_value);
+      return {
+        label: indicator.indicator_description?.trim() || '—',
+        value: indicator.indicator_id,
+        // AC-02.2 — canonical/custom types get a short badge; unclassified none.
+        badge: classification === 'unclassified' ? null : (TYPE_BADGE_LABELS[indicator.type_value?.trim() ?? ''] ?? null),
+        classification
+      };
+    });
+  });
+
+  /**
+   * Back-compat alias for the pre-guidance flat option list (same objects the
+   * grouped shape regroups). Kept so `showEmptyIndicators` + existing consumers
+   * are untouched (AC-06.2).
+   */
+  readonly indicatorOptions = this.classifiedIndicators;
+
+  /** Groups render only with ≥1 recommended option — else flat fallback (AC-02.3 / D-ITG-5). */
+  readonly indicatorGroupsEnabled = computed(
+    () =>
+      this.guidanceEnabled() &&
+      this.classifiedIndicators().some(option => option.classification === 'type-match' || option.classification === 'wildcard')
   );
+
+  /** AC-02.1 — "Recommended for <result type label>" group header (NF-05). */
+  readonly recommendedGroupLabel = computed(() => `Recommended for ${RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? ''}`);
+
+  /**
+   * What the indicator `p-select` binds: grouped (recommended = type-matches
+   * then wildcards; other = other + unclassified in original catalog order)
+   * when grouping is enabled, else the flat list (AC-02.1/02.3). An emptied
+   * "Other" group is dropped — never an empty header.
+   */
+  readonly indicatorSelectOptions = computed<IndicatorSelectOption[] | IndicatorSelectGroup[]>(() => {
+    const options = this.classifiedIndicators();
+    if (!this.indicatorGroupsEnabled()) return options;
+    const recommended = [
+      ...options.filter(option => option.classification === 'type-match'),
+      ...options.filter(option => option.classification === 'wildcard')
+    ];
+    const other = options.filter(option => option.classification === 'other' || option.classification === 'unclassified');
+    const groups: IndicatorSelectGroup[] = [{ label: this.recommendedGroupLabel(), items: recommended }];
+    if (other.length > 0) groups.push({ label: this.OTHER_GROUP_LABEL, items: other });
+    return groups;
+  });
 
   /** True when an HLO is chosen but its catalog row carries no indicators. */
   readonly showEmptyIndicators = computed(

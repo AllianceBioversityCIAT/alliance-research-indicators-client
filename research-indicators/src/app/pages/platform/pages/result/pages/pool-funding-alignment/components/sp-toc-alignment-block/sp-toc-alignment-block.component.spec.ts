@@ -1,10 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { Select } from 'primeng/select';
 import { SpAlignmentDraft, TocCatalogSp, TocLevel } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import {
   TOC_CATALOG_CAPSHARING_FIXTURE,
+  TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE,
   TOC_CATALOG_POLICY_FIXTURE
 } from 'src/app/testing/toc-catalog.fixture';
-import { SpTocAlignmentBlockComponent, SpTocBlockScienceProgram } from './sp-toc-alignment-block.component';
+import { IndicatorSelectOption, SpTocAlignmentBlockComponent, SpTocBlockScienceProgram } from './sp-toc-alignment-block.component';
 
 const SP01: SpTocBlockScienceProgram = { official_code: 'SP01', name: 'Biodiversity for Food and Agriculture', color: '#173f6f' };
 
@@ -35,6 +39,7 @@ describe('SpTocAlignmentBlockComponent', () => {
     disabled?: boolean;
     inlineErrors?: Record<string, string> | null;
     catalogState?: 'loading' | 'ready' | 'error';
+    resultType?: string | null;
   } = {}): void {
     fixture.componentRef.setInput('sp', inputs.sp ?? SP01);
     fixture.componentRef.setInput('catalog', inputs.catalog ?? SP01_CAT);
@@ -43,10 +48,16 @@ describe('SpTocAlignmentBlockComponent', () => {
     fixture.componentRef.setInput('disabled', inputs.disabled ?? false);
     fixture.componentRef.setInput('inlineErrors', inputs.inlineErrors ?? null);
     fixture.componentRef.setInput('catalogState', inputs.catalogState ?? 'ready');
+    fixture.componentRef.setInput('resultType', inputs.resultType ?? null);
   }
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({ imports: [SpTocAlignmentBlockComponent] }).compileComponents();
+    // provideNoopAnimations: the guidance suite opens the body-appended select
+    // overlay (p-overlay declares animations); a no-op for every other test.
+    await TestBed.configureTestingModule({
+      imports: [SpTocAlignmentBlockComponent],
+      providers: [provideNoopAnimations()]
+    }).compileComponents();
     fixture = TestBed.createComponent(SpTocAlignmentBlockComponent);
     component = fixture.componentInstance;
   });
@@ -256,6 +267,216 @@ describe('SpTocAlignmentBlockComponent', () => {
       expect(component.selectedIndicator()?.indicator_id).toBe(5973);
       expect(fixture.nativeElement.querySelector('[data-testid="sp-toc-contribution-SP01"]')).not.toBeNull();
     });
+  });
+
+  // --- Indicator-type guidance: grouped + badged dropdown ---------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+  describe('indicator-type guidance (REQ-BIL-ITG-02 / AC-05.1/05.2)', () => {
+    const GUIDANCE_SP01_CAT: TocCatalogSp = TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.catalogs[0];
+    const GUIDANCE_SP03_CAT: TocCatalogSp = TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.catalogs[1];
+    const RECOMMENDED_LABEL = 'Recommended for Capacity Sharing for Development';
+
+    interface OptionGroup {
+      label: string;
+      items: IndicatorSelectOption[];
+    }
+    /** PrimeNG-flattened row shape (`Select.visibleOptions()` with `[group]`). */
+    interface FlattenedRow {
+      group?: boolean;
+      value?: number;
+      optionGroup?: { label?: string };
+    }
+
+    function guidanceSetup(
+      tocResultId: number,
+      resultType: string | null = TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.result_type,
+      catalog: TocCatalogSp = GUIDANCE_SP01_CAT
+    ): void {
+      setup({ catalog, resultType, draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: tocResultId }) });
+      fixture.detectChanges();
+    }
+
+    function flatten(options: IndicatorSelectOption[] | OptionGroup[]): IndicatorSelectOption[] {
+      return options.flatMap(option => ('items' in option ? option.items : [option]));
+    }
+
+    function indicatorSelect(): Select {
+      const selectDe = fixture.debugElement
+        .queryAll(By.directive(Select))
+        .find(de => (de.nativeElement as HTMLElement).getAttribute('data-testid') === 'sp-toc-indicator-SP01');
+      expect(selectDe).toBeDefined();
+      return selectDe!.componentInstance as Select;
+    }
+
+    beforeAll(() => {
+      // jsdom has no matchMedia; PrimeNG's Overlay probes it when the select
+      // panel opens (responsive/modal check). Non-matching stub is enough.
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        configurable: true,
+        value: jest.fn().mockImplementation((query: string) => ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn()
+        }))
+      });
+    });
+
+    afterEach(() => {
+      // The overlay is appended to document.body — drop any leftovers so DOM
+      // assertions never bleed across tests.
+      document.body.querySelectorAll('.p-select-overlay, .p-overlay').forEach(el => el.remove());
+    });
+
+    it('AC-02.1 — mixed HLO 7201: Recommended (type-matches then wildcards) before Other indicators', () => {
+      guidanceSetup(7201);
+      expect(component.guidanceEnabled()).toBe(true);
+      expect(component.indicatorGroupsEnabled()).toBe(true);
+      const groups = component.indicatorSelectOptions() as OptionGroup[];
+      expect(groups.map(g => g.label)).toEqual([RECOMMENDED_LABEL, 'Other indicators']);
+      expect(groups[0].items.map(i => i.value)).toEqual([7301, 7303]); // type-match, then wildcard
+      expect(groups[1].items.map(i => i.value)).toEqual([7302]);
+    });
+
+    it('AC-02.2 — badges per classification on 7201 (canonical + custom labeled)', () => {
+      guidanceSetup(7201);
+      const byValue = new Map(flatten(component.indicatorSelectOptions()).map(o => [o.value, o]));
+      expect(byValue.get(7301)).toEqual(expect.objectContaining({ badge: 'Trained people', classification: 'type-match' }));
+      expect(byValue.get(7303)).toEqual(expect.objectContaining({ badge: 'Custom', classification: 'wildcard' }));
+      expect(byValue.get(7302)).toEqual(expect.objectContaining({ badge: 'Knowledge products', classification: 'other' }));
+    });
+
+    it('AC-02.2/02.3 — unclassified-only HLO 7202: flat ungrouped list, no badges', () => {
+      guidanceSetup(7202);
+      expect(component.indicatorGroupsEnabled()).toBe(false);
+      const options = component.indicatorSelectOptions() as IndicatorSelectOption[];
+      expect(options.map(o => o.value)).toEqual([7304, 7305]); // original catalog order, no group wrappers
+      expect(options.every(o => o.badge === null && o.classification === 'unclassified')).toBe(true);
+    });
+
+    it('AC-02.3 — other-canonical-only HLO 5172: flat fallback (no empty Recommended header), badge kept', () => {
+      guidanceSetup(5172);
+      expect(component.indicatorGroupsEnabled()).toBe(false);
+      const options = component.indicatorSelectOptions() as IndicatorSelectOption[];
+      expect(options.map(o => o.value)).toEqual([5939]);
+      expect(options[0]).toEqual(expect.objectContaining({ badge: 'Knowledge products', classification: 'other' }));
+    });
+
+    it('all-recommended HLO 5186 renders ONLY the Recommended group (empty Other dropped)', () => {
+      guidanceSetup(5186);
+      const groups = component.indicatorSelectOptions() as OptionGroup[];
+      expect(groups.map(g => g.label)).toEqual([RECOMMENDED_LABEL]);
+      expect(groups[0].items.map(i => i.value)).toEqual([5971]);
+    });
+
+    it('AC-02.5 — option-count parity: every indicator of every HLO present exactly once', () => {
+      for (const catalog of [GUIDANCE_SP01_CAT, GUIDANCE_SP03_CAT]) {
+        for (const tocResult of catalog.levels[0].toc_results) {
+          guidanceSetup(tocResult.toc_result_id, TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.result_type, catalog);
+          const values = flatten(component.indicatorSelectOptions())
+            .map(o => o.value)
+            .sort((a, b) => a - b);
+          const expected = tocResult.indicators.map(i => i.indicator_id).sort((a, b) => a - b);
+          expect(values).toEqual(expected);
+        }
+      }
+    });
+
+    it('AC-05.1/05.2 — guidance fully suppressed for oicr/unknown/null even on mixed HLO 7201', () => {
+      for (const resultType of ['oicr', 'unknown', null]) {
+        guidanceSetup(7201, resultType);
+        expect(component.guidanceEnabled()).toBe(false);
+        expect(component.indicatorGroupsEnabled()).toBe(false);
+        const options = component.indicatorSelectOptions() as IndicatorSelectOption[];
+        // Flat structure in original catalog order — today's behavior byte-for-byte
+        // (the extra fields are inert: badge null everywhere).
+        expect(options.map(o => o.value)).toEqual([7301, 7302, 7303]);
+        expect(options.every(o => o.badge === null)).toBe(true);
+        // AC-05.2 — nothing classifies as `other` without a matrix row.
+        expect(options.every(o => o.classification === 'unclassified')).toBe(true);
+      }
+    });
+
+    it('AC-02.4 / R-2 — PrimeNG group+filter: search spans both groups, emptied group headers disappear', fakeAsync(() => {
+      guidanceSetup(7201);
+      const select = indicatorSelect();
+
+      // Unfiltered flattened rows: 2 group headers + all 3 options (parity).
+      const rows = select.visibleOptions() as FlattenedRow[];
+      expect(rows.filter(r => r.group).map(r => r.optionGroup?.label)).toEqual([RECOMMENDED_LABEL, 'Other indicators']);
+      expect(rows.filter(r => !r.group).map(r => r.value)).toEqual([7301, 7303, 7302]);
+
+      // Open the overlay so the filter field + option list render for real.
+      select.show();
+      fixture.detectChanges();
+      flush();
+      const filterInput = document.body.querySelector('.p-select-filter') as HTMLInputElement;
+      expect(filterInput).not.toBeNull();
+      // jsdom quirk: a synthetic `input` event never reaches the overlay's
+      // zone-bound listener, so invoke the exact handler the (input) binding
+      // calls. No flush() between filter and assert — ngModel's deferred
+      // writeValue(null) → resetFilter() would wipe the filter first (that
+      // reset is a CVA re-write artifact of the harness, not a user path).
+      const typeFilter = (value: string): void => {
+        filterInput.value = value;
+        select.onFilterInputChange({ target: filterInput, stopPropagation: () => undefined } as unknown as Event);
+        fixture.detectChanges();
+      };
+
+      // Query matching only the Recommended group ⇒ Other header disappears.
+      typeFilter('trained');
+      let filtered = select.visibleOptions() as FlattenedRow[];
+      expect(filtered.filter(r => r.group).map(r => r.optionGroup?.label)).toEqual([RECOMMENDED_LABEL]);
+      expect(filtered.filter(r => !r.group).map(r => r.value)).toEqual([7301]);
+      expect(Array.from(document.body.querySelectorAll('.sp-toc-block__group-label')).map(el => el.textContent?.trim())).toEqual([
+        RECOMMENDED_LABEL
+      ]);
+      expect(document.body.querySelectorAll('.p-select-option').length).toBe(1);
+
+      // Query matching only the Other group ⇒ Recommended header disappears.
+      typeFilter('manuals');
+      filtered = select.visibleOptions() as FlattenedRow[];
+      expect(filtered.filter(r => r.group).map(r => r.optionGroup?.label)).toEqual(['Other indicators']);
+      expect(filtered.filter(r => !r.group).map(r => r.value)).toEqual([7302]);
+
+      // No match ⇒ no rows at all (no orphaned headers).
+      typeFilter('zzz-no-match');
+      expect((select.visibleOptions() as FlattenedRow[]).length).toBe(0);
+      expect(document.body.querySelectorAll('.sp-toc-block__group-label').length).toBe(0);
+
+      flush(); // drain PrimeNG's deferred alignOverlay timers before teardown
+    }));
+
+    it('renders text-only group headers and badge chips inside the overlay panel', fakeAsync(() => {
+      guidanceSetup(7201);
+      const select = indicatorSelect();
+      select.show();
+      fixture.detectChanges();
+      flush();
+
+      const headers = Array.from(document.body.querySelectorAll('.sp-toc-block__group-label')).map(el => el.textContent?.trim());
+      expect(headers).toEqual([RECOMMENDED_LABEL, 'Other indicators']);
+      const badges = Array.from(document.body.querySelectorAll('.sp-toc-block__type-badge')).map(el => el.textContent?.trim());
+      expect(badges).toEqual(['Trained people', 'Custom', 'Knowledge products']);
+    }));
+
+    it('flat fallback renders NO group headers in the overlay (AC-02.3)', fakeAsync(() => {
+      guidanceSetup(7202);
+      const select = indicatorSelect();
+      select.show();
+      fixture.detectChanges();
+      flush();
+
+      expect(document.body.querySelectorAll('.sp-toc-block__group-label').length).toBe(0);
+      expect(document.body.querySelectorAll('.sp-toc-block__type-badge').length).toBe(0);
+      // Both unclassified options still render and are selectable (AC-02.5).
+      expect(document.body.querySelectorAll('.p-select-option').length).toBe(2);
+    }));
   });
 
   // --- Contribution panel (AC-07.1/07.2/07.3) --------------------------------

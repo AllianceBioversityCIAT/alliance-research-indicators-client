@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Subject } from 'rxjs';
 import { WebsocketService } from '@sockets/websocket.service';
 
 import PoolFundingAlignmentComponent from './pool-funding-alignment.component';
+import { SpTocAlignmentBlockComponent } from './components/sp-toc-alignment-block/sp-toc-alignment-block.component';
 import { BilateralService, PatchAlignmentResult } from '@shared/services/bilateral.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { ActionsService } from '@shared/services/actions.service';
@@ -596,6 +598,23 @@ describe('PoolFundingAlignmentComponent', () => {
       const after = component.formData().toc_drafts;
       expect(after).not.toBe(before);
       expect(after.find(d => d.sp_code === 'SP01')?.aligns_with_toc).toBe(false);
+    });
+
+    // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+    it('T-BIL-ITG-03 — resultType mirrors the catalog envelope (null until loaded)', () => {
+      expect(component.resultType()).toBeNull();
+      tocCatalog.set(TOC_CATALOG_CAPSHARING_FIXTURE);
+      expect(component.resultType()).toBe('capacity_sharing');
+    });
+
+    it('T-BIL-ITG-03 — every rendered block receives the envelope resultType', async () => {
+      await showBlocks(); // TWO_SP fixture: result_type 'capacity_sharing'
+      fixture.detectChanges();
+      const blocks = fixture.debugElement.queryAll(By.directive(SpTocAlignmentBlockComponent));
+      expect(blocks.length).toBe(2);
+      blocks.forEach(block =>
+        expect((block.componentInstance as SpTocAlignmentBlockComponent).resultType()).toBe('capacity_sharing')
+      );
     });
   });
 

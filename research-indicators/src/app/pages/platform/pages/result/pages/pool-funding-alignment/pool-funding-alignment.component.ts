@@ -176,6 +176,12 @@ export default class PoolFundingAlignmentComponent {
 
   // AC-04.3 — server-owned allowed levels; [] ⇒ no ToC blocks render.
   readonly allowedLevels = computed<TocLevel[]>(() => this.tocCatalog()?.allowed_levels ?? []);
+
+  // T-BIL-ITG-03 — the result's backend-owned type key from the catalog envelope;
+  // feeds the per-SP blocks' indicator-type guidance (null until the catalog loads
+  // ⇒ guidance stays disabled, AC-05.1).
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance
+  readonly resultType = computed(() => this.tocCatalog()?.result_type ?? null);
   // Gate the @for blocks: only render the per-SP ToC question + cascade when the
   // backend offers at least one level for this result type (AC-04.3).
   readonly showTocBlocks = computed(() => this.allowedLevels().length > 0);

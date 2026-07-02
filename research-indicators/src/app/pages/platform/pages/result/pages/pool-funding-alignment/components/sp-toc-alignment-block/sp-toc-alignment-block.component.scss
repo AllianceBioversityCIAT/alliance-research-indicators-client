@@ -73,6 +73,34 @@
     }
   }
 
+  // Indicator-type guidance (T-BIL-ITG-03) — neutral chips/headers, token-only
+  // colors so dark/light parity rides the --ac-* variables (NF-04). These spans
+  // are authored in this component's templates, so emulated encapsulation still
+  // applies inside the body-appended select overlay.
+  &__type-badge {
+    display: inline-block;
+    padding: 1px 8px;
+    margin-left: 6px;
+    border: 1px solid var(--ac-grey-300);
+    border-radius: 999px;
+    background: var(--ac-grey-200);
+    color: var(--ac-grey-700);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  &__group-label {
+    display: block;
+    color: var(--ac-grey-600);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
   // Contribution panel
   &__contribution {
     background: var(--ac-white-1);
