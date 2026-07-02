@@ -161,7 +161,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-07 — Test hardening: service, component, role-gate, coverage
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: T-BIL-CAM-02, T-BIL-CAM-03, T-BIL-CAM-04, T-BIL-CAM-05, T-BIL-CAM-06
 - **Discharges ACs**: cross-cutting — REQ-BIL-CAM-02 (role gate), plus consolidation of AC-03..07 verification and NF-02/NF-06
 - **Touches**:

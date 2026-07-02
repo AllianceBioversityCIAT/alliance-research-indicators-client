@@ -11,6 +11,7 @@ import {
   ClarisaBilateralProjectOption
 } from '@interfaces/bilateral/bilateral-project-mapping.interface';
 import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
+import { mockBilateralMapping, mockBilateralMappingListPage } from 'src/app/testing/bilateral-project-mapping.fixture';
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -330,6 +331,41 @@ describe('BilateralMappingComponent', () => {
 
     const args = mockService.list.mock.calls.at(-1)?.[0] as Record<string, unknown>;
     expect(args?.['source']).toBeUndefined();
+  });
+
+  // ── AC-04.4: search + both filters AND-compose into ONE list() query ───────
+
+  it('composes search + is_active + source (plus page/limit) into a single list() call', async () => {
+    // Seed via the shared fixture so the mapping wire-shape is canonical.
+    mockService.list.mockResolvedValue(mockBilateralMappingListPage([mockBilateralMapping()]));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await delayMs(0);
+    fixture.detectChanges();
+
+    // Apply source and active filters, then a search term. Each change reloads;
+    // the LAST call must carry all three predicates together (AND-composition).
+    component.onSourceFilterChange('MANUAL');
+    component.onActiveFilterChange('active');
+    await fixture.whenStable();
+    await delayMs(0);
+
+    mockService.list.mockClear();
+    mockService.list.mockResolvedValue(mockBilateralMappingListPage([mockBilateralMapping()]));
+
+    (component as unknown as { searchInput$: { next: (v: string) => void } }).searchInput$.next('ACIAR');
+    await delayMs(350); // past the 300 ms debounce
+    await fixture.whenStable();
+    await delayMs(0);
+
+    const args = mockService.list.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    expect(args).toEqual({
+      page: 1,
+      limit: component.limit(),
+      search: 'ACIAR',
+      is_active: true,
+      source: 'MANUAL'
+    });
   });
 
   // ── AC-03.1: confidence column hidden when source === 'MANUAL' ─────────────

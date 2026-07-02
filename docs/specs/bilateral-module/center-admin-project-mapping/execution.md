@@ -119,6 +119,22 @@
 
 ---
 
+### T-BIL-CAM-07 — Test hardening (test-only) — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01
+- **Attempts:** 1
+- **Requirements covered:** consolidation of AC-03..07 verification; AC-04.4 gap (AND-composition); coverage-floor guard
+
+**Attempt 1**
+- **Implementer** (general-purpose):
+  - Files: NEW `research-indicators/src/app/testing/bilateral-project-mapping.fixture.ts` (`mockBilateralMapping`, `mockBilateralMappingListPage`, `mockClarisaBilateralProjectOption`); MODIFIED `bilateral-mapping.component.spec.ts` (+1 AC-04.4 AND-composition test using the fixture → 55 tests). No production code touched. Left the 15 service / 54 component existing tests as-is (avoid churn per task).
+  - Full suite: `Tests: 1 failed, 5742 passed, 5743 total` — the 1 failure is a PRE-EXISTING, unrelated `multiselect.component.spec.ts` test (last touched in `e9d75b3d`, pre-session; our 6 commits never touched multiselect — Leader-verified via `git log d8f10092~1..HEAD -- .../multiselect/` = empty). Coverage: statements 99.11% / branches 97.95% / lines 99.42% / functions 98.61% — all floors (40/20/45/30) met with headroom. `npm run lint` clean.
+- **Reviewer** (read-only): **STATUS: PASS.** Only test/fixture/docs changed; fixture correctly typed (`confidence_score:null`, sound `totalPages` math); AC-04.4 gap test substantive (single `list()` call `toEqual` `{page,limit,search,is_active(bool),source}`, cross-checked vs `load()`); feature specs green (component 55, service 15); multiselect failure pre-existing/out-of-scope; floors accepted.
+- **Outcome:** PASS on attempt 1 → task `[x]`.
+- **Known pre-existing issue (out of scope):** `multiselect.component.spec.ts` › "should handle setValue with new options" fails on this branch independent of this feature — recommend tracking separately.
+
+---
+
 ## 3. Summary
 
-_In progress — T-BIL-CAM-01..06 complete (6/8). Full CRUD (list/search/filter/create/edit/deactivate) shipped. Remaining: T-BIL-CAM-07 (test hardening: role-gate consolidation + coverage) and T-BIL-CAM-08 (docs sync)._
+_In progress — T-BIL-CAM-01..07 complete (7/8). CRUD + tests done; full suite green except 1 pre-existing unrelated multiselect failure; coverage floors held. Final: T-BIL-CAM-08 (docs sync — detailed-design page map + decisions/OQ finalize)._
