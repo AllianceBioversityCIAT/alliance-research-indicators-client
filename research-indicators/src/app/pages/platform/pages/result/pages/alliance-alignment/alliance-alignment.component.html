@@ -120,7 +120,7 @@
 
           <div class="flex flex-col" [class.pt-2]="isOicrIndicator()" [class.py-4]="!isOicrIndicator()">
             <app-multiselect label="Primary Levers" [disabled]="!submission.isEditableStatus()" [signal]="body"
-              optionValue="lever_id" signalOptionValue="primary_levers" [isRequired]="true"
+              optionLabel="short_name" optionValue="lever_id" signalOptionValue="primary_levers" [isRequired]="true"
               [hideRemoveIcon]="isOicrIndicator()" [disabledSelectedScroll]="true" [filterBy]="'short_name,other_names'"
               [textSpan]="isOicrIndicator() ? '' : 'Primary Levers selected'" scrollHeight="260px" serviceName="levers"
               [serviceParams]="leverServiceParams()" [optionsDisabled]="primaryOptionsDisabled"
@@ -186,7 +186,7 @@
 
           <div class="flex flex-col" [class.pt-3]="isOicrIndicator()" [class.pb-4]="!isOicrIndicator()">
             <app-multiselect [label]="isOicrIndicator() ? 'Other Contributing Levers' : 'Contributing Levers'"
-              [disabled]="!submission.isEditableStatus()" [signal]="body" optionValue="lever_id"
+              [disabled]="!submission.isEditableStatus()" [signal]="body" optionLabel="short_name" optionValue="lever_id"
               signalOptionValue="contributor_levers" scrollHeight="260px" [hideRemoveIcon]="isOicrIndicator()"
               [disabledSelectedScroll]="true" [textSpan]="isOicrIndicator() ? '' : 'Contributing Levers selected'"
               serviceName="levers" [serviceParams]="leverServiceParams()" [filterBy]="'short_name,other_names'"

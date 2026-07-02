@@ -1,5 +1,7 @@
 import {
   buildPortfolio2AlignmentPatch,
+  enrichAlignmentLevers,
+  enrichAlignmentSdgTargets,
   enrichPortfolio2Contracts,
   flattenAlignmentContract,
   normalizeContractLevers,
@@ -276,5 +278,62 @@ describe('portfolio-2-alignment.mapper', () => {
 
     expect(buildPortfolio2AlignmentPatch(body, false, false).result_sdgs).toEqual([]);
     expect(buildPortfolio2AlignmentPatch(body, false, true).result_sdgs).toEqual([{ clarisa_sdg_id: 2 }]);
+  });
+
+  it('enriches alignment levers from catalog while preserving saved fields', () => {
+    const enriched = enrichAlignmentLevers(
+      [
+        {
+          lever_id: 3,
+          result_lever_id: 1,
+          result_id: 1,
+          lever_role_id: 1,
+          is_primary: true,
+          custom_lever_name: 'Should stay'
+        } as never
+      ],
+      [{ id: 3, lever_id: 3, short_name: 'Catalog', other_names: 'Catalog full', full_name: 'Catalog', icon: 'icon.png' } as never]
+    );
+
+    expect(enriched[0].short_name).toBe('Catalog');
+    expect(enriched[0].icon).toBe('icon.png');
+    expect(enriched[0].custom_lever_name).toBe('Should stay');
+  });
+
+  it('defaults Other lever labels when catalog does not include lever 9', () => {
+    const enriched = enrichAlignmentLevers(
+      [{ lever_id: 9, result_lever_id: 1, result_id: 1, lever_role_id: 1, is_primary: true } as never],
+      [{ id: 1, lever_id: 1, short_name: 'Lever 1', full_name: 'Lever 1', other_names: '' } as never]
+    );
+
+    expect(enriched[0].short_name).toBe('Other');
+    expect(enriched[0].other_names).toBe('Other');
+  });
+
+  it('enriches alignment SDG targets from catalog while preserving saved fields', () => {
+    const enriched = enrichAlignmentSdgTargets(
+      [
+        {
+          sdg_target_id: 12,
+          sdg_target_code: '2.3',
+          sdg_target: 'Saved label',
+          clarisa_sdg: { id: 2, icon: 'saved.png' }
+        }
+      ],
+      [
+        {
+          id: 12,
+          sdg_target_id: 12,
+          sdg_target_code: '2.3',
+          sdg_target: 'Catalog label',
+          select_label: '2.3 — Catalog label',
+          clarisa_sdg: { id: 2, icon: 'catalog.png' }
+        } as never
+      ]
+    );
+
+    expect(enriched[0].sdg_target).toBe('Saved label');
+    expect(enriched[0].clarisa_sdg?.icon).toBe('saved.png');
+    expect(enriched[0].select_label).toBe('2.3 — Catalog label');
   });
 });

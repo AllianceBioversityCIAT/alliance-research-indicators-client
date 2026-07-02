@@ -16,6 +16,7 @@ import { GetLeversService } from '@services/control-list/get-levers.service';
 import { GetStrategicObjectivesService } from '@services/control-list/get-strategic-objectives.service';
 import { GetImpactOutcomesService } from '@services/control-list/get-impact-outcomes.service';
 import { GetSdgsService } from '@services/control-list/get-sdgs.service';
+import { GetLeverSdgTargetsService } from '@services/control-list/get-lever-sdg-targets.service';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { AllianceLeverCardComponent } from './components/alliance-lever-card/alliance-lever-card.component';
 
@@ -75,6 +76,19 @@ class PortfolioCatalogServiceMock {
   }
 }
 
+class GetLeverSdgTargetsServiceMock {
+  private readonly catalog = signal<unknown[]>([]);
+  list = this.catalog;
+  loading = signal(false);
+  isOpenSearch = jest.fn().mockReturnValue(false);
+  main = jest.fn().mockImplementation(async () => undefined);
+  getList = jest.fn().mockImplementation(() => this.catalog);
+  getLoading = jest.fn().mockImplementation(() => this.loading);
+  setCatalog(items: unknown[]) {
+    this.catalog.set(items);
+  }
+}
+
 const defaultLeversCatalog = [
   { id: 9, lever_id: 9, name: 'Other', short_name: 'Other', full_name: 'Other', other_names: 'Other' }
 ];
@@ -92,6 +106,7 @@ describe('AllianceAlignmentComponent', () => {
   let getStrategicObjectivesService: PortfolioCatalogServiceMock;
   let getImpactOutcomesService: PortfolioCatalogServiceMock;
   let getSdgsService: PortfolioCatalogServiceMock;
+  let getLeverSdgTargetsService: GetLeverSdgTargetsServiceMock;
   let route: any;
 
   beforeEach(async () => {
@@ -105,6 +120,7 @@ describe('AllianceAlignmentComponent', () => {
     getStrategicObjectivesService = new PortfolioCatalogServiceMock();
     getImpactOutcomesService = new PortfolioCatalogServiceMock();
     getSdgsService = new PortfolioCatalogServiceMock();
+    getLeverSdgTargetsService = new GetLeverSdgTargetsServiceMock();
     getLeversService.setCatalog(defaultLeversCatalog);
     route = {
       snapshot: {
@@ -135,7 +151,8 @@ describe('AllianceAlignmentComponent', () => {
         { provide: GetLeversService, useValue: getLeversService },
         { provide: GetStrategicObjectivesService, useValue: getStrategicObjectivesService },
         { provide: GetImpactOutcomesService, useValue: getImpactOutcomesService },
-        { provide: GetSdgsService, useValue: getSdgsService }
+        { provide: GetSdgsService, useValue: getSdgsService },
+        { provide: GetLeverSdgTargetsService, useValue: getLeverSdgTargetsService }
       ]
     }).compileComponents();
 
@@ -392,7 +409,7 @@ describe('AllianceAlignmentComponent', () => {
     expect(component.body().result_sdgs[0].sdg_id).toBe(13);
   });
 
-  it('should normalize result-level SDGs from sdg_id and default missing ids to zero', async () => {
+  it('should normalize result-level SDGs from sdg_id and drop invalid entries', async () => {
     cache.metadata.set({ indicator_id: 1 });
     api.GET_Alignments.mockResolvedValue({
       data: {
@@ -405,10 +422,9 @@ describe('AllianceAlignmentComponent', () => {
 
     await component.getData();
 
+    expect(component.body().result_sdgs).toHaveLength(1);
     expect(component.body().result_sdgs[0].id).toBe(7);
     expect(component.body().result_sdgs[0].sdg_id).toBe(7);
-    expect(component.body().result_sdgs[1].id).toBe(0);
-    expect(component.body().result_sdgs[1].sdg_id).toBe(0);
   });
 
   it('should save an empty result-level SDG list for non-OICR when selection is missing', async () => {
