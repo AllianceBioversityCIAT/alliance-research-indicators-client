@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, flush } from '@angular/core/testi
 import { By } from '@angular/platform-browser';
 import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { Select } from 'primeng/select';
-import { SpAlignmentDraft, TocCatalogSp, TocLevel } from '@interfaces/bilateral/pool-funding-alignment.interface';
+import { SpAlignmentDraft, TocCatalogResult, TocCatalogSp, TocLevel } from '@interfaces/bilateral/pool-funding-alignment.interface';
 import {
   TOC_CATALOG_CAPSHARING_FIXTURE,
   TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE,
@@ -164,7 +164,9 @@ describe('SpTocAlignmentBlockComponent', () => {
       setup({ catalog: SP01_CAT, draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT' }) });
       fixture.detectChanges();
       const first = component.hloOptions().find(o => o.value === 5187);
-      expect(first).toEqual({ value: 5187, aowCode: 'AOW01', title: 'HLO1.AOW1.IO1 Steer to impact' });
+      // `hasTypeMatch: false` — literal option-shape update sanctioned by AC-06.2
+      // (T-BIL-ITG-05 added the field; resultType is null here ⇒ guidance off).
+      expect(first).toEqual({ value: 5187, aowCode: 'AOW01', title: 'HLO1.AOW1.IO1 Steer to impact', hasTypeMatch: false });
     });
 
     it('EOI options have aow_code === null (title-only label, AC-05.4)', () => {
@@ -588,6 +590,262 @@ describe('SpTocAlignmentBlockComponent', () => {
       component.draftChange.subscribe(d => emitted.push(d));
       component.onContributionChange(12);
       expect(emitted[0]).toEqual(expect.objectContaining({ indicator_id: 7302, quantitative_contribution: 12 }));
+    });
+  });
+
+  // --- Indicator-type guidance: HLO hints + no-match notice --------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+  describe('HLO hints + no-match guidance (REQ-BIL-ITG-04 / AC-04.x)', () => {
+    const GUIDANCE_SP01_CAT: TocCatalogSp = TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.catalogs[0];
+    const GUIDANCE_SP03_CAT: TocCatalogSp = TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE.catalogs[1];
+    const NOTICE_SELECTOR = '[data-testid="sp-toc-typematch-empty-SP01"]';
+    /** AC-04.2 — exact intro copy (design §4.2 `NO_TYPE_MATCH_INTRO`). */
+    const INTRO_COPY =
+      'None of this result’s indicators are typed for Capacity Sharing for Development. High Level Outputs with matching indicators:';
+    /** AC-04.4 — exact anywhere-empty copy (design §4.2 `NO_TYPE_MATCH_ANYWHERE`). */
+    const ANYWHERE_COPY =
+      'No High Level Output in this Science Program has indicators typed for Capacity Sharing for Development. You can select the closest indicator — it will be marked with a type notice.';
+
+    function hintSetup(
+      tocResultId: number | null,
+      resultType: string | null = 'capacity_sharing',
+      catalog: TocCatalogSp = GUIDANCE_SP01_CAT
+    ): void {
+      setup({ catalog, resultType, draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: tocResultId }) });
+      fixture.detectChanges();
+    }
+
+    function notice(): HTMLElement | null {
+      return fixture.nativeElement.querySelector(NOTICE_SELECTOR);
+    }
+
+    function hloSelect(): Select {
+      const selectDe = fixture.debugElement
+        .queryAll(By.directive(Select))
+        .find(de => (de.nativeElement as HTMLElement).getAttribute('data-testid') === 'sp-toc-hlo-SP01');
+      expect(selectDe).toBeDefined();
+      return selectDe!.componentInstance as Select;
+    }
+
+    beforeAll(() => {
+      // Same jsdom matchMedia stub as the grouped-dropdown suite — repeated here
+      // so this describe stays runnable in isolation (PrimeNG's Overlay probes
+      // matchMedia when the HLO panel opens).
+      Object.defineProperty(window, 'matchMedia', {
+        writable: true,
+        configurable: true,
+        value: jest.fn().mockImplementation((query: string) => ({
+          matches: false,
+          media: query,
+          onchange: null,
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          dispatchEvent: jest.fn()
+        }))
+      });
+    });
+
+    afterEach(() => {
+      document.body.querySelectorAll('.p-select-overlay, .p-overlay').forEach(el => el.remove());
+    });
+
+    it('AC-04.1 — hasTypeMatch flags exactly the type-match HLOs (5186, 7201); tag label is the badge short label', () => {
+      hintSetup(null);
+      const byValue = new Map(component.hloOptions().map(o => [o.value, o.hasTypeMatch]));
+      expect(byValue.get(5186)).toBe(true); // pure type-match HLO (5971)
+      expect(byValue.get(7201)).toBe(true); // mixed HLO (7301 type-match)
+      expect(byValue.get(7202)).toBe(false); // unclassified-only
+      expect(byValue.get(5172)).toBe(false); // other-canonical-only
+      // Exactly these two carry the flag, in catalog order.
+      expect(
+        component
+          .hloOptions()
+          .filter(o => o.hasTypeMatch)
+          .map(o => o.value)
+      ).toEqual([5186, 7201]);
+      expect(component.typeMatchTagLabel()).toBe('Trained people');
+    });
+
+    it('AC-04.1 / D-ITG-4 — wildcard-only HLOs (custom indicators) do NOT get the tag flag', () => {
+      hintSetup(null);
+      const byValue = new Map(component.hloOptions().map(o => [o.value, o.hasTypeMatch]));
+      // 5184/5194/5197/5193 carry ONLY `custom` (wildcard) indicators.
+      for (const wildcardOnlyHlo of [5184, 5194, 5197, 5193]) {
+        expect(byValue.get(wildcardOnlyHlo)).toBe(false);
+      }
+    });
+
+    it('AC-05.1 — guidance disabled (oicr/unknown/null): no HLO reports hasTypeMatch, even 5186/7201', () => {
+      for (const resultType of ['oicr', 'unknown', null]) {
+        hintSetup(null, resultType);
+        expect(component.hloOptions().every(o => !o.hasTypeMatch)).toBe(true);
+        expect(component.typeMatchTagLabel()).toBe('');
+      }
+    });
+
+    it('renders the "has Trained people" tag inside the HLO overlay for matching options only', fakeAsync(() => {
+      hintSetup(null);
+      const select = hloSelect();
+      select.show();
+      fixture.detectChanges();
+      flush();
+
+      const tags = Array.from(document.body.querySelectorAll('.sp-toc-block__type-tag')).map(el =>
+        el.textContent?.replace(/\s+/g, ' ').trim()
+      );
+      // 24 options render; exactly the two type-match HLOs carry the tag.
+      expect(document.body.querySelectorAll('.p-select-option').length).toBe(24);
+      expect(tags).toEqual(['has Trained people', 'has Trained people']);
+
+      flush(); // drain PrimeNG's deferred alignOverlay timers before teardown
+    }));
+
+    it('AC-04.2 — HLO 7202 (zero type-match): notice with role=status lists compatible same-level HLOs as buttons', () => {
+      hintSetup(7202);
+      expect(component.showNoTypeMatchNotice()).toBe(true);
+      const el = notice();
+      expect(el).not.toBeNull();
+      expect(el?.getAttribute('role')).toBe('status');
+      expect(el?.getAttribute('aria-live')).toBe('polite');
+      expect(el?.textContent?.replace(/\s+/g, ' ')).toContain(INTRO_COPY);
+      // Suggestions: catalog order, type-match HLOs only, selected excluded.
+      expect(component.compatibleHloSuggestions()).toEqual([
+        { value: 5186, aowCode: 'AOW05', title: 'HLO19.AOW5.IO2 Share capacity' },
+        { value: 7201, aowCode: 'AOW05', title: 'HLO23.AOW5.IO2 Grow shared skills' }
+      ]);
+      const buttons = Array.from(el?.querySelectorAll('button') ?? []) as HTMLButtonElement[];
+      expect(buttons.length).toBe(2);
+      // Buttons follow the HLO option rendering pattern: bold AOW — title.
+      expect(buttons[0].querySelector('strong')?.textContent?.trim()).toBe('AOW05');
+      expect(buttons[0].textContent?.replace(/\s+/g, ' ').trim()).toBe('AOW05 — HLO19.AOW5.IO2 Share capacity');
+      expect(buttons[1].textContent?.replace(/\s+/g, ' ').trim()).toBe('AOW05 — HLO23.AOW5.IO2 Grow shared skills');
+    });
+
+    it('compatibleHloSuggestions EXCLUDES the currently selected HLO', () => {
+      hintSetup(5186);
+      expect(component.compatibleHloSuggestions().map(s => s.value)).toEqual([7201]);
+    });
+
+    it('AC-04.3 — activating a suggestion emits the HLO switch with indicator + contribution reset', () => {
+      hintSetup(7202);
+      fixture.componentRef.setInput(
+        'draft',
+        emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7202, indicator_id: 7304, quantitative_contribution: 4 })
+      );
+      fixture.detectChanges();
+      const emitted: SpAlignmentDraft[] = [];
+      component.draftChange.subscribe(d => emitted.push(d));
+
+      const btn = fixture.nativeElement.querySelector('[data-testid="sp-toc-typematch-suggestion-SP01-5186"]') as HTMLButtonElement;
+      expect(btn).not.toBeNull();
+      btn.dispatchEvent(new Event('click'));
+
+      expect(emitted.length).toBe(1);
+      expect(emitted[0]).toEqual(
+        expect.objectContaining({ level: 'OUTPUT', toc_result_id: 5186, indicator_id: null, quantitative_contribution: null })
+      );
+    });
+
+    it('AC-04.4 — SP03 (zero trained-people anywhere at OUTPUT): anywhere-empty copy, no buttons', () => {
+      hintSetup(905187, 'capacity_sharing', GUIDANCE_SP03_CAT);
+      expect(component.showNoTypeMatchNotice()).toBe(true);
+      expect(component.compatibleHloSuggestions()).toEqual([]);
+      const el = notice();
+      expect(el).not.toBeNull();
+      expect(el?.textContent?.replace(/\s+/g, ' ').trim()).toBe(ANYWHERE_COPY);
+      expect(el?.querySelectorAll('button').length).toBe(0);
+    });
+
+    it('AC-04.5 — notice absent when the selected HLO has a type-match (7201, 5186)', () => {
+      for (const typeMatchHlo of [7201, 5186]) {
+        hintSetup(typeMatchHlo);
+        expect(component.showNoTypeMatchNotice()).toBe(false);
+        expect(notice()).toBeNull();
+      }
+    });
+
+    it('AC-04.5 — notice absent with no HLO selected or an unresolvable saved id', () => {
+      for (const tocResultId of [null, 999999]) {
+        hintSetup(tocResultId);
+        expect(component.showNoTypeMatchNotice()).toBe(false);
+        expect(notice()).toBeNull();
+      }
+    });
+
+    it('AC-05.1 — notice absent when guidance is disabled (oicr), even on zero-type-match HLO 7202', () => {
+      hintSetup(7202, 'oicr');
+      expect(component.showNoTypeMatchNotice()).toBe(false);
+      expect(notice()).toBeNull();
+    });
+
+    it('AC-06.3 — disabled: suggestion buttons render disabled', () => {
+      setup({
+        catalog: GUIDANCE_SP01_CAT,
+        resultType: 'capacity_sharing',
+        disabled: true,
+        draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7202 })
+      });
+      fixture.detectChanges();
+      const el = notice();
+      expect(el).not.toBeNull();
+      const buttons = Array.from(el?.querySelectorAll('button') ?? []) as HTMLButtonElement[];
+      expect(buttons.length).toBe(2);
+      expect(buttons.every(b => b.disabled)).toBe(true);
+    });
+
+    it('AC-04.2 — suggestions cap at 5 in catalog order (minimal inline catalog with 7 compatible HLOs)', () => {
+      // The shared fixture only yields 2 type-match HLOs at SP01 OUTPUT, so the
+      // cap needs a purpose-built catalog: 1 zero-match HLO + 7 type-match HLOs.
+      const trainedHlo = (id: number): TocCatalogResult => ({
+        toc_result_id: id,
+        title: `Trained-people HLO ${id}`,
+        description: null,
+        aow_code: 'AOW01',
+        indicators: [
+          {
+            indicator_id: id + 100,
+            indicator_description: `Number of people trained ${id}`,
+            unit_of_measurement: 'Number',
+            type_value: 'Number of people trained (capacity sharing for development)',
+            target_value: '1',
+            target_year: 2026
+          }
+        ]
+      });
+      const capCatalog: TocCatalogSp = {
+        sp_code: 'SP01',
+        levels: [
+          {
+            level: 'OUTPUT',
+            toc_results: [
+              {
+                toc_result_id: 8100,
+                title: 'Zero-match HLO',
+                description: null,
+                aow_code: 'AOW01',
+                indicators: [
+                  {
+                    indicator_id: 8200,
+                    indicator_description: 'Untyped indicator',
+                    unit_of_measurement: 'Number',
+                    type_value: null,
+                    target_value: '1',
+                    target_year: 2026
+                  }
+                ]
+              },
+              ...[8101, 8102, 8103, 8104, 8105, 8106, 8107].map(trainedHlo)
+            ]
+          }
+        ]
+      };
+      hintSetup(8100, 'capacity_sharing', capCatalog);
+
+      const suggestions = component.compatibleHloSuggestions();
+      expect(suggestions.map(s => s.value)).toEqual([8101, 8102, 8103, 8104, 8105]); // first 5 in catalog order
+      expect(notice()?.querySelectorAll('button').length).toBe(5);
     });
   });
 

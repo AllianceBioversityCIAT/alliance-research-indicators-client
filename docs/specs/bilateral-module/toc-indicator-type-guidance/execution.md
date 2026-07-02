@@ -72,3 +72,19 @@
   - `guidanceEnabled()` checked explicitly in the warning computed (belt-and-braces; `'other'` is unreachable for unmatrixed types anyway).
 - **Issues encountered**: none.
 - **Final verification**: 191/191 scoped tests, lint + scoped stylelint clean (independently reproduced by Reviewer).
+
+### T-BIL-ITG-05 — HLO hints + no-match guidance notice — ✅ PASS (attempt 1) — 2026-07-02
+
+- **Attempts**: 1 Implementer run, 1 Reviewer run.
+- **Files changed** (4, 452+/4−): block `.ts/.html/.scss/.spec.ts`.
+- **What was added**: `HloSelectOption.hasTypeMatch` (exact `'type-match'` only, D-ITG-4 — wildcards never count; false-everywhere when guidance disabled); `typeMatchTagLabel`, `compatibleHloSuggestions` (same-level, catalog order, selected excluded, cap 5), `showNoTypeMatchNotice`, `noTypeMatchNoticeMessage`; copy `NO_TYPE_MATCH_INTRO`/`NO_TYPE_MATCH_ANYWHERE` (byte-exact vs design §4.2 incl. ’/—); tag "has Trained people" in the HLO item template (selectedItem clean); notice between HLO and indicator fields (`role="status"`, `data-testid="sp-toc-typematch-empty-<sp>"`) with native suggestion `<button type="button">` (`AOW — title`) routed through the existing `onHloChange` (cascade reset AC-04.3), `[disabled]="disabled()"` (AC-06.3); scss `__type-tag` + `__suggestion` (token-only, `:focus-visible` sin suprimir el outline).
+- **Implementer verification**: `npm run test -- sp-toc-alignment-block indicator-type-guidance pool-funding-alignment` → 285/285 (13 nuevos); lint clean; scoped stylelint clean.
+- **Reviewer verdict**: `STATUS: PASS` — AC-04.1..04.5 + AC-06.3 slice discharged; copy byte-for-byte vs design; D-ITG-4 verified against real custom-only fixture HLOs; single existing-assertion change is the sanctioned AC-06.2 literal-shape carve-out; evidence independently reproduced.
+- **Requirements covered**: REQ-BIL-ITG-04 (AC-04.1..04.5), AC-06.3 (suggestion buttons).
+- **Decisions made**:
+  - Cap-of-5 test uses a minimal inline catalog (HLOs 8100–8107) — the shared fixture yields only 2 type-match HLOs at SP01 OUTPUT (5186, 7201).
+  - Zero-indicator selected HLOs also trigger the notice (zero type-matches trivially) — no special-casing.
+  - Unresolvable saved `toc_result_id` ⇒ no notice (consistent with T-04 stale path; tested).
+  - Computed named `typeMatchTagLabel` (design's `typeMatchBadgeLabel` was illustrative).
+- **Issues encountered**: none. T-06 note extended: the `matchMedia` beforeAll stub is now duplicated in two describes — add `afterAll` restores in the sweep.
+- **Final verification**: 285/285 scoped tests, lint + scoped stylelint clean (independently reproduced by Reviewer).

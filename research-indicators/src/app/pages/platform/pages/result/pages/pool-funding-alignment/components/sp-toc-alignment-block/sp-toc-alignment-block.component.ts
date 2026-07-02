@@ -36,8 +36,23 @@ interface SelectOption<T> {
   value: T;
 }
 
-/** HLO option carries the AOW prefix separately so the template can bold it. */
+/**
+ * HLO option carries the AOW prefix separately so the template can bold it.
+ * `hasTypeMatch` (AC-04.1 / D-ITG-4): true iff the HLO contains ≥1 indicator
+ * classifying `type-match` for the current result type — wildcards (`custom`)
+ * deliberately do NOT count, and it is false for every option when guidance is
+ * disabled (no tags, AC-05.1).
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+ */
 interface HloSelectOption {
+  value: number;
+  aowCode: string | null;
+  title: string;
+  hasTypeMatch: boolean;
+}
+
+/** AC-04.2 — actionable row in the no-type-match notice (design §4.2 item 2). */
+interface HloSuggestion {
   value: number;
   aowCode: string | null;
   title: string;
@@ -71,6 +86,23 @@ interface IndicatorSelectGroup {
  */
 const CROSS_TYPE_WARNING = (indTypeLabel: string, resTypeLabel: string): string =>
   `This indicator is typed “${indTypeLabel}”; this result is “${resTypeLabel}”. Confirm the contribution belongs here.`;
+
+/**
+ * AC-04.2 — exact intro copy of the no-type-match notice when compatible
+ * same-SP-same-level HLOs exist; followed by the suggestion buttons
+ * (design §4.2, NF-05).
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+ */
+const NO_TYPE_MATCH_INTRO = (resTypeLabel: string, levelLabel: string): string =>
+  `None of this result’s indicators are typed for ${resTypeLabel}. ${levelLabel}s with matching indicators:`;
+
+/**
+ * AC-04.4 — exact no-dead-end copy when NO HLO at this SP+level carries a
+ * type-matching indicator (design §4.2, NF-05).
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+ */
+const NO_TYPE_MATCH_ANYWHERE = (resTypeLabel: string, levelLabel: string): string =>
+  `No ${levelLabel} in this Science Program has indicators typed for ${resTypeLabel}. You can select the closest indicator — it will be marked with a type notice.`;
 
 /**
  * Per-SP ToC alignment cascade block (Level → HLO → Indicator → Contribution).
@@ -179,7 +211,9 @@ export class SpTocAlignmentBlockComponent {
     this.tocResultsForLevel().map(result => ({
       value: result.toc_result_id,
       aowCode: result.aow_code,
-      title: result.title
+      title: result.title,
+      // AC-04.1 — lights the "has <type>" tag in the dropdown item template.
+      hasTypeMatch: this.hloHasTypeMatch(result)
     }))
   );
 
@@ -301,6 +335,68 @@ export class SpTocAlignmentBlockComponent {
     const indicatorTypeLabel = this.selectedIndicator()?.type_value?.trim() ?? '';
     const resultTypeLabel = RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? '';
     return CROSS_TYPE_WARNING(indicatorTypeLabel, resultTypeLabel);
+  });
+
+  // --- HLO hints + no-match guidance (REQ-BIL-ITG-04) -------------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+
+  /**
+   * D-ITG-4 — an HLO "has a type match" only on an EXACT `type-match`
+   * classification; wildcards (`custom`) do NOT count — customs exist on most
+   * HLOs and would light every option, diluting the discovery signal. When
+   * guidance is disabled, `classifyIndicator` returns `unclassified` for every
+   * input, so no HLO ever reports a match (AC-05.1).
+   */
+  private hloHasTypeMatch(tocResult: TocCatalogResult): boolean {
+    const resultType = this.resultType();
+    return tocResult.indicators.some(indicator => classifyIndicator(resultType, indicator.type_value) === 'type-match');
+  }
+
+  /**
+   * AC-04.1 — short badge label of the result type's canonical `type_value`
+   * ("Trained people" for `capacity_sharing`), rendered as "has <label>" on
+   * matching HLO options. Empty when guidance is disabled (no tag renders then).
+   */
+  readonly typeMatchTagLabel = computed(() => TYPE_BADGE_LABELS[TOC_TYPE_MATRIX[this.resultType() ?? ''] ?? ''] ?? '');
+
+  /**
+   * AC-04.2 — up to 5 same-SP-same-level HLOs carrying ≥1 type-match indicator,
+   * in catalog order, EXCLUDING the currently selected HLO. Feeds the actionable
+   * suggestion buttons of the no-type-match notice.
+   */
+  readonly compatibleHloSuggestions = computed<HloSuggestion[]>(() => {
+    const selectedId = this.normalizeNumericId(this.draft().toc_result_id);
+    return this.tocResultsForLevel()
+      .filter(result => this.normalizeNumericId(result.toc_result_id) !== selectedId && this.hloHasTypeMatch(result))
+      .slice(0, 5)
+      .map(result => ({ value: result.toc_result_id, aowCode: result.aow_code, title: result.title }));
+  });
+
+  /**
+   * AC-04.2/04.4/04.5 — the no-type-match notice renders while guidance is
+   * enabled and the selected (catalog-resolvable) HLO carries ZERO type-match
+   * indicators. The selection may still offer wildcard "recommended" options —
+   * that's fine; the notice is about exact matches (D-ITG-4). It disappears as
+   * soon as the selected HLO has a type-match or nothing is selected.
+   */
+  readonly showNoTypeMatchNotice = computed(() => {
+    if (!this.guidanceEnabled()) return false;
+    const selected = this.selectedTocResult();
+    return selected !== null && !this.hloHasTypeMatch(selected);
+  });
+
+  /**
+   * Notice body copy: the intro over the suggestion list when compatible HLOs
+   * exist at this SP+level (AC-04.2), the no-dead-end "anywhere" wording
+   * otherwise (AC-04.4). Level label rides the same §4.7 map as the HLO field
+   * label (`hloFieldLabel`).
+   */
+  readonly noTypeMatchNoticeMessage = computed(() => {
+    const resultTypeLabel = RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? '';
+    const levelLabel = this.hloFieldLabel();
+    return this.compatibleHloSuggestions().length > 0
+      ? NO_TYPE_MATCH_INTRO(resultTypeLabel, levelLabel)
+      : NO_TYPE_MATCH_ANYWHERE(resultTypeLabel, levelLabel);
   });
 
   // --- Emission helpers (cascade resets applied; inputs never mutated) --------

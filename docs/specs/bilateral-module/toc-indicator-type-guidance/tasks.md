@@ -92,7 +92,7 @@ T-BIL-ITG-02 (fixture extension, no deps)
 
 #### T-BIL-ITG-05 — *HLO hints + no-match guidance notice*
 
-- **Status**: `pending`
+- **Status**: `completed` ✅ (2026-07-02, Reviewer PASS attempt 1 — see `execution.md`)
 - **Depends on**: T-BIL-ITG-03
 - **Discharges ACs**: AC-04.1, AC-04.2, AC-04.3, AC-04.4, AC-04.5
 - **Touches**: block `.ts` (`hasTypeMatch` on `HloSelectOption`, `compatibleHloSuggestions`, `showNoTypeMatchNotice`, copy constants), `.html` (HLO item tag, notice between HLO and indicator fields), `.scss` (`__type-tag`)

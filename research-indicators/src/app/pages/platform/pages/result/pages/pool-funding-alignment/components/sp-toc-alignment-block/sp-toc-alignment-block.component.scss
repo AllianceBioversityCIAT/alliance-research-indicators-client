@@ -114,6 +114,65 @@
     text-transform: uppercase;
   }
 
+  // HLO compatibility hint tag (T-BIL-ITG-05): same neutral chip treatment as
+  // `__type-badge`; the tag TEXT ("has <type>") carries the meaning, never
+  // color alone (NF-02).
+  &__type-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    margin-left: 6px;
+    border: 1px solid var(--ac-grey-300);
+    border-radius: 999px;
+    background: var(--ac-grey-200);
+    color: var(--ac-grey-700);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  // No-type-match notice suggestion list (T-BIL-ITG-05): native <button>s so
+  // they're keyboard-operable with the platform's focus-visible styles (NF-02);
+  // link-like so the notice reads as guidance, not a second form control.
+  &__suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__suggestion {
+    display: inline;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--ac-primary-blue-500);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+
+    strong {
+      color: inherit;
+    }
+
+    &:focus-visible {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      color: var(--ac-grey-600);
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+
+    &:hover:not(:disabled) {
+      text-decoration: underline;
+    }
+  }
+
   // Contribution panel
   &__contribution {
     background: var(--ac-white-1);

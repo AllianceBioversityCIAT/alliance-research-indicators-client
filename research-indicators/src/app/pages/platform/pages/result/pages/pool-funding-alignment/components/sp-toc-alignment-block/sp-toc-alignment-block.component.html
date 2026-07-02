@@ -160,12 +160,47 @@
                 <ng-template let-option pTemplate="item">
                   <span class="sp-toc-block__hlo-label block w-full min-w-0 whitespace-normal break-words leading-[1.3]">
                     @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
+                    <!-- AC-04.1 / D-ITG-4 — hint tag only on EXACT type-matches (text, not color-only, NF-02). -->
+                    @if (option.hasTypeMatch) {
+                      <span class="sp-toc-block__type-tag">has {{ typeMatchTagLabel() }}</span>
+                    }
                   </span>
                 </ng-template>
               </p-select>
             </div>
           </div>
         }
+      }
+
+      <!-- No-type-match guidance notice (REQ-BIL-ITG-04 / T-BIL-ITG-05) — renders
+           between the HLO and indicator fields when the selected HLO carries zero
+           type-match indicators. Informational only (AC-04.5): never blocks
+           selection or save. Suggestions route through onHloChange, inheriting
+           the existing cascade reset (AC-04.3); buttons respect disabled (AC-06.3). -->
+      @if (showNoTypeMatchNotice()) {
+        <div
+          role="status"
+          aria-live="polite"
+          class="sp-toc-block__notice flex flex-col gap-2"
+          [attr.data-testid]="'sp-toc-typematch-empty-' + spCode()">
+          <span>{{ noTypeMatchNoticeMessage() }}</span>
+          @if (compatibleHloSuggestions().length > 0) {
+            <ul class="sp-toc-block__suggestions">
+              @for (suggestion of compatibleHloSuggestions(); track suggestion.value) {
+                <li>
+                  <button
+                    type="button"
+                    class="sp-toc-block__suggestion"
+                    [disabled]="disabled()"
+                    (click)="onHloChange(suggestion.value)"
+                    [attr.data-testid]="'sp-toc-typematch-suggestion-' + spCode() + '-' + suggestion.value">
+                    @if (suggestion.aowCode) { <strong>{{ suggestion.aowCode }}</strong> — }{{ suggestion.title }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
       }
 
       <!-- Indicator select (searchable, unfiltered by type — D-5; grouped/badged
