@@ -8,16 +8,16 @@
           <h1 class="font-['Inter'] fs-[17] font-bold leading-[18px] atc-primary-blue-600 m-0 break-all">
             Bilateral Mapping
           </h1>
-          <button
-            pButton
-            type="button"
-            icon="pi pi-plus"
+          <p-button
             label="New mapping"
-            class="p-button-primary"
-            (click)="openCreateDialog()"
+            icon="pi pi-plus !text-[12px]"
+            severity="primary"
+            size="small"
+            styleClass="!rounded-[9px] !max-h-[27px] !text-[13px]"
+            (onClick)="openCreateDialog()"
             data-testid="new-mapping-btn"
             aria-label="Create a new bilateral mapping">
-          </button>
+          </p-button>
         </div>
 
         <!-- Search + filters bar (AC-04.1 / AC-04.2 / AC-04.3) -->
@@ -115,13 +115,27 @@
 
               <ng-template pTemplate="header">
                 <tr>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Agreement ID</th>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">CLARISA Project</th>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Source</th>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Confidence</th>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Status</th>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Last Updated</th>
-                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Actions</th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">Agreement ID</div>
+                  </th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">CLARISA Project</div>
+                  </th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">Source</div>
+                  </th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">Confidence</div>
+                  </th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">Status</div>
+                  </th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">Last Updated</div>
+                  </th>
+                  <th class="!text-[#112F5C]" scope="col">
+                    <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">Actions</div>
+                  </th>
                 </tr>
               </ng-template>
 
