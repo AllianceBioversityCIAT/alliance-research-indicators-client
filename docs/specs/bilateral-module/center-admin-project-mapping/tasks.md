@@ -102,7 +102,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-04 — Route + sidebar entry + guard
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: T-BIL-CAM-02 (page can be a stub until T-03 lands; wire route after component file exists)
 - **Discharges ACs**: AC-01.1, AC-01.2, AC-01.3, AC-02.1, AC-02.2
 - **Touches**:

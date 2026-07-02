@@ -280,6 +280,15 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'administration/center-admin/bilateral-mapping',
+        loadComponent: () => import('@platform/pages/administration/center-admin/bilateral-mapping/bilateral-mapping.component').then(m => m.default),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'Bilateral Mapping',
+          isLoggedIn: true
+        }
+      },
+      {
         path: 'administration/configuration/variables',
         loadComponent: () =>
           import('@platform/pages/administration/configuration/variable-configuration/variable-configuration.component').then(m => m.default),

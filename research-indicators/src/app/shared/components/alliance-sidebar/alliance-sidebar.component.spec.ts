@@ -56,6 +56,27 @@ describe('AllianceSidebarComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should include Bilateral Mapping in center-admin children when user can access center admin', () => {
+    const roles = TestBed.inject(RolesService) as unknown as { canAccessCenterAdmin: jest.Mock };
+    roles.canAccessCenterAdmin.mockReturnValue(true);
+    const centerAdmin = component.administrationGroups().find(g => g.id === 'center-admin');
+    expect(centerAdmin).toBeTruthy();
+    const bilateral = centerAdmin?.children.find(c => c.link === '/administration/center-admin/bilateral-mapping');
+    expect(bilateral).toEqual({
+      label: 'Bilateral Mapping',
+      link: '/administration/center-admin/bilateral-mapping',
+      icon: 'pi-sitemap',
+      iconSize: '13px'
+    });
+  });
+
+  it('should hide center-admin group when user cannot access center admin', () => {
+    const roles = TestBed.inject(RolesService) as unknown as { canAccessCenterAdmin: jest.Mock };
+    roles.canAccessCenterAdmin.mockReturnValue(false);
+    const centerAdmin = component.administrationGroups().find(g => g.id === 'center-admin');
+    expect(centerAdmin).toBeUndefined();
+  });
+
   it('should set innerWidth and collapse sidebar on small screen when not collapsed', () => {
     const cache = TestBed.inject(CacheService) as any;
     cache.hasSmallScreen.mockReturnValue(true);

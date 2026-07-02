@@ -71,6 +71,21 @@
 
 ---
 
+### T-BIL-CAM-04 — Route + sidebar entry + guard — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01
+- **Attempts:** 1
+- **Requirements covered:** AC-01.1, AC-01.2, AC-01.3, AC-02.1, AC-02.2
+
+**Attempt 1**
+- **Implementer** (general-purpose):
+  - Files: `app.routes.ts` (+ lazy route `administration/center-admin/bilateral-mapping`, `canMatch:[centerAdminGuard]`, `data.title`), `alliance-sidebar.component.ts` (+ `Bilateral Mapping` child in the `center-admin` group, `{label,link,icon:'pi-sitemap',iconSize:'13px'}`), `alliance-sidebar.component.spec.ts` (+2 tests: present-for-admin, hidden-for-non-admin).
+  - Verification: `npm run lint` clean; `npm run test -- alliance-sidebar` 26/26; `npm run build` OK (component emitted as lazy chunk).
+- **Reviewer** (read-only): **STATUS: PASS.** Route + sidebar faithfully mirror the `sdg-management` idiom; target default-export component exists; block gated by `canAccessCenterAdmin()` (no leakage); minimal self-contained diff; spec (26 passed) verifies admin visibility + non-admin hiding.
+- **Outcome:** PASS on attempt 1 → task `[x]`.
+
+---
+
 ## 3. Summary
 
-_In progress — T-BIL-CAM-01/02/03 complete (3/8). Next: T-BIL-CAM-04 (route + sidebar entry + guard) — wires the now-existing list page into Center Admin nav._
+_In progress — T-BIL-CAM-01/02/03/04 complete (4/8). The Bilateral Mapping list page is now navigable for center admins. Next: T-BIL-CAM-05 (create/edit dialog with AGRESSO + CLARISA pickers) — the write path._
