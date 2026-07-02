@@ -81,7 +81,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-03 — List page: table, search, filters, pagination
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: T-BIL-CAM-02
 - **Discharges ACs**: AC-03.1, AC-03.2, AC-03.3, AC-03.4, AC-04.1, AC-04.2, AC-04.3, AC-04.4, REQ-BIL-CAM-NF-01, NF-04, NF-06
 - **Touches**:

@@ -1,0 +1,90 @@
+// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03)
+// All colors use design tokens (var(--ac-*)) — no hex literals (NF-04 / implementer.md hard rule).
+
+// ── Table ──────────────────────────────────────────────────────────────────────
+
+.bil-map-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--ac-grey-200);
+  }
+
+  th {
+    background-color: var(--ac-grey-100);
+    white-space: nowrap;
+  }
+}
+
+// Keyboard-focusable rows (NF-02 / §9)
+.bil-map-row {
+  cursor: default;
+  transition: background-color 0.12s ease;
+
+  &:focus,
+  &:focus-visible {
+    outline: 2px solid var(--ac-light-blue-300);
+    outline-offset: -2px;
+    background-color: var(--ac-grey-100);
+  }
+
+  &:hover {
+    background-color: var(--ac-grey-100);
+  }
+}
+
+// ── Source badges (token-based, no hex) ───────────────────────────────────────
+
+.bil-source-badge {
+  border: 1px solid var(--ac-grey-300);
+  color: var(--ac-grey-800);
+  background-color: var(--ac-grey-100);
+
+  &--MANUAL {
+    background-color: var(--ac-primary-blue-100);
+    color: var(--ac-primary-blue-600);
+    border-color: var(--ac-primary-blue-200);
+  }
+
+  &--AI_SUGGESTED {
+    background-color: var(--ac-green-100);
+    color: var(--ac-green-600);
+    border-color: var(--ac-green-200);
+  }
+
+  &--AI_AUTO {
+    background-color: var(--ac-light-blue-100);
+    color: var(--ac-light-blue-500);
+    border-color: var(--ac-light-blue-200);
+  }
+}
+
+// ── Active/inactive badges ────────────────────────────────────────────────────
+
+.bil-status-badge {
+  border-width: 1px;
+  border-style: solid;
+
+  &--active {
+    background-color: var(--ac-green-100);
+    color: var(--ac-green-600);
+    border-color: var(--ac-green-200);
+  }
+
+  &--inactive {
+    background-color: var(--ac-grey-200);
+    color: var(--ac-grey-700);
+    border-color: var(--ac-grey-300);
+  }
+}
+
+// ── Error block ───────────────────────────────────────────────────────────────
+
+.bil-error-block {
+  border-color: var(--ac-red-1);
+  background-color: var(--ac-grey-100);
+}

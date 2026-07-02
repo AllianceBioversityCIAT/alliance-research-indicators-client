@@ -54,6 +54,23 @@
 
 ---
 
+### T-BIL-CAM-03 — List page (table, search, filters, pagination) — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01
+- **Attempts:** 1
+- **Requirements covered:** AC-03.1..03.4, AC-04.1..04.4, NF-01, NF-02, NF-04, NF-06
+
+**Attempt 1**
+- **Implementer** (frontend-developer):
+  - Files (NEW): `.../administration/center-admin/bilateral-mapping/bilateral-mapping.component.{ts,html,scss,spec.ts}` (component 159 LOC, spec 19 tests).
+  - Standalone `default export` `OnPush` `app-bilateral-mapping`; consumes `BilateralMappingService.list()`; signals for rows/meta/loading/loadError/search/activeFilter/sourceFilter/page/limit(20). `p-table` + `p-paginator` (server-side, 0→1-based conversion) + `pInputText` search (RxJS `debounceTime(300)`, `takeUntil(destroy$)`) + two `p-select` filters. Confidence column via `showConfidence()` = `source !== 'MANUAL'`. loading/error(+Retry, `role="alert"`)/empty/table states.
+  - Colors fully tokenized (`var(--ac-*)`, `atc-*`/`abc-*`) — zero hex; `SelectModule` per repo standard; `DecimalPipe`+`DatePipe` imported.
+  - Verification: `npm run test -- bilateral-mapping.component` → 19/19; `npm run lint` clean; new SCSS stylelint-clean (the ~350 `s-lint` errors are pre-existing, unrelated files).
+- **Reviewer** (read-only): **STATUS: PASS.** All ACs discharged; confidence-hidden-for-MANUAL correct; `meta`-driven server pagination with 0→1 conversion; `role="alert"` + Retry; explicit empty state; zero hex / no `isDarkMode` (tokens verified defined); debounce cleaned on destroy; 19/19 reproduced; no route/sidebar/T-01–02 changes.
+- **Outcome:** PASS on attempt 1 → task `[x]`.
+
+---
+
 ## 3. Summary
 
-_In progress — T-BIL-CAM-01, T-BIL-CAM-02 complete. Next: T-BIL-CAM-03 (list page) and T-BIL-CAM-04 (route + sidebar), both now unblocked._
+_In progress — T-BIL-CAM-01/02/03 complete (3/8). Next: T-BIL-CAM-04 (route + sidebar entry + guard) — wires the now-existing list page into Center Admin nav._
