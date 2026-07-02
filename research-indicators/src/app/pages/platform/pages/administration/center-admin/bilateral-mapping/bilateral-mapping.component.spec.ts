@@ -1,11 +1,14 @@
-// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03)
+// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03, T-BIL-CAM-05)
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import BilateralMappingComponent from './bilateral-mapping.component';
 import { BilateralMappingService } from '@services/bilateral-mapping.service';
+import { ActionsService } from '@services/actions.service';
+import { ClarityService } from '@services/clarity.service';
 import {
   BilateralMappingListPage,
-  BilateralProjectMapping
+  BilateralProjectMapping,
+  ClarisaBilateralProjectOption
 } from '@interfaces/bilateral/bilateral-project-mapping.interface';
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
@@ -35,6 +38,26 @@ function makePage(items: BilateralProjectMapping[], total = items.length): Bilat
   };
 }
 
+const AGRESSO_OPTIONS = [
+  { agreement_id: 'A511', description: 'ACIAR Bilateral' },
+  { agreement_id: 'D527', description: 'DFAT Bilateral' }
+];
+
+const CLARISA_OPTIONS: ClarisaBilateralProjectOption[] = [
+  {
+    id: 22,
+    short_name: 'ACIAR',
+    source_of_funding: 'BILATERAL',
+    science_programs: [{ code: 'SP1', name: 'Food Systems', allocation: 60 }]
+  },
+  {
+    id: 99,
+    short_name: 'USAID',
+    source_of_funding: 'BILATERAL',
+    science_programs: []
+  }
+];
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function delayMs(ms = 0): Promise<void> {
@@ -46,17 +69,33 @@ function delayMs(ms = 0): Promise<void> {
 describe('BilateralMappingComponent', () => {
   let fixture: ComponentFixture<BilateralMappingComponent>;
   let component: BilateralMappingComponent;
-  let mockService: { list: jest.Mock };
+  let mockService: {
+    list: jest.Mock;
+    create: jest.Mock;
+    update: jest.Mock;
+    loadAgressoOptions: jest.Mock;
+    loadClarisaProjectOptions: jest.Mock;
+  };
+  let mockActions: { showToast: jest.Mock };
+  let mockClarity: { trackEvent: jest.Mock };
 
   beforeEach(async () => {
     mockService = {
-      list: jest.fn()
+      list: jest.fn(),
+      create: jest.fn(),
+      update: jest.fn(),
+      loadAgressoOptions: jest.fn().mockResolvedValue(AGRESSO_OPTIONS),
+      loadClarisaProjectOptions: jest.fn().mockResolvedValue(CLARISA_OPTIONS)
     };
+    mockActions = { showToast: jest.fn() };
+    mockClarity = { trackEvent: jest.fn() };
 
     await TestBed.configureTestingModule({
       imports: [BilateralMappingComponent],
       providers: [
-        { provide: BilateralMappingService, useValue: mockService }
+        { provide: BilateralMappingService, useValue: mockService },
+        { provide: ActionsService, useValue: mockActions },
+        { provide: ClarityService, useValue: mockClarity }
       ],
       schemas: [NO_ERRORS_SCHEMA]
     }).compileComponents();
@@ -368,5 +407,471 @@ describe('BilateralMappingComponent', () => {
     expect(component.sourceLabel('MANUAL')).toBe('Manual');
     expect(component.sourceLabel('AI_SUGGESTED')).toBe('AI Suggested');
     expect(component.sourceLabel('AI_AUTO')).toBe('AI Auto');
+  });
+
+  // ── T-BIL-CAM-05: Dialog open / picker loading ────────────────────────────
+
+  describe('openCreateDialog (AC-05.1 / AC-05.2)', () => {
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+      fixture.detectChanges();
+    });
+
+    it('opens the dialog in create mode and loads picker options', async () => {
+      component.openCreateDialog();
+      expect(component.dialogOpen()).toBe(true);
+      expect(component.dialogMode()).toBe('create');
+      expect(component.optionsLoading()).toBe(true);
+
+      await fixture.whenStable();
+      await delayMs(0);
+      fixture.detectChanges();
+
+      expect(component.optionsLoading()).toBe(false);
+      expect(mockService.loadAgressoOptions).toHaveBeenCalledTimes(1);
+      expect(mockService.loadClarisaProjectOptions).toHaveBeenCalledTimes(1);
+      expect(component.agressoOptions()).toEqual(AGRESSO_OPTIONS);
+      expect(component.clarisaOptions()).toEqual(CLARISA_OPTIONS);
+    });
+
+    it('resets form fields when opening create dialog', () => {
+      // Set some state first
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+      component.notes.set('some note');
+      component.saveError.set('previous error');
+
+      component.openCreateDialog();
+
+      expect(component.selectedAgreement()).toBeNull();
+      expect(component.selectedProjectId()).toBeNull();
+      expect(component.notes()).toBe('');
+      expect(component.saveError()).toBeNull();
+      expect(component.editingId()).toBeNull();
+    });
+  });
+
+  // ── AC-05.3: Save disabled until BOTH pickers are set ─────────────────────
+
+  describe('canSave — CREATE mode (AC-05.3)', () => {
+    beforeEach(() => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      component.openCreateDialog();
+    });
+
+    it('is false when neither picker is set', () => {
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('is false when only AGRESSO is set', () => {
+      component.selectedAgreement.set('A511');
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('is false when only CLARISA is set', () => {
+      component.selectedProjectId.set(22);
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('is true when both pickers have a value', () => {
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('is false while saving is in progress', () => {
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+      component.saving.set(true);
+      expect(component.canSave()).toBe(false);
+    });
+  });
+
+  // ── AC-05.4: successful create → service called, toast shown, list reloaded, trackEvent ──
+
+  describe('successful CREATE (AC-05.4)', () => {
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('calls service.create with the correct body, shows success toast, reloads list, fires trackEvent', async () => {
+      const newRow = makeRow({ id: 5, agresso_agreement_id: 'A511', clarisa_project_id: 22 });
+      mockService.create.mockResolvedValue({ ok: true, data: newRow });
+      mockService.list.mockResolvedValue(makePage([newRow]));
+
+      component.openCreateDialog();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+      component.notes.set('Test note');
+
+      expect(component.canSave()).toBe(true);
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(mockService.create).toHaveBeenCalledWith({
+        agresso_agreement_id: 'A511',
+        clarisa_project_id: 22,
+        notes: 'Test note'
+      });
+
+      // Dialog closed
+      expect(component.dialogOpen()).toBe(false);
+
+      // Toast shown (AC-05.4)
+      expect(mockActions.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Bilateral Mapping',
+        detail: 'Mapping created'
+      });
+
+      // List reloaded (AC-05.4) — list() was called again after create
+      expect(mockService.list).toHaveBeenCalledTimes(2); // initial + reload
+
+      // Telemetry (AC-05.4 / design §10)
+      expect(mockClarity.trackEvent).toHaveBeenCalledWith('bilateral.mapping.created', {
+        agresso_agreement_id: 'A511',
+        clarisa_project_id: 22
+      });
+    });
+
+    it('does not include notes in the create body when notes is empty', async () => {
+      const newRow = makeRow({ id: 6 });
+      mockService.create.mockResolvedValue({ ok: true, data: newRow });
+      mockService.list.mockResolvedValue(makePage([newRow]));
+
+      component.openCreateDialog();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+      component.notes.set('');
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(mockService.create).toHaveBeenCalledWith({
+        agresso_agreement_id: 'A511',
+        clarisa_project_id: 22
+      });
+      expect(mockService.create.mock.calls[0][0]).not.toHaveProperty('notes');
+    });
+  });
+
+  // ── AC-05.5: CREATE 409 conflict → dialog stays open, message surfaced ─────
+
+  describe('CREATE 409 conflict (AC-05.5)', () => {
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('keeps dialog open and surfaces result.message (from errorDetail.errors) on 409', async () => {
+      const conflictMessage = 'Active mapping already exists for this contract';
+      mockService.create.mockResolvedValue({ ok: false, status: 409, message: conflictMessage });
+
+      component.openCreateDialog();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Dialog remains open (AC-05.5)
+      expect(component.dialogOpen()).toBe(true);
+
+      // The exact message from result.message is surfaced (not a generic string)
+      expect(component.saveError()).toBe(conflictMessage);
+
+      // No duplicate row added — list NOT reloaded on failure
+      expect(mockService.list).toHaveBeenCalledTimes(1); // only initial load
+
+      // No success toast
+      expect(mockActions.showToast).not.toHaveBeenCalled();
+    });
+
+    it('message shown is result.message, not a generic string (AC-05.5)', async () => {
+      const specificMessage = 'Active mapping already exists for this contract';
+      mockService.create.mockResolvedValue({ ok: false, status: 409, message: specificMessage });
+
+      component.openCreateDialog();
+      await fixture.whenStable();
+      await delayMs(0);
+      component.selectedAgreement.set('D527');
+      component.selectedProjectId.set(99);
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Must be the exact error text from result.message, not "ConflictException" or generic
+      expect(component.saveError()).toBe(specificMessage);
+      expect(component.saveError()).not.toBe('ConflictException');
+      expect(component.saveError()).not.toBe('An unexpected error occurred. Please try again.');
+    });
+  });
+
+  // ── AC-05.6: CREATE 400 validation error → message surfaced ───────────────
+
+  describe('CREATE 400 validation error (AC-05.6)', () => {
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('surfaces result.message inline on a 400 error', async () => {
+      const validationMessage = 'clarisa_project_id must be a number';
+      mockService.create.mockResolvedValue({ ok: false, status: 400, message: validationMessage });
+
+      component.openCreateDialog();
+      await fixture.whenStable();
+      await delayMs(0);
+      component.selectedAgreement.set('A511');
+      component.selectedProjectId.set(22);
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(component.dialogOpen()).toBe(true);
+      expect(component.saveError()).toBe(validationMessage);
+    });
+  });
+
+  // ── T-BIL-CAM-05: Edit mode (AC-06.1 / AC-06.4) ──────────────────────────
+
+  describe('openEditDialog (AC-06.1 / AC-06.4)', () => {
+    const editRow = makeRow({ id: 11, agresso_agreement_id: 'D504', clarisa_project_id: 22, notes: 'original note' });
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([editRow]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('pre-fills form fields from the row when opened in edit mode (AC-06.1)', () => {
+      component.openEditDialog(editRow);
+
+      expect(component.dialogMode()).toBe('edit');
+      expect(component.editingId()).toBe(11);
+      expect(component.editingAgreementId()).toBe('D504');
+      expect(component.selectedProjectId()).toBe(22);
+      expect(component.notes()).toBe('original note');
+    });
+
+    it('AGRESSO agreement shown as read-only (editingAgreementId set, not in selectedAgreement picker for edit)', () => {
+      component.openEditDialog(editRow);
+
+      // editingAgreementId holds the readonly value; selectedAgreement is set for reference
+      expect(component.editingAgreementId()).toBe('D504');
+    });
+
+    it('Save is disabled when nothing changed (AC-06.4)', () => {
+      component.openEditDialog(editRow);
+
+      // No changes made — canSave must be false
+      expect(component.canSave()).toBe(false);
+    });
+
+    it('Save is enabled when CLARISA project changes (AC-06.4)', () => {
+      component.openEditDialog(editRow);
+      component.selectedProjectId.set(99); // changed from 22
+
+      expect(component.canSave()).toBe(true);
+    });
+
+    it('Save is enabled when notes changes (AC-06.4)', () => {
+      component.openEditDialog(editRow);
+      component.notes.set('updated note'); // changed
+
+      expect(component.canSave()).toBe(true);
+    });
+  });
+
+  // ── AC-06.2: successful edit → service.update called with ONLY changed fields ──
+
+  describe('successful EDIT (AC-06.2)', () => {
+    const editRow = makeRow({ id: 11, agresso_agreement_id: 'D504', clarisa_project_id: 22, notes: 'original' });
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([editRow]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('calls service.update with only the changed fields (project id changed)', async () => {
+      const updatedRow = makeRow({ id: 11, clarisa_project_id: 99 });
+      mockService.update.mockResolvedValue({ ok: true, data: updatedRow });
+      mockService.list.mockResolvedValue(makePage([updatedRow]));
+
+      component.openEditDialog(editRow);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Change only the project
+      component.selectedProjectId.set(99);
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Only clarisa_project_id in body — not notes (unchanged)
+      expect(mockService.update).toHaveBeenCalledWith(11, { clarisa_project_id: 99 });
+
+      // Dialog closed
+      expect(component.dialogOpen()).toBe(false);
+
+      // Success toast (AC-06.2)
+      expect(mockActions.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Bilateral Mapping',
+        detail: 'Mapping updated'
+      });
+
+      // Telemetry (AC-06.2 / design §10)
+      expect(mockClarity.trackEvent).toHaveBeenCalledWith('bilateral.mapping.updated', {
+        mapping_id: 11,
+        clarisa_project_id: 99
+      });
+
+      // List reloaded
+      expect(mockService.list).toHaveBeenCalledTimes(2);
+    });
+
+    it('calls service.update with only notes when only notes changed', async () => {
+      const updatedRow = makeRow({ id: 11, notes: 'new note' });
+      mockService.update.mockResolvedValue({ ok: true, data: updatedRow });
+      mockService.list.mockResolvedValue(makePage([updatedRow]));
+
+      component.openEditDialog(editRow);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      component.notes.set('new note');
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Only notes in body — not clarisa_project_id (unchanged)
+      expect(mockService.update).toHaveBeenCalledWith(11, { notes: 'new note' });
+    });
+  });
+
+  // ── AC-06.3: EDIT 400 error → message surfaced inline ─────────────────────
+
+  describe('EDIT 400 error (AC-06.3)', () => {
+    const editRow = makeRow({ id: 11, agresso_agreement_id: 'D504', clarisa_project_id: 22, notes: 'original' });
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([editRow]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('surfaces result.message inline on a 400 PATCH error and keeps dialog open (AC-06.3)', async () => {
+      const errorMessage = 'clarisa_project_id does not exist';
+      mockService.update.mockResolvedValue({ ok: false, status: 400, message: errorMessage });
+
+      component.openEditDialog(editRow);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      component.selectedProjectId.set(999); // change so canSave is true
+
+      await component.onSave();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(component.dialogOpen()).toBe(true);
+      expect(component.saveError()).toBe(errorMessage);
+      expect(mockActions.showToast).not.toHaveBeenCalled();
+    });
+  });
+
+  // ── closeDialog resets error ───────────────────────────────────────────────
+
+  it('closeDialog() sets dialogOpen to false and clears saveError', () => {
+    component.dialogOpen.set(true);
+    component.saveError.set('some error');
+
+    component.closeDialog();
+
+    expect(component.dialogOpen()).toBe(false);
+    expect(component.saveError()).toBeNull();
+  });
+
+  // ── agressoOptionLabel helper ──────────────────────────────────────────────
+
+  describe('agressoOptionLabel', () => {
+    it('returns "id — description" when description is present', () => {
+      expect(component.agressoOptionLabel({ agreement_id: 'A511', description: 'ACIAR Bilateral' }))
+        .toBe('A511 — ACIAR Bilateral');
+    });
+
+    it('returns just the id when description is empty', () => {
+      expect(component.agressoOptionLabel({ agreement_id: 'A511', description: '' }))
+        .toBe('A511');
+    });
+  });
+
+  // ── onNotesInput clips at max length ──────────────────────────────────────
+
+  it('onNotesInput clips the input at notesMaxLength (500 chars)', () => {
+    const long = 'a'.repeat(510);
+    component.onNotesInput(long);
+    expect(component.notes().length).toBe(500);
+  });
+
+  // ── selectedProject computed signal ───────────────────────────────────────
+
+  it('selectedProject returns the matching CLARISA option when a project is selected', async () => {
+    mockService.list.mockResolvedValue(makePage([]));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await delayMs(0);
+
+    component.openCreateDialog();
+    await fixture.whenStable();
+    await delayMs(0);
+
+    component.selectedProjectId.set(22);
+
+    expect(component.selectedProject()).toEqual(CLARISA_OPTIONS[0]);
+  });
+
+  it('selectedProject returns null when no project is selected', async () => {
+    mockService.list.mockResolvedValue(makePage([]));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    await delayMs(0);
+
+    component.openCreateDialog();
+
+    expect(component.selectedProject()).toBeNull();
   });
 });

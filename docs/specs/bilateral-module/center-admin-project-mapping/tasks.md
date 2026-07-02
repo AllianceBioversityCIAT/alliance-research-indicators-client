@@ -122,7 +122,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-05 — Create/edit dialog with AGRESSO + CLARISA pickers
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: T-BIL-CAM-03
 - **Discharges ACs**: AC-05.1, AC-05.2, AC-05.3, AC-05.4, AC-05.5, AC-05.6, AC-06.1, AC-06.2, AC-06.4
 - **Touches**:

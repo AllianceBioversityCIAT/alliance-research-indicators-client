@@ -3,10 +3,22 @@
     <div class="content-section w-full">
       <div class="bilateral-mapping flex w-full min-w-0 flex-col abc-white-2 p-[30px] mb-10 rounded-[10px] gap-6">
 
-        <!-- Page title -->
-        <h1 class="font-['Inter'] fs-[17] font-bold leading-[18px] atc-primary-blue-600 m-0 break-all px-2">
-          Bilateral Mapping
-        </h1>
+        <!-- Page title + New Mapping button (T-BIL-CAM-05) -->
+        <div class="flex flex-wrap items-center justify-between gap-4 px-2">
+          <h1 class="font-['Inter'] fs-[17] font-bold leading-[18px] atc-primary-blue-600 m-0 break-all">
+            Bilateral Mapping
+          </h1>
+          <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            label="New mapping"
+            class="p-button-primary"
+            (click)="openCreateDialog()"
+            data-testid="new-mapping-btn"
+            aria-label="Create a new bilateral mapping">
+          </button>
+        </div>
 
         <!-- Search + filters bar (AC-04.1 / AC-04.2 / AC-04.3) -->
         <div class="flex flex-wrap items-center gap-3 px-2">
@@ -109,6 +121,7 @@
                   <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Confidence</th>
                   <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Status</th>
                   <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Last Updated</th>
+                  <th scope="col" class="text-sm font-semibold atc-primary-blue-600">Actions</th>
                 </tr>
               </ng-template>
 
@@ -170,6 +183,19 @@
                   <td class="text-sm atc-grey-700">
                     {{ row.updated_at | date: 'dd MMM yyyy' }}
                   </td>
+
+                  <!-- Row actions (T-BIL-CAM-05: Edit) -->
+                  <td>
+                    <button
+                      pButton
+                      type="button"
+                      icon="pi pi-pencil"
+                      class="p-button-text p-button-sm"
+                      (click)="openEditDialog(row)"
+                      [attr.aria-label]="'Edit mapping for ' + row.agresso_agreement_id"
+                      data-testid="edit-btn">
+                    </button>
+                  </td>
                 </tr>
               </ng-template>
             </p-table>
@@ -193,3 +219,177 @@
     </div>
   </div>
 </div>
+
+<!-- ── Create / Edit Dialog (T-BIL-CAM-05) ────────────────────────────────── -->
+<!-- @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (AC-05.x / AC-06.x) -->
+<p-dialog
+  [header]="dialogMode() === 'create' ? 'New Bilateral Mapping' : 'Edit Bilateral Mapping'"
+  [(visible)]="dialogOpen"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '560px' }"
+  [closable]="true"
+  (onHide)="closeDialog()"
+  appendTo="body"
+  data-testid="mapping-dialog"
+  aria-labelledby="bilMapDialogTitle">
+
+  <div class="flex flex-col gap-5">
+
+    <!-- Pickers loading state -->
+    @if (optionsLoading()) {
+      <div class="flex items-center gap-2 py-2" aria-live="polite">
+        <i class="pi pi-spinner pi-spin atc-primary-blue-400" aria-hidden="true"></i>
+        <span class="text-sm atc-grey-800">Loading options…</span>
+      </div>
+    }
+
+    <!-- AGRESSO contract picker (CREATE) / read-only display (EDIT) -->
+    <div class="flex flex-col gap-1">
+      <label for="bilMapAgressoPicker" class="text-sm font-medium atc-grey-800">
+        AGRESSO Contract <span class="atc-red-1" aria-hidden="true">*</span>
+      </label>
+
+      @if (dialogMode() === 'create') {
+        <!-- AC-05.1: selectable bilateral contracts -->
+        <p-select
+          inputId="bilMapAgressoPicker"
+          [options]="agressoOptions()"
+          [optionLabel]="'agreement_id'"
+          optionValue="agreement_id"
+          [ngModel]="selectedAgreement()"
+          (ngModelChange)="selectedAgreement.set($event)"
+          placeholder="Select AGRESSO contract…"
+          [filter]="true"
+          filterBy="agreement_id,description"
+          [showClear]="true"
+          [loading]="optionsLoading()"
+          styleClass="w-full"
+          aria-required="true"
+          data-testid="agresso-picker">
+          <ng-template pTemplate="selectedItem" let-opt>
+            @if (opt) {
+              <span>{{ agressoOptionLabel(opt) }}</span>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-opt>
+            <span>{{ agressoOptionLabel(opt) }}</span>
+          </ng-template>
+        </p-select>
+      } @else {
+        <!-- AC-06.1 / AC-OQ-2: AGRESSO agreement is immutable on edit — read-only display -->
+        <div
+          class="bil-readonly-field rounded px-3 py-2 text-sm atc-grey-900"
+          id="bilMapAgressoPicker"
+          aria-readonly="true"
+          data-testid="agresso-readonly">
+          {{ editingAgreementId() }}
+        </div>
+        <p class="m-0 text-xs atc-grey-600">The AGRESSO contract cannot be changed after creation.</p>
+      }
+    </div>
+
+    <!-- CLARISA project picker (AC-05.2 / AC-06.1) -->
+    <div class="flex flex-col gap-1">
+      <label for="bilMapClarisaPicker" class="text-sm font-medium atc-grey-800">
+        CLARISA Project <span class="atc-red-1" aria-hidden="true">*</span>
+      </label>
+      <p-select
+        inputId="bilMapClarisaPicker"
+        [options]="clarisaOptions()"
+        optionLabel="short_name"
+        optionValue="id"
+        [ngModel]="selectedProjectId()"
+        (ngModelChange)="selectedProjectId.set($event)"
+        placeholder="Select CLARISA project…"
+        [filter]="true"
+        filterBy="short_name"
+        [showClear]="true"
+        [loading]="optionsLoading()"
+        styleClass="w-full"
+        aria-required="true"
+        data-testid="clarisa-picker">
+      </p-select>
+
+      <!-- Science-Program allocation preview (AC-05.2) — shown when a project is selected -->
+      @if (selectedProject(); as project) {
+        @if (project.science_programs && project.science_programs.length > 0) {
+          <div class="bil-sp-preview mt-1 rounded px-3 py-2 flex flex-col gap-1" data-testid="sp-preview">
+            <p class="m-0 text-xs font-semibold atc-grey-700">Science Program allocations:</p>
+            <ul class="list-none m-0 p-0 flex flex-col gap-1" aria-label="Science Program allocations">
+              @for (sp of project.science_programs; track sp.code) {
+                <li class="text-xs atc-grey-800 flex items-center justify-between gap-2">
+                  <span>{{ sp.name || sp.code || '—' }}</span>
+                  @if (sp.allocation !== undefined && sp.allocation !== null) {
+                    <span class="font-medium atc-primary-blue-600">{{ sp.allocation | number: '1.0-1' }}%</span>
+                  }
+                </li>
+              }
+            </ul>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Notes (optional, max 500 chars) -->
+    <div class="flex flex-col gap-1">
+      <label for="bilMapNotes" class="text-sm font-medium atc-grey-800">
+        Notes <span class="text-xs atc-grey-500">(optional)</span>
+      </label>
+      <textarea
+        pTextarea
+        id="bilMapNotes"
+        rows="3"
+        class="w-full"
+        [maxlength]="notesMaxLength"
+        placeholder="Add notes about this mapping…"
+        [ngModel]="notes()"
+        (ngModelChange)="onNotesInput($event)"
+        aria-label="Mapping notes"
+        data-testid="notes-input">
+      </textarea>
+      <p class="m-0 text-xs atc-grey-500 text-right">{{ notes().length }}/{{ notesMaxLength }}</p>
+    </div>
+
+    <!-- Inline save error (role="alert" — surfaces 409 / 400 message from result.message) -->
+    @if (saveError()) {
+      <div
+        class="bil-save-error-block rounded px-3 py-3"
+        role="alert"
+        aria-live="assertive"
+        data-testid="save-error">
+        <p class="m-0 text-sm atc-red-1">
+          <i class="pi pi-exclamation-triangle mr-2" aria-hidden="true"></i>
+          {{ saveError() }}
+        </p>
+      </div>
+    }
+
+  </div>
+
+  <!-- Dialog footer -->
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-3">
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        class="p-button-outlined p-button-secondary"
+        (click)="closeDialog()"
+        data-testid="dialog-cancel-btn">
+      </button>
+      <button
+        pButton
+        type="button"
+        [label]="saving() ? 'Saving…' : 'Save'"
+        [disabled]="!canSave()"
+        [loading]="saving()"
+        (click)="onSave()"
+        data-testid="dialog-save-btn"
+        [attr.aria-disabled]="!canSave()">
+      </button>
+    </div>
+  </ng-template>
+
+</p-dialog>

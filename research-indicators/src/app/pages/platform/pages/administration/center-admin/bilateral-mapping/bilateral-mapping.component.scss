@@ -1,4 +1,4 @@
-// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03)
+// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03, T-BIL-CAM-05)
 // All colors use design tokens (var(--ac-*)) — no hex literals (NF-04 / implementer.md hard rule).
 
 // ── Table ──────────────────────────────────────────────────────────────────────
@@ -82,9 +82,31 @@
   }
 }
 
-// ── Error block ───────────────────────────────────────────────────────────────
+// ── Error block (list) ────────────────────────────────────────────────────────
 
 .bil-error-block {
   border-color: var(--ac-red-1);
   background-color: var(--ac-grey-100);
+}
+
+// ── Dialog form styles (T-BIL-CAM-05) ────────────────────────────────────────
+
+// Read-only AGRESSO field in EDIT mode (NF-04 / §4.5)
+.bil-readonly-field {
+  border: 1px solid var(--ac-grey-300);
+  background-color: var(--ac-grey-100);
+  color: var(--ac-grey-700);
+  min-height: 38px;
+}
+
+// Science-Program allocation preview (AC-05.2)
+.bil-sp-preview {
+  border: 1px solid var(--ac-grey-200);
+  background-color: var(--ac-grey-100);
+}
+
+// Inline save-error block (AC-05.5 / AC-05.6 / AC-06.3)
+.bil-save-error-block {
+  border: 1px solid var(--ac-red-1);
+  background-color: var(--ac-grey-200);
 }

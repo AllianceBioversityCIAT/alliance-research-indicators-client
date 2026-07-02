@@ -86,6 +86,23 @@
 
 ---
 
+### T-BIL-CAM-05 — Create/edit dialog with AGRESSO + CLARISA pickers — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01
+- **Attempts:** 1 (first Reviewer agent died on a transient API ECONNRESET before emitting a verdict; a second Reviewer completed the audit — implementation itself was never reworked)
+- **Requirements covered:** AC-05.1..05.6, AC-06.1..06.4
+
+**Attempt 1**
+- **Implementer** (frontend-developer):
+  - Files (all MODIFIED, extending T-03): `bilateral-mapping.component.{ts,html,scss,spec.ts}` (component 373 LOC, html 395, spec 45 tests).
+  - "New mapping" button + per-row Edit → `p-dialog`. Create: lazy `p-select` pickers (AGRESSO `{agreement_id,description}`, CLARISA `{id,short_name,science_programs}`) + read-only SP allocation preview + notes (500-cap); Save enabled only when both pickers set. Edit: pre-filled, AGRESSO read-only field, Save enabled only when dirty (snapshot compare), sends only changed fields. Success → `showToast` + list reload + Clarity `bilateral.mapping.created`/`.updated`. 409/400 → inline `role="alert"` from `result.message` (never the exception name); 409 keeps dialog open, no duplicate.
+  - Colors tokenized (error affordance: `atc-red-1` text + `pi-exclamation-triangle` + `--ac-red-1` border; `--ac-grey-*` surfaces). Zero hex.
+  - Verification: `npm run test -- bilateral-mapping.component` 45/45; `npm run lint` clean; scss stylelint clean.
+- **Reviewer** (read-only, 2nd agent): **STATUS: PASS.** All create/edit ACs discharged; `result.message` errors-first (never `ConflictException`); zero hex + valid red-token error affordance; `NO_ERRORS_SCHEMA` does NOT hollow the T-03 DOM assertions (real native-element queries still pass); T-03 behavior/scope preserved; 45/45 + clean lint reproduced. Minor non-blocking: (a) whitespace-only notes edit can send a no-op `notes`; (b) update `trackEvent` omits `agresso_agreement_id` (telemetry payload is guidance). Neither warrants rework.
+- **Outcome:** PASS → task `[x]`.
+
+---
+
 ## 3. Summary
 
-_In progress — T-BIL-CAM-01/02/03/04 complete (4/8). The Bilateral Mapping list page is now navigable for center admins. Next: T-BIL-CAM-05 (create/edit dialog with AGRESSO + CLARISA pickers) — the write path._
+_In progress — T-BIL-CAM-01..05 complete (5/8). Full read + create/edit write path shipped. Next: T-BIL-CAM-06 (deactivate with confirmation via ActionsService.showGlobalAlert)._
