@@ -26,6 +26,7 @@ import {
 import {
   SAVED_TOC_ALIGNMENTS_FIXTURE,
   TOC_CATALOG_CAPSHARING_FIXTURE,
+  TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE,
   TOC_CATALOG_EMPTY_LEVELS_FIXTURE,
   TOC_CATALOG_TWO_SP_FIXTURE,
   TOC_CATALOG_VERSION_LOCKED_FIXTURE
@@ -746,6 +747,35 @@ describe('PoolFundingAlignmentComponent', () => {
       await component.onSave();
       const [, body] = patchAlignmentMock.mock.calls[0];
       expect(body).not.toHaveProperty('justification');
+    });
+
+    // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-06)
+    it('AC-06.1 — active guidance (cross-type selection) leaks NOTHING into the write DTO: parent-spec fields only', async () => {
+      // Guidance catalog + a cross-type ('other') indicator 7302 on mixed HLO
+      // 7201: badges, classifications, hasTypeMatch flags and the cross-type
+      // warning are all live in the UI for this exact draft.
+      tocCatalog.set(TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE);
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      component.onSpSelectionChange();
+      component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7201, indicator_id: 7302, quantitative_contribution: 12 });
+
+      patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
+      await component.onSave();
+
+      const [, body] = patchAlignmentMock.mock.calls[0];
+      expect(body.toc_alignments).toEqual([
+        { sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7201, indicator_id: 7302, quantitative_contribution: 12 }
+      ]);
+      // Exact key set per TocAlignmentWriteDto — no guidance field (badge /
+      // classification / hasTypeMatch / …) ever reaches the PATCH payload.
+      const dtoKeys = ['aligns_with_toc', 'indicator_id', 'level', 'quantitative_contribution', 'sp_code', 'toc_result_id'];
+      for (const dto of body.toc_alignments as TocAlignmentWriteDto[]) {
+        expect(Object.keys(dto).sort()).toEqual(dtoKeys);
+      }
+      expect(JSON.stringify(body)).not.toMatch(/badge|classification|hasTypeMatch/);
     });
   });
 

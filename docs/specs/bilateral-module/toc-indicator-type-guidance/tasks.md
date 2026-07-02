@@ -105,7 +105,7 @@ T-BIL-ITG-02 (fixture extension, no deps)
 
 #### T-BIL-ITG-06 — *Regression, a11y, theming sweep + manual golden path*
 
-- **Status**: `pending`
+- **Status**: `in_progress` [~] — automatable sweep ✅ PASS (2026-07-02, Reviewer attempt 1); **manual live golden path pending user sign-off** (see `execution.md`)
 - **Depends on**: T-BIL-ITG-04, T-BIL-ITG-05
 - **Discharges ACs**: AC-06.1, AC-06.2, AC-06.3, REQ-BIL-ITG-NF-01..05
 - **Touches**: (verification-first; small fixes land where found)

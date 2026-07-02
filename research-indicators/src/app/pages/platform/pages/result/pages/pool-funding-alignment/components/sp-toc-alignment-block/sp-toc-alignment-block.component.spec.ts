@@ -310,9 +310,12 @@ describe('SpTocAlignmentBlockComponent', () => {
       return selectDe!.componentInstance as Select;
     }
 
+    let originalMatchMedia: PropertyDescriptor | undefined;
+
     beforeAll(() => {
       // jsdom has no matchMedia; PrimeNG's Overlay probes it when the select
       // panel opens (responsive/modal check). Non-matching stub is enough.
+      originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
         configurable: true,
@@ -327,6 +330,16 @@ describe('SpTocAlignmentBlockComponent', () => {
           dispatchEvent: jest.fn()
         }))
       });
+    });
+
+    afterAll(() => {
+      // T-BIL-ITG-06 hygiene: restore whatever the environment had (jsdom:
+      // nothing) so the stub never leaks into suites outside this describe.
+      if (originalMatchMedia) {
+        Object.defineProperty(window, 'matchMedia', originalMatchMedia);
+      } else {
+        delete (window as Partial<Window>).matchMedia;
+      }
     });
 
     afterEach(() => {
@@ -461,8 +474,11 @@ describe('SpTocAlignmentBlockComponent', () => {
       fixture.detectChanges();
       flush();
 
-      const headers = Array.from(document.body.querySelectorAll('.sp-toc-block__group-label')).map(el => el.textContent?.trim());
-      expect(headers).toEqual([RECOMMENDED_LABEL, 'Other indicators']);
+      const headerEls = Array.from(document.body.querySelectorAll('.sp-toc-block__group-label'));
+      expect(headerEls.map(el => el.textContent?.trim())).toEqual([RECOMMENDED_LABEL, 'Other indicators']);
+      // NF-02 — headers are text-only (no nested markup; announced verbatim
+      // through PrimeNG's group semantics).
+      expect(headerEls.every(el => el.children.length === 0)).toBe(true);
       const badges = Array.from(document.body.querySelectorAll('.sp-toc-block__type-badge')).map(el => el.textContent?.trim());
       expect(badges).toEqual(['Trained people', 'Custom', 'Knowledge products']);
     }));
@@ -591,6 +607,43 @@ describe('SpTocAlignmentBlockComponent', () => {
       component.onContributionChange(12);
       expect(emitted[0]).toEqual(expect.objectContaining({ indicator_id: 7302, quantitative_contribution: 12 }));
     });
+
+    // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-06)
+    it('AC-06.3 — disabled (version-locked/read-only lever): cross-type warning renders passively, everything non-interactive', async () => {
+      setup({
+        catalog: GUIDANCE_SP01_CAT,
+        resultType: 'capacity_sharing',
+        disabled: true,
+        draft: emptyDraft({ aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7201, indicator_id: 7302, quantitative_contribution: 12 })
+      });
+      fixture.detectChanges();
+      // NgModel applies [disabled] to the CVA in a microtask (control.disable()
+      // → setDisabledState(true)); settle it before asserting the select state.
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      // The passive warning still informs the read-only viewer …
+      const el = warningEl();
+      expect(el).not.toBeNull();
+      expect(el?.getAttribute('role')).toBe('status');
+      // … and carries no interactive elements of its own.
+      expect(el?.querySelectorAll('button, a, [tabindex]').length).toBe(0);
+
+      // Guidance derivations stay live under lock (badges/tags may render).
+      expect(component.selectedIndicatorClassification()).toBe('other');
+      expect(component.classifiedIndicators().some(o => o.badge !== null)).toBe(true);
+      expect(component.hloOptions().some(o => o.hasTypeMatch)).toBe(true);
+
+      // Every cascade select is disabled (combobox out of the tab order).
+      const selects = fixture.debugElement.queryAll(By.directive(Select));
+      expect(selects.length).toBeGreaterThan(0);
+      selects.forEach(de => {
+        expect((de.componentInstance as Select).disabled).toBe(true);
+        const combobox = (de.nativeElement as HTMLElement).querySelector('[role="combobox"]');
+        expect(combobox?.getAttribute('aria-disabled')).toBe('true');
+        expect(combobox?.getAttribute('tabindex')).toBe('-1');
+      });
+    });
   });
 
   // --- Indicator-type guidance: HLO hints + no-match notice --------------------
@@ -627,10 +680,13 @@ describe('SpTocAlignmentBlockComponent', () => {
       return selectDe!.componentInstance as Select;
     }
 
+    let originalMatchMedia: PropertyDescriptor | undefined;
+
     beforeAll(() => {
       // Same jsdom matchMedia stub as the grouped-dropdown suite — repeated here
       // so this describe stays runnable in isolation (PrimeNG's Overlay probes
       // matchMedia when the HLO panel opens).
+      originalMatchMedia = Object.getOwnPropertyDescriptor(window, 'matchMedia');
       Object.defineProperty(window, 'matchMedia', {
         writable: true,
         configurable: true,
@@ -645,6 +701,16 @@ describe('SpTocAlignmentBlockComponent', () => {
           dispatchEvent: jest.fn()
         }))
       });
+    });
+
+    afterAll(() => {
+      // T-BIL-ITG-06 hygiene: restore whatever the environment had (jsdom:
+      // nothing) so the stub never leaks into suites outside this describe.
+      if (originalMatchMedia) {
+        Object.defineProperty(window, 'matchMedia', originalMatchMedia);
+      } else {
+        delete (window as Partial<Window>).matchMedia;
+      }
     });
 
     afterEach(() => {
@@ -717,6 +783,9 @@ describe('SpTocAlignmentBlockComponent', () => {
       ]);
       const buttons = Array.from(el?.querySelectorAll('button') ?? []) as HTMLButtonElement[];
       expect(buttons.length).toBe(2);
+      // NF-02 — native buttons in the tab order: type="button", never
+      // tabindex="-1" (keyboard-operable with the platform focus styles).
+      expect(buttons.every(b => b.type === 'button' && b.getAttribute('tabindex') !== '-1')).toBe(true);
       // Buttons follow the HLO option rendering pattern: bold AOW — title.
       expect(buttons[0].querySelector('strong')?.textContent?.trim()).toBe('AOW05');
       expect(buttons[0].textContent?.replace(/\s+/g, ' ').trim()).toBe('AOW05 — HLO19.AOW5.IO2 Share capacity');
