@@ -264,7 +264,10 @@
       </label>
 
       @if (dialogMode() === 'create') {
-        <!-- AC-05.1: selectable bilateral contracts -->
+        <!-- AC-05.1: selectable bilateral contracts — lazy server-side search via (onFilter).
+             scrollHeight caps the overlay panel to eliminate double/oversized scroll.
+             resetFilterOnHide clears the typed term when the panel closes so the next
+             open starts fresh. emptyFilterMessage guides the user while the list is empty. -->
         <p-select
           inputId="bilMapAgressoPicker"
           [options]="agressoOptions()"
@@ -276,7 +279,11 @@
           [filter]="true"
           filterBy="agreement_id,description"
           [showClear]="true"
-          [loading]="optionsLoading()"
+          [loading]="optionsLoading() || agressoOptionsLoading()"
+          [scrollHeight]="'240px'"
+          [resetFilterOnHide]="true"
+          emptyFilterMessage="Type to search contracts…"
+          (onFilter)="onAgressoFilter($event.filter)"
           styleClass="w-full"
           aria-required="true"
           data-testid="agresso-picker">
@@ -286,7 +293,11 @@
             }
           </ng-template>
           <ng-template pTemplate="item" let-opt>
-            <span>{{ agressoOptionLabel(opt) }}</span>
+            <span
+              class="bil-picker-option-label"
+              [title]="agressoOptionLabel(opt)">
+              {{ agressoOptionLabel(opt) }}
+            </span>
           </ng-template>
         </p-select>
       } @else {
@@ -307,6 +318,8 @@
       <label for="bilMapClarisaPicker" class="text-sm font-medium atc-grey-800">
         CLARISA Project <span class="atc-red-1" aria-hidden="true">*</span>
       </label>
+      <!-- AC-05.2 / AC-06.1: CLARISA project picker — lazy server-side search via (onFilter).
+           Same scrollHeight + resetFilterOnHide treatment as the AGRESSO picker. -->
       <p-select
         inputId="bilMapClarisaPicker"
         [options]="clarisaOptions()"
@@ -318,7 +331,11 @@
         [filter]="true"
         filterBy="short_name"
         [showClear]="true"
-        [loading]="optionsLoading()"
+        [loading]="optionsLoading() || clarisaOptionsLoading()"
+        [scrollHeight]="'240px'"
+        [resetFilterOnHide]="true"
+        emptyFilterMessage="Type to search projects…"
+        (onFilter)="onClarisaFilter($event.filter)"
         styleClass="w-full"
         aria-required="true"
         data-testid="clarisa-picker">

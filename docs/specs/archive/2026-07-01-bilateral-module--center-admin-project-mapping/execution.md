@@ -160,6 +160,13 @@
 - **Fix (PO decision: show bilateral contracts):** changed the filter to `{ 'exclude-pooled-funding': true }` → the picker now lists all BILATERAL (non-pooled) contracts as mapping candidates. Updated the two service-spec assertions. `bilateral-mapping.service.spec.ts` 15/15; `npm run lint` clean.
 - **Note:** the picker still loads once on dialog open + client-side `p-select` filter (consistent with the CLARISA picker). If the bilateral contract count grows large, a follow-up could switch to server-side search-as-you-type (wire `p-select (onFilter)` → `loadAgressoOptions(term)`). Not needed now.
 
+### BUGFIX #2 (post-archive, 2026-07-01) — picker perf: lazy server-side search
+
+- **Reported:** clicking the AGRESSO picker took long to open, **blocked the screen**, and showed a double scrollbar — because BUGFIX #1 made it load ALL bilateral contracts at once (up to backend default limit 10,000) into a `p-select` that renders every option node client-side.
+- **Fix (both pickers):** `loadAgressoOptions(search?, limit=50)` now uses the broad `query` param (LIKE over agreement_id + description + project_lead_description) + a `limit=50` cap. The component drives a debounced (`debounceTime(300)`+`distinctUntilChanged`, cleaned via `destroy$`) filter stream off the `p-select (onFilter)` event → `loadAgressoOptions(term)`; empty term reloads the initial 50. Per-picker `agressoOptionsLoading`/`clarisaOptionsLoading` signals; template `[scrollHeight]="'240px'"` (kills double scroll), `[loading]`, `[resetFilterOnHide]="true"`, truncated single-line labels with `title`. Same lazy pattern applied to the CLARISA picker (`GET_ClarisaBilateralProjects(search)` already supports it).
+- **Verification:** `npm run test -- bilateral-mapping.component bilateral-mapping.service` 77/77; `npm run lint` clean; scss stylelint clean. **Reviewer PASS.**
+- **Known minor (non-blocking):** with `[filter]="true"` + server `(onFilter)`, PrimeNG also client-filters by `filterBy` (agreement_id,description) — a term that only matched `project_lead_description` server-side could be hidden client-side (rare). If it ever matters, switch the AGRESSO picker to `p-autocomplete` (purpose-built for remote search, no client-filter conflict).
+
 ---
 
 ## 3. Summary — SPEC COMPLETE (9/9)

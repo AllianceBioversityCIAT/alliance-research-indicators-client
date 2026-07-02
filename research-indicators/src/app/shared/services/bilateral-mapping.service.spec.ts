@@ -230,21 +230,22 @@ describe('BilateralMappingService', () => {
       ]);
       expect(mockApi.GET_FindContracts).toHaveBeenCalledWith({
         'exclude-pooled-funding': true,
-        'contract-code': 'A5'
+        query: 'A5',
+        limit: 50
       });
     });
 
-    it('omits the contract-code filter when no search is provided', async () => {
+    it('omits the query filter when no search is provided (sends only exclude-pooled-funding + limit)', async () => {
       mockApi.GET_FindContracts.mockResolvedValue(
         ok<FindContractsResponse>({
           data: [],
-          metadata: { total: 0, page: 1, limit: 10, totalPages: 0, hasNextPage: false, hasPreviousPage: false }
+          metadata: { total: 0, page: 1, limit: 50, totalPages: 0, hasNextPage: false, hasPreviousPage: false }
         })
       );
 
       await service.loadAgressoOptions();
 
-      expect(mockApi.GET_FindContracts).toHaveBeenCalledWith({ 'exclude-pooled-funding': true });
+      expect(mockApi.GET_FindContracts).toHaveBeenCalledWith({ 'exclude-pooled-funding': true, limit: 50 });
     });
 
     it('returns [] on failure', async () => {

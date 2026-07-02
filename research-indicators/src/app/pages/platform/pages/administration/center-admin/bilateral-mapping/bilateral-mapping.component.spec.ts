@@ -897,6 +897,118 @@ describe('BilateralMappingComponent', () => {
     });
   });
 
+  // ── Lazy AGRESSO picker search (onAgressoFilter / agressoFilter$) ──────────
+
+  describe('onAgressoFilter — lazy server-side AGRESSO search', () => {
+    const filteredOpts = [{ agreement_id: 'PHIL001', description: 'Philippines Bilateral' }];
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('calls loadAgressoOptions with the term after debounce and updates agressoOptions', async () => {
+      mockService.loadAgressoOptions.mockResolvedValue(filteredOpts);
+
+      // Bypass debounce by pushing directly into the subject
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any).agressoFilter$.next('phil');
+      await delayMs(350); // past the 300 ms debounce
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(mockService.loadAgressoOptions).toHaveBeenCalledWith('phil');
+      expect(component.agressoOptions()).toEqual(filteredOpts);
+    });
+
+    it('sets agressoOptionsLoading to true during the search and false after', async () => {
+      let loadingDuringCall = false;
+      mockService.loadAgressoOptions.mockImplementation(() => {
+        loadingDuringCall = component.agressoOptionsLoading();
+        return Promise.resolve(filteredOpts);
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any).agressoFilter$.next('phil');
+      await delayMs(350);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(loadingDuringCall).toBe(true);
+      expect(component.agressoOptionsLoading()).toBe(false);
+    });
+
+    it('onAgressoFilter("") calls loadAgressoOptions with undefined (reloads initial set)', async () => {
+      mockService.loadAgressoOptions.mockResolvedValue(AGRESSO_OPTIONS);
+
+      component.onAgressoFilter('');
+      await delayMs(350);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Empty string → the stream receives '' → undefined passed to service
+      expect(mockService.loadAgressoOptions).toHaveBeenCalledWith(undefined);
+    });
+
+    it('onAgressoFilter(term) pushes into agressoFilter$ subject', async () => {
+      mockService.loadAgressoOptions.mockResolvedValue(filteredOpts);
+
+      component.onAgressoFilter('A5');
+      await delayMs(350);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(mockService.loadAgressoOptions).toHaveBeenCalledWith('A5');
+    });
+  });
+
+  // ── Lazy CLARISA picker search (onClarisaFilter / clarisaFilter$) ──────────
+
+  describe('onClarisaFilter — lazy server-side CLARISA search', () => {
+    const filteredClarisa: ClarisaBilateralProjectOption[] = [
+      { id: 55, short_name: 'USAID Kenya', source_of_funding: 'BILATERAL', science_programs: [] }
+    ];
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('calls loadClarisaProjectOptions with the term after debounce and updates clarisaOptions', async () => {
+      mockService.loadClarisaProjectOptions.mockResolvedValue(filteredClarisa);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any).clarisaFilter$.next('kenya');
+      await delayMs(350);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(mockService.loadClarisaProjectOptions).toHaveBeenCalledWith('kenya');
+      expect(component.clarisaOptions()).toEqual(filteredClarisa);
+    });
+
+    it('sets clarisaOptionsLoading to true during the search and false after', async () => {
+      let loadingDuringCall = false;
+      mockService.loadClarisaProjectOptions.mockImplementation(() => {
+        loadingDuringCall = component.clarisaOptionsLoading();
+        return Promise.resolve(filteredClarisa);
+      });
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (component as any).clarisaFilter$.next('kenya');
+      await delayMs(350);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(loadingDuringCall).toBe(true);
+      expect(component.clarisaOptionsLoading()).toBe(false);
+    });
+  });
+
   // ── T-BIL-CAM-06: Deactivate with confirmation (AC-07.1 / AC-07.2 / AC-07.3) ──
 
   describe('requestDeactivate — confirmation gate (AC-07.2)', () => {

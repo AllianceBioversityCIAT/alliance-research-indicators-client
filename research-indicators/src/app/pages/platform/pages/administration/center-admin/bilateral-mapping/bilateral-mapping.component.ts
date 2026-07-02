@@ -2,7 +2,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, takeUntil } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { InputTextModule } from 'primeng/inputtext';
@@ -77,6 +77,10 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
   private readonly clarity = inject(ClarityService);
   private readonly destroy$ = new Subject<void>();
   private readonly searchInput$ = new Subject<string>();
+  /** Debounced AGRESSO filter stream — pushes a server search on each keystroke. */
+  readonly agressoFilter$ = new Subject<string>();
+  /** Debounced CLARISA filter stream — pushes a server search on each keystroke. */
+  readonly clarisaFilter$ = new Subject<string>();
 
   // --- List state ---
   readonly rows = signal<BilateralProjectMapping[]>([]);
@@ -104,6 +108,10 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
   readonly agressoOptions = signal<AgressoOption[]>([]);
   readonly clarisaOptions = signal<ClarisaBilateralProjectOption[]>([]);
   readonly optionsLoading = signal(false);
+  /** True while a debounced AGRESSO server search is in flight. */
+  readonly agressoOptionsLoading = signal(false);
+  /** True while a debounced CLARISA server search is in flight. */
+  readonly clarisaOptionsLoading = signal(false);
 
   // Form field signals
   readonly selectedAgreement = signal<string | null>(null);
@@ -155,6 +163,29 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
         this.search.set(term);
         this.page.set(1);
         void this.load();
+      });
+
+    // Lazy server-side AGRESSO search: debounce keystrokes → server fetch → replace options.
+    // distinctUntilChanged avoids repeat calls for identical terms (e.g. focus/blur noise).
+    this.agressoFilter$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(term => {
+        this.agressoOptionsLoading.set(true);
+        void this.service.loadAgressoOptions(term || undefined).then(opts => {
+          this.agressoOptions.set(opts);
+          this.agressoOptionsLoading.set(false);
+        });
+      });
+
+    // Lazy server-side CLARISA search: same debounce pattern.
+    this.clarisaFilter$
+      .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(term => {
+        this.clarisaOptionsLoading.set(true);
+        void this.service.loadClarisaProjectOptions(term || undefined).then(opts => {
+          this.clarisaOptions.set(opts);
+          this.clarisaOptionsLoading.set(false);
+        });
       });
 
     void this.load();
@@ -268,9 +299,15 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
     this.editSnapshot = null;
   }
 
-  /** Lazy-loads picker options when the dialog opens (NF-01). */
+  /**
+   * Lazy-loads the first 50 options for each picker when the dialog opens (NF-01).
+   * Also resets per-picker loading flags so stale indicators from a previous open
+   * don't bleed into the new session.
+   */
   private async loadPickerOptions(): Promise<void> {
     this.optionsLoading.set(true);
+    this.agressoOptionsLoading.set(false);
+    this.clarisaOptionsLoading.set(false);
     const [agresso, clarisa] = await Promise.all([
       this.service.loadAgressoOptions(),
       this.service.loadClarisaProjectOptions()
@@ -284,6 +321,23 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
   onNotesInput(value: string): void {
     const clipped = value.length > NOTES_MAX_LENGTH ? value.slice(0, NOTES_MAX_LENGTH) : value;
     this.notes.set(clipped);
+  }
+
+  /**
+   * Called by p-select (onFilter) on the AGRESSO picker.
+   * Pushes the typed term into the debounced server-search stream.
+   * Empty string → reload the initial 50 (no query param sent to API).
+   */
+  onAgressoFilter(term: string): void {
+    this.agressoFilter$.next(term ?? '');
+  }
+
+  /**
+   * Called by p-select (onFilter) on the CLARISA picker.
+   * Pushes the typed term into the debounced server-search stream.
+   */
+  onClarisaFilter(term: string): void {
+    this.clarisaFilter$.next(term ?? '');
   }
 
   /** Human-readable label for an AGRESSO option (shown in the picker). */

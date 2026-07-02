@@ -110,3 +110,14 @@
   border: 1px solid var(--ac-red-1);
   background-color: var(--ac-grey-200);
 }
+
+// ── Picker option labels (lazy-search pickers) ────────────────────────────────
+// Truncate long contract labels to keep the panel height stable.
+// The full text is surfaced via the native `title` attribute (keyboard + screen-reader).
+.bil-picker-option-label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}

@@ -50,16 +50,19 @@ export class BilateralMappingService {
     return this.toMutationResult(res);
   }
 
-  // AGRESSO picker — shows all BILATERAL (non-pooled) contracts as mapping
-  // candidates, optionally filtered by contract code. Maps to a minimal option
-  // shape; entries without an `agreement_id` are dropped. On failure returns [].
+  // AGRESSO picker — lazy server-side search over BILATERAL (non-pooled) contracts.
+  // Uses `query` (broad LIKE across agreement_id + description + project_lead_description)
+  // instead of `contract-code` (code-only) so results are more relevant. `limit` caps
+  // the result set to avoid rendering thousands of option nodes.
   // NOTE: must NOT filter by `pool-funding-contributor` — mapping is what should
   // *make* a project a pool-funding contributor, so that flag would hide the very
   // contracts an operator needs to map. `exclude-pooled-funding` yields bilaterals.
-  async loadAgressoOptions(search?: string): Promise<{ agreement_id: string; description: string }[]> {
+  // @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (lazy-picker perf)
+  async loadAgressoOptions(search?: string, limit = 50): Promise<{ agreement_id: string; description: string }[]> {
     const res = await this.api.GET_FindContracts({
       'exclude-pooled-funding': true,
-      ...(search ? { 'contract-code': search } : {})
+      ...(search ? { query: search } : {}),
+      limit
     });
     if (!res?.successfulRequest) return [];
     const rows: FindContracts[] = res.data?.data ?? [];
