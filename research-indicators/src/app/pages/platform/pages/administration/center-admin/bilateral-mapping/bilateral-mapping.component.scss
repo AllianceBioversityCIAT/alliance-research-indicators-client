@@ -112,9 +112,22 @@
 }
 
 // ── Picker option labels (lazy-search pickers) ────────────────────────────────
-// Truncate long contract labels to keep the panel height stable.
-// The full text is surfaced via the native `title` attribute (keyboard + screen-reader).
+// Long contract labels WRAP (max 2 lines) instead of using `nowrap`, which would
+// force the option list wider than the trigger → horizontal scroll + a shifted
+// dialog. Wrapping keeps everything within the panel width. Full text via `title`.
 .bil-picker-option-label {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  max-width: 100%;
+}
+
+// The selected value shown in the trigger stays single-line + ellipsis so a long
+// contract never overflows the (fixed-width) trigger.
+.bil-picker-selected-label {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;

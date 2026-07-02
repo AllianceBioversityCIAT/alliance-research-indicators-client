@@ -289,7 +289,7 @@
           data-testid="agresso-picker">
           <ng-template pTemplate="selectedItem" let-opt>
             @if (opt) {
-              <span>{{ agressoOptionLabel(opt) }}</span>
+              <span class="bil-picker-selected-label" [title]="agressoOptionLabel(opt)">{{ agressoOptionLabel(opt) }}</span>
             }
           </ng-template>
           <ng-template pTemplate="item" let-opt>

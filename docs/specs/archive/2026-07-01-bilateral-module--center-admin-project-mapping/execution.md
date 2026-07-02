@@ -167,6 +167,12 @@
 - **Verification:** `npm run test -- bilateral-mapping.component bilateral-mapping.service` 77/77; `npm run lint` clean; scss stylelint clean. **Reviewer PASS.**
 - **Known minor (non-blocking):** with `[filter]="true"` + server `(onFilter)`, PrimeNG also client-filters by `filterBy` (agreement_id,description) — a term that only matched `project_lead_description` server-side could be hidden client-side (rare). If it ever matters, switch the AGRESSO picker to `p-autocomplete` (purpose-built for remote search, no client-filter conflict).
 
+### BUGFIX #3 (post-archive, 2026-07-01) — picker option labels overflowed horizontally
+
+- **Reported:** with long AGRESSO labels, the open panel showed a horizontal scrollbar and the dialog was shifted (header/placeholder clipped on the left).
+- **Root cause:** BUGFIX #2's truncation used `white-space: nowrap` on `.bil-picker-option-label` WITHOUT a real width cap → long labels widened the option list beyond the trigger, forcing horizontal overflow of the panel + dialog.
+- **Fix:** option labels now WRAP (max 2 lines via `-webkit-line-clamp`, `white-space: normal`, `overflow-wrap: anywhere`) — wrapping can't widen the panel. The selected value in the trigger uses a separate `.bil-picker-selected-label` (single-line ellipsis, safe since the trigger is fixed-width). No `::ng-deep` needed (the label span lives in the component's `pTemplate`, so component-scoped styles apply). stylelint/lint clean; 62 component tests pass.
+
 ---
 
 ## 3. Summary — SPEC COMPLETE (9/9)
