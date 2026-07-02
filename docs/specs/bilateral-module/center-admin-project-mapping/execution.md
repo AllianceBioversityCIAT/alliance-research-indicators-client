@@ -103,6 +103,22 @@
 
 ---
 
+### T-BIL-CAM-06 — Deactivate with confirmation — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01
+- **Attempts:** 1
+- **Requirements covered:** AC-07.1, AC-07.2, AC-07.3
+
+**Attempt 1**
+- **Implementer** (frontend-developer):
+  - Files (MODIFIED): `bilateral-mapping.component.{ts,html,spec.ts}` (+52/+16/+184; no scss change). 54 tests total (45 prior + 9 new).
+  - Per-row Deactivate button (`@if (row.is_active)`, `aria-label`, `p-button-danger`/`pi-ban`). `requestDeactivate` → `ActionsService.showGlobalAlert({severity:'confirm', confirmCallback:{event}})` (D-6a, no p-confirmdialog); request fires only in the confirm callback. `confirmDeactivate` → `service.deactivate(id)`; `ok:true` → in-place `rows.update` sets `is_active=false` + success toast + Clarity `bilateral.mapping.deactivated`; `ok:false` → error toast with `result.message`, no throw.
+  - Verification: `npm run test -- bilateral-mapping.component` 54/54; `npm run lint` clean.
+- **Reviewer** (read-only): **STATUS: PASS.** Confirm-before-request verified (deactivate not called until callback runs; cancel no-ops); telemetry payload matches; button hidden for inactive rows; graceful error path; no hex / a11y label present; T-03/T-05 preserved; re-verified 54/54 + clean lint. `as unknown as string` telemetry casts cosmetic (consistent with T-05).
+- **Outcome:** PASS on attempt 1 → task `[x]`.
+
+---
+
 ## 3. Summary
 
-_In progress — T-BIL-CAM-01..05 complete (5/8). Full read + create/edit write path shipped. Next: T-BIL-CAM-06 (deactivate with confirmation via ActionsService.showGlobalAlert)._
+_In progress — T-BIL-CAM-01..06 complete (6/8). Full CRUD (list/search/filter/create/edit/deactivate) shipped. Remaining: T-BIL-CAM-07 (test hardening: role-gate consolidation + coverage) and T-BIL-CAM-08 (docs sync)._

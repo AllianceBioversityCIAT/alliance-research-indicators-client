@@ -1,4 +1,4 @@
-// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03, T-BIL-CAM-05)
+// @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-03, T-BIL-CAM-05, T-BIL-CAM-06)
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import BilateralMappingComponent from './bilateral-mapping.component';
@@ -10,6 +10,7 @@ import {
   BilateralProjectMapping,
   ClarisaBilateralProjectOption
 } from '@interfaces/bilateral/bilateral-project-mapping.interface';
+import { GlobalAlert } from '@shared/interfaces/global-alert.interface';
 
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
@@ -73,10 +74,11 @@ describe('BilateralMappingComponent', () => {
     list: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
+    deactivate: jest.Mock;
     loadAgressoOptions: jest.Mock;
     loadClarisaProjectOptions: jest.Mock;
   };
-  let mockActions: { showToast: jest.Mock };
+  let mockActions: { showToast: jest.Mock; showGlobalAlert: jest.Mock };
   let mockClarity: { trackEvent: jest.Mock };
 
   beforeEach(async () => {
@@ -84,10 +86,11 @@ describe('BilateralMappingComponent', () => {
       list: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      deactivate: jest.fn(),
       loadAgressoOptions: jest.fn().mockResolvedValue(AGRESSO_OPTIONS),
       loadClarisaProjectOptions: jest.fn().mockResolvedValue(CLARISA_OPTIONS)
     };
-    mockActions = { showToast: jest.fn() };
+    mockActions = { showToast: jest.fn(), showGlobalAlert: jest.fn() };
     mockClarity = { trackEvent: jest.fn() };
 
     await TestBed.configureTestingModule({
@@ -836,6 +839,181 @@ describe('BilateralMappingComponent', () => {
     it('returns just the id when description is empty', () => {
       expect(component.agressoOptionLabel({ agreement_id: 'A511', description: '' }))
         .toBe('A511');
+    });
+  });
+
+  // ── T-BIL-CAM-06: Deactivate with confirmation (AC-07.1 / AC-07.2 / AC-07.3) ──
+
+  describe('requestDeactivate — confirmation gate (AC-07.2)', () => {
+    const activeRow = makeRow({ id: 1, agresso_agreement_id: 'A511', is_active: true });
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([activeRow]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+      fixture.detectChanges();
+    });
+
+    it('calls ActionsService.showGlobalAlert with correct shape and does NOT call service.deactivate (AC-07.2)', () => {
+      component.requestDeactivate(activeRow);
+
+      expect(mockActions.showGlobalAlert).toHaveBeenCalledTimes(1);
+      const arg = mockActions.showGlobalAlert.mock.calls[0][0] as GlobalAlert;
+      expect(arg.severity).toBe('confirm');
+      expect(arg.summary).toBe('Deactivate mapping');
+      expect(arg.detail).toContain('A511');
+      expect(typeof arg.confirmCallback?.event).toBe('function');
+      expect(arg.cancelCallback?.label).toBe('Cancel');
+
+      // Not called yet — confirmation not fired
+      expect(mockService.deactivate).not.toHaveBeenCalled();
+    });
+
+    it('cancel (never invoking the confirmCallback) does NOT call service.deactivate (AC-07.2)', () => {
+      component.requestDeactivate(activeRow);
+      // Cancel: do NOT invoke the confirmCallback.event
+      expect(mockService.deactivate).not.toHaveBeenCalled();
+    });
+
+    it('invoking confirmCallback.event triggers service.deactivate (AC-07.2)', async () => {
+      mockService.deactivate.mockResolvedValue({ ok: true, data: { ...activeRow, is_active: false } });
+      component.rows.set([activeRow]);
+
+      component.requestDeactivate(activeRow);
+      const arg = mockActions.showGlobalAlert.mock.calls[0][0] as GlobalAlert;
+
+      // Simulate user clicking "Deactivate" in the alert
+      arg.confirmCallback?.event?.();
+      await fixture.whenStable();
+      await delayMs(0);
+
+      expect(mockService.deactivate).toHaveBeenCalledWith(activeRow.id);
+    });
+  });
+
+  describe('confirmDeactivate — success path (AC-07.1)', () => {
+    const activeRow = makeRow({ id: 1, agresso_agreement_id: 'A511', is_active: true });
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([activeRow]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('updates the row is_active to false in-place, shows success toast, fires trackEvent (AC-07.1)', async () => {
+      const deactivatedRow = { ...activeRow, is_active: false };
+      mockService.deactivate.mockResolvedValue({ ok: true, data: deactivatedRow });
+      component.rows.set([activeRow]);
+
+      await component.confirmDeactivate(activeRow);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Row mutated in-place — no full reload required
+      const updatedRows = component.rows();
+      expect(updatedRows[0].is_active).toBe(false);
+
+      // Success toast (AC-07.1)
+      expect(mockActions.showToast).toHaveBeenCalledWith({
+        severity: 'success',
+        summary: 'Bilateral Mapping',
+        detail: 'Mapping deactivated'
+      });
+
+      // Telemetry (design §10)
+      expect(mockClarity.trackEvent).toHaveBeenCalledWith('bilateral.mapping.deactivated', {
+        mapping_id: activeRow.id,
+        agresso_agreement_id: activeRow.agresso_agreement_id
+      });
+    });
+
+    it('only mutates the target row; other rows remain unchanged', async () => {
+      const otherRow = makeRow({ id: 2, agresso_agreement_id: 'D527', is_active: true });
+      mockService.deactivate.mockResolvedValue({ ok: true, data: { ...activeRow, is_active: false } });
+      component.rows.set([activeRow, otherRow]);
+
+      await component.confirmDeactivate(activeRow);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      const updatedRows = component.rows();
+      expect(updatedRows.find(r => r.id === 1)?.is_active).toBe(false);
+      expect(updatedRows.find(r => r.id === 2)?.is_active).toBe(true);
+    });
+  });
+
+  describe('confirmDeactivate — failure path (AC-07.3)', () => {
+    const activeRow = makeRow({ id: 1, agresso_agreement_id: 'A511', is_active: true });
+
+    beforeEach(async () => {
+      mockService.list.mockResolvedValue(makePage([activeRow]));
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+    });
+
+    it('shows an error toast with result.message and does not change is_active on failure (AC-07.3)', async () => {
+      const errorMessage = 'Mapping not found';
+      mockService.deactivate.mockResolvedValue({ ok: false, status: 404, message: errorMessage });
+      component.rows.set([activeRow]);
+
+      await component.confirmDeactivate(activeRow);
+      await fixture.whenStable();
+      await delayMs(0);
+
+      // Row not mutated
+      expect(component.rows()[0].is_active).toBe(true);
+
+      // Error toast surfaced (AC-07.3)
+      expect(mockActions.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error', detail: errorMessage })
+      );
+
+      // No telemetry on failure
+      expect(mockClarity.trackEvent).not.toHaveBeenCalled();
+    });
+
+    it('deactivating an already-inactive row — ok:false does not crash the UI (AC-07.3)', async () => {
+      const inactiveRow = makeRow({ id: 3, is_active: false });
+      mockService.deactivate.mockResolvedValue({ ok: false, status: 400, message: 'Already inactive' });
+      component.rows.set([inactiveRow]);
+
+      // Must not throw
+      await expect(component.confirmDeactivate(inactiveRow)).resolves.toBeUndefined();
+
+      expect(component.rows()[0].is_active).toBe(false); // unchanged
+    });
+  });
+
+  describe('Deactivate button visibility (AC-07.3)', () => {
+    it('renders the Deactivate button only for active rows', async () => {
+      const activeRow = makeRow({ id: 1, is_active: true });
+      const inactiveRow = makeRow({ id: 2, is_active: false });
+      mockService.list.mockResolvedValue(makePage([activeRow, inactiveRow]));
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+      fixture.detectChanges();
+
+      const deactivateBtns = fixture.nativeElement.querySelectorAll('[data-testid="deactivate-btn"]');
+      expect(deactivateBtns.length).toBe(1);
+    });
+
+    it('renders no Deactivate button when all rows are inactive', async () => {
+      const inactiveRow1 = makeRow({ id: 1, is_active: false });
+      const inactiveRow2 = makeRow({ id: 2, is_active: false });
+      mockService.list.mockResolvedValue(makePage([inactiveRow1, inactiveRow2]));
+
+      fixture.detectChanges();
+      await fixture.whenStable();
+      await delayMs(0);
+      fixture.detectChanges();
+
+      const deactivateBtns = fixture.nativeElement.querySelectorAll('[data-testid="deactivate-btn"]');
+      expect(deactivateBtns.length).toBe(0);
     });
   });
 

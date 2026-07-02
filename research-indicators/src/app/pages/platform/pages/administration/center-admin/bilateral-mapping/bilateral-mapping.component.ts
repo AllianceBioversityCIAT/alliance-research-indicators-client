@@ -338,6 +338,58 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
     this.saveError.set(result.message || 'An error occurred. Please try again.');
   }
 
+  // ── Deactivate action (T-BIL-CAM-06) ─────────────────────────────────────
+
+  /**
+   * Shows a confirmation alert before deactivating (AC-07.2).
+   * Only offered for rows where is_active === true; a no-op call on an
+   * inactive row is safe (AC-07.3) but the button is hidden by the template.
+   */
+  requestDeactivate(row: BilateralProjectMapping): void {
+    this.actions.showGlobalAlert({
+      severity: 'confirm',
+      summary: 'Deactivate mapping',
+      detail: `Deactivate the mapping for agreement ${row.agresso_agreement_id}?`,
+      confirmCallback: { label: 'Deactivate', event: () => { void this.confirmDeactivate(row); } },
+      cancelCallback: { label: 'Cancel' }
+    });
+  }
+
+  /**
+   * Executes the deactivate request after the user confirmed (AC-07.1).
+   * Updates the row in-place on success (AC-07.1), shows a success toast,
+   * fires the telemetry event (design §10).
+   * On failure shows an error toast — idempotent-friendly (AC-07.3).
+   */
+  async confirmDeactivate(row: BilateralProjectMapping): Promise<void> {
+    const result = await this.service.deactivate(row.id);
+
+    if (result.ok) {
+      // AC-07.1: update the row's is_active to false in-place in the rows() signal
+      this.rows.update(current =>
+        current.map(r => (r.id === row.id ? { ...r, is_active: false } : r))
+      );
+      this.actions.showToast({
+        severity: 'success',
+        summary: 'Bilateral Mapping',
+        detail: 'Mapping deactivated'
+      });
+      // Design §10 telemetry
+      this.clarity.trackEvent('bilateral.mapping.deactivated', {
+        mapping_id: row.id as unknown as string,
+        agresso_agreement_id: row.agresso_agreement_id as unknown as string
+      });
+      return;
+    }
+
+    // AC-07.3: surface the error without crashing; idempotent-friendly
+    this.actions.showToast({
+      severity: 'error',
+      summary: 'Bilateral Mapping',
+      detail: result.message || 'Could not deactivate mapping. Please try again.'
+    });
+  }
+
   /** Executes the PATCH update flow (AC-06.2 / AC-06.3). */
   private async handleUpdate(): Promise<void> {
     const id = this.editingId();

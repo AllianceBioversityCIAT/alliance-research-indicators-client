@@ -143,7 +143,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-06 — Deactivate with confirmation
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: T-BIL-CAM-05
 - **Discharges ACs**: AC-07.1, AC-07.2, AC-07.3
 - **Touches**:
