@@ -112,6 +112,25 @@ describe('BilateralMappingComponent', () => {
     jest.clearAllMocks();
   });
 
+  // ── T-BIL-CAM-09: Status filter defaults to "Active" ──────────────────────
+
+  it('defaults activeFilter to "active" and issues the initial list with is_active=true (T-BIL-CAM-09)', async () => {
+    mockService.list.mockResolvedValue(makePage([makeRow()]));
+
+    // Before init the default signal value is already 'active'
+    expect(component.activeFilter()).toBe('active');
+
+    fixture.detectChanges(); // triggers ngOnInit → load()
+    await fixture.whenStable();
+    await delayMs(0);
+    fixture.detectChanges();
+
+    // The very first list() call must carry is_active: true
+    const firstCall = mockService.list.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(firstCall?.['is_active']).toBe(true);
+    expect(component.activeFilter()).toBe('active');
+  });
+
   // ── AC-03.1: renders table rows on successful list ─────────────────────────
 
   it('renders table rows on successful list response', async () => {

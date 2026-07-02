@@ -144,7 +144,16 @@
 
 ---
 
-## 3. Summary — SPEC COMPLETE (8/8)
+### T-BIL-CAM-09 — Default Status filter to "Active" (UX follow-up) — ✅ PASS (attempt 1)
+
+- **Date:** 2026-07-01 · **Attempts:** 1 · Added post-close per user request (question 1 UX).
+- **Implementer:** single production line `bilateral-mapping.component.ts:89` `signal<ActiveFilter>('all')`→`('active')` + 1 new test (initial `activeFilter()==='active'` and first `list()` carries `is_active:true`). `npm run test -- bilateral-mapping.component` 56/56; `npm run lint` clean.
+- **Reviewer:** **STATUS: PASS.** Only the default value changed; new test substantive; no pre-existing assertion broken/weakened (filter tests `mockClear()` then set explicitly); 56/56 green; no token/tsconfig/alias violations.
+- **Outcome:** PASS → `[x]`. The operational list now hides accumulated inactive/historical rows by default; All/Inactive remain selectable for audit.
+
+---
+
+## 3. Summary — SPEC COMPLETE (9/9)
 
 All eight tasks complete. The **Center Admin → Bilateral Mapping** feature ships an Angular native admin CRUD (list/search/filter/paginate + create/edit/deactivate) over the already-built `/api/bilateral-project-mappings` backend, gated to center/system admins, replacing the React SSR admin page. Live-verified in the testing environment (2026-07-01).
 
@@ -156,7 +165,8 @@ All eight tasks complete. The **Center Admin → Bilateral Mapping** feature shi
 1. **OQ-POOL (HIGH, backend):** product intent is that a bilateral mapping should make the project show the "Contributing to Pool Funding" tag; today the tag (`agresso_contracts.is_pool_funding_contributor`) is decoupled from `bilateral_project_mapping`. Requires a backend change in `alliance-research-indicators-main` (auto-set flag on mapping create/deactivate, or derive the badge from an active mapping) + PO decision on interaction with the manual tag override. See requirements OQ-POOL / design R-7.
 2. **OQ-DEPLOY:** confirm which branch the testing env tracks (endpoints live on `AC-1594-bilateral-module-v2`, not `main`).
 3. **OQ-4:** retire the React SSR admin page `/admin/bilateral-project-mappings` after the Angular page is validated.
-4. **Optional FE UX:** default the Status filter to "Active" to hide accumulated inactive/historical rows (per user question 1).
+4. ~~**Optional FE UX:** default the Status filter to "Active"~~ — DONE in T-BIL-CAM-09.
+6. **OQ-POOL brief for backend:** written to [`backend-handoff-oq-pool.md`](./backend-handoff-oq-pool.md) — hand to the backend session.
 5. **Pre-existing (unrelated):** `multiselect.component.spec.ts` › "should handle setValue with new options" fails on this branch independent of this feature — track separately.
 
 Ready for `/sdd-archive` once the branch PR is opened.

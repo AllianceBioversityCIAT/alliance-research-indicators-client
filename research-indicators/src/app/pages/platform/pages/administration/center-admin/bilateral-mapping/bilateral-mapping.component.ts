@@ -86,7 +86,7 @@ export default class BilateralMappingComponent implements OnInit, OnDestroy {
 
   // --- Filter / pagination state ---
   readonly search = signal('');
-  readonly activeFilter = signal<ActiveFilter>('all');
+  readonly activeFilter = signal<ActiveFilter>('active');
   readonly sourceFilter = signal<SourceFilter>('all');
   readonly page = signal(1);
   readonly limit = signal(20);

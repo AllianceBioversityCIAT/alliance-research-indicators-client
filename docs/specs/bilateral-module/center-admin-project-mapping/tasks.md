@@ -176,6 +176,18 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ---
 
+### T-BIL-CAM-09 — Default the Status filter to "Active" (UX follow-up)
+
+- **Status**: `completed`
+- **Depends on**: T-BIL-CAM-03
+- **Discharges ACs**: refinement of AC-04.2 (does not change contract; improves default view)
+- **Touches**: `.../bilateral-mapping/bilateral-mapping.component.{ts,spec.ts}`
+- **Summary**: Change the initial `activeFilter` default from `'all'` to `'active'` so the operational list hides accumulated inactive/historical rows by default (a single agreement can have many soft-deleted mappings — only one active is allowed). "All"/"Inactive" remain selectable for audit.
+- **Done when**: initial load issues `list({ ..., is_active: true })`; the Status dropdown shows "Active" selected on first render; existing tests updated for the new default; `npm run test -- bilateral-mapping.component` + `npm run lint` clean.
+- **Relevant skills**: `angular-developer`.
+
+---
+
 ### T-BIL-CAM-08 — Docs sync (page map + decisions)
 
 - **Status**: `completed`
