@@ -179,6 +179,12 @@
 - **Root cause:** the `p-dialog` uses `appendTo="body"` but the `p-select`s did NOT, so their overlays rendered inline within the dialog's scrolling content and got clipped/overlapped (classic dropdown-in-modal issue).
 - **Fix:** added `appendTo="body"` to both the AGRESSO and CLARISA `p-select`s → overlays float at body level, positioned against the trigger with PrimeNG-managed z-index, no clipping. Component-scoped label styles still apply (emulated-encapsulation attribute selectors survive the DOM move). 62 tests pass; lint clean.
 
+### BUGFIX #5 (post-archive, 2026-07-01) — appended overlay grew to full-viewport width + smaller font
+
+- **Reported:** after BUGFIX #4, the CLARISA overlay opened at ~full-viewport width (options rendered with default, unconstrained width once detached to body). User also asked for a smaller option font to gain space.
+- **Root cause:** component-scoped option styles don't reliably reach a body-appended overlay; the panel width was unbounded there.
+- **Fix (global, reusing the existing `sp-toc-select-panel` pattern in `styles/custom-prime-force-styles.scss`):** added `panelStyleClass="bil-mapping-picker-panel"` to both selects and a global `.p-select-overlay.bil-mapping-picker-panel` rule capping `max-width: min(40rem, calc(100vw - 2rem))` + `overflow-x: hidden` + option wrapping (`white-space: normal`, `word-break: break-word`). Added a scoped-to-this-panel `font-size: 0.8125rem` (13px) for a denser list (ToC panel unaffected). Global class is required because body-appended overlays escape component encapsulation. 62 tests pass; ng lint clean; no new stylelint errors.
+
 ---
 
 ## 3. Summary — SPEC COMPLETE (9/9)

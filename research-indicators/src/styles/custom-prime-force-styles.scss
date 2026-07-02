@@ -51,7 +51,8 @@
 // overlay with appendTo="body", so the panel escapes component encapsulation.
 // Long HLO/indicator descriptions must wrap inside a panel that matches the
 // trigger width and scrolls vertically — never expand to the longest label.
-.p-select-overlay.sp-toc-select-panel {
+.p-select-overlay.sp-toc-select-panel,
+.p-select-overlay.bil-mapping-picker-panel {
   max-width: min(40rem, calc(100vw - 2rem)) !important;
   overflow-x: hidden;
 
@@ -69,5 +70,17 @@
     line-height: 1.3;
     height: auto;
     max-width: 100%;
+  }
+}
+
+// Denser option list for the bilateral-mapping pickers only (smaller font to
+// gain vertical space). Scoped to this panel so the ToC panel is unaffected.
+.p-select-overlay.bil-mapping-picker-panel {
+  font-size: 0.8125rem;
+
+  .p-select-option,
+  .p-select-option-label,
+  .bil-picker-option-label {
+    font-size: 0.8125rem;
   }
 }
