@@ -285,6 +285,7 @@
           emptyFilterMessage="Type to search contracts…"
           (onFilter)="onAgressoFilter($event.filter)"
           styleClass="w-full"
+          appendTo="body"
           aria-required="true"
           data-testid="agresso-picker">
           <ng-template pTemplate="selectedItem" let-opt>
@@ -337,6 +338,7 @@
         emptyFilterMessage="Type to search projects…"
         (onFilter)="onClarisaFilter($event.filter)"
         styleClass="w-full"
+        appendTo="body"
         aria-required="true"
         data-testid="clarisa-picker">
       </p-select>

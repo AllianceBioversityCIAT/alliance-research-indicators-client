@@ -173,6 +173,12 @@
 - **Root cause:** BUGFIX #2's truncation used `white-space: nowrap` on `.bil-picker-option-label` WITHOUT a real width cap → long labels widened the option list beyond the trigger, forcing horizontal overflow of the panel + dialog.
 - **Fix:** option labels now WRAP (max 2 lines via `-webkit-line-clamp`, `white-space: normal`, `overflow-wrap: anywhere`) — wrapping can't widen the panel. The selected value in the trigger uses a separate `.bil-picker-selected-label` (single-line ellipsis, safe since the trigger is fixed-width). No `::ng-deep` needed (the label span lives in the component's `pTemplate`, so component-scoped styles apply). stylelint/lint clean; 62 component tests pass.
 
+### BUGFIX #4 (post-archive, 2026-07-01) — picker overlay clipped/overlapped inside the dialog
+
+- **Reported (CLARISA picker):** the dropdown panel opened clipped at the top and overlapping the Notes textarea — cramped/broken look.
+- **Root cause:** the `p-dialog` uses `appendTo="body"` but the `p-select`s did NOT, so their overlays rendered inline within the dialog's scrolling content and got clipped/overlapped (classic dropdown-in-modal issue).
+- **Fix:** added `appendTo="body"` to both the AGRESSO and CLARISA `p-select`s → overlays float at body level, positioned against the trigger with PrimeNG-managed z-index, no clipping. Component-scoped label styles still apply (emulated-encapsulation attribute selectors survive the DOM move). 62 tests pass; lint clean.
+
 ---
 
 ## 3. Summary — SPEC COMPLETE (9/9)
