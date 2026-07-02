@@ -135,6 +135,28 @@
 
 ---
 
-## 3. Summary
+### T-BIL-CAM-08 — Docs sync (page map + decisions) — ✅ DONE (Leader, docs-only)
 
-_In progress — T-BIL-CAM-01..07 complete (7/8). CRUD + tests done; full suite green except 1 pre-existing unrelated multiselect failure; coverage floors held. Final: T-BIL-CAM-08 (docs sync — detailed-design page map + decisions/OQ finalize)._
+- **Date:** 2026-07-01
+- Done directly by the Leader (documentation, no production code; task lists no reviewable code).
+- Changes: added the Bilateral Mapping page to `docs/detailed-design/detailed-design.md` §2 page map; finalized OQ-1/OQ-2 as resolved; recorded **OQ-POOL** (product-intent gap) in `requirements.md` and **R-7** in `design.md`; live-verified in testing env (page renders, list + create/deactivate working — user screenshots).
+- **Outcome:** DONE → task `[x]`.
+
+---
+
+## 3. Summary — SPEC COMPLETE (8/8)
+
+All eight tasks complete. The **Center Admin → Bilateral Mapping** feature ships an Angular native admin CRUD (list/search/filter/paginate + create/edit/deactivate) over the already-built `/api/bilateral-project-mappings` backend, gated to center/system admins, replacing the React SSR admin page. Live-verified in the testing environment (2026-07-01).
+
+- **Tests:** service 15 + component 55 + sidebar role-gate + shared fixture; full suite 5742 passing (1 pre-existing unrelated `multiselect` failure, out of scope); coverage floors held (~99/98/99/98 vs 40/20/45/30).
+- **Contract:** verified against backend source + runtime (`AC-1594-bilateral-module-v2`); 409 (POST-only) message read from `errorDetail.errors`; agreement immutable on edit.
+- **Commits:** `d8f10092` (T-01) · `e81a3dcb` (T-02) · `edc4bf59` (T-03) · `2309d468` (T-04) · `3ab5a03f` (T-05) · `fee08362` (T-06) · `d6780323` (T-07) · this docs-sync commit (T-08).
+
+### Open follow-ups (NOT part of this FE spec)
+1. **OQ-POOL (HIGH, backend):** product intent is that a bilateral mapping should make the project show the "Contributing to Pool Funding" tag; today the tag (`agresso_contracts.is_pool_funding_contributor`) is decoupled from `bilateral_project_mapping`. Requires a backend change in `alliance-research-indicators-main` (auto-set flag on mapping create/deactivate, or derive the badge from an active mapping) + PO decision on interaction with the manual tag override. See requirements OQ-POOL / design R-7.
+2. **OQ-DEPLOY:** confirm which branch the testing env tracks (endpoints live on `AC-1594-bilateral-module-v2`, not `main`).
+3. **OQ-4:** retire the React SSR admin page `/admin/bilateral-project-mappings` after the Angular page is validated.
+4. **Optional FE UX:** default the Status filter to "Active" to hide accumulated inactive/historical rows (per user question 1).
+5. **Pre-existing (unrelated):** `multiselect.component.spec.ts` › "should handle setValue with new options" fails on this branch independent of this feature — track separately.
+
+Ready for `/sdd-archive` once the branch PR is opened.

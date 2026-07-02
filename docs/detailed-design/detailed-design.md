@@ -58,7 +58,7 @@ The Angular app is organized by **page domain** under `src/app/pages/` with cros
 | **Notifications** | `pages/platform/pages/notifications/` | Real-time feed |
 | **Profile** | `pages/platform/pages/profile/` | User settings, theme |
 | **About** | `pages/platform/pages/about/` | App info |
-| **Administration / Center Admin** | `pages/platform/pages/administration/center-admin/` | Bulk upload, SDG management, AGRESSO Pool Funding tag override |
+| **Administration / Center Admin** | `pages/platform/pages/administration/center-admin/` | Bulk upload, SDG management, AGRESSO Pool Funding tag override, Bilateral Mapping ([`bilateral-mapping/`](../../research-indicators/src/app/pages/platform/pages/administration/center-admin/bilateral-mapping/) — AGRESSO↔CLARISA project mapping CRUD, spec [`bilateral-module/center-admin-project-mapping`](../specs/bilateral-module/center-admin-project-mapping/)) |
 | **Auth** | `pages/login/`, `pages/auth/` | Cognito entry & callback |
 | **Landing** | `pages/landing/` | Public surface |
 | **Real-time** | `pages/room/` | WebSocket collaboration |

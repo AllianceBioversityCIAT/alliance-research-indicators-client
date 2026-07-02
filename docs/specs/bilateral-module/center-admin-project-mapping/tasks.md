@@ -178,7 +178,7 @@ T-BIL-CAM-08 (docs: detailed-design page-map + telemetry note, no code deps)
 
 ### T-BIL-CAM-08 — Docs sync (page map + decisions)
 
-- **Status**: `pending`
+- **Status**: `completed`
 - **Depends on**: none (do at close-out)
 - **Discharges ACs**: n/a (traceability)
 - **Touches**:
