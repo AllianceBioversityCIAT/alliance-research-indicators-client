@@ -75,12 +75,16 @@
 
 // Denser option list for the bilateral-mapping pickers only (smaller font to
 // gain vertical space). Scoped to this panel so the ToC panel is unaffected.
+// `!important` because PrimeNG sets an explicit font-size on its default option
+// label (which otherwise wins over the inherited panel font-size — the reason the
+// CLARISA picker, using default rendering, kept the larger size).
 .p-select-overlay.bil-mapping-picker-panel {
-  font-size: 0.8125rem;
+  font-size: 0.8125rem !important;
 
   .p-select-option,
   .p-select-option-label,
+  .p-select-empty-message,
   .bil-picker-option-label {
-    font-size: 0.8125rem;
+    font-size: 0.8125rem !important;
   }
 }
