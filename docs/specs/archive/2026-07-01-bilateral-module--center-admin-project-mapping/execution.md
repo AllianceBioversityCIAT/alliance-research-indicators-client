@@ -153,6 +153,15 @@
 
 ---
 
+### BUGFIX (post-archive, 2026-07-01) — AGRESSO picker showed only pool-funding contracts
+
+- **Reported:** the "New Bilateral Mapping" AGRESSO Contract picker returned only a couple of contracts (the pool-funding-tagged ones: A511/D335/D527), not the mappable set.
+- **Root cause:** `BilateralMappingService.loadAgressoOptions` filtered `GET_FindContracts({ 'pool-funding-contributor': true })` — this restricts to contracts ALREADY tagged as pool-funding, which is backwards (mapping is what should *make* a project pool-funding). Design error inherited from the React SSR reference page's `?pool-funding-contributor=true`.
+- **Fix (PO decision: show bilateral contracts):** changed the filter to `{ 'exclude-pooled-funding': true }` → the picker now lists all BILATERAL (non-pooled) contracts as mapping candidates. Updated the two service-spec assertions. `bilateral-mapping.service.spec.ts` 15/15; `npm run lint` clean.
+- **Note:** the picker still loads once on dialog open + client-side `p-select` filter (consistent with the CLARISA picker). If the bilateral contract count grows large, a follow-up could switch to server-side search-as-you-type (wire `p-select (onFilter)` → `loadAgressoOptions(term)`). Not needed now.
+
+---
+
 ## 3. Summary — SPEC COMPLETE (9/9)
 
 All eight tasks complete. The **Center Admin → Bilateral Mapping** feature ships an Angular native admin CRUD (list/search/filter/paginate + create/edit/deactivate) over the already-built `/api/bilateral-project-mappings` backend, gated to center/system admins, replacing the React SSR admin page. Live-verified in the testing environment (2026-07-01).

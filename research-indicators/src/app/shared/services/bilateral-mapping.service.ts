@@ -50,12 +50,15 @@ export class BilateralMappingService {
     return this.toMutationResult(res);
   }
 
-  // AGRESSO picker (AC-05.5) — pool-funding-contributor contracts, optionally
-  // filtered by contract code. Maps to a minimal option shape; entries without an
-  // `agreement_id` are dropped. On failure returns [].
+  // AGRESSO picker — shows all BILATERAL (non-pooled) contracts as mapping
+  // candidates, optionally filtered by contract code. Maps to a minimal option
+  // shape; entries without an `agreement_id` are dropped. On failure returns [].
+  // NOTE: must NOT filter by `pool-funding-contributor` — mapping is what should
+  // *make* a project a pool-funding contributor, so that flag would hide the very
+  // contracts an operator needs to map. `exclude-pooled-funding` yields bilaterals.
   async loadAgressoOptions(search?: string): Promise<{ agreement_id: string; description: string }[]> {
     const res = await this.api.GET_FindContracts({
-      'pool-funding-contributor': true,
+      'exclude-pooled-funding': true,
       ...(search ? { 'contract-code': search } : {})
     });
     if (!res?.successfulRequest) return [];

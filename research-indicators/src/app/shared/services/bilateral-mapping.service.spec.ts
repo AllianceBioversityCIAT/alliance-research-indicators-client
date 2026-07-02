@@ -229,7 +229,7 @@ describe('BilateralMappingService', () => {
         { agreement_id: 'D527', description: 'Fallback desc' }
       ]);
       expect(mockApi.GET_FindContracts).toHaveBeenCalledWith({
-        'pool-funding-contributor': true,
+        'exclude-pooled-funding': true,
         'contract-code': 'A5'
       });
     });
@@ -244,7 +244,7 @@ describe('BilateralMappingService', () => {
 
       await service.loadAgressoOptions();
 
-      expect(mockApi.GET_FindContracts).toHaveBeenCalledWith({ 'pool-funding-contributor': true });
+      expect(mockApi.GET_FindContracts).toHaveBeenCalledWith({ 'exclude-pooled-funding': true });
     });
 
     it('returns [] on failure', async () => {
