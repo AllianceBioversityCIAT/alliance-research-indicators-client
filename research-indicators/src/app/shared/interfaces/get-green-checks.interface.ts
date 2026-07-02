@@ -10,4 +10,8 @@ export interface GreenChecks {
   link_result?: number;
   innovation_dev?: number;
   oicr?: number;
+  // Emitted by the backend green-checks service so the "Pool funding alignment"
+  // section shows its completion tick like every other section. The sidebar
+  // already reads this key (result-sidebar greenCheckKey: 'pool_funding_alignment').
+  pool_funding_alignment?: number;
 }
