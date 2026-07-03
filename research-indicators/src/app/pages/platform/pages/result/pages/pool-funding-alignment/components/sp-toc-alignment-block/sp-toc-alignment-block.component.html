@@ -160,6 +160,10 @@
                 <ng-template let-option pTemplate="item">
                   <span class="sp-toc-block__hlo-label block w-full min-w-0 whitespace-normal break-words leading-[1.3]">
                     @if (option.aowCode) { <strong>{{ option.aowCode }}</strong> — }{{ option.title }}
+                    <!-- AC-04.1 / D-ITG-4 — hint tag only on EXACT type-matches (text, not color-only, NF-02). -->
+                    @if (option.hasTypeMatch) {
+                      <span class="sp-toc-block__type-tag">has {{ typeMatchTagLabel() }}</span>
+                    }
                   </span>
                 </ng-template>
               </p-select>
@@ -168,7 +172,40 @@
         }
       }
 
-      <!-- Indicator select (searchable, unfiltered by type — D-5) -->
+      <!-- No-type-match guidance notice (REQ-BIL-ITG-04 / T-BIL-ITG-05) — renders
+           between the HLO and indicator fields when the selected HLO carries zero
+           type-match indicators. Informational only (AC-04.5): never blocks
+           selection or save. Suggestions route through onHloChange, inheriting
+           the existing cascade reset (AC-04.3); buttons respect disabled (AC-06.3). -->
+      @if (showNoTypeMatchNotice()) {
+        <div
+          role="status"
+          aria-live="polite"
+          class="sp-toc-block__notice flex flex-col gap-2"
+          [attr.data-testid]="'sp-toc-typematch-empty-' + spCode()">
+          <span>{{ noTypeMatchNoticeMessage() }}</span>
+          @if (compatibleHloSuggestions().length > 0) {
+            <ul class="sp-toc-block__suggestions">
+              @for (suggestion of compatibleHloSuggestions(); track suggestion.value) {
+                <li>
+                  <button
+                    type="button"
+                    class="sp-toc-block__suggestion"
+                    [disabled]="disabled()"
+                    (click)="onHloChange(suggestion.value)"
+                    [attr.data-testid]="'sp-toc-typematch-suggestion-' + spCode() + '-' + suggestion.value">
+                    @if (suggestion.aowCode) { <strong>{{ suggestion.aowCode }}</strong> — }{{ suggestion.title }}
+                  </button>
+                </li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      <!-- Indicator select (searchable, unfiltered by type — D-5; grouped/badged
+           by the indicator-type guidance when the result type is matrixed,
+           REQ-BIL-ITG-02 / T-BIL-ITG-03) -->
       @if (d.toc_result_id !== null) {
         <div class="flex flex-col gap-1">
           <label [for]="'sp-toc-indicator-' + spCode()" class="label inline-block">
@@ -187,9 +224,12 @@
               <p-select
                 #indicatorSelect
                 [inputId]="'sp-toc-indicator-' + spCode()"
-                [options]="indicatorOptions()"
+                [options]="indicatorSelectOptions()"
+                [group]="indicatorGroupsEnabled()"
                 optionLabel="label"
                 optionValue="value"
+                optionGroupLabel="label"
+                optionGroupChildren="items"
                 [filter]="true"
                 filterBy="label"
                 [autoOptionFocus]="false"
@@ -206,10 +246,32 @@
                 (onShow)="onSelectPanelShow(indicatorSelect, indicatorSelectTrigger)"
                 [style]="{ width: '100%' }"
                 [attr.data-testid]="'sp-toc-indicator-' + spCode()">
+                <!-- AC-02.1 — text-only group header (announced via PrimeNG group semantics, NF-02). -->
+                <ng-template let-group pTemplate="group">
+                  <span class="sp-toc-block__group-label">{{ group.label }}</span>
+                </ng-template>
                 <ng-template let-option pTemplate="item">
-                  <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">{{ option.label }}</span>
+                  <span class="block w-full min-w-0 whitespace-normal break-words leading-[1.3]">
+                    {{ option.label }}
+                    @if (option.badge) {
+                      <span class="sp-toc-block__type-badge">{{ option.badge }}</span>
+                    }
+                  </span>
                 </ng-template>
               </p-select>
+            </div>
+          }
+          <!-- Cross-type selection warning (REQ-BIL-ITG-03 / T-BIL-ITG-04) —
+               non-blocking: icon + text (never color-only, NF-02); contribution
+               panel, validation, and save are untouched (AC-03.3). -->
+          @if (crossTypeWarningMessage(); as msg) {
+            <div
+              role="status"
+              aria-live="polite"
+              class="sp-toc-block__notice sp-toc-block__notice--warning flex items-center gap-2"
+              [attr.data-testid]="'sp-toc-crosstype-warning-' + spCode()">
+              <i class="pi pi-exclamation-triangle" aria-hidden="true"></i>
+              <span>{{ msg }}</span>
             </div>
           }
         </div>
@@ -223,9 +285,13 @@
           aria-live="polite"
           [attr.aria-label]="'Quantitative contribution for ' + spCode()"
           [attr.data-testid]="'sp-toc-contribution-' + spCode()">
-          <div role="note" class="sp-toc-block__callout flex items-start gap-2">
-            <span class="material-symbols-rounded rotate-180 sp-toc-block__callout-icon" aria-hidden="true">info</span>
-            <p class="sp-toc-block__callout-text">{{ CONTRIBUTION_CALLOUT }}</p>
+          <div role="note"
+               class="flex items-center bg-[#F4F7F9] border-l-[5px] border-l-[#074B86] gap-[7px] px-2.5"
+               [attr.data-testid]="'sp-toc-contribution-callout-' + spCode()">
+            <span class="!text-[#074b86] !font-[300] material-symbols-rounded rotate-180" aria-hidden="true">info</span>
+            <p class="text-[#777C83] font-['Barlow'] text-[14px] font-normal leading-[17px] text-left my-[15px]">
+              {{ CONTRIBUTION_CALLOUT }}
+            </p>
           </div>
 
           <div class="flex flex-wrap gap-6">
@@ -256,7 +322,7 @@
                 [useGrouping]="false"
                 [disabled]="disabled()"
                 [attr.aria-required]="true"
-                placeholder="0"
+                placeholder="Enter amount"
                 [attr.data-testid]="'sp-toc-contribution-input-' + spCode()">
               </p-inputNumber>
             </div>

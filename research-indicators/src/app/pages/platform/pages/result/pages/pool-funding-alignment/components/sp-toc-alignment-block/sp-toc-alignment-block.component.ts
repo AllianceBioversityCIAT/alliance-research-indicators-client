@@ -10,6 +10,13 @@ import {
   TocCatalogSp,
   TocLevel
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
+import {
+  IndicatorTypeClassification,
+  RESULT_TYPE_LABELS,
+  TOC_TYPE_MATRIX,
+  TYPE_BADGE_LABELS,
+  classifyIndicator
+} from '../../utils/indicator-type-guidance.util';
 
 /**
  * Minimal SP shape this block needs. Mirrors the page's local
@@ -29,12 +36,73 @@ interface SelectOption<T> {
   value: T;
 }
 
-/** HLO option carries the AOW prefix separately so the template can bold it. */
+/**
+ * HLO option carries the AOW prefix separately so the template can bold it.
+ * `hasTypeMatch` (AC-04.1 / D-ITG-4): true iff the HLO contains ≥1 indicator
+ * classifying `type-match` for the current result type — wildcards (`custom`)
+ * deliberately do NOT count, and it is false for every option when guidance is
+ * disabled (no tags, AC-05.1).
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+ */
 interface HloSelectOption {
   value: number;
   aowCode: string | null;
   title: string;
+  hasTypeMatch: boolean;
 }
+
+/** AC-04.2 — actionable row in the no-type-match notice (design §4.2 item 2). */
+interface HloSuggestion {
+  value: number;
+  aowCode: string | null;
+  title: string;
+}
+
+/**
+ * Indicator option enriched with its type classification + badge label
+ * (REQ-BIL-ITG-02). `badge` is null for `unclassified` options (AC-02.2) —
+ * which includes EVERY option when guidance is disabled (AC-05.1), so the flat
+ * fallback renders exactly like today's list apart from these inert fields.
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+ */
+export interface IndicatorSelectOption {
+  label: string;
+  value: number;
+  badge: string | null;
+  classification: IndicatorTypeClassification;
+}
+
+/** Grouped shape fed to `p-select [group]` (`optionGroupLabel`/`optionGroupChildren`). */
+interface IndicatorSelectGroup {
+  label: string;
+  items: IndicatorSelectOption[];
+}
+
+/**
+ * AC-03.1 — exact cross-type warning copy (design §4.2, NF-05). The indicator
+ * side uses the canonical upstream `type_value` string (unambiguous), the
+ * result side the display label from `RESULT_TYPE_LABELS`.
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-04)
+ */
+const CROSS_TYPE_WARNING = (indTypeLabel: string, resTypeLabel: string): string =>
+  `This indicator is typed “${indTypeLabel}”; this result is “${resTypeLabel}”. Confirm the contribution belongs here.`;
+
+/**
+ * AC-04.2 — exact intro copy of the no-type-match notice when compatible
+ * same-SP-same-level HLOs exist; followed by the suggestion buttons
+ * (design §4.2, NF-05).
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+ */
+const NO_TYPE_MATCH_INTRO = (resTypeLabel: string, levelLabel: string): string =>
+  `None of this result’s indicators are typed for ${resTypeLabel}. ${levelLabel}s with matching indicators:`;
+
+/**
+ * AC-04.4 — exact no-dead-end copy when NO HLO at this SP+level carries a
+ * type-matching indicator (design §4.2, NF-05).
+ * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+ */
+const NO_TYPE_MATCH_ANYWHERE = (resTypeLabel: string, levelLabel: string): string =>
+  `No ${levelLabel} in this Science Program has indicators typed for ${resTypeLabel}. You can select the closest indicator — it will be marked with a type notice.`;
 
 /**
  * Per-SP ToC alignment cascade block (Level → HLO → Indicator → Contribution).
@@ -69,6 +137,13 @@ export class SpTocAlignmentBlockComponent {
   readonly disabled = input<boolean>(false);
   readonly inlineErrors = input<Record<string, string> | null>(null);
   readonly catalogState = input<'loading' | 'ready' | 'error'>('ready');
+  /**
+   * The result's backend-owned `result_type` key (catalog envelope). Enters as
+   * an input so the block stays pure — no service injection (D-ITG-3). Null /
+   * unmatrixed keys disable all indicator-type guidance (AC-05.1).
+   * @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+   */
+  readonly resultType = input<string | null>(null);
 
   // --- Outputs ----------------------------------------------------------------
   readonly draftChange = output<SpAlignmentDraft>();
@@ -96,6 +171,8 @@ export class SpTocAlignmentBlockComponent {
   /** AC-07.3 — callout wording uses the active reporting year (2026), not 2025. */
   readonly CONTRIBUTION_CALLOUT =
     'Enter this result’s quantitative contribution toward the selected indicator’s 2026 target. Use the indicator’s unit of measurement.';
+  /** AC-02.1 — second group header of the grouped indicator dropdown (NF-05). */
+  readonly OTHER_GROUP_LABEL = 'Other indicators';
 
   /** Dropdown panel height — long HLO/indicator labels scroll inside the panel. */
   readonly SELECT_SCROLL_HEIGHT = '280px';
@@ -134,7 +211,9 @@ export class SpTocAlignmentBlockComponent {
     this.tocResultsForLevel().map(result => ({
       value: result.toc_result_id,
       aowCode: result.aow_code,
-      title: result.title
+      title: result.title,
+      // AC-04.1 — lights the "has <type>" tag in the dropdown item template.
+      hasTypeMatch: this.hloHasTypeMatch(result)
     }))
   );
 
@@ -148,16 +227,71 @@ export class SpTocAlignmentBlockComponent {
     return this.tocResultsForLevel().find(result => this.normalizeNumericId(result.toc_result_id) === id) ?? null;
   });
 
+  // --- Indicator-type guidance (REQ-BIL-ITG-02 / AC-05.1) ---------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+
+  /** True when the result type has a compatibility-matrix row (AC-05.1 gate). */
+  readonly guidanceEnabled = computed(() => {
+    const resultType = this.resultType();
+    return resultType !== null && Object.hasOwn(TOC_TYPE_MATRIX, resultType);
+  });
+
   /**
-   * Indicator options for the chosen HLO — UNFILTERED (D-5). `type_value` is
-   * retained on the catalog item for a future type filter but is not applied.
+   * Indicator options for the chosen HLO — UNFILTERED (parent D-5, superseded
+   * by toc-indicator-type-guidance): every indicator stays present and
+   * selectable (AC-02.5); classification only annotates. When guidance is
+   * disabled, `classifyIndicator` returns `unclassified` for everything, so
+   * `badge` is null across the board and the list behaves exactly like today's.
    */
-  readonly indicatorOptions = computed<SelectOption<number>[]>(() =>
-    (this.selectedTocResult()?.indicators ?? []).map(indicator => ({
-      label: indicator.indicator_description?.trim() || '—',
-      value: indicator.indicator_id
-    }))
+  readonly classifiedIndicators = computed<IndicatorSelectOption[]>(() => {
+    const resultType = this.resultType();
+    return (this.selectedTocResult()?.indicators ?? []).map(indicator => {
+      const classification = classifyIndicator(resultType, indicator.type_value);
+      return {
+        label: indicator.indicator_description?.trim() || '—',
+        value: indicator.indicator_id,
+        // AC-02.2 — canonical/custom types get a short badge; unclassified none.
+        badge: classification === 'unclassified' ? null : (TYPE_BADGE_LABELS[indicator.type_value?.trim() ?? ''] ?? null),
+        classification
+      };
+    });
+  });
+
+  /**
+   * Back-compat alias for the pre-guidance flat option list (same objects the
+   * grouped shape regroups). Kept so `showEmptyIndicators` + existing consumers
+   * are untouched (AC-06.2).
+   */
+  readonly indicatorOptions = this.classifiedIndicators;
+
+  /** Groups render only with ≥1 recommended option — else flat fallback (AC-02.3 / D-ITG-5). */
+  readonly indicatorGroupsEnabled = computed(
+    () =>
+      this.guidanceEnabled() &&
+      this.classifiedIndicators().some(option => option.classification === 'type-match' || option.classification === 'wildcard')
   );
+
+  /** AC-02.1 — "Recommended for <result type label>" group header (NF-05). */
+  readonly recommendedGroupLabel = computed(() => `Recommended for ${RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? ''}`);
+
+  /**
+   * What the indicator `p-select` binds: grouped (recommended = type-matches
+   * then wildcards; other = other + unclassified in original catalog order)
+   * when grouping is enabled, else the flat list (AC-02.1/02.3). An emptied
+   * "Other" group is dropped — never an empty header.
+   */
+  readonly indicatorSelectOptions = computed<IndicatorSelectOption[] | IndicatorSelectGroup[]>(() => {
+    const options = this.classifiedIndicators();
+    if (!this.indicatorGroupsEnabled()) return options;
+    const recommended = [
+      ...options.filter(option => option.classification === 'type-match'),
+      ...options.filter(option => option.classification === 'wildcard')
+    ];
+    const other = options.filter(option => option.classification === 'other' || option.classification === 'unclassified');
+    const groups: IndicatorSelectGroup[] = [{ label: this.recommendedGroupLabel(), items: recommended }];
+    if (other.length > 0) groups.push({ label: this.OTHER_GROUP_LABEL, items: other });
+    return groups;
+  });
 
   /** True when an HLO is chosen but its catalog row carries no indicators. */
   readonly showEmptyIndicators = computed(
@@ -173,6 +307,96 @@ export class SpTocAlignmentBlockComponent {
         indicator => this.normalizeNumericId(indicator.indicator_id) === id
       ) ?? null
     );
+  });
+
+  // --- Cross-type selection warning (REQ-BIL-ITG-03) ---------------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-04)
+
+  /**
+   * Classification of the currently selected indicator, or null while none is
+   * selected / the saved id no longer resolves in the catalog (AC-03.4 stale
+   * path: no indicator ⇒ no warning). Pure derivation from draft + catalog, so
+   * a pre-populated saved cross-type draft classifies on first render with no
+   * draft mutation or emission.
+   */
+  readonly selectedIndicatorClassification = computed<IndicatorTypeClassification | null>(() => {
+    const indicator = this.selectedIndicator();
+    return indicator ? classifyIndicator(this.resultType(), indicator.type_value) : null;
+  });
+
+  /**
+   * AC-03.1/03.2 — warning copy when guidance is enabled AND the selected
+   * indicator classifies `other`; null otherwise. Non-blocking by construction:
+   * nothing else reads this — contribution reveal, validation, and the emitted
+   * draft are untouched (AC-03.3).
+   */
+  readonly crossTypeWarningMessage = computed<string | null>(() => {
+    if (!this.guidanceEnabled() || this.selectedIndicatorClassification() !== 'other') return null;
+    const indicatorTypeLabel = this.selectedIndicator()?.type_value?.trim() ?? '';
+    const resultTypeLabel = RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? '';
+    return CROSS_TYPE_WARNING(indicatorTypeLabel, resultTypeLabel);
+  });
+
+  // --- HLO hints + no-match guidance (REQ-BIL-ITG-04) -------------------------
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-05)
+
+  /**
+   * D-ITG-4 — an HLO "has a type match" only on an EXACT `type-match`
+   * classification; wildcards (`custom`) do NOT count — customs exist on most
+   * HLOs and would light every option, diluting the discovery signal. When
+   * guidance is disabled, `classifyIndicator` returns `unclassified` for every
+   * input, so no HLO ever reports a match (AC-05.1).
+   */
+  private hloHasTypeMatch(tocResult: TocCatalogResult): boolean {
+    const resultType = this.resultType();
+    return tocResult.indicators.some(indicator => classifyIndicator(resultType, indicator.type_value) === 'type-match');
+  }
+
+  /**
+   * AC-04.1 — short badge label of the result type's canonical `type_value`
+   * ("Trained people" for `capacity_sharing`), rendered as "has <label>" on
+   * matching HLO options. Empty when guidance is disabled (no tag renders then).
+   */
+  readonly typeMatchTagLabel = computed(() => TYPE_BADGE_LABELS[TOC_TYPE_MATRIX[this.resultType() ?? ''] ?? ''] ?? '');
+
+  /**
+   * AC-04.2 — up to 5 same-SP-same-level HLOs carrying ≥1 type-match indicator,
+   * in catalog order, EXCLUDING the currently selected HLO. Feeds the actionable
+   * suggestion buttons of the no-type-match notice.
+   */
+  readonly compatibleHloSuggestions = computed<HloSuggestion[]>(() => {
+    const selectedId = this.normalizeNumericId(this.draft().toc_result_id);
+    return this.tocResultsForLevel()
+      .filter(result => this.normalizeNumericId(result.toc_result_id) !== selectedId && this.hloHasTypeMatch(result))
+      .slice(0, 5)
+      .map(result => ({ value: result.toc_result_id, aowCode: result.aow_code, title: result.title }));
+  });
+
+  /**
+   * AC-04.2/04.4/04.5 — the no-type-match notice renders while guidance is
+   * enabled and the selected (catalog-resolvable) HLO carries ZERO type-match
+   * indicators. The selection may still offer wildcard "recommended" options —
+   * that's fine; the notice is about exact matches (D-ITG-4). It disappears as
+   * soon as the selected HLO has a type-match or nothing is selected.
+   */
+  readonly showNoTypeMatchNotice = computed(() => {
+    if (!this.guidanceEnabled()) return false;
+    const selected = this.selectedTocResult();
+    return selected !== null && !this.hloHasTypeMatch(selected);
+  });
+
+  /**
+   * Notice body copy: the intro over the suggestion list when compatible HLOs
+   * exist at this SP+level (AC-04.2), the no-dead-end "anywhere" wording
+   * otherwise (AC-04.4). Level label rides the same §4.7 map as the HLO field
+   * label (`hloFieldLabel`).
+   */
+  readonly noTypeMatchNoticeMessage = computed(() => {
+    const resultTypeLabel = RESULT_TYPE_LABELS[this.resultType() ?? ''] ?? '';
+    const levelLabel = this.hloFieldLabel();
+    return this.compatibleHloSuggestions().length > 0
+      ? NO_TYPE_MATCH_INTRO(resultTypeLabel, levelLabel)
+      : NO_TYPE_MATCH_ANYWHERE(resultTypeLabel, levelLabel);
   });
 
   // --- Emission helpers (cascade resets applied; inputs never mutated) --------

@@ -15,6 +15,7 @@ import {
 import { RolesService } from './cache/roles.service';
 import { CurrentResultService } from './cache/current-result.service';
 import { ErrorResponse } from '@shared/interfaces/responses.interface';
+import { hasActivePooledFundingContract, isBilateralFundingType } from '@shared/constants/agresso-funding.constants';
 
 export type PatchTagResult =
   | { ok: true; data: PoolFundingTagPatchResponse }
@@ -66,6 +67,8 @@ export class BilateralService {
   readonly sciencePrograms = signal<PoolFundingScienceProgram[]>([]);
   readonly mappingStatus = signal<PoolFundingMappingStatus | null>(null);
   readonly loadingSciencePrograms = signal(false);
+  private scienceProgramsInflight = new Map<string, Promise<PoolFundingScienceProgram[]>>();
+  private scienceProgramsRequestSeq = 0;
 
   readonly editable = computed(() => {
     const alignment = this.currentAlignment();
@@ -84,6 +87,8 @@ export class BilateralService {
   readonly tocCatalog = signal<BilateralTocCatalogResponse | null>(null);
   readonly loadingTocCatalog = signal(false);
   readonly tocCatalogError = signal(false);
+  private tocCatalogInflight = new Map<string, Promise<BilateralTocCatalogResponse | null>>();
+  private tocCatalogRequestSeq = 0;
 
   async getContract(code: string): Promise<AgressoContractRow | null> {
     this.loadingContract.set(true);
@@ -120,9 +125,10 @@ export class BilateralService {
   }
 
   isBilateral(contract: AgressoContractRow | null | undefined): boolean {
-    const fundingType = contract?.funding_type;
-    if (!fundingType) return false;
-    return fundingType.toLowerCase().includes('bilateral');
+    if (!contract) return false;
+    if (!isBilateralFundingType(contract.funding_type)) return false;
+    // Parity with backend isBilateralTagTarget — reject when pooled-funding rows are active.
+    return !hasActivePooledFundingContract(contract);
   }
 
   async getAlignment(resultCode: string): Promise<AlignmentResponse | null> {
@@ -141,9 +147,30 @@ export class BilateralService {
   }
 
   async getSciencePrograms(resultCode: string): Promise<PoolFundingScienceProgram[]> {
+    const key = resultCode.replace(/^STAR-/i, '');
+    const inflight = this.scienceProgramsInflight.get(key);
+    if (inflight) return inflight;
+
+    const requestSeq = ++this.scienceProgramsRequestSeq;
+    const promise = this.fetchSciencePrograms(resultCode, requestSeq).finally(() => {
+      if (this.scienceProgramsInflight.get(key) === promise) {
+        this.scienceProgramsInflight.delete(key);
+      }
+    });
+    this.scienceProgramsInflight.set(key, promise);
+    return promise;
+  }
+
+  private async fetchSciencePrograms(
+    resultCode: string,
+    requestSeq: number
+  ): Promise<PoolFundingScienceProgram[]> {
     this.loadingSciencePrograms.set(true);
     try {
       const res = await this.api.GET_PoolFundingSciencePrograms(resultCode);
+      if (requestSeq !== this.scienceProgramsRequestSeq) {
+        return this.sciencePrograms();
+      }
       if (!res?.successfulRequest) {
         // No fallback to the 13-SP catalog (REQ-BIL-ASR-01 pitfall 1): on failure
         // leave the list empty and the status null so the picker stays empty.
@@ -157,7 +184,9 @@ export class BilateralService {
       this.mappingStatus.set(data?.mapping_status ?? null);
       return programs;
     } finally {
-      this.loadingSciencePrograms.set(false);
+      if (requestSeq === this.scienceProgramsRequestSeq) {
+        this.loadingSciencePrograms.set(false);
+      }
     }
   }
 
@@ -270,9 +299,30 @@ export class BilateralService {
   // `tocCatalogError`; a later success clears it. `loadingTocCatalog` is managed
   // in try/finally so the AC-11.1/AC-11.2 state machine never sticks on loading.
   async getTocCatalog(resultCode: string): Promise<BilateralTocCatalogResponse | null> {
+    const key = resultCode.replace(/^STAR-/i, '');
+    const inflight = this.tocCatalogInflight.get(key);
+    if (inflight) return inflight;
+
+    const requestSeq = ++this.tocCatalogRequestSeq;
+    const promise = this.fetchTocCatalog(resultCode, requestSeq).finally(() => {
+      if (this.tocCatalogInflight.get(key) === promise) {
+        this.tocCatalogInflight.delete(key);
+      }
+    });
+    this.tocCatalogInflight.set(key, promise);
+    return promise;
+  }
+
+  private async fetchTocCatalog(
+    resultCode: string,
+    requestSeq: number
+  ): Promise<BilateralTocCatalogResponse | null> {
     this.loadingTocCatalog.set(true);
     try {
       const res = await this.api.GET_PoolFundingHlosIndicators(resultCode);
+      if (requestSeq !== this.tocCatalogRequestSeq) {
+        return this.tocCatalog();
+      }
       if (!res?.successfulRequest) {
         this.tocCatalogError.set(true);
         return null;
@@ -281,7 +331,9 @@ export class BilateralService {
       this.tocCatalogError.set(false);
       return res.data;
     } finally {
-      this.loadingTocCatalog.set(false);
+      if (requestSeq === this.tocCatalogRequestSeq) {
+        this.loadingTocCatalog.set(false);
+      }
     }
   }
 

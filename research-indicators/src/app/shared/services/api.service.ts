@@ -74,6 +74,14 @@ import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { PoolFundingTagPatchBody, PoolFundingTagPatchResponse } from '@interfaces/bilateral/agresso-contract.interface';
 import {
+  BilateralMappingListPage,
+  BilateralMappingListQuery,
+  BilateralProjectMapping,
+  ClarisaBilateralProjectOption,
+  CreateBilateralMappingBody,
+  UpdateBilateralMappingBody
+} from '@interfaces/bilateral/bilateral-project-mapping.interface';
+import {
   AlignmentResponse,
   BilateralTocCatalogResponse,
   PoolFundingSciencePrograms,
@@ -791,6 +799,45 @@ export class ApiService {
 
   PATCH_PoolFundingAlignment = (resultCode: string, body: UpdatePoolFundingAlignmentDto): Promise<MainResponse<AlignmentResponse>> => {
     return this.TP.patch(this.bilateralPath(resultCode), body, {});
+  };
+
+  // Center Admin — Bilateral Project Mappings CRUD.
+  // @sdd-spec docs/specs/bilateral-module/center-admin-project-mapping (T-BIL-CAM-01)
+  GET_BilateralProjectMappings = (query?: BilateralMappingListQuery): Promise<MainResponse<BilateralMappingListPage>> => {
+    const url = () => `bilateral-project-mappings`;
+    const params: Record<string, string> = {};
+    if (query?.page !== undefined) params['page'] = String(query.page);
+    if (query?.limit !== undefined) params['limit'] = String(query.limit);
+    if (query?.search) params['search'] = query.search;
+    if (query?.is_active !== undefined) params['is_active'] = String(query.is_active);
+    if (query?.source) params['source'] = query.source;
+    return this.TP.getWithParams(url(), params);
+  };
+
+  GET_BilateralProjectMapping = (id: number): Promise<MainResponse<BilateralProjectMapping>> => {
+    const url = () => `bilateral-project-mappings/${id}`;
+    return this.TP.get(url(), {});
+  };
+
+  POST_BilateralProjectMapping = (body: CreateBilateralMappingBody): Promise<MainResponse<BilateralProjectMapping>> => {
+    const url = () => `bilateral-project-mappings`;
+    return this.TP.post(url(), body, { useResultInterceptor: true });
+  };
+
+  PATCH_BilateralProjectMapping = (id: number, body: UpdateBilateralMappingBody): Promise<MainResponse<BilateralProjectMapping>> => {
+    const url = () => `bilateral-project-mappings/${id}`;
+    return this.TP.patch(url(), body, { useResultInterceptor: true });
+  };
+
+  PATCH_BilateralProjectMappingDeactivate = (id: number): Promise<MainResponse<BilateralProjectMapping>> => {
+    const url = () => `bilateral-project-mappings/${id}/deactivate`;
+    return this.TP.patch(url(), {}, { useResultInterceptor: true });
+  };
+
+  GET_ClarisaBilateralProjects = (search?: string): Promise<MainResponse<ClarisaBilateralProjectOption[]>> => {
+    const url = () => `tools/clarisa/projects/bilateral`;
+    if (search) return this.TP.getWithParams(url(), { search });
+    return this.TP.get(url(), {});
   };
 
   GET_ResultsCount = (agreementId: string): Promise<MainResponse<GetProjectDetail>> => {

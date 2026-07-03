@@ -276,6 +276,32 @@ describe('ResultSidebarComponent', () => {
         expect(poolFundingOption?.greenCheckKey).toBe('pool_funding_alignment');
       });
 
+      it('AR.3 — section completion counter excludes Pool Funding alignment from total and completed', () => {
+        (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+        cacheService.greenChecks?.set({
+          general_information: 0,
+          alignment: 1,
+          geo_location: 0,
+          partners: 0,
+          evidences: 0,
+          policy_change: 0,
+          cap_sharing_ip: 0,
+          completness: 0,
+          link_result: 0,
+          innovation_dev: 0,
+          oicr: 0
+        } as GreenChecks);
+        cacheService.currentMetadata?.set({ ...cacheService.currentMetadata(), indicator_id: 1 });
+
+        const visibleRequired = component
+          .allOptionsWithGreenChecks()
+          .filter(o => !o.hide && o.path !== 'pool-funding-alignment');
+
+        expect(component.getTotalCount()).toBe(visibleRequired.length);
+        expect(component.getCompletedCount()).toBe(1);
+        expect(component.getTotalCount()).toBe(component.getCompletedCount() + visibleRequired.filter(o => !o.greenCheck).length);
+      });
+
       it('regression — existing indicator_id filtering and green-check decoration unaffected by alignment state', () => {
         (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
         cacheService.currentMetadata?.set({ ...cacheService.currentMetadata(), indicator_id: 2 });
@@ -292,6 +318,52 @@ describe('ResultSidebarComponent', () => {
           expect(typeof option.greenCheck).toBe('boolean');
         }
       });
+    });
+  });
+
+  describe('Optional-sections divider (Pool funding alignment group separation)', () => {
+    const eligibleAlignment: AlignmentResponse = {
+      result_code: 'RES-001',
+      eligible: true,
+      has_pool_funding_alignment_eligible: true,
+      has_contribution: null,
+      selected_levers: [],
+      is_synced_to_prms: false,
+      is_read_only: false
+    };
+
+    it('marks Pool funding alignment as optional and keeps every other option required', () => {
+      (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+
+      const options = component.allOptionsWithGreenChecks();
+      for (const option of options) {
+        expect(Boolean(option.optional)).toBe(option.path === 'pool-funding-alignment');
+      }
+    });
+
+    it('renders the divider with the "Optional" caption and tooltip copy above the Pool funding alignment item', () => {
+      (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(eligibleAlignment);
+      fixture.detectChanges();
+
+      const host: HTMLElement = fixture.nativeElement;
+      const divider = host.querySelector('[data-testid="sidebar-optional-divider"]');
+      expect(divider).not.toBeNull();
+      expect(divider?.getAttribute('role')).toBe('separator');
+      expect(divider?.getAttribute('aria-label')).toBe(component.OPTIONAL_GROUP_TOOLTIP);
+      expect(divider?.textContent).toContain(component.OPTIONAL_GROUP_LABEL);
+
+      // The divider immediately precedes the Pool funding alignment row in the DOM.
+      const container = divider?.parentElement;
+      const children = Array.from(container?.children ?? []);
+      const dividerIdx = children.indexOf(divider as Element);
+      expect(children[dividerIdx + 1]?.textContent).toContain('Pool funding alignment');
+    });
+
+    it('does not render the divider when the Pool funding alignment tab is hidden', () => {
+      (bilateralService.currentAlignment as ReturnType<typeof signal<AlignmentResponse | null>>).set(null);
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.querySelector('[data-testid="sidebar-optional-divider"]')).toBeNull();
     });
   });
 

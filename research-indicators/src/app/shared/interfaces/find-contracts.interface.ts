@@ -46,6 +46,8 @@ export interface FindContracts {
   is_active?: boolean;
   indicators?: GetProjectDetailIndicator[];
   is_pool_funding_contributor?: boolean;
+  /** Present when the find-contracts API loads pooled-funding relations (optional). */
+  pooled_funding_contracts?: { is_active?: boolean }[];
   count_results?: number | null;
 }
 

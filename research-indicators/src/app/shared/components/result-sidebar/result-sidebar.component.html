@@ -41,6 +41,19 @@
   <div class="options-container px-[25px] pb-2">
     @for (option of allOptionsWithGreenChecks(); track option.path) {
     @if (!option.hide) {
+    @if (option.optional) {
+    <div class="flex items-center gap-2 mt-1 mb-4 select-none" data-testid="sidebar-optional-divider" role="separator"
+      [attr.aria-label]="OPTIONAL_GROUP_TOOLTIP">
+      <span class="flex-1 border-t border-[#e8ebed]" aria-hidden="true"></span>
+      <span
+        class="flex items-center gap-1 text-[#a9adb2] text-[11px] uppercase tracking-[2px] !font-[space_grotesk] !font-[300]"
+        [pTooltip]="OPTIONAL_GROUP_TOOLTIP" tooltipPosition="right">
+        {{ OPTIONAL_GROUP_LABEL }}
+        <i class="pi pi-info-circle !text-[11px]" aria-hidden="true"></i>
+      </span>
+      <span class="flex-1 border-t border-[#e8ebed]" aria-hidden="true"></span>
+    </div>
+    }
     <div class="options" [class.disabled]="option.disabled" (click)="navigateTo(option, $event)"
       (keydown.enter)="navigateTo(option, $event)" [routerLink]="option.disabled ? null : option.path"
       [queryParams]="getResultChildQueryParams()" queryParamsHandling="merge" routerLinkActive="active">

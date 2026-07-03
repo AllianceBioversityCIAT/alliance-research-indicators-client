@@ -90,7 +90,7 @@ export interface TocCatalogIndicator {
   indicator_id: number;
   indicator_description: string;
   unit_of_measurement: string | null; // backend renames upstream `unit_messurament`
-  type_value: string | null; // retained for the future type filter (A-4/OQ-1)
+  type_value: string | null; // consumed by the indicator-type guidance (docs/specs/bilateral-module/toc-indicator-type-guidance)
   target_value: string | null; // backend-resolved for target_year
   target_year: number; // 2026 this cycle
 }
@@ -117,7 +117,7 @@ export interface BilateralTocCatalogResponse {
   result_code: string;
   mapping_status: PoolFundingMappingStatus;
   clarisa_project: PoolFundingClarisaProject | null;
-  result_type: string; // backend-owned enum key
+  result_type: string; // backend-owned enum key — drives the indicator-type guidance (docs/specs/bilateral-module/toc-indicator-type-guidance)
   allowed_levels: TocLevel[]; // [] ⇒ hide cascade (REQ-BIL-TM2-04 AC-04.3)
   version_locked: boolean; // REQ-BIL-TM2-09
   catalogs: TocCatalogSp[];

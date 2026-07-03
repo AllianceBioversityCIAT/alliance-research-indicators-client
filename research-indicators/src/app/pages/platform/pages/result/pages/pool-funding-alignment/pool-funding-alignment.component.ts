@@ -109,10 +109,6 @@ export default class PoolFundingAlignmentComponent {
   readonly REJECTED_SP_MESSAGE_PREFIX = 'These Science Programs are no longer valid for this result: ';
   readonly REJECTED_SP_MESSAGE_SUFFIX = '. Remove them and save again.';
   readonly HLO_SECTION_LABEL = 'Map HLOs and/or indicators';
-  // REQ-BIL-SGU-05 — Save-disabled hint: surfaces when Save is blocked only because a
-  // rendered "Yes" block is an incomplete ToC alignment (D-9), so the contributor
-  // knows to finish or clear it rather than guessing why Save is disabled.
-  readonly SAVE_BLOCKED_HINT = 'Answer the Theory of Change question for each Science Program, and complete any "Yes" alignment, before saving.';
   // AC-09.1 — live-version gate notice (2026-only ToC mapping).
   readonly VERSION_LOCKED_BANNER =
     'Theory of Change alignment is only editable on the live 2026 version of this result. The alignment below is read-only.';
@@ -162,6 +158,17 @@ export default class PoolFundingAlignmentComponent {
     return form.has_contribution === true && form.selected_sps.length >= 1;
   });
 
+  // Renders the HLO shell while the ToC catalog is in flight or failed, and once
+  // allowed_levels are known — avoids hiding the whole section during slow loads.
+  readonly hloSectionVisible = computed(() => {
+    if (this.loadingTocCatalog() && !this.tocCatalog()) return true;
+    if (this.tocCatalogError() && !this.tocCatalog()) return true;
+    return this.showTocBlocks();
+  });
+
+  readonly HLO_CATALOG_LOADING_MESSAGE = 'Loading the Theory of Change catalog…';
+  readonly HLO_CATALOG_ERROR_MESSAGE = "We couldn't load the Theory of Change catalog. Try again.";
+
   // T-BIL-TM2-04 — ToC catalog signals (T-02 seams) surfaced for the template.
   readonly loadingTocCatalog = this.bilateralService.loadingTocCatalog;
   readonly tocCatalogError = this.bilateralService.tocCatalogError;
@@ -169,6 +176,12 @@ export default class PoolFundingAlignmentComponent {
 
   // AC-04.3 — server-owned allowed levels; [] ⇒ no ToC blocks render.
   readonly allowedLevels = computed<TocLevel[]>(() => this.tocCatalog()?.allowed_levels ?? []);
+
+  // T-BIL-ITG-03 — the result's backend-owned type key from the catalog envelope;
+  // feeds the per-SP blocks' indicator-type guidance (null until the catalog loads
+  // ⇒ guidance stays disabled, AC-05.1).
+  // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance
+  readonly resultType = computed(() => this.tocCatalog()?.result_type ?? null);
   // Gate the @for blocks: only render the per-SP ToC question + cascade when the
   // backend offers at least one level for this result type (AC-04.3).
   readonly showTocBlocks = computed(() => this.allowedLevels().length > 0);
@@ -209,26 +222,6 @@ export default class PoolFundingAlignmentComponent {
       }
     }
     return true;
-  });
-
-  // REQ-BIL-SGU-05 — true when the section is otherwise saveable but Save is blocked
-  // specifically by an incomplete "Yes" block (D-9). Mirrors the canSave gate without
-  // touching it: same editable/dirty/minimal-selection preconditions + same render
-  // gate (showHloSection && showTocBlocks && !versionLocked), then narrows to drafts
-  // that are a "Yes" (aligns_with_toc === true) AND not yet saveable. Drives the
-  // inline Save-disabled hint only — it never changes whether Save is enabled.
-  // @sdd-spec docs/specs/bilateral-module/toc-mapping-save-gating-ux
-  readonly saveBlockedByIncompleteToc = computed(() => {
-    const form = this.formData();
-    const hasMinimalSelection = form.has_contribution === false || form.selected_sps.length >= 1;
-    if (!this.editable() || this.isReadOnly() || !this.isDirty() || !hasMinimalSelection) return false;
-    if (!(this.showHloSection() && this.showTocBlocks() && !this.versionLocked())) return false;
-    return form.selected_sps.some(sp => {
-      const draft = form.toc_drafts.find(d => d.sp_code === sp.official_code);
-      // Hint whenever a rendered SP isn't yet saveable: unanswered (required *)
-      // or an incomplete "Yes" (D-9).
-      return !draft || !this.isDraftSaveable(draft);
-    });
   });
 
   readonly isDirty = computed(() => {
@@ -339,7 +332,18 @@ export default class PoolFundingAlignmentComponent {
   // stays synchronous (D-6a destructive-deselect confirm internals unchanged).
   onSpSelectionChange(): void {
     this.clearRejectedSpError();
-    queueMicrotask(() => this.reconcileDrafts());
+    // Defer until MultiselectComponent's formData write settles, then reconcile
+    // drafts and (re)fetch the ToC catalog if the initial section load missed it.
+    queueMicrotask(() => {
+      this.reconcileDrafts();
+      this.ensureTocCatalogLoaded();
+    });
+  }
+
+  private ensureTocCatalogLoaded(): void {
+    if (this.formData().selected_sps.length === 0) return;
+    if (this.tocCatalog() || this.loadingTocCatalog()) return;
+    void this.bilateralService.getTocCatalog(this.resultCode());
   }
 
   private reconcileDrafts(): void {

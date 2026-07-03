@@ -256,7 +256,7 @@ describe('ProjectDetailComponent', () => {
   it('should ignore router events that are not NavigationEnd', () => {
     const getLastSegmentSpy = jest.spyOn(component, 'getLastSegment');
 
-    router.events.next(new NavigationEnd(1, '/projects/mock-id/project-dashboard', '/projects/mock-id/project-dashboard'));
+    router.events.next({ type: 'NavigationStart' } as unknown as NavigationEnd);
 
     expect(getLastSegmentSpy).not.toHaveBeenCalled();
   });

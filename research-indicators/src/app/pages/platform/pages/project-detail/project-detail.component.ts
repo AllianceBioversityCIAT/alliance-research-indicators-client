@@ -26,10 +26,6 @@ interface ViewTab {
   selector: 'app-project-detail',
   imports: [
     ResultsCenterTableComponent,
-    ProjectDetailComponent,
-    TableFiltersSidebarComponent,
-    TableConfigurationComponent,
-    SectionSidebarComponent,
     ProjectIndicatorFiltersComponent,
     TableFiltersSidebarComponent,
     TableConfigurationComponent,

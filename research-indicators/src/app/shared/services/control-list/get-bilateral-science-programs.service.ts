@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { effect, Injectable, inject, signal } from '@angular/core';
 import { BilateralService } from '../bilateral.service';
 import { CacheService } from '../cache/cache.service';
 import { PoolFundingScienceProgram } from '@interfaces/bilateral/pool-funding-alignment.interface';
@@ -29,17 +29,21 @@ export class GetBilateralScienceProgramsService {
   private readonly bilateralService = inject(BilateralService);
   private readonly cache = inject(CacheService);
 
-  // The multiselect reads `list` / `loading` directly. Map the per-result SPs into
-  // the picker option shape (adding `official_code`, the form's option value) so the
-  // alignment form's existing contract is untouched. One source of truth: the
-  // BilateralService signals.
-  readonly list = computed<BilateralScienceProgramOption[]>(() =>
-    this.bilateralService.sciencePrograms().map(sp => ({ ...sp, official_code: sp.code }))
-  );
+  // Writable signal (not computed) so MultiselectComponent can subscribe via the
+  // standard control-list `list` contract. Kept in sync with BilateralService.
+  readonly list = signal<BilateralScienceProgramOption[]>([]);
   readonly loading = this.bilateralService.loadingSciencePrograms;
   readonly isOpenSearch = signal(false);
 
   private readonly loadedFor = signal<string | null>(null);
+
+  constructor() {
+    effect(() => {
+      this.list.set(
+        this.bilateralService.sciencePrograms().map(sp => ({ ...sp, official_code: sp.code }))
+      );
+    });
+  }
 
   // The picker only renders after the alignment loads, so the component already
   // triggers the per-result fetch. Skip a redundant round-trip when the data is
@@ -49,9 +53,9 @@ export class GetBilateralScienceProgramsService {
     const numeric = this.cache.getCurrentNumericResultId();
     const resultCode = numeric ? String(numeric) : '';
     if (!resultCode) return;
-    if (this.loading()) return;
     if (this.loadedFor() === resultCode && this.bilateralService.mappingStatus() !== null) return;
     this.loadedFor.set(resultCode);
+    // Delegates to BilateralService — in-flight requests for the same result are deduped.
     await this.bilateralService.getSciencePrograms(resultCode);
   }
 

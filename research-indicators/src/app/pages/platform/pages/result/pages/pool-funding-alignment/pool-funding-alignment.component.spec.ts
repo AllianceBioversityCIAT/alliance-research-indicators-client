@@ -1,11 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Subject } from 'rxjs';
 import { WebsocketService } from '@sockets/websocket.service';
 
 import PoolFundingAlignmentComponent from './pool-funding-alignment.component';
+import { SpTocAlignmentBlockComponent } from './components/sp-toc-alignment-block/sp-toc-alignment-block.component';
 import { BilateralService, PatchAlignmentResult } from '@shared/services/bilateral.service';
 import { CacheService } from '@shared/services/cache/cache.service';
 import { ActionsService } from '@shared/services/actions.service';
@@ -24,6 +26,7 @@ import {
 import {
   SAVED_TOC_ALIGNMENTS_FIXTURE,
   TOC_CATALOG_CAPSHARING_FIXTURE,
+  TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE,
   TOC_CATALOG_EMPTY_LEVELS_FIXTURE,
   TOC_CATALOG_TWO_SP_FIXTURE,
   TOC_CATALOG_VERSION_LOCKED_FIXTURE
@@ -190,6 +193,14 @@ describe('PoolFundingAlignmentComponent', () => {
   it('should create and call getAlignment with the route resultCode on init', () => {
     expect(component).toBeTruthy();
     expect(getAlignmentMock).toHaveBeenCalledWith('RES-001');
+  });
+
+  it('renders the section title info icon aligned with tooltip text matching the info banner', () => {
+    fixture.detectChanges();
+    const icon = fixture.nativeElement.querySelector('[data-testid="pf-alignment-title-info-icon"]') as HTMLElement;
+    expect(icon).not.toBeNull();
+    expect(icon.getAttribute('aria-label')).toBe(component.INFO_BANNER);
+    expect(icon.classList.contains('pf-alignment-section-heading__icon')).toBe(true);
   });
 
   it('falls back to cache.getCurrentNumericResultId when route param is absent', async () => {
@@ -589,6 +600,23 @@ describe('PoolFundingAlignmentComponent', () => {
       expect(after).not.toBe(before);
       expect(after.find(d => d.sp_code === 'SP01')?.aligns_with_toc).toBe(false);
     });
+
+    // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-03)
+    it('T-BIL-ITG-03 — resultType mirrors the catalog envelope (null until loaded)', () => {
+      expect(component.resultType()).toBeNull();
+      tocCatalog.set(TOC_CATALOG_CAPSHARING_FIXTURE);
+      expect(component.resultType()).toBe('capacity_sharing');
+    });
+
+    it('T-BIL-ITG-03 — every rendered block receives the envelope resultType', async () => {
+      await showBlocks(); // TWO_SP fixture: result_type 'capacity_sharing'
+      fixture.detectChanges();
+      const blocks = fixture.debugElement.queryAll(By.directive(SpTocAlignmentBlockComponent));
+      expect(blocks.length).toBe(2);
+      blocks.forEach(block =>
+        expect((block.componentInstance as SpTocAlignmentBlockComponent).resultType()).toBe('capacity_sharing')
+      );
+    });
   });
 
   describe('deselect-confirm flow (AC-02.3, D-6a)', () => {
@@ -719,6 +747,35 @@ describe('PoolFundingAlignmentComponent', () => {
       await component.onSave();
       const [, body] = patchAlignmentMock.mock.calls[0];
       expect(body).not.toHaveProperty('justification');
+    });
+
+    // @sdd-spec docs/specs/bilateral-module/toc-indicator-type-guidance (T-BIL-ITG-06)
+    it('AC-06.1 — active guidance (cross-type selection) leaks NOTHING into the write DTO: parent-spec fields only', async () => {
+      // Guidance catalog + a cross-type ('other') indicator 7302 on mixed HLO
+      // 7201: badges, classifications, hasTypeMatch flags and the cross-type
+      // warning are all live in the UI for this exact draft.
+      tocCatalog.set(TOC_CATALOG_CAPSHARING_GUIDANCE_FIXTURE);
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      component.onSpSelectionChange();
+      component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7201, indicator_id: 7302, quantitative_contribution: 12 });
+
+      patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
+      await component.onSave();
+
+      const [, body] = patchAlignmentMock.mock.calls[0];
+      expect(body.toc_alignments).toEqual([
+        { sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 7201, indicator_id: 7302, quantitative_contribution: 12 }
+      ]);
+      // Exact key set per TocAlignmentWriteDto — no guidance field (badge /
+      // classification / hasTypeMatch / …) ever reaches the PATCH payload.
+      const dtoKeys = ['aligns_with_toc', 'indicator_id', 'level', 'quantitative_contribution', 'sp_code', 'toc_result_id'];
+      for (const dto of body.toc_alignments as TocAlignmentWriteDto[]) {
+        expect(Object.keys(dto).sort()).toEqual(dtoKeys);
+      }
+      expect(JSON.stringify(body)).not.toMatch(/badge|classification|hasTypeMatch/);
     });
   });
 
@@ -880,6 +937,55 @@ describe('PoolFundingAlignmentComponent', () => {
       patchAlignmentMock.mockResolvedValue({ ok: true, data: { ...baseAlignment, has_contribution: true } } as PatchAlignmentResult);
       await component.onSave();
       expect(patchAlignmentMock).toHaveBeenCalledWith('RES-001', { has_contribution: true, sp_codes: ['SP01'] });
+    });
+  });
+
+  describe('HLO section visibility while ToC catalog loads (Issue 5)', () => {
+    const selectOneSpWhileCatalogPending = async () => {
+      tocCatalog.set(null);
+      loadingTocCatalog.set(true);
+      tocCatalogError.set(false);
+      mappingStatus.set('mapped');
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      component.onSpSelectionChange();
+      await Promise.resolve();
+      fixture.detectChanges();
+    };
+
+    it('shows the HLO section with a loading affordance when SPs are selected but the catalog is still fetching', async () => {
+      await selectOneSpWhileCatalogPending();
+      const root: HTMLElement = fixture.nativeElement;
+      expect(component.showHloSection()).toBe(true);
+      expect(component.hloSectionVisible()).toBe(true);
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-section"]')).not.toBeNull();
+      expect(root.querySelector('[data-testid="pf-alignment-hlo-loading"]')).not.toBeNull();
+      expect(root.querySelector('app-sp-toc-alignment-block')).toBeNull();
+    });
+
+    it('renders ToC blocks once the catalog resolves after SP selection', async () => {
+      await selectOneSpWhileCatalogPending();
+      loadingTocCatalog.set(false);
+      tocCatalog.set(TOC_CATALOG_CAPSHARING_FIXTURE);
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelectorAll('app-sp-toc-alignment-block').length).toBe(1);
+    });
+
+    it('refetches the catalog when SPs are selected and no catalog is loaded yet', async () => {
+      tocCatalog.set(null);
+      loadingTocCatalog.set(false);
+      tocCatalogError.set(false);
+      getTocCatalogMock.mockClear();
+      mappingStatus.set('mapped');
+      currentAlignment.set({ ...baseAlignment, has_contribution: false });
+      component.seedFromServer(currentAlignment()!);
+      component.onContributionChange(true);
+      component.formData.update(f => ({ ...f, selected_sps: [sp('SP01')] }));
+      component.onSpSelectionChange();
+      await Promise.resolve();
+      expect(getTocCatalogMock).toHaveBeenCalledWith('RES-001');
     });
   });
 
@@ -1323,44 +1429,60 @@ describe('PoolFundingAlignmentComponent', () => {
       });
     });
 
-    describe('REQ-BIL-SGU-05 — Save-disabled hint', () => {
-      it('saveBlockedByIncompleteToc is true (and the hint renders) for an incomplete "Yes" draft', async () => {
+    describe('REQ-BIL-SGU-05 — Save gating (no global footer hint)', () => {
+      it('canSave is false for an incomplete "Yes" draft', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
-        // "Yes" but missing indicator + contribution → incomplete (D-9).
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: null, quantitative_contribution: null });
 
-        expect(component.saveBlockedByIncompleteToc()).toBe(true);
-        // Save is correspondingly disabled by the existing D-9 gate.
         expect(component.canSave()).toBe(false);
-
-        sciencePrograms.set([{ code: 'SP01', name: 'A', category: null, color: null, icon_key: 'SP01', allocation: 100 }]);
         fixture.detectChanges();
-        const root: HTMLElement = fixture.nativeElement;
-        expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).not.toBeNull();
+        expect(fixture.nativeElement.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
       });
 
-      it('saveBlockedByIncompleteToc is false when the "Yes" draft is complete', async () => {
+      it('canSave is false when only quantitative contribution is missing', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        component.onDraftChange({
+          sp_code: 'SP01',
+          aligns_with_toc: true,
+          level: 'OUTPUT',
+          toc_result_id: 5187,
+          indicator_id: 5973,
+          quantitative_contribution: null
+        });
+
+        expect(component.canSave()).toBe(false);
+      });
+
+      it('canSave is true when the "Yes" draft is complete with contribution 0', async () => {
+        await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
+        component.onDraftChange({
+          sp_code: 'SP01',
+          aligns_with_toc: true,
+          level: 'OUTPUT',
+          toc_result_id: 5187,
+          indicator_id: 5973,
+          quantitative_contribution: 0
+        });
+
+        expect(component.canSave()).toBe(true);
+      });
+
+      it('canSave is true when the "Yes" draft is complete', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: true, level: 'OUTPUT', toc_result_id: 5187, indicator_id: 5973, quantitative_contribution: 3 });
 
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
-        fixture.detectChanges();
-        const root: HTMLElement = fixture.nativeElement;
-        expect(root.querySelector('[data-testid="pf-alignment-save-hint"]')).toBeNull();
+        expect(component.canSave()).toBe(true);
       });
 
-      it('saveBlockedByIncompleteToc is false when the draft answers "No" (not a blocking "Yes")', async () => {
+      it('canSave is true when the draft answers "No"', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
         component.onDraftChange({ sp_code: 'SP01', aligns_with_toc: false, level: null, toc_result_id: null, indicator_id: null, quantitative_contribution: null });
-        expect(component.saveBlockedByIncompleteToc()).toBe(false);
+        expect(component.canSave()).toBe(true);
       });
 
-      it('saveBlockedByIncompleteToc is true when the draft is unanswered (required *)', async () => {
+      it('canSave is false when the draft is unanswered (required *)', async () => {
         await selectSps(['SP01'], TOC_CATALOG_CAPSHARING_FIXTURE);
-        // Fresh empty draft (aligns_with_toc === null) — the per-SP ToC question is
-        // required, so an unanswered block blocks save and surfaces the hint.
         expect(component.draftForSp('SP01').aligns_with_toc).toBeNull();
-        expect(component.saveBlockedByIncompleteToc()).toBe(true);
         expect(component.canSave()).toBe(false);
       });
     });

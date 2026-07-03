@@ -41,6 +41,8 @@ interface SidebarOption {
   hide?: boolean;
   greenCheckKey: string;
   greenCheck?: boolean;
+  /** Optional sections render under a divider and don't count toward completion or gate submission (AR.3). */
+  optional?: boolean;
 }
 
 @Component({
@@ -81,6 +83,15 @@ export class ResultSidebarComponent {
     if (option.path !== 'pool-funding-alignment') return false;
     return !alignment || alignment.eligible === false;
   }
+
+  /** Optional sections (AR.3) — excluded from the progress counter and from submit gating. */
+  private countsTowardSectionCompletion(option: SidebarOption): boolean {
+    return !option.optional;
+  }
+
+  /** Caption + tooltip for the optional-sections group divider in the sidebar. */
+  readonly OPTIONAL_GROUP_LABEL = 'Optional';
+  readonly OPTIONAL_GROUP_TOOLTIP = 'This section does not count toward completed sections and is not required to submit the result.';
 
   showOicrStatusDropdown = computed(() => {
     const meta = this.cache.currentMetadata();
@@ -172,7 +183,8 @@ export class ResultSidebarComponent {
     {
       label: 'Pool funding alignment',
       path: 'pool-funding-alignment',
-      greenCheckKey: 'pool_funding_alignment'
+      greenCheckKey: 'pool_funding_alignment',
+      optional: true
     }
   ]);
 
@@ -195,11 +207,15 @@ export class ResultSidebarComponent {
   );
 
   getCompletedCount(): number {
-    return this.allOptionsWithGreenChecks().filter(option => option.greenCheck).length;
+    return this.allOptionsWithGreenChecks()
+      .filter(option => !option.hide && this.countsTowardSectionCompletion(option) && option.greenCheck)
+      .length;
   }
 
   getTotalCount(): number {
-    return this.allOptionsWithGreenChecks().filter(option => !option.hide).length;
+    return this.allOptionsWithGreenChecks()
+      .filter(option => !option.hide && this.countsTowardSectionCompletion(option))
+      .length;
   }
 
   submmitConfirm() {

@@ -274,7 +274,9 @@ export class MyProjectsService {
     }
     if (filters.startDate) items.push({ label: 'START DATE', value: formatDate(filters.startDate) });
     if (filters.endDate) items.push({ label: 'END DATE', value: formatDate(filters.endDate) });
-    if (filters.poolFundingOnly) items.push({ label: 'POOL FUNDING', value: 'Only Pool Funding' });
+    if (filters.poolFundingOnly) {
+      items.push({ label: 'CONTRIBUTING TO POOL FUNDING', value: 'Contributing to Pool Funding' });
+    }
 
     return items;
   });
@@ -288,7 +290,7 @@ export class MyProjectsService {
       LEVER: 'levers',
       'START DATE': 'startDate',
       'END DATE': 'endDate',
-      'POOL FUNDING': 'poolFundingOnly'
+      'CONTRIBUTING TO POOL FUNDING': 'poolFundingOnly'
     };
     const key = mapping[label];
     if (!key) return;
