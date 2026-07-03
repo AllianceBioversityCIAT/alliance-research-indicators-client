@@ -419,11 +419,16 @@ describe('MultiselectComponent', () => {
     mockUtilsService.getNestedProperty.mockReturnValue(mockExistingItems);
     mockService.list.mockReturnValue(mockServiceList);
     component.ngOnInit();
+    TestBed.flushEffects();
 
     component.setValue(mockEvent);
 
     expect(component.body().value).toEqual([1, 2, 3]);
-    expect(mockUtilsService.setNestedPropertyWithReduce).toHaveBeenCalled();
+    expect(component.signal().testField).toEqual([
+      { id: 1, name: 'Option 1' },
+      { id: 2, name: 'Option 2' },
+      { id: 3, name: 'Option 3' }
+    ]);
   });
 
   it('should handle setValue with no new options', () => {
