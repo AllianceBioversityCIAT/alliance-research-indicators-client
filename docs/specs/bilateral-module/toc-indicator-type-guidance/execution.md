@@ -99,4 +99,22 @@
 - **Reviewer verdict**: `STATUS: PASS` — checklist automatable íntegramente descargado; evidencia reproducida independientemente (288/288 scoped, lint, build exit 0 con solo los 9 warnings pre-existentes); método de baseline validado.
 - **Requirements covered**: AC-06.1, AC-06.2 (implícito: cero aserciones existentes tocadas), AC-06.3, NF-01, NF-02 (slice automatable), NF-03, NF-05. NF-04 (paridad dark/light) verificada token-only en las revisiones T-03/04/05; confirmación visual queda en el golden path manual.
 - **Notas técnicas**: NgModel + `[disabled]` aplica el disable en un microtask (usar `whenStable`, `fakeAsync+flush` no lo drena) — documentado in-test. El util spec contiene 1 NUL literal intencional (input de totalidad, T-01) ⇒ git lo binary-diffea; jest/eslint lo procesan bien; cosmético.
-- **PENDING para cerrar T-06** (manual golden path, usuario): resultado capacity-sharing en local/testing — (1) HLO mixto: grupos + badges + tag en dropdown de HLOs; (2) HLO incompatible: nota + clic en sugerencia resetea cascade; (3) guardado cruzado: warning visible, save OK, re-open muestra warning; (4) vista locked/read-only: guía pasiva, botones deshabilitados; (5) overlay: anchos/wrapping con badges en labels largos; (6) paridad dark/light visual.
+- **Manual golden path**: ✅ SIGNED OFF by the user 2026-07-02 ("todo ok") — capacity-sharing result, live app: (1) mixed HLO groups+badges+HLO tags, (2) incompatible HLO notice + suggestion click reset, (3) cross-type save + re-open warning, (4) locked/read-only passive guidance, (5) overlay width/wrapping with badges, (6) dark/light parity. **T-BIL-ITG-06 CLOSED.**
+
+## 3. Summary — SPEC COMPLETE ✅ (2026-07-02)
+
+All 6 tasks executed same-day via the JCSPECS triad, **every task Reviewer-PASS on attempt 1** (zero rework loops):
+
+| Task | Commit | Result |
+|---|---|---|
+| Spec docs | `5b1f5dd0` | proposal + requirements + design + tasks (approved) |
+| T-01 util | `d04802f9` | 141 tests, 100% coverage on util |
+| T-02 fixture | `e49371aa` | append-only, classification states (a)/(b)/(c) |
+| T-03 grouped dropdown | `b0a3497f` | R-2 resolved: native PrimeNG group+filter, no custom fallback |
+| T-04 cross-type warning | `65d74ee3` | `--ac-orange-1` border+icon (AA-safe), copy exact |
+| T-05 HLO hints + notice | `ccb147b6` | D-ITG-4 exact-match tags, ≤5 clickable suggestions |
+| T-06 sweep + golden path | `84bd442d` | coverage 99%+, bundle +1.43 kB gzip ≤ 5 KB, user sign-off |
+
+Requirements coverage: REQ-BIL-ITG-01..06 + NF-01..05 all discharged. Contracts untouched (AC-06.1 proven by test). Known pre-existing branch issues (NOT from this spec): `multiselect.component.spec.ts:426` failure, 350 repo-wide s-lint errors in untouched files.
+
+Open items carried forward (tasks.md §9): OQ-1 BA sign-off on matrix strings (one-line change if overruled), OQ-2 production-lambda `type_value` completeness check before release, Phase 2 (AI suggestion) gated on observed cross-type mapping frequency. Ready for `/sdd-archive`.
