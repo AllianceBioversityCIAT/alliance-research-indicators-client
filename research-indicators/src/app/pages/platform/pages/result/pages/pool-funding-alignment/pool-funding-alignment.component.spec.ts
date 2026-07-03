@@ -254,6 +254,63 @@ describe('PoolFundingAlignmentComponent', () => {
     expect(altGet).toHaveBeenCalledWith('456');
   });
 
+  // Regression — prod-mode DI poisoned record: after WebsocketService's factory
+  // throws once (Socket has no provider app-wide), Angular's hydrate() returns
+  // the CIRCULAR sentinel `{}` on the NEXT inject instead of throwing (the
+  // guard is ngDevMode-gated). The component must shape-check and degrade to
+  // the no-socket UX instead of crashing with "listen is not a function".
+  it('constructs without socket refresh when the injector yields a listen-less object (poisoned CIRCULAR sentinel)', async () => {
+    TestBed.resetTestingModule();
+    const sentinelGet = jest.fn().mockResolvedValue(null);
+    await TestBed.configureTestingModule({
+      imports: [PoolFundingAlignmentComponent, HttpClientTestingModule],
+      providers: [
+        {
+          provide: BilateralService,
+          useValue: {
+            currentAlignment: signal<AlignmentResponse | null>(null),
+            loadingAlignment: signal(false),
+            savingAlignment: signal(false),
+            editable: signal(true),
+            sciencePrograms: signal<PoolFundingScienceProgram[]>([]),
+            mappingStatus: signal<PoolFundingMappingStatus | null>(null),
+            tocCatalog: signal<BilateralTocCatalogResponse | null>(null),
+            loadingTocCatalog: signal(false),
+            tocCatalogError: signal(false),
+            getAlignment: sentinelGet,
+            getSciencePrograms: jest.fn().mockResolvedValue([]),
+            getTocCatalog: jest.fn().mockResolvedValue(null),
+            catalogForSp,
+            draftsFromSaved,
+            writeDtoFromDrafts
+          }
+        },
+        {
+          provide: CacheService,
+          useValue: {
+            currentResultId: signal(123),
+            getCurrentNumericResultId: () => 123,
+            currentMetadata: signal({}),
+            currentResultIsLoading: signal(false),
+            isSidebarCollapsed: () => false,
+            hasSmallScreen: () => false,
+            showSectionHeaderActions: () => false
+          }
+        },
+        { provide: ActivatedRoute, useValue: { snapshot: { paramMap: { get: (k: string) => (k === 'id' ? 'RES-001' : null) } } } },
+        { provide: Router, useValue: { navigate: jest.fn().mockResolvedValue(true) } },
+        { provide: ActionsService, useValue: { showToast: jest.fn(), showGlobalAlert: jest.fn() } },
+        // The poisoned record: truthy, but no `listen` function on it.
+        { provide: WebsocketService, useValue: {} },
+        { provide: ClarityService, useValue: { trackEvent: jest.fn() } }
+      ],
+      schemas: [NO_ERRORS_SCHEMA]
+    }).compileComponents();
+
+    expect(() => TestBed.createComponent(PoolFundingAlignmentComponent)).not.toThrow();
+    expect(sentinelGet).toHaveBeenCalledWith('RES-001');
+  });
+
   describe('view modes — has_contribution', () => {
     it('formData is empty when alignment is null (loading)', () => {
       expect(component.formData()).toEqual({
