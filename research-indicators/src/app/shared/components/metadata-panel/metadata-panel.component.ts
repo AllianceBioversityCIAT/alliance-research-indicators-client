@@ -9,6 +9,17 @@ import { WebsocketService } from '../../sockets/websocket.service';
     styleUrl: './metadata-panel.component.scss'
 })
 export class MetadataPanelComponent {
-  websocket = inject(WebsocketService);
+  // Defensive: Socket (ngx-socket-io) has no provider registered app-wide, so
+  // WebsocketService can't be constructed — a raw inject() here crashed the
+  // @defer render. Shape check included: prod-mode DI returns the poisoned
+  // `{}` sentinel (instead of throwing) on re-inject after a failed factory.
+  websocket: WebsocketService | null = (() => {
+    try {
+      const service = inject(WebsocketService);
+      return typeof service?.listen === 'function' ? service : null;
+    } catch {
+      return null;
+    }
+  })();
   showModal = true;
 }

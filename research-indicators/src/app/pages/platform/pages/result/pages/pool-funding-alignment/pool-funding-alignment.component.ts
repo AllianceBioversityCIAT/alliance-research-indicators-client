@@ -64,8 +64,17 @@ export default class PoolFundingAlignmentComponent {
   // Defensive: if WebsocketService can't be constructed (e.g., SocketIoModule
   // not provided in this environment), the alignment tab should still work —
   // socket reconcile silently degrades to "manual refresh" UX.
+  // The shape check matters: after a failed factory, Angular's prod-mode DI
+  // (ngDevMode-gated CIRCULAR guard in `hydrate`) returns the poisoned record's
+  // `{}` sentinel on the NEXT inject instead of throwing, so `catch` alone
+  // doesn't cover re-entry into this route within the same SPA session.
   private readonly websocketService: WebsocketService | null = (() => {
-    try { return inject(WebsocketService); } catch { return null; }
+    try {
+      const service = inject(WebsocketService);
+      return typeof service?.listen === 'function' ? service : null;
+    } catch {
+      return null;
+    }
   })();
   // Same defensive pattern for ClarityService — telemetry must never block UX.
   private readonly clarityService: ClarityService | null = (() => {
