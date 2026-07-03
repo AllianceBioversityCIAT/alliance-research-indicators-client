@@ -118,6 +118,7 @@
                   'agreement_id',
                   'full_name',
                   'contract_status',
+                  'funding_type',
                   'display_principal_investigator',
                   'display_lever_name',
                   'count_results',
@@ -143,6 +144,12 @@
                   <div class="font-[500] leading-4.5 gap-2 text-[14px]">
                     Status
                     <p-sortIcon field="contract_status"></p-sortIcon>
+                  </div>
+                </th>
+                <th class="!text-[#112F5C]" scope="col" pSortableColumn="funding_type">
+                  <div class="flex items-center font-[500] leading-4.5 gap-2 text-[14px]">
+                    Project Type
+                    <p-sortIcon field="funding_type"></p-sortIcon>
                   </div>
                 </th>
                 <th class="!text-[#112F5C]" scope="col" pSortableColumn="display_principal_investigator">
@@ -216,6 +223,14 @@
                       <app-custom-tag [statusId]="projectUtils.getStatusDisplay(project).statusId"
                         [statusName]="projectUtils.getStatusDisplay(project).statusName" [maxWidth]="statusTagMaxWidth"
                         [multiline]="true"></app-custom-tag>
+                    </div>
+                  </a>
+                </td>
+                <td>
+                  <a [routerLink]="projectDetailRoute(project.agreement_id)" (click)="$event.stopPropagation()"
+                    class="block" style="color: inherit; text-decoration: none">
+                    <div class="overflow-hidden line-clamp-2">
+                      {{ project.funding_type || '-' }}
                     </div>
                   </a>
                 </td>
