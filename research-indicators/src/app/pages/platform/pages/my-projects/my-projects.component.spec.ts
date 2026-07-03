@@ -126,8 +126,10 @@ describe('MyProjectsComponent', () => {
     it('should set multiselect refs and clean multiselects', () => {
       const statusSelect = {} as MultiselectComponent;
       const leverSelect = {} as MultiselectComponent;
+      const fundingTypeSelect = {} as MultiselectComponent;
       component.statusSelect = statusSelect;
       component.leverSelect = leverSelect;
+      component.fundingTypeSelect = fundingTypeSelect;
 
       jest.useFakeTimers();
       component.ngAfterViewInit();
@@ -136,7 +138,25 @@ describe('MyProjectsComponent', () => {
 
       expect(mockMyProjectsService.multiselectRefs()).toEqual({
         status: statusSelect,
-        lever: leverSelect
+        lever: leverSelect,
+        fundingType: fundingTypeSelect
+      });
+      expect(mockMyProjectsService.cleanMultiselects).toHaveBeenCalled();
+    });
+
+    it('should set only available multiselect refs', () => {
+      const fundingTypeSelect = {} as MultiselectComponent;
+      component.statusSelect = undefined;
+      component.leverSelect = undefined;
+      component.fundingTypeSelect = fundingTypeSelect;
+
+      jest.useFakeTimers();
+      component.ngAfterViewInit();
+      jest.advanceTimersByTime(100);
+      jest.useRealTimers();
+
+      expect(mockMyProjectsService.multiselectRefs()).toEqual({
+        fundingType: fundingTypeSelect
       });
       expect(mockMyProjectsService.cleanMultiselects).toHaveBeenCalled();
     });
@@ -144,6 +164,7 @@ describe('MyProjectsComponent', () => {
     it('should not set refs if components are not available', () => {
       component.statusSelect = undefined;
       component.leverSelect = undefined;
+      component.fundingTypeSelect = undefined;
 
       component.ngAfterViewInit();
 
@@ -646,7 +667,7 @@ describe('MyProjectsComponent', () => {
       component.sortOrder.set(-1);
       component.loadMyProjects();
       expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'order-field': 'funding_type', direction: 'DESC' })
+        expect.objectContaining({ 'order-field': 'funding-type', direction: 'DESC' })
       );
     });
 
@@ -680,7 +701,7 @@ describe('MyProjectsComponent', () => {
       component.sortOrder.set(1);
       component.loadAllProjects();
       expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'order-field': 'funding_type', direction: 'ASC' })
+        expect.objectContaining({ 'order-field': 'funding-type', direction: 'ASC' })
       );
     });
 
@@ -1348,7 +1369,7 @@ describe('MyProjectsComponent', () => {
       mockMyProjectsService.searchInput.set('');
       component.onSort({ field: 'funding_type', order: -1 });
       expect(mockMyProjectsService.main).toHaveBeenCalledWith(
-        expect.objectContaining({ 'order-field': 'funding_type', direction: 'DESC' })
+        expect.objectContaining({ 'order-field': 'funding-type', direction: 'DESC' })
       );
     });
 
@@ -1363,7 +1384,7 @@ describe('MyProjectsComponent', () => {
 
       expect(component.sortField()).toBe('funding_type');
       expect(mockMyProjectsService.applyFilters).toHaveBeenCalledWith(
-        expect.objectContaining({ sortField: 'funding_type', sortOrder: 1, query: 'grant' })
+        expect.objectContaining({ sortField: 'funding-type', sortOrder: 1, query: 'grant' })
       );
     });
 

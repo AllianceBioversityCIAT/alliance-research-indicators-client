@@ -90,6 +90,7 @@ import {
 import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
 import { PortfolioConfigItem, PortfolioScopedParams } from '@shared/interfaces/portfolio-config.interface';
+import { FundingType } from '@shared/interfaces/funding-type.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -209,6 +210,11 @@ export class ApiService {
 
   DELETE_Portfolio = (portfolioId: number): Promise<MainResponse<unknown>> => {
     return this.TP.delete(`portfolios/${portfolioId}`, {});
+  };
+
+  GET_FundingTypes = (): Promise<MainResponse<FundingType[]>> => {
+    const url = () => `agresso/contracts/funding-types`;
+    return this.TP.get(url(), {});
   };
 
   GET_ClarisaSdgTargets = (): Promise<MainResponse<LeverSdgTargetApi[]>> => {
@@ -658,11 +664,7 @@ export class ApiService {
     });
   };
 
-  PATCH_Alignments = <T>(
-    id: number,
-    body: T,
-    params?: AlignmentRequestParams
-  ): Promise<MainResponse<PatchAllianceAlignment>> => {
+  PATCH_Alignments = <T>(id: number, body: T, params?: AlignmentRequestParams): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
     let httpParams = new HttpParams();
     if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
@@ -751,6 +753,7 @@ export class ApiService {
     'order-field'?: string;
     direction?: string;
     'end-date'?: string;
+    'funding-type'?: string;
     query?: string;
     page?: number | string;
     limit?: number | string;
@@ -1106,6 +1109,7 @@ export class ApiService {
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
+    'funding-type'?: string;
     query?: string;
     page?: number | string;
     limit?: number | string;
@@ -1127,6 +1131,7 @@ export class ApiService {
       'status',
       'start-date',
       'end-date',
+      'funding-type',
       'query',
       'page',
       'limit',
