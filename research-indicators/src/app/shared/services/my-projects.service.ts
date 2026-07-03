@@ -12,6 +12,7 @@ export class MyProjectsFilters {
   principalInvestigator = '';
   levers: { id: number; short_name: string }[] = [];
   statusCodes: { name: string; value: string }[] = [];
+  fundingTypes: { funding_type: string }[] = [];
   startDate = '';
   endDate = '';
 }
@@ -49,6 +50,7 @@ export class MyProjectsService {
       filters.principalInvestigator,
       filters.levers,
       filters.statusCodes,
+      filters.fundingTypes,
       filters.startDate,
       filters.endDate
     ];
@@ -92,7 +94,9 @@ export class MyProjectsService {
     this.cleanMultiselects();
   }
 
-  private isFilterActive(filterValue: string | { id: number; short_name: string }[] | { name: string; value: string }[]): boolean {
+  private isFilterActive(
+    filterValue: string | { id: number; short_name: string }[] | { name: string; value: string }[] | { funding_type: string }[]
+  ): boolean {
     if (Array.isArray(filterValue)) {
       return filterValue.length > 0;
     }
@@ -209,6 +213,10 @@ export class MyProjectsService {
       params['status'] = filters.statusCodes.map(status => status.value).join(',');
     }
 
+    if (filters.fundingTypes.length > 0) {
+      params['funding-type'] = filters.fundingTypes.map(fundingType => fundingType.funding_type).join(',');
+    }
+
     if (filters.startDate) {
       const startDate = new Date(filters.startDate);
       params['start-date'] = startDate.toISOString().slice(0, 23);
@@ -236,6 +244,7 @@ export class MyProjectsService {
       (f.principalInvestigator ? 1 : 0) +
       (f.levers?.length ?? 0) +
       (f.statusCodes?.length ?? 0) +
+      (f.fundingTypes?.length ?? 0) +
       (f.startDate ? 1 : 0) +
       (f.endDate ? 1 : 0);
     return total > 0 ? total.toString() : undefined;
@@ -266,6 +275,9 @@ export class MyProjectsService {
     if (Array.isArray(filters.levers)) {
       filters.levers.forEach(l => items.push({ label: 'LEVER', value: l.short_name || l.id.toString(), id: l.id }));
     }
+    if (Array.isArray(filters.fundingTypes)) {
+      filters.fundingTypes.forEach(f => items.push({ label: 'FUNDING TYPE', value: f.funding_type, id: f.funding_type }));
+    }
     if (filters.startDate) items.push({ label: 'START DATE', value: formatDate(filters.startDate) });
     if (filters.endDate) items.push({ label: 'END DATE', value: formatDate(filters.endDate) });
 
@@ -279,6 +291,7 @@ export class MyProjectsService {
       'PRINCIPAL INVESTIGATOR': 'principalInvestigator',
       STATUS: 'statusCodes',
       LEVER: 'levers',
+      'FUNDING TYPE': 'fundingTypes',
       'START DATE': 'startDate',
       'END DATE': 'endDate'
     };
@@ -302,6 +315,13 @@ export class MyProjectsService {
             next.levers = next.levers.filter(l => l.id !== id);
           }
           break;
+        case 'fundingTypes':
+          if (id == null) {
+            next.fundingTypes = [];
+          } else {
+            next.fundingTypes = next.fundingTypes.filter(f => f.funding_type !== id);
+          }
+          break;
         case 'contractCode':
           next.contractCode = '';
           break;
@@ -322,7 +342,11 @@ export class MyProjectsService {
     });
 
     const refs = this.multiselectRefs();
-    const refKeyByLabel: Record<string, 'status' | 'lever'> = { STATUS: 'status', LEVER: 'lever' };
+    const refKeyByLabel: Record<string, 'status' | 'lever' | 'fundingType'> = {
+      STATUS: 'status',
+      LEVER: 'lever',
+      'FUNDING TYPE': 'fundingType'
+    };
     const refKey = refKeyByLabel[label];
     const ref: MultiselectComponent | undefined = refKey ? refs[refKey] : undefined;
     if (ref && id != null && typeof ref.removeById === 'function') {

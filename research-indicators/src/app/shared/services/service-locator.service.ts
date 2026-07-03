@@ -47,6 +47,7 @@ import { InnResultsService } from './short-control-list/inn-results.service';
 import { ApplicationOptionsService } from './short-control-list/application-options.service';
 import { GetLeversService } from './control-list/get-levers.service';
 import { GetProjectStatusService } from './control-list/get-project-status.service';
+import { GetFundingTypesService } from './control-list/get-funding-types.service';
 import { GetInitiativesService } from './control-list/get-initiatives.service';
 import { GetTagsService } from './control-list/get-tags.service';
 import { OicrResultsService } from './short-control-list/oicr-results.service';
@@ -252,6 +253,8 @@ export class ServiceLocatorService {
         return this.getFromInjector(GetClarisaSdgTargetsService);
       case 'projectStatus':
         return this.getFromInjector(GetProjectStatusService);
+      case 'fundingTypes':
+        return this.getFromInjector(GetFundingTypesService);
       case 'allianceStaffByGroup':
         return this.getFromInjector(GetAllianceStaffByGroupService);
       case 'sourceFilterOptions':

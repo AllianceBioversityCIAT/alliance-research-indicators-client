@@ -520,6 +520,12 @@ describe('ServiceLocatorService', () => {
       expect(result).toBe(serviceMock);
     });
 
+    it('returns fundingTypes service', () => {
+      const result = (service as any).getOtherServices('fundingTypes');
+      expect(injectorMock.get).toHaveBeenCalled();
+      expect(result).toBe(serviceMock);
+    });
+
     it('returns allianceStaffByGroup service', () => {
       const result = (service as any).getOtherServices('allianceStaffByGroup');
       expect(injectorMock.get).toHaveBeenCalled();
