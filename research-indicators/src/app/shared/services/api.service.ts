@@ -72,6 +72,7 @@ import { GenericList } from '@shared/interfaces/generic-list.interface';
 import { Initiative } from '@shared/interfaces/initiative.interface';
 import { FindContractsResponse } from '../interfaces/find-contracts.interface';
 import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { FundingType } from '@shared/interfaces/funding-type.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -150,6 +151,11 @@ export class ApiService {
 
   GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
+    return this.TP.get(url(), {});
+  };
+
+  GET_FundingTypes = (): Promise<MainResponse<FundingType[]>> => {
+    const url = () => `agresso/contracts/funding-types`;
     return this.TP.get(url(), {});
   };
 
@@ -670,6 +676,7 @@ export class ApiService {
     'order-field'?: string;
     direction?: string;
     'end-date'?: string;
+    'funding-type'?: string;
     query?: string;
     page?: number | string;
     limit?: number | string;
@@ -954,6 +961,7 @@ export class ApiService {
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
+    'funding-type'?: string;
     query?: string;
     page?: number | string;
     limit?: number | string;
@@ -974,6 +982,7 @@ export class ApiService {
       'status',
       'start-date',
       'end-date',
+      'funding-type',
       'query',
       'page',
       'limit',

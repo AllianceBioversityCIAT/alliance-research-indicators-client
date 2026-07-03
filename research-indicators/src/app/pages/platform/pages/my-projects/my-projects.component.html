@@ -323,6 +323,13 @@
     </div>
 
     <div class="mb-6">
+      <app-multiselect #fundingTypeSelect label="Funding Type" [signal]="this.myProjectsService.tableFilters"
+        optionLabel="funding_type" optionValue="funding_type" signalOptionValue="fundingTypes" serviceName="fundingTypes"
+        placeholder="Select funding types">
+      </app-multiselect>
+    </div>
+
+    <div class="mb-6">
       <app-calendar-input #startDateSelect label="Start Date" [signal]="this.myProjectsService.tableFilters"
         optionValue="startDate" [dateFormat]="'MM dd/yy'" placeholder="Select start date" appendTo="body">
       </app-calendar-input>
