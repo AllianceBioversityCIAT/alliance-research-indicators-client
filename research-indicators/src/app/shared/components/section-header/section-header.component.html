@@ -33,9 +33,17 @@
 
   @if (this.cache.showSectionHeaderActions()) {
   <div class="buttons-container rs-gap-x-[15]">
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1">
       @if (cache.currentMetadata().indicator_id === 5) {
       <app-download-oicr-template [onlyIcon]="true"></app-download-oicr-template>
+      }
+      @if (showStarPdfReport()) {
+      <p-button variant="text" pTooltip="Open STAR PDF report" tooltipPosition="left" (onClick)="openStarPdfReport()"
+        [attr.aria-label]="'Open PDF report for ' + cache.currentResultId()">
+        <ng-template pTemplate="icon">
+          <i class="pi pi-file-pdf text-[#035BA9] !text-[17px]"></i>
+        </ng-template>
+      </p-button>
       }
       <p-button variant="text" pTooltip="Submission history" tooltipPosition="left"
         (onClick)="cache.showSubmissionHistory.set(true)">

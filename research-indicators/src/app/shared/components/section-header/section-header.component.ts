@@ -17,6 +17,12 @@ import { DownloadOicrTemplateComponent } from '../download-oicr-template/downloa
 import { RolesService } from '@shared/services/cache/roles.service';
 import { isHomeEntryFromUrl, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.service';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+import {
+  getStarReportViewerUrl,
+  isStarPdfReportEligibleFromResultId,
+  openStarPdfReportInNewTab
+} from '@shared/utils/star-pdf-report.util';
 
 export interface BreadcrumbItem {
   label: string;
@@ -50,6 +56,10 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   showDeleteOption = computed(() => {
     const statusId = this.cache.currentMetadata()?.status_id;
     return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult()) || this.rolesService.isAdmin();
+  });
+  showStarPdfReport = computed(() => {
+    const resultId = this.cache.currentResultId() || this.currentResultId();
+    return isStarPdfReportEligibleFromResultId(this.cache.currentMetadata()?.indicator_id, resultId);
   });
   resultTitle = signal('');
   items = computed((): MenuItem[] => {
@@ -151,6 +161,25 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
     return item.id ? `${item.title} (id: ${item.id})` : item.title;
+  }
+
+  openStarPdfReport(): void {
+    const metadata = this.cache.currentMetadata();
+    const resultId = this.cache.currentResultId() || this.currentResultId();
+    const versionFromUrl = this.route.snapshot.queryParamMap.get('version')?.trim() ?? '';
+    const url = getStarReportViewerUrl(
+      {
+        indicator_id: metadata.indicator_id,
+        platform_code: PLATFORM_CODES.STAR,
+        result_official_code: metadata.result_official_code
+      },
+      {
+        resultIdFallback: resultId,
+        versionOverride: versionFromUrl || null,
+        includeVersion: versionFromUrl.length > 0
+      }
+    );
+    openStarPdfReportInNewTab(url);
   }
 
   welcomeMessage = computed(() => {
