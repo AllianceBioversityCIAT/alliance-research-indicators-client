@@ -5,6 +5,7 @@ import { environment } from '@envs/environment';
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import { S3ImageUrlPipe } from '@shared/pipes/s3-image-url.pipe';
 import { ApiService } from '@shared/services/api.service';
+import { StarPdfReportName } from '@shared/utils/star-pdf-report.util';
 
 @Component({
   selector: 'app-star-report-viewer',
@@ -23,6 +24,7 @@ export default class StarReportViewerComponent implements OnInit {
 
   readonly resultCode = this.route.snapshot.paramMap.get('id') ?? '';
   readonly version = this.route.snapshot.queryParamMap.get('version') ?? '';
+  readonly reportName = this.resolveReportName(this.route.snapshot.queryParamMap.get('report_name'));
 
   ngOnInit(): void {
     void this.loadPdf();
@@ -37,7 +39,8 @@ export default class StarReportViewerComponent implements OnInit {
     }
 
     try {
-      const response = await this.api.GET_ResultPdfReport(officialCode, PLATFORM_CODES.STAR);
+      const reportYear = this.version.trim() ? this.version.trim() : null;
+      const response = await this.api.GET_ResultPdfReport(officialCode, PLATFORM_CODES.STAR, reportYear, this.reportName);
       const pdfUrl = response?.data?.trim();
       if (!pdfUrl) {
         this.errorMessage.set('The STAR PDF report is not available yet.');
@@ -50,6 +53,11 @@ export default class StarReportViewerComponent implements OnInit {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  private resolveReportName(value: string | null): StarPdfReportName {
+    if (value === 'inn_dev' || value === 'cap_sharing') return value;
+    return 'cap_sharing';
   }
 
   private getOfficialCode(resultCode: string): string {

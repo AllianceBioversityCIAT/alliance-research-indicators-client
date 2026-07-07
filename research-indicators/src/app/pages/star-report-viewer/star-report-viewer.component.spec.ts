@@ -85,7 +85,7 @@ describe('StarReportViewerComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR');
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR', '2026', 'cap_sharing');
     expect(component.resultCode).toBe('STAR-8');
     expect(component.version).toBe('2026');
     expect(component.loading()).toBe(false);
@@ -125,7 +125,43 @@ describe('StarReportViewerComponent', () => {
     await setup('8', '2026');
     await fixture.whenStable();
 
-    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR');
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR', '2026', 'cap_sharing');
+  });
+
+  it('should omit reportYear when the version query param is missing', async () => {
+    await setup('STAR-8', null);
+    await fixture.whenStable();
+
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR', null, 'cap_sharing');
+  });
+
+  it('should use inn_dev report_name when provided in the query string', async () => {
+    api = {
+      GET_ResultPdfReport: jest.fn().mockResolvedValue({ data: 'https://reports.example.com/star-8.pdf' })
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [StarReportViewerComponent],
+      providers: [
+        { provide: ApiService, useValue: api },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id: 'STAR-8' }),
+              queryParamMap: convertToParamMap({ version: '2026', report_name: 'inn_dev' })
+            }
+          }
+        }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(StarReportViewerComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR', '2026', 'inn_dev');
   });
 
   it('should show an error when generating the PDF fails', async () => {
