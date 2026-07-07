@@ -433,6 +433,29 @@ describe('SectionHeaderComponent', () => {
     expect(component.showStarPdfReport()).toBe(false);
   });
 
+  it('showStarPdfReport should use private currentResultId when cache id is falsy', () => {
+    (cacheService.currentResultId as any).set('');
+    component['currentResultId'].set('STAR-8');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 8, report_year: 2026 });
+
+    expect(component.showStarPdfReport()).toBe(true);
+  });
+
+  it('openStarPdfReport should use private currentResultId when cache id is falsy', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    (cacheService.currentResultId as any).set('');
+    component['currentResultId'].set('STAR-44');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 44, report_year: 2026 });
+    (component.route.snapshot as any).queryParamMap = {
+      get: jest.fn().mockReturnValue(null)
+    };
+
+    component.openStarPdfReport();
+
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-44', '_blank', 'noopener,noreferrer');
+    openSpy.mockRestore();
+  });
+
   it('openStarPdfReport should open the internal viewer with version when URL has version query param', () => {
     const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
     (cacheService.currentResultId as any).set('STAR-8');
