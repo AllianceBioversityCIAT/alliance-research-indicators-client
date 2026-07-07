@@ -3,6 +3,8 @@ import {
   enrichAlignmentLevers,
   enrichAlignmentSdgTargets,
   enrichPortfolio2Contracts,
+  enrichResearchAreas,
+  enrichResultSdgs,
   flattenAlignmentContract,
   normalizeContractLevers,
   normalizePortfolio2AlignmentGet
@@ -335,5 +337,512 @@ describe('portfolio-2-alignment.mapper', () => {
     expect(enriched[0].sdg_target).toBe('Saved label');
     expect(enriched[0].clarisa_sdg?.icon).toBe('saved.png');
     expect(enriched[0].select_label).toBe('2.3 — Catalog label');
+  });
+
+  it('returns research areas unchanged when catalog has no match', () => {
+    const areas = [{ lever_id: 99, full_name: 'Unmatched' } as never];
+    expect(enrichResearchAreas(areas, [{ lever_id: 1, full_name: 'Other' } as never])).toEqual([
+      { lever_id: 99, full_name: 'Unmatched', id: 99 }
+    ]);
+  });
+
+  it('enriches research areas from catalog when a match exists', () => {
+    const enriched = enrichResearchAreas(
+      [{ lever_id: 5, full_name: 'Saved name' } as never],
+      [{ id: 5, lever_id: 5, full_name: 'Catalog name', short_name: 'Cat' } as never]
+    );
+    expect(enriched[0].full_name).toBe('Saved name');
+    expect(enriched[0].short_name).toBe('Cat');
+  });
+
+  it('returns SDG targets without catalog enrichment and skips invalid entries', () => {
+    expect(enrichAlignmentSdgTargets(null)).toEqual([]);
+    expect(enrichAlignmentSdgTargets([7, { sdg_target_id: 8 }, { id: 'bad' }])).toEqual([
+      { sdg_target_id: 7 },
+      { sdg_target_id: 8 }
+    ]);
+  });
+
+  it('filters invalid SDGs and enriches valid ones from catalog', () => {
+    const enriched = enrichResultSdgs(
+      [{ clarisa_sdg_id: 0 } as never, { clarisa_sdg_id: 3 } as never],
+      [{ id: 3, clarisa_sdg_id: 3, sdg_id: 3 } as never]
+    );
+    expect(enriched).toHaveLength(1);
+    expect(enriched[0].id).toBe(3);
+    expect(enriched[0].clarisa_sdg_id).toBe(3);
+  });
+
+  it('normalizes contract levers from object, array, and fallback lever fields', () => {
+    const objectLevers = { id: 1, full_name: 'Obj', short_name: 'O', other_names: '', lever_url: 'o.png' };
+    expect(normalizeContractLevers({ levers: objectLevers } as never)).toBe(objectLevers);
+    expect(normalizeContractLevers({ levers: [objectLevers] } as never)).toBe(objectLevers);
+    expect(
+      normalizeContractLevers({
+        leverUrl: 'only-url.png',
+        lever_id: 2
+      } as never)
+    ).toEqual({
+      id: 2,
+      full_name: 'Not available',
+      short_name: '',
+      other_names: '',
+      lever_url: 'only-url.png'
+    });
+    expect(
+      normalizeContractLevers({
+        lever: { name: 'Full', short_name: 'Short' },
+        lever_url: 'x.png',
+        lever_id: 3
+      } as never)?.full_name
+    ).toBe('Full');
+    expect(normalizeContractLevers({ lever: {} as never, lever_url: 'x.png' } as never)?.full_name).toBe('Not available');
+    expect(normalizeContractLevers({ lever: { name: 'Only name' } } as never)?.short_name).toBe('Only name');
+  });
+
+  it('enriches contracts by agreement_id without catalog and handles empty identifiers', () => {
+    const byAgreement = enrichPortfolio2Contracts(
+      [{ agreement_id: 'A200', description: 'Desc 200', is_primary: true } as never],
+      []
+    );
+    expect(byAgreement[0].contract_id).toBe('A200');
+    expect(byAgreement[0].select_label).toBe('A200 - Desc 200');
+
+    const noIds = enrichPortfolio2Contracts([{ is_primary: false } as never], []);
+    expect(noIds[0].contract_id).toBeUndefined();
+    expect(noIds[0].levers).toBeUndefined();
+  });
+
+  it('returns lever unchanged when catalog has no match for non-Other lever', () => {
+    const enriched = enrichAlignmentLevers(
+      [{ lever_id: 7, result_lever_id: 1, result_id: 1, lever_role_id: 1, is_primary: true } as never],
+      []
+    );
+    expect(enriched[0].lever_id).toBe(7);
+    expect(enriched[0].short_name).toBeUndefined();
+  });
+
+  it('filters empty research areas and omits contracts without contract_id in PATCH', () => {
+    expect(normalizePortfolio2AlignmentGet({ research_areas: [{ lever_id: '' } as never] }).research_areas).toEqual([]);
+    const patch = buildPortfolio2AlignmentPatch(
+      {
+        contracts: [{ contract_id: '', is_primary: false } as never, { contract_id: 'ok', is_primary: true } as never],
+        result_sdgs: [],
+        primary_levers: [],
+        contributor_levers: [],
+        strategic_objectives: [],
+        impact_outcomes: []
+      },
+      false
+    );
+    expect(patch.contracts).toEqual([{ contract_id: 'ok', is_primary: true }]);
+  });
+
+  it('covers SDG, research area, lever, and contract normalization branches', () => {
+    expect(
+      normalizePortfolio2AlignmentGet(
+        {
+          result_sdgs: [{ sdg_id: 11 } as never],
+          research_areas: [{ id: 8, full_name: 'By id' } as never],
+          strategic_objectives: [{ strategic_objective_id: 0 } as never],
+          impact_outcomes: [{ impact_outcome_id: 6, name: 'IO' } as never],
+          contracts: [
+            {
+              agreement_id: 'A300',
+              is_primary: false,
+              levers: { id: 1, full_name: 'L', short_name: 'L', other_names: '', lever_url: '' }
+            } as never
+          ]
+        },
+        {
+          sdgs: [{ id: 11, clarisa_sdg_id: 11 } as never],
+          levers: [{ id: 8, lever_id: 8, full_name: 'Catalog 8', short_name: 'C8' } as never],
+          strategicObjectives: [{ id: 2, name: 'SO 2' }],
+          impactOutcomes: [{ id: 6, name: 'Catalog IO' }],
+          contracts: [
+            {
+              agreement_id: 'A300',
+              contract_id: 'A300',
+              description: 'Project 300',
+              select_label: 'A300 - Project 300'
+            } as never
+          ]
+        }
+      )
+    ).toMatchObject({
+      result_sdgs: [{ id: 11, clarisa_sdg_id: 11 }],
+      research_areas: [{ lever_id: 8, full_name: 'By id', short_name: 'C8' }],
+      strategic_objectives: [],
+      impact_outcomes: [{ id: 6, name: 'IO' }],
+      contracts: [{ agreement_id: 'A300', select_label: 'A300 - Project 300' }]
+    });
+
+    const flattened = flattenAlignmentContract({
+      contract_id: 'x',
+      agresso_contract: { agreement_id: 'A1', end_date: '2025-12-31', contract_status: 'Active' }
+    } as never);
+    expect(flattened.end_date).toBe('2025-12-31');
+    expect(flattened.contract_status).toBe('Active');
+
+    const byAgreementNoDesc = enrichPortfolio2Contracts([{ agreement_id: 'A400' } as never], []);
+    expect(byAgreementNoDesc[0].select_label).toBe('A400');
+
+    const catalogSelectLabel = enrichPortfolio2Contracts(
+      [{ agreement_id: 'A500', description: 'Five' } as never],
+      [{ agreement_id: 'A500', contract_id: 'A500' } as never]
+    );
+    expect(catalogSelectLabel[0].select_label).toBe('A500 - Five');
+
+    const leverFromCatalog = enrichAlignmentLevers(
+      [{ lever_id: 2, result_lever_id: 1, result_id: 1, lever_role_id: 1, is_primary: true } as never],
+      [{ id: 2, lever_id: 2, short_name: 'Cat', other_names: 'Cat full', lever_url: 'from-url.png' } as never]
+    );
+    expect(leverFromCatalog[0].icon).toBe('from-url.png');
+
+    expect(enrichAlignmentSdgTargets([{ sdg_target_id: 9, select_label: 'Saved' }], [{ id: 9, sdg_target_id: 9 }])).toEqual([
+      { id: 9, sdg_target_id: 9, select_label: 'Saved' }
+    ]);
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [{ sdg_id: 4 } as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [{ id: 15 } as never],
+          strategic_objectives: [{ strategic_objective_id: 2 } as never],
+          impact_outcomes: [{ impact_outcome_id: 7 } as never]
+        },
+        true
+      )
+    ).toEqual({
+      contracts: [],
+      result_sdgs: [{ clarisa_sdg_id: 4 }],
+      research_areas: [{ lever_id: '15' }],
+      strategic_objectives: [{ strategic_objective_id: 2 }],
+      impact_outcomes: [{ impact_outcome_id: 7 }]
+    });
+  });
+
+  it('covers remaining normalization and patch branches', () => {
+    expect(normalizePortfolio2AlignmentGet(undefined).contracts).toEqual([]);
+    expect(
+      normalizePortfolio2AlignmentGet({
+        result_sdgs: [{ clarisa_sdg_id: 12 } as never],
+        strategic_objectives: [{ id: 4, name: 'From id' }],
+        impact_outcomes: [{ id: 0 }]
+      }, {
+        sdgs: [{ clarisa_sdg_id: 12, id: 12 } as never],
+        strategicObjectives: [{ id: 4, name: 'Catalog SO' }]
+      })
+    ).toMatchObject({
+      result_sdgs: [{ id: 12, clarisa_sdg_id: 12 }],
+      strategic_objectives: [{ id: 4, name: 'From id' }]
+    });
+
+    expect(enrichResearchAreas(undefined)).toEqual([]);
+    expect(
+      enrichResearchAreas([{ id: 6, full_name: 'Area' } as never], [{ id: 6, full_name: 'Cat full', short_name: 'Cat' } as never])[0]
+    ).toMatchObject({ lever_id: 6, full_name: 'Area', short_name: 'Cat' });
+
+    expect(enrichAlignmentLevers(undefined)).toEqual([]);
+    expect(
+      enrichAlignmentLevers(
+        [{ lever_id: 4, icon: 'saved.png', result_lever_id: 1, result_id: 1, lever_role_id: 1, is_primary: true } as never],
+        [{ id: 4, short_name: 'Cat', other_names: 'Cat', icon: 'cat.png' } as never]
+      )[0].icon
+    ).toBe('saved.png');
+
+    expect(enrichAlignmentSdgTargets([{ id: 10 }])).toEqual([{ id: 10, sdg_target_id: 10 }]);
+    expect(enrichResultSdgs([{ sdg_id: 13 } as never], [{ clarisa_sdg_id: 13, id: 14 } as never])[0].sdg_id).toBe(13);
+
+    const flattenedRestAgreement = flattenAlignmentContract({
+      agreement_id: 'REST',
+      agresso_contract: { description: 'Nested only' }
+    } as never);
+    expect(flattenedRestAgreement.agreement_id).toBe('REST');
+
+    const catalogFromFlattened = enrichPortfolio2Contracts(
+      [{ agreement_id: 'A600', description: 'Six', is_primary: true } as never],
+      [{ contract_id: 'A600', agreement_id: 'A600' } as never]
+    );
+    expect(catalogFromFlattened[0].select_label).toBe('A600 - Six');
+    expect(catalogFromFlattened[0].is_primary).toBe(true);
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: undefined as never,
+          result_sdgs: [{ id: 20, clarisa_sdg_id: 20 } as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: undefined as never,
+          strategic_objectives: undefined as never,
+          impact_outcomes: undefined as never
+        },
+        false,
+        true
+      )
+    ).toEqual({
+      contracts: [],
+      result_sdgs: [{ clarisa_sdg_id: 20 }],
+      research_areas: [],
+      strategic_objectives: []
+    });
+
+    expect(enrichAlignmentSdgTargets([0, { sdg_target_id: 11 }])).toEqual([{ sdg_target_id: 11 }]);
+  });
+
+  it('covers optional chaining fallbacks across mapper helpers', () => {
+    expect(
+      normalizePortfolio2AlignmentGet({
+        result_sdgs: [{ sdg_id: 21 } as never],
+        strategic_objectives: [{ strategic_objective_id: 9 }],
+        impact_outcomes: [{ impact_outcome_id: 8 }]
+      }, {
+        sdgs: [{ clarisa_sdg_id: 21, id: 21 } as never],
+        strategicObjectives: [{ id: 9, name: 'Catalog name' }],
+        impactOutcomes: [{ id: 8, name: 'Catalog IO' }]
+      })
+    ).toMatchObject({
+      result_sdgs: [{ id: 21, clarisa_sdg_id: 21, sdg_id: 21 }],
+      strategic_objectives: [{ id: 9, name: 'Catalog name' }],
+      impact_outcomes: [{ id: 8, name: 'Catalog IO' }]
+    });
+
+    expect(
+      enrichResearchAreas(
+        [{ id: 17, full_name: undefined, short_name: undefined } as never],
+        [{ lever_id: 17, full_name: 'Catalog full', short_name: 'Catalog short' } as never]
+      )[0]
+    ).toMatchObject({ full_name: 'Catalog full', short_name: 'Catalog short' });
+
+    expect(enrichAlignmentSdgTargets([{ sdg_target_id: 14 }], [{ id: 14, sdg_target_id: 14, select_label: '14' }])).toEqual([
+      { id: 14, sdg_target_id: 14, select_label: '14' }
+    ]);
+
+    const fromCatalogAgreement = enrichPortfolio2Contracts(
+      [{ agreement_id: 'A700', description: 'Seven' } as never],
+      [{ agreement_id: 'A700' } as never]
+    );
+    expect(fromCatalogAgreement[0].contract_id).toBe('A700');
+    expect(fromCatalogAgreement[0].select_label).toBe('A700 - Seven');
+
+    const fromCatalogNoDescription = enrichPortfolio2Contracts(
+      [{ agreement_id: 'A800' } as never],
+      [{ agreement_id: 'A800' } as never]
+    );
+    expect(fromCatalogNoDescription[0].select_label).toBe('A800');
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [{ id: 25 } as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: [{ id: 9 }]
+        },
+        true
+      ).impact_outcomes
+    ).toEqual([{ impact_outcome_id: 9 }]);
+  });
+
+  it('covers final optional-coalescing branches in mapper helpers', () => {
+    expect(
+      normalizePortfolio2AlignmentGet({
+        result_sdgs: [{ clarisa_sdg_id: 31 } as never]
+      }, {
+        sdgs: [{ id: 31, clarisa_sdg_id: 31 } as never]
+      }).result_sdgs[0]
+    ).toMatchObject({ id: 31, clarisa_sdg_id: 31, sdg_id: 31 });
+
+    expect(
+      enrichResearchAreas(
+        [{ lever_id: 18, id: 19, full_name: 'Area' } as never],
+        [{ id: 18, full_name: 'Catalog', short_name: 'C' } as never]
+      )[0].lever_id
+    ).toBe(18);
+
+    expect(enrichAlignmentSdgTargets([{ id: 16 }])).toEqual([{ id: 16, sdg_target_id: 16 }]);
+
+    expect(
+      enrichResultSdgs([{ clarisa_sdg_id: 32 } as never], [{ id: 32, clarisa_sdg_id: 32 } as never])[0]
+    ).toMatchObject({ id: 32, clarisa_sdg_id: 32 });
+
+    expect(
+      normalizePortfolio2AlignmentGet({
+        strategic_objectives: [{ strategic_objective_id: 11 }],
+        impact_outcomes: [{ impact_outcome_id: 12 }]
+      }, {
+        strategicObjectives: [{ id: 11, name: 'SO catalog' }],
+        impactOutcomes: [{ id: 12, name: 'IO catalog' }]
+      })
+    ).toMatchObject({
+      strategic_objectives: [{ id: 11, name: 'SO catalog' }],
+      impact_outcomes: [{ id: 12, name: 'IO catalog' }]
+    });
+
+    const catalogUsesFlattenedAgreement = enrichPortfolio2Contracts(
+      [{ agreement_id: 'A900', description: 'Nine' } as never],
+      [{ contract_id: 'A900' } as never]
+    );
+    expect(catalogUsesFlattenedAgreement[0].agreement_id).toBe('A900');
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [{ clarisa_sdg_id: 40 } as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: [{ impact_outcome_id: 13 }]
+        },
+        true
+      )
+    ).toMatchObject({
+      result_sdgs: [{ clarisa_sdg_id: 40 }],
+      impact_outcomes: [{ impact_outcome_id: 13 }]
+    });
+  });
+
+  it('hits remaining right-hand coalescing branches', () => {
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [{ sdg_id: 55 } as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: [{ id: 14 }]
+        },
+        true
+      )
+    ).toMatchObject({
+      result_sdgs: [{ clarisa_sdg_id: 55 }],
+      impact_outcomes: [{ impact_outcome_id: 14 }]
+    });
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [{ id: 26 } as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: []
+        },
+        false
+      ).result_sdgs
+    ).toEqual([{ clarisa_sdg_id: 26 }]);
+
+    expect(enrichResultSdgs([{ clarisa_sdg_id: 33 } as never])).toEqual([
+      expect.objectContaining({ id: 33, clarisa_sdg_id: 33 })
+    ]);
+
+    expect(
+      enrichResultSdgs([{ id: 35, sdg_id: 77 } as never], [{ id: 35, clarisa_sdg_id: 88 } as never])[0]
+    ).toMatchObject({ clarisa_sdg_id: 35, sdg_id: 77 });
+
+    expect(enrichAlignmentSdgTargets([{ sdg_target_id: 24 }])).toEqual([{ sdg_target_id: 24 }]);
+    expect(enrichAlignmentSdgTargets([{ sdg_target_id: 23 }], [{ id: 23 } as never])).toEqual([
+      { id: 23, sdg_target_id: 23 }
+    ]);
+
+    expect(
+      enrichResearchAreas([{ lever_id: 27 } as never], [{ id: 27, full_name: 'Full', short_name: 'Short' } as never])[0]
+    ).toMatchObject({ lever_id: 27, short_name: 'Short' });
+
+    expect(
+      normalizePortfolio2AlignmentGet(
+        { strategic_objectives: [{ strategic_objective_id: 15 }] },
+        { strategicObjectives: [{ id: 15, name: 'Catalog only' }] }
+      ).strategic_objectives[0].name
+    ).toBe('Catalog only');
+
+    expect(
+      enrichPortfolio2Contracts([{ agreement_id: 'A950', description: 'Nine fifty' } as never], [{ contract_id: 'A950' } as never])[0]
+        .agreement_id
+    ).toBe('A950');
+
+    expect(normalizePortfolio2AlignmentGet({ result_sdgs: [{} as never] }).result_sdgs).toEqual([]);
+    expect(enrichAlignmentSdgTargets([{ id: '24' }])).toEqual([{ id: '24', sdg_target_id: 24 }]);
+    expect(
+      normalizePortfolio2AlignmentGet({ strategic_objectives: [{ strategic_objective_id: 99 }] }).strategic_objectives[0].name
+    ).toBe('');
+    expect(
+      enrichPortfolio2Contracts([{ contract_id: 'C1' } as never], [{ contract_id: 'C1' } as never])[0].agreement_id
+    ).toBe('');
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: [{ id: 88 } as never]
+        },
+        true
+      ).impact_outcomes
+    ).toEqual([{ impact_outcome_id: 88 }]);
+  });
+
+  it('maps impact_outcome_id from item id and parses string SDG target ids', () => {
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [{} as never],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: [{ id: 99 } as never]
+        },
+        true
+      )
+    ).toMatchObject({
+      result_sdgs: [],
+      impact_outcomes: [{ impact_outcome_id: 99 }]
+    });
+
+    expect(enrichAlignmentSdgTargets([{ id: '24' }, { sdg_target_id: 25 }])).toEqual([
+      { id: '24', sdg_target_id: 24 },
+      { sdg_target_id: 25 }
+    ]);
+
+    expect(
+      normalizePortfolio2AlignmentGet({ strategic_objectives: [{ strategic_objective_id: 77 }] }).strategic_objectives[0]
+    ).toMatchObject({ id: 77, name: '' });
+
+    expect(
+      buildPortfolio2AlignmentPatch(
+        {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [],
+          contributor_levers: [],
+          research_areas: [],
+          strategic_objectives: [],
+          impact_outcomes: undefined as never
+        },
+        true
+      ).impact_outcomes
+    ).toEqual([]);
+
+    expect(enrichAlignmentSdgTargets([{ sdg_target_id: '27' }])).toEqual([{ sdg_target_id: 27 }]);
+    expect(enrichAlignmentSdgTargets([{ id: '' }, { id: 'not-a-number' }])).toEqual([]);
   });
 });

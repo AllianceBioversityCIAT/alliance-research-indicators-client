@@ -354,8 +354,20 @@ export class ApiService {
     return this.TP.getBlob('reports/resultCenter/xlsx', { params });
   };
 
-  GET_ResultPdfReport = async (resultCode: string | number, reportingPlatform = 'STAR'): Promise<MainResponse<string>> => {
-    const params = new HttpParams().set('is-html', 'false').set('report_name', 'cap_sharing').set('reportingPlatforms', reportingPlatform);
+  GET_ResultPdfReport = async (
+    resultCode: string | number,
+    reportingPlatform = 'STAR',
+    reportYear?: number | string | null,
+    reportName = 'cap_sharing'
+  ): Promise<MainResponse<string>> => {
+    let params = new HttpParams()
+      .set('is-html', 'false')
+      .set('report_name', reportName)
+      .set('reportingPlatforms', reportingPlatform);
+
+    if (reportYear != null && String(reportYear).trim() !== '') {
+      params = params.set('reportYear', String(reportYear));
+    }
 
     return this.TP.get(`reports/${encodeURIComponent(String(resultCode))}/pdf`, { params });
   };

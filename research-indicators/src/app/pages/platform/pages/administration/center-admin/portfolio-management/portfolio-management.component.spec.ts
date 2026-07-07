@@ -420,6 +420,126 @@ describe('PortfolioManagementComponent', () => {
     expect(component.filteredPortfolios()).toHaveLength(2);
   });
 
+  it('invokes cancelAction to close the portfolio modal', async () => {
+    await setup([]);
+
+    component.startCreate();
+    modalConfig().portfolioManagement.cancelAction();
+
+    expect(modals.closeModal).toHaveBeenCalledWith('portfolioManagement');
+  });
+
+  it('extracts year from numeric strings when date parsing fails', async () => {
+    await setup([]);
+
+    expect((component as any).extractYear('1e4')).toBe(10000);
+    expect((component as any).extractYear('not-a-year')).toBe(0);
+    expect((component as any).extractYear(null)).toBe(0);
+    expect((component as any).yearToDate(undefined)).toBeNull();
+  });
+
+  it('covers column helpers and portfolio id tracking', async () => {
+    await setup();
+
+    expect(component.trackByPortfolioId(0, portfolio)).toBe(1);
+    expect(component.fixedColumnStyle(120)).toEqual({
+      width: '120px',
+      minWidth: '120px',
+      maxWidth: '120px'
+    });
+    expect(component.descriptionColumnStyle()).toEqual({
+      minWidth: '360px',
+      width: 'auto',
+      maxWidth: 'none'
+    });
+  });
+
+  it('starts edit with missing optional portfolio fields', async () => {
+    await setup([{ portfolio_id: 9, name: undefined, description: undefined, start_year: undefined, end_year: undefined } as Portfolio]);
+
+    component.startEdit(component.portfolios()[0]);
+
+    expect(component.form().name).toBe('');
+    expect(component.form().description).toBe('');
+    expect(component.form().start_year).toBeNull();
+    expect(component.form().end_year).toBeNull();
+  });
+
+  it('uses form years when edited portfolio is missing from the loaded list', async () => {
+    await setup();
+    roles.isSystemAdmin.mockReturnValue(false);
+    component.startEdit(portfolio);
+    component.portfolios.set([]);
+    component.form.update(current => ({
+      ...current,
+      start_year: 2020,
+      end_year: 2040
+    }));
+
+    await component.save();
+
+    expect(api.PATCH_Portfolio).toHaveBeenCalledWith(1, {
+      name: 'Alliance 2026-2030',
+      description: 'New strategy portfolio',
+      start_year: 2020,
+      end_year: 2040
+    });
+  });
+
+  it('deletes unnamed portfolios with fallback confirmation text', async () => {
+    await setup([{ ...portfolio, id: 3, name: '' }]);
+
+    component.delete({ ...portfolio, id: 3, name: '' });
+
+    expect(actions.showGlobalAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        detail: expect.stringContaining('delete this portfolio')
+      })
+    );
+  });
+
+  it('loads an empty list when the API response is not an array', async () => {
+    api.GET_Portfolios.mockResolvedValueOnce({ data: { unexpected: true } });
+
+    await component.load();
+
+    expect(component.portfolios()).toEqual([]);
+  });
+
+  it('sorts portfolios without start years using zero as fallback', async () => {
+    api.GET_Portfolios.mockResolvedValueOnce({
+      data: [
+        { ...portfolio, id: 2, start_year: undefined, end_year: 2030 },
+        { ...portfolio, id: 3, start_year: 2020, end_year: 2025 }
+      ]
+    });
+
+    await component.load();
+
+    expect(component.portfolios().map(item => item.id)).toEqual([2, 3]);
+  });
+
+  it('sorts portfolios with null start years using zero as fallback', async () => {
+    api.GET_Portfolios.mockResolvedValueOnce({
+      data: [
+        { ...portfolio, id: 4, start_year: 2030, end_year: 2035 },
+        { ...portfolio, id: 5, start_year: null, end_year: 2035 }
+      ]
+    });
+
+    await component.load();
+
+    expect(component.portfolios().map(item => item.id)).toEqual([5, 4]);
+  });
+
+  it('ignores confirmDelete when portfolio id is missing', async () => {
+    await setup();
+
+    await (component as any).confirmDelete({ ...portfolio, id: undefined, portfolio_id: undefined });
+
+    expect(api.DELETE_Portfolio).not.toHaveBeenCalled();
+  });
+
   it('configures modal confirm action and disabled state', async () => {
     await setup([]);
 

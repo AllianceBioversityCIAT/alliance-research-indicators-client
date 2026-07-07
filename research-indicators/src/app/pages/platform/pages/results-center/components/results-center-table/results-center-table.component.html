@@ -141,13 +141,19 @@
           } @else if (column.field === 'public_link') {
           <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()"
             (keydown.enter)="$event.stopPropagation()">
-            @if (result.platform_code === 'STAR') {
+            @if (showStarPdfReport(result)) {
+            @if (isStarPdfReportDisabled(result)) {
+            <span aria-hidden="true" class="inline-flex cursor-default opacity-40 text-[#777C83]">
+              <i class="pi pi-file-pdf !text-[18px]"></i>
+            </span>
+            } @else {
             <button type="button" data-public-link-action (click)="openStarPdfReport(result); $event.stopPropagation()"
               pTooltip="Open STAR PDF report" tooltipPosition="left"
               [attr.aria-label]="'Open PDF report for STAR-' + result.result_official_code"
               class="cursor-pointer border-0 bg-transparent p-0 text-[#035BA9]">
-              <i class="pi pi-file-pdf !text-[16px]"></i>
+              <i class="pi pi-file-pdf !text-[18px]"></i>
             </button>
+            }
             } @else if (result.public_link) {
             <button type="button" data-public-link-action
               (click)="openPublicLink(result.public_link); $event.stopPropagation()" [pTooltip]="result.public_link"
@@ -157,7 +163,9 @@
               <i class="pi pi-external-link !text-[16px]"></i>
             </button>
             } @else {
-            <span>None</span>
+            <span aria-hidden="true" class="inline-flex cursor-default opacity-40 text-[#777C83]">
+              <i class="pi pi-file-pdf !text-[18px]"></i>
+            </span>
             }
           </td>
           } @else if (column.field === 'project') {

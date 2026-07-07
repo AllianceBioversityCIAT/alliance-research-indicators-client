@@ -508,6 +508,148 @@ describe('GeneralInformationComponent', () => {
     expect(component.body().title).toBeUndefined();
   });
 
+  describe('hasReportingYearChanged', () => {
+    it('returns false when reporting year is empty', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: undefined }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when reporting year is unchanged', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: 2025 }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when changed year is still inside the portfolio range', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2023' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when portfolio years are not finite', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: undefined, end_year: undefined }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2030' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when next year is not a finite number', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: 'not-a-year' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns true when year moves before portfolio start', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2019' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(true);
+    });
+
+    it('uses report_year from metadata when initial year was not loaded', async () => {
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({
+        data: { title: 'Test', description: 'Desc', keywords: [], user_id: '1' }
+      });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2026' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(true);
+    });
+  });
+
   it('should call getData when version watcher callback is invoked', async () => {
     const vw = TestBed.inject(VersionWatcherService) as jest.Mocked<VersionWatcherService>;
     const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();

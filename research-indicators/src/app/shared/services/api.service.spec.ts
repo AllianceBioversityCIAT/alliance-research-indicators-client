@@ -1998,6 +1998,34 @@ describe('ApiService', () => {
       const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
       expect(params.get('reportingPlatforms')).toBe('STAR');
     });
+
+    it('should include reportYear when provided', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('8', 'STAR', 2026);
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should omit reportYear when not provided', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('8', 'STAR');
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('reportYear')).toBeNull();
+    });
+
+    it('should use inn_dev as report_name when provided', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('8', 'STAR', 2026, 'inn_dev');
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('report_name')).toBe('inn_dev');
+      expect(params.get('reportYear')).toBe('2026');
+    });
   });
 
   describe('Additional GET methods', () => {
