@@ -1697,5 +1697,132 @@ describe('AllianceAlignmentComponent', () => {
       expect(component.body().primary_levers[0].result_lever_sdgs).toEqual([]);
     });
 
+    it('creates custom name signal when getData loads Other lever', async () => {
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true,
+              custom_lever_name: 'Team X'
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      const otherLever = component.body().primary_levers[0];
+      expect(component.getLeverCustomNameSignal(otherLever)().custom_lever_name).toBe('Team X');
+    });
+
+    it('populates sdg child signals from lever fields when present', async () => {
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 1,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true,
+              result_lever_sdgs: [{ id: 3, clarisa_sdg_id: 3, created_at: '', updated_at: '', is_active: true }],
+              result_lever_sdg_targets: [{ sdg_target_id: 30, sdg_target_code: '3.0' }]
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      const lever = component.body().primary_levers[0];
+      const sdgSignal = component.getLeverSdgSignal(lever);
+      expect(sdgSignal().result_lever_sdgs).toHaveLength(1);
+      expect(sdgSignal().result_lever_sdg_targets).toEqual([{ sdg_target_id: 30, sdg_target_code: '3.0' }]);
+    });
+
+    it('defaults Other lever custom name and sdg child signals when fields are missing', async () => {
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      const otherLever = component.body().primary_levers[0];
+      expect(component.getLeverCustomNameSignal(otherLever)().custom_lever_name).toBe('');
+      expect(component.getLeverSdgSignal(otherLever)().result_lever_sdgs).toEqual([]);
+      expect(component.getLeverSdgSignal(otherLever)().result_lever_sdg_targets).toEqual([]);
+    });
+
+    it('uses empty sdg defaults in populateLeverChildSignals when lever omits sdg fields', () => {
+      const bareLever = {
+        lever_id: 77,
+        result_lever_id: 1,
+        result_id: 1,
+        lever_role_id: 1,
+        is_primary: false
+      } as any;
+      (component as any).populateLeverChildSignals([bareLever]);
+
+      expect(component.getLeverSdgSignal(bareLever)().result_lever_sdgs).toEqual([]);
+      expect(component.getLeverSdgSignal(bareLever)().result_lever_sdg_targets).toEqual([]);
+    });
+
+    it('returns Other for lever id 9 in getLeverName', () => {
+      expect(component.getLeverName(9)).toBe('Other');
+    });
+
+    it('delegates markAsPrimary through markAsPrimaryHandler', () => {
+      const contract = { is_primary: false, contract_id: 'c1' };
+      component.body.set({ contracts: [contract as any], result_sdgs: [], primary_levers: [], contributor_levers: [] });
+      component.markAsPrimaryHandler(contract, 'contract');
+      expect(component.body().contracts[0].is_primary).toBe(true);
+    });
+  });
+
+  describe('parseResultLeverSdgTargetEntry / normalizeResultLeverSdgTargets', () => {
+    it('parses numeric and object SDG target entries and drops invalid values', () => {
+      expect(component.parseResultLeverSdgTargetEntry(4)).toEqual({ sdg_target_id: 4 });
+      expect(component.parseResultLeverSdgTargetEntry({ sdg_target_id: 5 })).toEqual({ sdg_target_id: 5 });
+      expect(component.parseResultLeverSdgTargetEntry({ id: '6' })).toEqual({ sdg_target_id: 6 });
+      expect(component.parseResultLeverSdgTargetEntry(null)).toBeNull();
+      expect(component.parseResultLeverSdgTargetEntry({ id: 'bad' })).toBeNull();
+    });
+
+    it('normalizes mixed SDG target arrays preserving object fields', () => {
+      expect(component.normalizeResultLeverSdgTargets('not-array' as any)).toEqual([]);
+      expect(
+        component.normalizeResultLeverSdgTargets([
+          3,
+          { sdg_target_id: 4, sdg_target_code: '2.4' },
+          { id: 'bad' }
+        ])
+      ).toEqual([
+        { sdg_target_id: 3 },
+        { sdg_target_id: 4, sdg_target_code: '2.4' }
+      ]);
+    });
   });
 });

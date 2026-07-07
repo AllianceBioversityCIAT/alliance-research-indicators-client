@@ -75,5 +75,6 @@ describe('AllianceAlignmentP2Component', () => {
   it('should use default input callbacks', () => {
     expect(component.getShortDescription('A long description')).toBe('A long description');
     expect(component.canRemove({ id: 1 })).toBe(true);
+    expect(() => component.markAsPrimary({ is_primary: false, contract_id: '1' }, 'contract')).not.toThrow();
   });
 });
