@@ -141,7 +141,7 @@
           } @else if (column.field === 'public_link') {
           <td class="{{ column.minWidth }} {{ column.maxWidth }} align-center" (click)="$event.stopPropagation()"
             (keydown.enter)="$event.stopPropagation()">
-            @if (result.platform_code === 'STAR') {
+            @if (showStarPdfReport(result)) {
             <button type="button" data-public-link-action (click)="openStarPdfReport(result); $event.stopPropagation()"
               pTooltip="Open STAR PDF report" tooltipPosition="left"
               [attr.aria-label]="'Open PDF report for STAR-' + result.result_official_code"

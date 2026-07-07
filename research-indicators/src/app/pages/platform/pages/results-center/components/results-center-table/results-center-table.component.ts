@@ -23,6 +23,11 @@ import { AllModalsService } from '@shared/services/cache/all-modals.service';
 import { CreateResultManagementService } from '@shared/components/all-modals/modals-content/create-result-modal/services/create-result-management.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { openPublicLink } from '@shared/utils/public-link.util';
+import {
+  getStarReportViewerUrl,
+  isStarPdfReportEligible,
+  openStarPdfReportInNewTab
+} from '@shared/utils/star-pdf-report.util';
 @Component({
   selector: 'app-results-center-table',
   imports: [
@@ -203,36 +208,15 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
   }
 
   openStarPdfReport(result: Result): void {
-    const reportWindow = globalThis.open(this.getStarReportViewerUrl(result), '_blank', 'noopener,noreferrer');
-    if (reportWindow) reportWindow.opener = null;
+    openStarPdfReportInNewTab(this.getStarReportViewerUrl(result));
+  }
+
+  showStarPdfReport(result: Result): boolean {
+    return isStarPdfReportEligible(result);
   }
 
   getStarReportViewerUrl(result: Result): string {
-    const resultCode = this.getStarFrontendResultCode(result);
-    const version = this.getStarReportYear(result);
-    const query = version ? `?version=${encodeURIComponent(String(version))}` : '';
-    return `/reports/result/${encodeURIComponent(resultCode)}${query}`;
-  }
-
-  private getStarFrontendResultCode(result: Result): string {
-    const officialCode = String(result.result_official_code ?? '').trim();
-    if (officialCode.toUpperCase().startsWith(`${PLATFORM_CODES.STAR}-`)) {
-      return officialCode;
-    }
-    return `${PLATFORM_CODES.STAR}-${officialCode}`;
-  }
-
-  private getStarReportYear(result: Result): number | null {
-    if (typeof result.report_year_id === 'number') {
-      return result.report_year_id;
-    }
-
-    if (Array.isArray(result.snapshot_years) && result.snapshot_years.length > 0) {
-      return Math.max(...result.snapshot_years);
-    }
-
-    const parsedYear = Number(result.year);
-    return Number.isFinite(parsedYear) ? parsedYear : null;
+    return getStarReportViewerUrl(result, { includeVersion: false });
   }
 
   showFiltersSidebar() {

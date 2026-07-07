@@ -797,44 +797,74 @@ describe('ResultsCenterTableComponent', () => {
     consoleErrorSpy.mockRestore();
   });
 
-  it('getStarReportViewerUrl should include STAR result code and version', () => {
-    expect(component.getStarReportViewerUrl({ ...mockResult, platform_code: 'STAR' })).toBe('/reports/result/STAR-7?version=2024');
+  it('showStarPdfReport should require STAR platform and supported indicators', () => {
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(true);
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 2 })).toBe(true);
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 4 })).toBe(false);
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'PRMS', indicator_id: 1 })).toBe(false);
   });
 
-  it('getStarReportViewerUrl should not duplicate STAR prefix', () => {
-    expect(component.getStarReportViewerUrl({ ...mockResult, result_official_code: 'STAR-7', platform_code: 'STAR' })).toBe(
-      '/reports/result/STAR-7?version=2024'
+  it('getStarReportViewerUrl should include STAR result code and report_name without version from results center', () => {
+    expect(component.getStarReportViewerUrl({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(
+      '/reports/result/STAR-7?report_name=cap_sharing'
     );
   });
 
-  it('getStarReportViewerUrl should use the latest snapshot year when report_year_id is missing', () => {
-    const result = { ...mockResult, report_year_id: undefined, snapshot_years: [2022, 2026, 2024], platform_code: 'STAR' };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?version=2026');
+  it('getStarReportViewerUrl should not duplicate STAR prefix', () => {
+    expect(
+      component.getStarReportViewerUrl({ ...mockResult, result_official_code: 'STAR-7', platform_code: 'STAR', indicator_id: 1 })
+    ).toBe('/reports/result/STAR-7?report_name=cap_sharing');
   });
 
-  it('getStarReportViewerUrl should use year when report_year_id and snapshot years are missing', () => {
-    const result = { ...mockResult, report_year_id: undefined, snapshot_years: [], year: '2025', platform_code: 'STAR' };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?version=2025');
+  it('getStarReportViewerUrl should omit version even when snapshot years are available', () => {
+    const result = {
+      ...mockResult,
+      report_year_id: undefined,
+      snapshot_years: [2022, 2026, 2024],
+      platform_code: 'STAR',
+      indicator_id: 2
+    };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?report_name=inn_dev');
+  });
+
+  it('getStarReportViewerUrl should omit version even when year is available', () => {
+    const result = {
+      ...mockResult,
+      report_year_id: undefined,
+      snapshot_years: [],
+      year: '2025',
+      platform_code: 'STAR',
+      indicator_id: 1
+    };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?report_name=cap_sharing');
   });
 
   it('getStarReportViewerUrl should handle missing official code', () => {
-    const result = { ...mockResult, result_official_code: undefined, platform_code: 'STAR' };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-?version=2024');
+    const result = { ...mockResult, result_official_code: undefined, platform_code: 'STAR', indicator_id: 1 };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-?report_name=cap_sharing');
   });
 
-  it('getStarReportViewerUrl should omit version when no report year is available', () => {
-    const result = { ...mockResult, result_official_code: 8, report_year_id: undefined, snapshot_years: [], year: undefined };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8');
+  it('getStarReportViewerUrl should only include report_name when no report year is available', () => {
+    const result = {
+      ...mockResult,
+      result_official_code: 8,
+      report_year_id: undefined,
+      snapshot_years: [],
+      year: undefined,
+      platform_code: 'STAR',
+      indicator_id: 2
+    };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8?report_name=inn_dev');
   });
 
   it('openStarPdfReport should open the internal STAR report viewer URL in a new tab', () => {
     const openedWindow = { opener: {} };
     const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue(openedWindow as any);
 
-    component.openStarPdfReport({ ...mockResult, platform_code: 'STAR' });
+    component.openStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 1 });
 
     expect(mockApiService.GET_ResultPdfReport).not.toHaveBeenCalled();
-    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-7?version=2024', '_blank', 'noopener,noreferrer');
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-7?report_name=cap_sharing', '_blank', 'noopener,noreferrer');
     expect(openedWindow.opener).toBeNull();
 
     openSpy.mockRestore();
