@@ -12,12 +12,18 @@ describe('StarReportViewerComponent', () => {
   const setup = async (
     id: string | null = 'STAR-8',
     version: string | null = '2026',
-    options?: { pdfResponse?: { data: string }; indicatorId?: number; metadataStatus?: number; metadataData?: unknown }
+    options?: {
+      pdfResponse?: { data: string };
+      indicatorId?: number;
+      metadataStatus?: number;
+      metadataData?: unknown;
+      emptyMetadataData?: boolean;
+    }
   ) => {
     api = {
       GET_Metadata: jest.fn().mockResolvedValue({
         status: options?.metadataStatus ?? 200,
-        data: options?.metadataData ?? { indicator_id: options?.indicatorId ?? 1 }
+        data: options?.emptyMetadataData ? null : (options?.metadataData ?? { indicator_id: options?.indicatorId ?? 1 })
       }),
       GET_ResultPdfReport: jest.fn().mockResolvedValue(options?.pdfResponse ?? { data: 'https://reports.example.com/star-8.pdf' })
     };
@@ -119,6 +125,86 @@ describe('StarReportViewerComponent', () => {
 
     expect(api.GET_ResultPdfReport).not.toHaveBeenCalled();
     expect(component.errorMessage()).toBe('PDF report is not available for this indicator.');
+  });
+
+  it('should invoke loadPdf from ngOnInit', async () => {
+    api = {
+      GET_Metadata: jest.fn().mockResolvedValue({ status: 200, data: { indicator_id: 1 } }),
+      GET_ResultPdfReport: jest.fn().mockResolvedValue({ data: 'https://reports.example.com/star-8.pdf' })
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [StarReportViewerComponent],
+      providers: [
+        { provide: ApiService, useValue: api },
+        {
+          provide: DomSanitizer,
+          useValue: {
+            bypassSecurityTrustResourceUrl: jest.fn((url: string) => url)
+          }
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ id: 'STAR-8' }),
+              queryParamMap: convertToParamMap({ version: '2026' })
+            }
+          }
+        }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(StarReportViewerComponent);
+    component = fixture.componentInstance;
+    const loadPdfSpy = jest.spyOn(component as any, 'loadPdf').mockResolvedValue(undefined);
+
+    component.ngOnInit();
+    await fixture.whenStable();
+
+    expect(loadPdfSpy).toHaveBeenCalled();
+    loadPdfSpy.mockRestore();
+  });
+
+  it('should reject invalid numeric result codes', async () => {
+    await setup('STAR-abc', '2026');
+
+    expect(api.GET_Metadata).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBe('The STAR result code is missing or invalid.');
+  });
+
+  it('should reject zero as numeric result code', async () => {
+    await setup('STAR-0', '2026');
+
+    expect(api.GET_Metadata).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBe('The STAR result code is missing or invalid.');
+  });
+
+  it('should reject STAR prefix without official code', async () => {
+    await setup('STAR-', '2026');
+
+    expect(api.GET_Metadata).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBe('The STAR result code is missing or invalid.');
+  });
+
+  it('should omit reportYear when version is blank whitespace', async () => {
+    await setup('STAR-8', '   ');
+
+    expect(api.GET_ResultPdfReport).toHaveBeenCalledWith('8', 'STAR', null, 'cap_sharing');
+  });
+
+  it('should show an error when metadata response has no data on success status', async () => {
+    await setup('STAR-8', '2026', { emptyMetadataData: true });
+
+    expect(api.GET_ResultPdfReport).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBe('We could not load the result metadata. Please try again.');
+  });
+
+  it('should reject non-hyphen numeric zero result code', async () => {
+    await setup('0', '2026');
+
+    expect(api.GET_Metadata).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBe('The STAR result code is missing or invalid.');
   });
 
   it('should show an error when generating the PDF fails', async () => {
