@@ -5,8 +5,10 @@ import {
   getStarReportViewerUrl,
   getStarReportYear,
   INNOVATION_DEVELOPMENT_INDICATOR_ID,
+  isStarInnDevPdfTemporarilyDisabled,
   isStarPdfReportEligible,
-  isStarPdfReportEligibleFromResultId
+  isStarPdfReportEligibleFromResultId,
+  STAR_INN_DEV_PDF_ENABLED
 } from './star-pdf-report.util';
 
 describe('star-pdf-report.util', () => {
@@ -14,6 +16,11 @@ describe('star-pdf-report.util', () => {
     expect(getStarPdfReportName(CAPACITY_SHARING_INDICATOR_ID)).toBe('cap_sharing');
     expect(getStarPdfReportName(INNOVATION_DEVELOPMENT_INDICATOR_ID)).toBe('inn_dev');
     expect(getStarPdfReportName(4)).toBeNull();
+  });
+
+  it('isStarInnDevPdfTemporarilyDisabled should reflect STAR_INN_DEV_PDF_ENABLED flag', () => {
+    expect(isStarInnDevPdfTemporarilyDisabled(INNOVATION_DEVELOPMENT_INDICATOR_ID)).toBe(!STAR_INN_DEV_PDF_ENABLED);
+    expect(isStarInnDevPdfTemporarilyDisabled(CAPACITY_SHARING_INDICATOR_ID)).toBe(false);
   });
 
   it('isStarPdfReportEligible should require STAR platform and supported indicator', () => {
@@ -44,7 +51,7 @@ describe('star-pdf-report.util', () => {
     expect(getStarFrontendResultCode(undefined, 'STAR-9')).toBe('STAR-9');
   });
 
-  it('getStarReportViewerUrl should include version and report_name query params', () => {
+  it('getStarReportViewerUrl should include version query param when requested', () => {
     expect(
       getStarReportViewerUrl({
         platform_code: 'STAR',
@@ -52,7 +59,7 @@ describe('star-pdf-report.util', () => {
         result_official_code: 7,
         report_year_id: 2024
       })
-    ).toBe('/reports/result/STAR-7?version=2024&report_name=cap_sharing');
+    ).toBe('/reports/result/STAR-7?version=2024');
 
     expect(
       getStarReportViewerUrl({
@@ -61,7 +68,7 @@ describe('star-pdf-report.util', () => {
         result_official_code: 8,
         report_year_id: 2026
       })
-    ).toBe('/reports/result/STAR-8?version=2026&report_name=inn_dev');
+    ).toBe('/reports/result/STAR-8?version=2026');
   });
 
   it('getStarReportViewerUrl should omit version when includeVersion is false', () => {
@@ -75,6 +82,6 @@ describe('star-pdf-report.util', () => {
         },
         { includeVersion: false }
       )
-    ).toBe('/reports/result/STAR-7?report_name=cap_sharing');
+    ).toBe('/reports/result/STAR-7');
   });
 });
