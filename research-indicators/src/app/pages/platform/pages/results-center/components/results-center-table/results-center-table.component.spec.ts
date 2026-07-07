@@ -804,16 +804,28 @@ describe('ResultsCenterTableComponent', () => {
     expect(component.showStarPdfReport({ ...mockResult, platform_code: 'PRMS', indicator_id: 1 })).toBe(false);
   });
 
-  it('getStarReportViewerUrl should include STAR result code and report_name without version from results center', () => {
+  it('isStarPdfReportDisabled should disable inn_dev PDF temporarily', () => {
+    expect(component.isStarPdfReportDisabled({ ...mockResult, platform_code: 'STAR', indicator_id: 2 })).toBe(true);
+    expect(component.isStarPdfReportDisabled({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(false);
+  });
+
+  it('openStarPdfReport should not open when inn_dev PDF is temporarily disabled', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    component.openStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 2 });
+    expect(openSpy).not.toHaveBeenCalled();
+    openSpy.mockRestore();
+  });
+
+  it('getStarReportViewerUrl should include STAR result code without version from results center', () => {
     expect(component.getStarReportViewerUrl({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(
-      '/reports/result/STAR-7?report_name=cap_sharing'
+      '/reports/result/STAR-7'
     );
   });
 
   it('getStarReportViewerUrl should not duplicate STAR prefix', () => {
     expect(
       component.getStarReportViewerUrl({ ...mockResult, result_official_code: 'STAR-7', platform_code: 'STAR', indicator_id: 1 })
-    ).toBe('/reports/result/STAR-7?report_name=cap_sharing');
+    ).toBe('/reports/result/STAR-7');
   });
 
   it('getStarReportViewerUrl should omit version even when snapshot years are available', () => {
@@ -824,7 +836,7 @@ describe('ResultsCenterTableComponent', () => {
       platform_code: 'STAR',
       indicator_id: 2
     };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?report_name=inn_dev');
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7');
   });
 
   it('getStarReportViewerUrl should omit version even when year is available', () => {
@@ -836,15 +848,15 @@ describe('ResultsCenterTableComponent', () => {
       platform_code: 'STAR',
       indicator_id: 1
     };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7?report_name=cap_sharing');
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7');
   });
 
   it('getStarReportViewerUrl should handle missing official code', () => {
     const result = { ...mockResult, result_official_code: undefined, platform_code: 'STAR', indicator_id: 1 };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-?report_name=cap_sharing');
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-');
   });
 
-  it('getStarReportViewerUrl should only include report_name when no report year is available', () => {
+  it('getStarReportViewerUrl should build a clean URL when no report year is available', () => {
     const result = {
       ...mockResult,
       result_official_code: 8,
@@ -854,7 +866,7 @@ describe('ResultsCenterTableComponent', () => {
       platform_code: 'STAR',
       indicator_id: 2
     };
-    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8?report_name=inn_dev');
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8');
   });
 
   it('openStarPdfReport should open the internal STAR report viewer URL in a new tab', () => {
@@ -864,7 +876,7 @@ describe('ResultsCenterTableComponent', () => {
     component.openStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 1 });
 
     expect(mockApiService.GET_ResultPdfReport).not.toHaveBeenCalled();
-    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-7?report_name=cap_sharing', '_blank', 'noopener,noreferrer');
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-7', '_blank', 'noopener,noreferrer');
     expect(openedWindow.opener).toBeNull();
 
     openSpy.mockRestore();

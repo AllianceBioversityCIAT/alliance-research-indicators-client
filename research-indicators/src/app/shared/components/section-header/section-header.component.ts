@@ -20,6 +20,7 @@ import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.se
 import { PLATFORM_CODES } from '@shared/constants/platform-codes';
 import {
   getStarReportViewerUrl,
+  isStarInnDevPdfTemporarilyDisabled,
   isStarPdfReportEligibleFromResultId,
   openStarPdfReportInNewTab
 } from '@shared/utils/star-pdf-report.util';
@@ -61,6 +62,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     const resultId = this.cache.currentResultId() || this.currentResultId();
     return isStarPdfReportEligibleFromResultId(this.cache.currentMetadata()?.indicator_id, resultId);
   });
+  starPdfReportDisabled = computed(() => isStarInnDevPdfTemporarilyDisabled(this.cache.currentMetadata()?.indicator_id));
   resultTitle = signal('');
   items = computed((): MenuItem[] => {
     const deleteOption: MenuItem = {
@@ -164,6 +166,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
   }
 
   openStarPdfReport(): void {
+    if (this.starPdfReportDisabled()) return;
     const metadata = this.cache.currentMetadata();
     const resultId = this.cache.currentResultId() || this.currentResultId();
     const versionFromUrl = this.route.snapshot.queryParamMap.get('version')?.trim() ?? '';
@@ -291,8 +294,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
     const pageId = segments[2];
     const title =
-      this.whatsNewService.getActiveReleaseNoteTitle() ||
-      this.whatsNewService.getReleaseNoteTitle(this.whatsNewService.findReleaseNoteById(pageId));
+      this.whatsNewService.getActiveReleaseNoteTitle() || this.whatsNewService.getReleaseNoteTitle(this.whatsNewService.findReleaseNoteById(pageId));
     return [
       { label: 'Release Notes', route: '/whats-new' },
       { label: title || 'Release note', tooltip: title || undefined }
