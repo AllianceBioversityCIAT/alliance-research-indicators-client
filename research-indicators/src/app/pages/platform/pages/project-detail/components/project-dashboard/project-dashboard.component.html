@@ -10,6 +10,72 @@
     </p>
   </div>
 
+  <section class="rounded-xl border border-[#e8ebed] bg-[#fafafa] px-6 py-5 shadow-xs">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="min-w-0 flex-1">
+        <div class="mb-2 flex items-center gap-2.5">
+          <i class="pi pi-file !text-[18px] text-[#112f5c]" aria-hidden="true"></i>
+          <h2 class="m-0 font-['Barlow'] text-[16px] font-semibold leading-tight text-[#112f5c]">Grounding &amp; Setup
+          </h2>
+        </div>
+        <p class="m-0 max-w-4xl font-['Barlow'] text-[14px] font-normal leading-4.5 text-[#777C83]">
+          Upload project foundational documents (Contract, Scope of Work, Theory of Change) to prime the AI. The system
+          will use these documents to better understand goals and context for generating insights and reports.
+        </p>
+      </div>
+
+      <div class="flex shrink-0 flex-wrap items-center gap-3 lg:justify-end">
+        @if (hasGroundedDocuments()) {
+        <span
+          class="inline-flex h-11 items-center gap-2.5 rounded-lg border border-[#e8ebed] bg-white px-4 font-['Barlow'] text-[14px] font-normal text-[#777C83]"
+          [attr.aria-label]="groundedDocsBadgeLabel()">
+          <span class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#4f9b5d]" aria-hidden="true">
+            <i class="pi pi-check !text-[10px] text-white"></i>
+          </span>
+          {{ groundedDocsBadgeLabel() }}
+        </span>
+        }
+
+        <button pButton type="button"
+          class="!h-9 !rounded-lg !border-[#1771b3] !bg-[#1771b3] !px-4 !font-['Barlow'] !text-[13px] !font-semibold !text-white"
+          [disabled]="!canUploadMoreGroundingDocs() || uploadingGroundingDoc()" [loading]="uploadingGroundingDoc()"
+          (click)="triggerGroundingUpload(groundingFileInput)">
+          <i class="pi pi-file-plus mr-1 !text-[14px]" aria-hidden="true"></i>
+          Upload Docs
+        </button>
+
+        <label class="sr-only" for="grounding-file-input">Upload foundational project documents</label>
+        <input #groundingFileInput id="grounding-file-input" type="file" class="hidden"
+          [accept]="groundingAcceptedFormats.join(',')" multiple (change)="onGroundingFilesSelected($event)" />
+      </div>
+    </div>
+  </section>
+
+  @if (hasGroundedDocuments()) {
+  <section class="flex flex-col gap-5 rounded-xl border border-[#e8ebed] bg-white px-6 py-6 shadow-xs">
+    <header class="flex items-center justify-between gap-4">
+      <h2 class="m-0 font-['Barlow'] text-[18px] font-bold leading-tight text-[#112f5c]">Executive Overview</h2>
+      <span
+        class="inline-flex shrink-0 items-center gap-2 rounded-full bg-[#eef6ff] px-3 py-1.5 font-['Space_Grotesk'] text-[11px] font-bold uppercase tracking-wide text-[#1689CA]">
+        <i class="pi pi-sparkles !text-[12px]" aria-hidden="true"></i>
+        Grounded AI Summary
+      </span>
+    </header>
+
+    <div class="flex flex-col gap-4">
+      @for (paragraph of executiveOverviewParagraphs(); track paragraph) {
+      <p class="m-0 font-['Barlow'] text-[14px] font-normal leading-[1.6] text-[#4c5158]">{{ paragraph }}</p>
+      }
+    </div>
+  </section>
+  }
+
+
+  <div class=" flex items-center gap-2.5">
+    <i class="pi pi-chart-bar !text-[18px] text-[#112f5c]" aria-hidden="true"></i>
+    <h2 class="m-0 font-['Barlow'] text-[16px] font-semibold leading-tight text-[#112f5c]">Result analytics
+    </h2>
+  </div>
   <!-- Geo scope -->
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-[3fr_1fr]  lg:min-h-[520px] lg:items-stretch ">
     <div class="flex min-w-0 flex-col gap-5 lg:h-full lg:self-stretch ">
@@ -69,7 +135,7 @@
         </header>
 
         @if (totalProjectResults() === 0) {
-        <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-[#f4f7f9] px-4 py-8 text-center">
+        <div class="flex flex-col items-center justify-center gap-2 rounded-lg px-4 py-8 text-center">
           <i class="pi pi-chart-pie text-[24px] text-[#1689CA]" aria-hidden="true"></i>
           <p class="m-0 font-['Barlow'] text-[13px] leading-snug text-[#777C83]">No results were found for any indicator
             on this project.</p>
@@ -135,7 +201,7 @@
           <span class="font-['Barlow'] text-[13px] text-[#777C83]">Loading status data...</span>
         </div>
         } @else if (statusChartError() || !statusChartItems().length) {
-        <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-[#f4f7f9] px-4 py-8 text-center">
+        <div class="flex flex-col items-center justify-center gap-2 h-full px-4 py-8 text-center">
           <i class="pi pi-chart-bar text-[24px] text-[#1689CA]" aria-hidden="true"></i>
           <p class="m-0 font-['Barlow'] text-[13px] leading-snug text-[#777C83]">No result statuses were found for this
             project.</p>

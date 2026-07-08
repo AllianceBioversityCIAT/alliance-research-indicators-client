@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
 import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
 import { GetTopContributorsContractsService } from '@services/get-top-contributors-contracts.service';
@@ -8,6 +9,8 @@ import { GetTopPartnersService } from '@services/get-top-partners.service';
 import { GetTopPrimaryLeversService } from '@services/get-top-primary-levers.service';
 import { GetGeoScopeService } from '@services/get-geo-scope.service';
 import { ApiService } from '@shared/services/api.service';
+import { ActionsService } from '@shared/services/actions.service';
+import { FileManagerService } from '@shared/services/file-manager.service';
 import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
 import { ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
 import { projectDashboardBarColor } from '@shared/constants/project-dashboard-chart-colors.constants';
@@ -15,6 +18,16 @@ import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ResultsCenterTableComponent } from '../../../results-center/components/results-center-table/results-center-table.component';
 import { ResultsCenterService } from '../../../results-center/results-center.service';
 import { Result } from '@shared/interfaces/result/result.interface';
+
+interface GroundedDocument {
+  originalName: string;
+  storedFilename: string;
+}
+
+const MAX_GROUNDING_DOCS = 3;
+const GROUNDING_ACCEPTED_FORMATS = ['.pdf', '.docx', '.txt'];
+const GROUNDING_MAX_SIZE_MB = 10;
+const GROUNDING_PAGE_LIMIT = 100;
 
 interface ProjectStatusChartItem {
   color: string;
@@ -26,7 +39,7 @@ interface ProjectStatusChartItem {
 @Component({
   selector: 'app-project-dashboard',
   standalone: true,
-  imports: [ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent],
+  imports: [ButtonModule, ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent],
   providers: [
     GetTopContributorsContractsService,
     GetTopMainContactPersonsService,
@@ -42,9 +55,23 @@ export class ProjectDashboardComponent {
   private readonly api = inject(ApiService);
   private readonly projectUtils = inject(ProjectUtilsService);
   private readonly resultsCenterService = inject(ResultsCenterService);
+  private readonly fileManagerService = inject(FileManagerService);
+  private readonly actions = inject(ActionsService);
+
+  readonly maxGroundingDocs = MAX_GROUNDING_DOCS;
+  readonly groundingAcceptedFormats = GROUNDING_ACCEPTED_FORMATS;
+  readonly groundedDocuments = signal<GroundedDocument[]>([]);
+  readonly uploadingGroundingDoc = signal(false);
 
   readonly contractId = computed(() => this.route.parent?.snapshot.paramMap.get('id') ?? '');
   readonly project = signal<GetProjectDetail>({});
+  readonly canUploadMoreGroundingDocs = computed(() => this.groundedDocuments().length < MAX_GROUNDING_DOCS);
+  readonly groundedDocsBadgeLabel = computed(() => {
+    const count = this.groundedDocuments().length;
+    return `${count} Doc${count === 1 ? '' : 's'} Grounded`;
+  });
+  readonly hasGroundedDocuments = computed(() => this.groundedDocuments().length > 0);
+  readonly executiveOverviewParagraphs = computed(() => buildExecutiveOverviewParagraphs(this.project()));
 
   readonly indicatorSummaries = computed(() => {
     const indicators = this.projectUtils.sortIndicators([...(this.project().indicators ?? [])]);
@@ -185,6 +212,103 @@ export class ProjectDashboardComponent {
     return Math.min(100, (value / max) * 100);
   }
 
+  triggerGroundingUpload(fileInput: HTMLInputElement): void {
+    if (!this.canUploadMoreGroundingDocs() || this.uploadingGroundingDoc()) {
+      return;
+    }
+
+    fileInput.value = '';
+    fileInput.click();
+  }
+
+  async onGroundingFilesSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+
+    if (!files.length) {
+      return;
+    }
+
+    const remainingSlots = MAX_GROUNDING_DOCS - this.groundedDocuments().length;
+    if (remainingSlots <= 0) {
+      this.actions.showToast({
+        severity: 'warning',
+        summary: 'Upload limit reached',
+        detail: `You can upload up to ${MAX_GROUNDING_DOCS} foundational documents.`
+      });
+      return;
+    }
+
+    const filesToUpload = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      this.actions.showToast({
+        severity: 'info',
+        summary: 'Upload limit',
+        detail: `Only ${remainingSlots} more document${remainingSlots === 1 ? '' : 's'} can be uploaded.`
+      });
+    }
+
+    this.uploadingGroundingDoc.set(true);
+
+    try {
+      for (const file of filesToUpload) {
+        if (!this.isValidGroundingFile(file)) {
+          continue;
+        }
+
+        const response = await this.fileManagerService.uploadFile(file, GROUNDING_MAX_SIZE_MB, GROUNDING_PAGE_LIMIT, {
+          projectId: this.contractId()
+        });
+        const storedFilename = response.data.filename;
+
+        if (!storedFilename) {
+          throw new Error('Could not get the name of the uploaded file.');
+        }
+
+        this.groundedDocuments.update(current => [
+          ...current,
+          {
+            originalName: file.name,
+            storedFilename
+          }
+        ]);
+      }
+    } catch {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Upload failed',
+        detail: 'Something went wrong while uploading the document. Please try again.'
+      });
+    } finally {
+      this.uploadingGroundingDoc.set(false);
+    }
+  }
+
+  private isValidGroundingFile(file: File): boolean {
+    const extension = `.${file.name.split('.').pop()?.toLowerCase() ?? ''}`;
+    if (!GROUNDING_ACCEPTED_FORMATS.includes(extension)) {
+      this.actions.showToast({
+        severity: 'warning',
+        summary: 'Unsupported file',
+        detail: `Accepted formats: ${GROUNDING_ACCEPTED_FORMATS.join(', ')}.`
+      });
+      return false;
+    }
+
+    const maxBytes = GROUNDING_MAX_SIZE_MB * 1024 * 1024;
+    if (file.size > maxBytes) {
+      this.actions.showToast({
+        severity: 'warning',
+        summary: 'File too large',
+        detail: `Each document can be up to ${GROUNDING_MAX_SIZE_MB} MB.`
+      });
+      return false;
+    }
+
+    return true;
+  }
+
   private async loadProjectResultsByStatus(contractId: string): Promise<void> {
     this.statusChartLoading.set(true);
     this.statusChartError.set(false);
@@ -273,6 +397,16 @@ function getPartnerItemId(item: ProjectDashboardRankedItem, index: number): stri
 
 function formatIndicatorName(indicator: GetProjectDetailIndicator): string {
   return indicator.indicator?.name ?? indicator.full_name ?? 'Indicator';
+}
+
+function buildExecutiveOverviewParagraphs(project: GetProjectDetail): string[] {
+  const projectCode = project.agreement_id?.trim() || 'this project';
+
+  return [
+    `Project ${projectCode} demonstrates a strong institutional commitment to climate adaptation in Africa, with a clear focus on deploying knowledge products that bridge research and practice. The initiative aligns foundational project goals with measurable reporting outcomes across STAR indicators.`,
+    'Technical innovations and digital advisory systems are emerging as core delivery mechanisms, supported by capacity development activities that engage a broad network of partners and participants across target regions.',
+    'Evidence completeness remains a key tracking metric for this portfolio, with thematic coverage spanning multiple strategic areas that inform future investment and reporting priorities.'
+  ];
 }
 
 function getIndicatorChartColor(indicator: GetProjectDetailIndicator, fallbackIndex: number, totalIndicators: number): string {

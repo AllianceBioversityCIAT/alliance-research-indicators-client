@@ -9,6 +9,8 @@ import { GetTopContributorsContractsService } from '@shared/services/get-top-con
 import { GetTopMainContactPersonsService } from '@shared/services/get-top-main-contact-persons.service';
 import { GetTopPartnersService } from '@shared/services/get-top-partners.service';
 import { GetTopPrimaryLeversService } from '@shared/services/get-top-primary-levers.service';
+import { FileManagerService } from '@shared/services/file-manager.service';
+import { ActionsService } from '@shared/services/actions.service';
 import { ProjectDashboardComponent } from './project-dashboard.component';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
 import { ProjectDashboardCardComponent } from '../project-dashboard-card/project-dashboard-card.component';
@@ -119,7 +121,9 @@ describe('ProjectDashboardComponent', () => {
             sortIndicators: jest.fn((items: any[]) => items)
           }
         },
-        { provide: ResultsCenterService, useValue: resultsCenterServiceMock }
+        { provide: ResultsCenterService, useValue: resultsCenterServiceMock },
+        { provide: FileManagerService, useValue: { uploadFile: jest.fn() } },
+        { provide: ActionsService, useValue: { showToast: jest.fn() } }
       ]
     })
       .overrideComponent(ProjectDashboardComponent, {
