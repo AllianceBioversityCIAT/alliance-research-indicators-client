@@ -7,6 +7,11 @@ import { environment } from '@envs/environment';
 export interface FileUploadResponse {
   data: { filename: string };
 }
+
+export interface FileUploadOptions {
+  projectId?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -15,13 +20,16 @@ export class FileManagerService {
 
   constructor(private readonly http: HttpClient) {}
 
-  async uploadFile(file: File, weightLimit: number, pageLimit: number): Promise<FileUploadResponse> {
+  async uploadFile(file: File, weightLimit: number, pageLimit: number, options?: FileUploadOptions): Promise<FileUploadResponse> {
     const formData = new FormData();
     formData.append('file', file, file.name);
 
     formData.append('bucketName', 'ai-services-ibd');
     formData.append('fileName', file.name);
-    formData.append('key', `${environment.keyTextMining}`);
+    const storageKey = options?.projectId
+      ? `${environment.keyProjectOverview}${options.projectId}`
+      : `${environment.keyTextMining}`;
+    formData.append('key', storageKey);
 
     const weightLimitBytes = weightLimit * 1024 * 1024;
     formData.append('weightLimit', weightLimitBytes.toString());
