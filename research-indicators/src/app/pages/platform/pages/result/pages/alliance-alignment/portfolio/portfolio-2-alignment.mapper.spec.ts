@@ -845,4 +845,175 @@ describe('portfolio-2-alignment.mapper', () => {
     expect(enrichAlignmentSdgTargets([{ sdg_target_id: '27' }])).toEqual([{ sdg_target_id: 27 }]);
     expect(enrichAlignmentSdgTargets([{ id: '' }, { id: 'not-a-number' }])).toEqual([]);
   });
+
+  describe('defensive coalescing branches', () => {
+    const originalMap = Array.prototype.map;
+    let mapSpy: jest.SpyInstance;
+
+    afterEach(() => {
+      mapSpy?.mockRestore();
+    });
+
+    it('covers enrichResultSdgs nullish id and catalog fallbacks', () => {
+      let mapCall = 0;
+      mapSpy = jest.spyOn(Array.prototype, 'map').mockImplementation(function <T, U>(this: T[], fn: (value: T, index: number, array: T[]) => U) {
+        mapCall += 1;
+        const source =
+          mapCall === 2
+            ? ([{ id: 61, clarisa_sdg_id: undefined, sdg_id: undefined }] as unknown as T[])
+            : this;
+        return originalMap.call(source, fn);
+      });
+
+      expect(
+        enrichResultSdgs([{ clarisa_sdg_id: 61 } as never], [{ id: 61, clarisa_sdg_id: 99, sdg_id: 100 } as never])[0]
+      ).toMatchObject({
+        id: 61,
+        clarisa_sdg_id: 99,
+        sdg_id: 61
+      });
+    });
+
+    it('covers enrichResultSdgs clarisa_sdg_id fallback when id is nullish', () => {
+      let mapCall = 0;
+      mapSpy = jest.spyOn(Array.prototype, 'map').mockImplementation(function <T, U>(this: T[], fn: (value: T, index: number, array: T[]) => U) {
+        mapCall += 1;
+        const source =
+          mapCall === 2
+            ? ([{ id: undefined, clarisa_sdg_id: 61, sdg_id: undefined }] as unknown as T[])
+            : this;
+        return originalMap.call(source, fn);
+      });
+
+      expect(enrichResultSdgs([{ clarisa_sdg_id: 61 } as never])[0]).toMatchObject({
+        id: 61,
+        clarisa_sdg_id: 61,
+        sdg_id: 61
+      });
+    });
+
+    it('covers buildPortfolio2AlignmentPatch clarisa_sdg_id fallback to id', () => {
+      let mapCall = 0;
+      mapSpy = jest.spyOn(Array.prototype, 'map').mockImplementation(function <T, U>(this: T[], fn: (value: T, index: number, array: T[]) => U) {
+        mapCall += 1;
+        const source =
+          mapCall === 3
+            ? ([{ id: 72, clarisa_sdg_id: undefined }] as unknown as T[])
+            : this;
+        return originalMap.call(source, fn);
+      });
+
+      expect(
+        buildPortfolio2AlignmentPatch(
+          {
+            contracts: [],
+            result_sdgs: [{ id: 72 } as never],
+            primary_levers: [],
+            contributor_levers: [],
+            research_areas: [],
+            strategic_objectives: [],
+            impact_outcomes: []
+          },
+          true
+        ).result_sdgs
+      ).toEqual([{ clarisa_sdg_id: 72 }]);
+    });
+
+    it('covers enrichResearchAreas lever id fallbacks when lever_id is missing', () => {
+      let mapCall = 0;
+      mapSpy = jest.spyOn(Array.prototype, 'map').mockImplementation(function <T, U>(this: T[], fn: (value: T, index: number, array: T[]) => U) {
+        mapCall += 1;
+        const source =
+          mapCall === 2
+            ? ([{ id: 41, lever_id: undefined, full_name: 'Area', short_name: 'A' }] as unknown as T[])
+            : this;
+        return originalMap.call(source, fn);
+      });
+
+      expect(
+        enrichResearchAreas([{ id: 41, full_name: 'Area', short_name: 'A' } as never], [{ id: 41, full_name: 'Catalog', short_name: 'C' } as never])[0]
+      ).toMatchObject({
+        id: 41,
+        lever_id: 41,
+        full_name: 'Area',
+        short_name: 'A'
+      });
+    });
+
+    it('covers enrichResultSdgs sdgId fallback for clarisa_sdg_id', () => {
+      let intercepted = false;
+      mapSpy = jest.spyOn(Array.prototype, 'map').mockImplementation(function <T, U>(this: T[], fn: (value: T, index: number, array: T[]) => U) {
+        const shouldIntercept =
+          !intercepted &&
+          this.length > 0 &&
+          typeof (this[0] as { clarisa_sdg_id?: number }).clarisa_sdg_id === 'number' &&
+          typeof (this[0] as { id?: number }).id === 'number';
+        if (shouldIntercept) {
+          intercepted = true;
+          return originalMap.call(
+            [{ id: 61, clarisa_sdg_id: undefined, sdg_id: undefined }] as unknown as T[],
+            fn
+          );
+        }
+        return originalMap.call(this, fn);
+      });
+
+      expect(enrichResultSdgs([{ id: 61 } as never])[0]).toMatchObject({
+        id: 61,
+        clarisa_sdg_id: 61,
+        sdg_id: 61
+      });
+    });
+
+    it('covers enrichResearchAreas match and area lever id chain fallbacks', () => {
+      const originalFind = Array.prototype.find;
+      let findSpy: jest.SpyInstance;
+      let intercepted = false;
+
+      mapSpy = jest.spyOn(Array.prototype, 'map').mockImplementation(function <T, U>(this: T[], fn: (value: T, index: number, array: T[]) => U) {
+        const shouldIntercept =
+          !intercepted &&
+          this.length > 0 &&
+          typeof (this[0] as { lever_id?: number }).lever_id === 'number' &&
+          typeof (this[0] as { full_name?: string }).full_name === 'string';
+        if (shouldIntercept) {
+          intercepted = true;
+          return originalMap.call(
+            [{ id: 43, lever_id: undefined, full_name: 'Area', short_name: 'A' }] as unknown as T[],
+            fn
+          );
+        }
+        return originalMap.call(this, fn);
+      });
+
+      findSpy = jest.spyOn(Array.prototype, 'find').mockImplementation(function <T>(this: T[], fn: (value: T, index: number, array: T[]) => boolean) {
+        const result = originalFind.call(this, fn);
+        if (result && this.length > 0 && (this[0] as { id?: number }).id === 43) {
+          return { lever_id: null, id: null, full_name: 'Catalog', short_name: 'C' } as T;
+        }
+        return result;
+      });
+
+      expect(
+        enrichResearchAreas([{ id: 43, full_name: 'Area', short_name: 'A' } as never], [{ id: 43, full_name: 'Catalog', short_name: 'C' } as never])[0]
+      ).toMatchObject({
+        id: 43,
+        lever_id: 43,
+        short_name: 'A'
+      });
+
+      findSpy.mockRestore();
+    });
+
+    it('covers enrichResearchAreas match id fallback when lever_id is null on catalog item', () => {
+      expect(
+        enrichResearchAreas([{ id: 45, full_name: 'Area', short_name: 'A' } as never], [
+          { id: 45, lever_id: null, full_name: 'Catalog', short_name: 'C' } as never
+        ])[0]
+      ).toMatchObject({
+        id: 45,
+        lever_id: 45
+      });
+    });
+  });
 });
