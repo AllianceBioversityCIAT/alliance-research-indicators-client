@@ -64,6 +64,19 @@ describe('ProjectDashboardComponent', () => {
   let topLeversMock: ReturnType<typeof createRankedServiceMock>;
   let geoScopeMock: { main: jest.Mock };
   let resultsCenterServiceMock: { initializeProjectDashboardResultsTable: jest.Mock };
+  let fileManagerServiceMock: { uploadFile: jest.Mock };
+  let actionsServiceMock: { showToast: jest.Mock };
+
+  function createFile(name: string, size = 1024, type = 'application/pdf'): File {
+    return new File([new ArrayBuffer(size)], name, { type });
+  }
+
+  function createFileInput(files: File[]): HTMLInputElement {
+    const input = document.createElement('input');
+    input.type = 'file';
+    Object.defineProperty(input, 'files', { value: files });
+    return input;
+  }
 
   function createRankedServiceMock() {
     return {
@@ -82,6 +95,10 @@ describe('ProjectDashboardComponent', () => {
     topLeversMock = createRankedServiceMock();
     geoScopeMock = { main: jest.fn() };
     resultsCenterServiceMock = { initializeProjectDashboardResultsTable: jest.fn() };
+    fileManagerServiceMock = {
+      uploadFile: jest.fn().mockResolvedValue({ data: { filename: 'stored-file.pdf' } })
+    };
+    actionsServiceMock = { showToast: jest.fn() };
     apiMock = {
       GET_ResultsCount: jest.fn().mockResolvedValue({
         data: {
@@ -122,8 +139,8 @@ describe('ProjectDashboardComponent', () => {
           }
         },
         { provide: ResultsCenterService, useValue: resultsCenterServiceMock },
-        { provide: FileManagerService, useValue: { uploadFile: jest.fn() } },
-        { provide: ActionsService, useValue: { showToast: jest.fn() } }
+        { provide: FileManagerService, useValue: fileManagerServiceMock },
+        { provide: ActionsService, useValue: actionsServiceMock }
       ]
     })
       .overrideComponent(ProjectDashboardComponent, {
@@ -303,5 +320,210 @@ describe('ProjectDashboardComponent', () => {
     await setup();
 
     expect(component.indicatorSharePercent(0)).toBe(0);
+  });
+
+  describe('grounding and executive overview', () => {
+    it('should format grounded docs badge for singular and plural counts', async () => {
+      await setup();
+
+      expect(component.groundedDocsBadgeLabel()).toBe('0 Docs Grounded');
+
+      component.groundedDocuments.set([{ originalName: 'a.pdf', storedFilename: 'a.pdf' }]);
+      expect(component.groundedDocsBadgeLabel()).toBe('1 Doc Grounded');
+      expect(component.hasGroundedDocuments()).toBe(true);
+      expect(component.canUploadMoreGroundingDocs()).toBe(true);
+
+      component.groundedDocuments.set([
+        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
+        { originalName: 'b.pdf', storedFilename: 'b.pdf' },
+        { originalName: 'c.pdf', storedFilename: 'c.pdf' }
+      ]);
+      expect(component.groundedDocsBadgeLabel()).toBe('3 Docs Grounded');
+      expect(component.canUploadMoreGroundingDocs()).toBe(false);
+    });
+
+    it('should build executive overview paragraphs with and without agreement id', async () => {
+      await setup();
+
+      component.project.set({ agreement_id: '  D514  ' });
+      expect(component.executiveOverviewParagraphs()[0]).toContain('Project D514 demonstrates');
+
+      component.project.set({});
+      expect(component.executiveOverviewParagraphs()[0]).toContain('Project this project demonstrates');
+    });
+
+    it('should trigger grounding upload when slots are available', async () => {
+      await setup();
+      const fileInput = document.createElement('input');
+      const clickSpy = jest.spyOn(fileInput, 'click');
+
+      component.triggerGroundingUpload(fileInput);
+
+      expect(fileInput.value).toBe('');
+      expect(clickSpy).toHaveBeenCalled();
+    });
+
+    it('should not trigger grounding upload when limit reached or upload in progress', async () => {
+      await setup();
+      const fileInput = document.createElement('input');
+      const clickSpy = jest.spyOn(fileInput, 'click');
+
+      component.groundedDocuments.set([
+        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
+        { originalName: 'b.pdf', storedFilename: 'b.pdf' },
+        { originalName: 'c.pdf', storedFilename: 'c.pdf' }
+      ]);
+      component.triggerGroundingUpload(fileInput);
+      expect(clickSpy).not.toHaveBeenCalled();
+
+      component.groundedDocuments.set([]);
+      component.uploadingGroundingDoc.set(true);
+      component.triggerGroundingUpload(fileInput);
+      expect(clickSpy).not.toHaveBeenCalled();
+    });
+
+    it('should ignore empty file selection', async () => {
+      await setup();
+
+      await component.onGroundingFilesSelected({ target: createFileInput([]) } as unknown as Event);
+
+      expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('should warn when upload limit is already reached', async () => {
+      await setup();
+      component.groundedDocuments.set([
+        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
+        { originalName: 'b.pdf', storedFilename: 'b.pdf' },
+        { originalName: 'c.pdf', storedFilename: 'c.pdf' }
+      ]);
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('extra.pdf')])
+      } as unknown as Event);
+
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'warning', summary: 'Upload limit reached' })
+      );
+      expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('should upload valid grounding files and pass project id to file manager', async () => {
+      await setup();
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('contract.pdf'), createFile('scope.docx')])
+      } as unknown as Event);
+
+      expect(fileManagerServiceMock.uploadFile).toHaveBeenCalledTimes(2);
+      expect(fileManagerServiceMock.uploadFile).toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'contract.pdf' }),
+        10,
+        100,
+        { projectId: 'C-1' }
+      );
+      expect(component.groundedDocuments()).toEqual([
+        { originalName: 'contract.pdf', storedFilename: 'stored-file.pdf' },
+        { originalName: 'scope.docx', storedFilename: 'stored-file.pdf' }
+      ]);
+      expect(component.uploadingGroundingDoc()).toBe(false);
+    });
+
+    it('should trim selected files to remaining slots and show singular limit toast', async () => {
+      await setup();
+      component.groundedDocuments.set([
+        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
+        { originalName: 'b.pdf', storedFilename: 'b.pdf' }
+      ]);
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('one.pdf'), createFile('two.pdf')])
+      } as unknown as Event);
+
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'info',
+          detail: 'Only 1 more document can be uploaded.'
+        })
+      );
+      expect(fileManagerServiceMock.uploadFile).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reject unsupported and oversized grounding files', async () => {
+      await setup();
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('bad.exe'), createFile('huge.pdf', 11 * 1024 * 1024)])
+      } as unknown as Event);
+
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'warning', summary: 'Unsupported file' })
+      );
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'warning', summary: 'File too large' })
+      );
+      expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('should show plural limit toast when multiple slots remain', async () => {
+      await setup();
+      component.groundedDocuments.set([{ originalName: 'a.pdf', storedFilename: 'a.pdf' }]);
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('one.pdf'), createFile('two.pdf'), createFile('three.pdf')])
+      } as unknown as Event);
+
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'info',
+          detail: 'Only 2 more documents can be uploaded.'
+        })
+      );
+    });
+
+    it('should handle file inputs without a files collection', async () => {
+      await setup();
+      const input = document.createElement('input');
+      Object.defineProperty(input, 'files', { value: null });
+
+      await component.onGroundingFilesSelected({ target: input } as unknown as Event);
+
+      expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
+    });
+
+    it('should treat files without an extension as unsupported', async () => {
+      await setup();
+      const splitSpy = jest.spyOn(String.prototype, 'split').mockReturnValueOnce([] as unknown as string[]);
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('no-extension')])
+      } as unknown as Event);
+
+      expect(splitSpy).toHaveBeenCalled();
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'warning', summary: 'Unsupported file' })
+      );
+      splitSpy.mockRestore();
+    });
+
+    it('should show error toast when upload fails or filename is missing', async () => {
+      await setup();
+
+      fileManagerServiceMock.uploadFile.mockRejectedValueOnce(new Error('upload failed'));
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('fail.pdf')])
+      } as unknown as Event);
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error', summary: 'Upload failed' })
+      );
+
+      fileManagerServiceMock.uploadFile.mockResolvedValueOnce({ data: { filename: '' } });
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('missing-name.pdf')])
+      } as unknown as Event);
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({ severity: 'error', summary: 'Upload failed' })
+      );
+    });
   });
 });
