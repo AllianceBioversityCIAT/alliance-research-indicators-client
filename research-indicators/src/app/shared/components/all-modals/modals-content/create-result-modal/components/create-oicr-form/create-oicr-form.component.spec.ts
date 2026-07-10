@@ -75,6 +75,7 @@ describe('CreateOicrFormComponent', () => {
       oicrPrimaryOptionsDisabled: signal([]),
       resultTitle: signal(''),
       statusId: signal(9),
+      year: signal<number | null>(null),
       resultCreationEntryContext: signal<'results-center' | 'project' | null>(null),
       setResultCreationEntryContext: jest.fn(),
       setModalTitle: jest.fn(),
@@ -2006,6 +2007,44 @@ describe('CreateOicrFormComponent', () => {
       const parts = component.leverParts();
       expect(parts.first).toBe('First');
       expect(parts.second).toBe('');
+    });
+
+    it('leverServiceParams should use reportYear from base_information.year', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: {
+          ...mockCreateResultManagementService.createOicrBody().base_information,
+          year: '2026'
+        }
+      });
+
+      expect(component.leverServiceParams()).toEqual({ reportYear: 2026 });
+    });
+
+    it('leverServiceParams should fall back to createResultManagementService.year', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: {
+          ...mockCreateResultManagementService.createOicrBody().base_information,
+          year: ''
+        }
+      });
+      mockCreateResultManagementService.year.set(2025);
+
+      expect(component.leverServiceParams()).toEqual({ reportYear: 2025 });
+    });
+
+    it('leverServiceParams should be undefined when no valid report year exists', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: {
+          ...mockCreateResultManagementService.createOicrBody().base_information,
+          year: ''
+        }
+      });
+      mockCreateResultManagementService.year.set(null);
+
+      expect(component.leverServiceParams()).toBeUndefined();
     });
 
     it('isHeaderDataLoaded should return true when all conditions met', () => {

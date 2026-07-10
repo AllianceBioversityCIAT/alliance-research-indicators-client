@@ -46,6 +46,7 @@ import {
 import { Country, Region } from '@shared/interfaces/get-geo-location.interface';
 import { environment } from '@envs/environment';
 import { Lever } from '@shared/interfaces/oicr-creation.interface';
+import { GetLeversParams } from '@shared/interfaces/get-levers.interface';
 import { TooltipModule } from 'primeng/tooltip';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
 import { Router } from '@angular/router';
@@ -178,6 +179,15 @@ export class CreateOicrFormComponent implements OnInit {
       this.createResultManagementService.createOicrBody().step_three.countries
     )
   );
+
+  leverServiceParams = computed((): GetLeversParams | undefined => {
+    const rawYear =
+      this.createResultManagementService.createOicrBody().base_information.year ||
+      String(this.createResultManagementService.year() ?? '');
+    const reportYear = Number(rawYear);
+
+    return Number.isFinite(reportYear) && reportYear > 0 ? { reportYear } : undefined;
+  });
 
   private readonly publishedStatusId = 14;
 

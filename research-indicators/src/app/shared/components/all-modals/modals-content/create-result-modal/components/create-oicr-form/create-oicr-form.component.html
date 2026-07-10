@@ -220,8 +220,8 @@
             [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 12 || this.createResultManagementService.statusId() === 14 || this.createResultManagementService.statusId() === 13 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             [signal]="createResultManagementService.createOicrBody" optionValue="lever_id"
             [textSpan]="'Levers selected'" signalOptionValue="step_two.primary_lever" [isRequired]="true"
-            [columnsOnXl]="true" scrollHeight="260px" serviceName="levers" [optionsDisabled]="primaryOptionsDisabled"
-            placeholder="Select the levers">
+            [columnsOnXl]="true" scrollHeight="260px" serviceName="levers" [serviceParams]="leverServiceParams()"
+            [optionsDisabled]="primaryOptionsDisabled" placeholder="Select the levers">
             <ng-template #selectedItems let-value>
               @if (value?.length > 0) {
               <div class="flex items-center gap-2">
@@ -255,8 +255,8 @@
             [disabled]="!canEditOicr || this.createResultManagementService.statusId() === 10 || this.createResultManagementService.statusId() === 12 || this.createResultManagementService.statusId() === 14 || this.createResultManagementService.statusId() === 13 || this.createResultManagementService.statusId() === 15 || this.createResultManagementService.statusId() === 11"
             [signal]="createResultManagementService.createOicrBody" optionValue="lever_id"
             signalOptionValue="step_two.contributor_lever" [columnsOnXl]="true" [textSpan]="'Levers selected'"
-            scrollHeight="260px" serviceName="levers" [optionsDisabled]="optionsDisabled"
-            placeholder="Select the levers">
+            scrollHeight="260px" serviceName="levers" [serviceParams]="leverServiceParams()"
+            [optionsDisabled]="optionsDisabled" placeholder="Select the levers">
             <ng-template #selectedItems let-value>
               @if (value?.length > 0) {
               <div class="flex items-center gap-2">
