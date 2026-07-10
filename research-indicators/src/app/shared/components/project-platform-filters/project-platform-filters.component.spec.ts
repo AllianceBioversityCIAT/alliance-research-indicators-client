@@ -64,6 +64,21 @@ describe('ProjectPlatformFiltersComponent', () => {
     expect(component.isPlatformFiltered({ platform_code: 'TIP', name: 'TIP' })).toBe(false);
   });
 
+  it('should treat missing sources as an empty filtered platform set', () => {
+    resultsCenterService.tableFilters.set({ sources: undefined as unknown as { platform_code: string }[] });
+    component.enableFilter = true;
+
+    expect(component.filteredPlatformCodes()).toEqual(new Set());
+  });
+
+  it('should return an empty filtered platform set when results center service is unavailable', () => {
+    (component as any).resultsCenterService = null;
+    component.enableFilter = true;
+
+    expect(component.filteredPlatformCodes()).toEqual(new Set());
+    expect(component.isPlatformFiltered({ platform_code: 'STAR', name: 'STAR' })).toBe(false);
+  });
+
   it('should return platform colors from the color map', () => {
     expect(component.getPlatformColors('STAR')).toEqual({ text: '#1689CA', background: '#E6F2FF' });
     expect(component.getPlatformColors('UNKNOWN')).toBeUndefined();

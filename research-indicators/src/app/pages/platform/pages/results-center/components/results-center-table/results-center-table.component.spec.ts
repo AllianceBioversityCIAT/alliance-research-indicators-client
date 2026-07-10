@@ -273,6 +273,21 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockService.applyFilters).toHaveBeenCalled();
   });
 
+  it('onPlatformClick should treat missing sources as an empty selection list', () => {
+    mockService.tableFilters.set({ sources: undefined as unknown as { platform_code: string; name: string }[] });
+    const updateSpy = jest.spyOn(mockService.tableFilters, 'update');
+    const platform = { platform_code: 'STAR', name: 'STAR' };
+
+    component.onPlatformClick(platform);
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    const updateFn = updateSpy.mock.calls[0][0];
+    expect(updateFn({})).toEqual({
+      sources: [{ platform_code: 'STAR', name: 'STAR' }]
+    });
+    expect(mockService.applyFilters).toHaveBeenCalled();
+  });
+
   it('openResult should open modal for PRMS and not navigate', () => {
     const prms = { ...mockResult, platform_code: 'PRMS' };
     component.openResult(prms);
