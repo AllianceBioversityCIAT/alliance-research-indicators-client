@@ -359,8 +359,8 @@ export class ProjectDashboardComponent {
       icon: 'pi pi-exclamation-triangle',
       color: '#E69F00',
       detail:
-        'Removing this document will invalidate the current Executive Overview. ' +
-        'You will need to generate it again to update the grounded summary.',
+        'Removing this document may make the current Executive Overview outdated. ' +
+        'We recommend regenerating it to update the grounded summary.',
       confirmCallback: {
         label: 'Continue',
         event: () => {
@@ -388,7 +388,6 @@ export class ProjectDashboardComponent {
     try {
       await this.documentOverviewService.deleteDocumentOverviewFiles(projectId, [document.fileName]);
       this.groundedDocuments.update(current => current.filter(item => item.fileKey !== fileKey));
-      this.clearGeneratedExecutiveOverview();
     } catch {
       this.actions.showToast({
         severity: 'error',

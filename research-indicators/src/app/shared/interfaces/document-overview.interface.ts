@@ -18,11 +18,11 @@ export interface DocumentOverviewDeleteFilesRequest {
 export interface DocumentOverviewOverview {
   project_title?: string;
   project_summary?: string;
-  documents_analyzed?: Array<{
+  documents_analyzed?: {
     file_name?: string;
     document_type?: string;
     role_in_project?: string;
-  }>;
+  }[];
   key_topics?: string[];
   key_findings?: string[];
   objectives?: string[];

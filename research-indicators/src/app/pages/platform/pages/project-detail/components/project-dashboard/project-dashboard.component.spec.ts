@@ -567,9 +567,9 @@ describe('ProjectDashboardComponent', () => {
 
       expect(documentOverviewServiceMock.deleteDocumentOverviewFiles).toHaveBeenCalledWith('C-1', ['a.pdf']);
       expect(component.groundedDocuments()).toEqual([{ fileName: 'b.pdf', fileKey: 'folder/b.pdf' }]);
-      expect(component.executiveOverviewParagraphs()).toEqual([]);
-      expect(component.executiveOverviewGeneratedAt()).toBeNull();
-      expect(component.overviewSourceDocuments()).toEqual([]);
+      expect(component.executiveOverviewParagraphs()).toEqual(['Existing overview']);
+      expect(component.executiveOverviewGeneratedAt()).toBe('2026-07-09T20:10:56.921192+00:00');
+      expect(component.overviewSourceDocuments()).toEqual([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
     });
 
     it('should keep the grounded document when delete request fails', async () => {
