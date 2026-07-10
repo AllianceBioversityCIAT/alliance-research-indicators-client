@@ -96,7 +96,10 @@ describe('ProjectDashboardComponent', () => {
     };
   }
 
-  async function setup(contractId: string | null = 'C-1', options?: { isAdmin?: boolean }) {
+  async function setup(
+    contractId: string | null = 'C-1',
+    options?: { isAdmin?: boolean; emptyOverview?: boolean }
+  ) {
     topContributorsMock = createRankedServiceMock();
     topMainContactsMock = createRankedServiceMock();
     topPartnersMock = createRankedServiceMock();
@@ -107,24 +110,28 @@ describe('ProjectDashboardComponent', () => {
       uploadFile: jest.fn().mockResolvedValue({ data: { filename: 'stored-file.pdf' } })
     };
     documentOverviewServiceMock = {
-      fetchDocumentOverviewSummary: jest.fn().mockResolvedValue({
-        overview: {
-          project_summary: 'Stored overview paragraph.\n\nSecond stored paragraph.'
-        },
-        generated_at: '2026-07-09T20:10:56.921192+00:00',
-        available_files: [
-          {
-            file_name: 'stored-file.pdf',
-            file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
-          }
-        ],
-        documents_processed: [
-          {
-            file_name: 'stored-file.pdf',
-            file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
-          }
-        ]
-      }),
+      fetchDocumentOverviewSummary: jest.fn().mockResolvedValue(
+        options?.emptyOverview
+          ? { overview: { project_summary: '' } }
+          : {
+              overview: {
+                project_summary: 'Stored overview paragraph.\n\nSecond stored paragraph.'
+              },
+              generated_at: '2026-07-09T20:10:56.921192+00:00',
+              available_files: [
+                {
+                  file_name: 'stored-file.pdf',
+                  file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+                }
+              ],
+              documents_processed: [
+                {
+                  file_name: 'stored-file.pdf',
+                  file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+                }
+              ]
+            }
+      ),
       generateDocumentOverview: jest.fn().mockResolvedValue({
         overview: {
           project_summary: 'First overview paragraph.\n\nSecond overview paragraph.'
@@ -430,10 +437,22 @@ describe('ProjectDashboardComponent', () => {
       expect(component.showExecutiveOverview()).toBe(true);
     });
 
-    it('should not load executive overview summary for non-admin users', async () => {
+    it('should load executive overview summary for non-admin users when data exists', async () => {
       await setup('C-1', { isAdmin: false });
 
-      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).not.toHaveBeenCalled();
+      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).toHaveBeenCalledWith('C-1');
+      expect(component.canAccessGroundingSetup()).toBe(false);
+      expect(component.executiveOverviewParagraphs()).toEqual([
+        'Stored overview paragraph.',
+        'Second stored paragraph.'
+      ]);
+      expect(component.showExecutiveOverview()).toBe(true);
+    });
+
+    it('should hide executive overview for non-admin users when no data exists', async () => {
+      await setup('C-1', { isAdmin: false, emptyOverview: true });
+
+      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).toHaveBeenCalledWith('C-1');
       expect(component.showExecutiveOverview()).toBe(false);
     });
 
@@ -450,7 +469,6 @@ describe('ProjectDashboardComponent', () => {
 
       expect(clickSpy).not.toHaveBeenCalled();
       expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
-      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).not.toHaveBeenCalled();
       expect(documentOverviewServiceMock.generateDocumentOverview).not.toHaveBeenCalled();
     });
 

@@ -90,14 +90,19 @@ export class ProjectDashboardComponent {
   });
   readonly hasGroundedDocuments = computed(() => this.groundedDocuments().length > 0);
   readonly canAccessGroundingSetup = computed(() => this.rolesService.isAdmin());
-  readonly showExecutiveOverview = computed(
-    () =>
-      this.canAccessGroundingSetup() &&
-      (this.hasGroundedDocuments() ||
+  readonly hasExecutiveOverviewData = computed(() => this.executiveOverviewParagraphs().length > 0);
+  readonly showExecutiveOverview = computed(() => {
+    if (this.canAccessGroundingSetup()) {
+      return (
+        this.hasGroundedDocuments() ||
         this.executiveOverviewLoading() ||
         this.executiveOverviewError() ||
-        this.executiveOverviewParagraphs().length > 0)
-  );
+        this.hasExecutiveOverviewData()
+      );
+    }
+
+    return this.hasExecutiveOverviewData();
+  });
 
   readonly indicatorSummaries = computed(() => {
     const indicators = this.projectUtils.sortIndicators([...(this.project().indicators ?? [])]);
@@ -209,9 +214,7 @@ export class ProjectDashboardComponent {
         this.geoScope.main(contractId);
         this.resultsCenterService.initializeProjectDashboardResultsTable(contractId);
 
-        if (this.canAccessGroundingSetup()) {
-          void this.loadExecutiveOverviewSummary();
-        }
+        void this.loadExecutiveOverviewSummary();
       }
     });
   }
@@ -421,10 +424,6 @@ export class ProjectDashboardComponent {
   }
 
   private async loadExecutiveOverviewSummary(): Promise<void> {
-    if (!this.canAccessGroundingSetup()) {
-      return;
-    }
-
     const projectId = this.contractId();
     if (!projectId) {
       return;
