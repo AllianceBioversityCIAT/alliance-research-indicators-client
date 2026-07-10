@@ -98,7 +98,7 @@ describe('ProjectDashboardComponent', () => {
 
   async function setup(
     contractId: string | null = 'C-1',
-    options?: { isAdmin?: boolean; emptyOverview?: boolean }
+    options?: { isAdmin?: boolean; emptyOverview?: boolean; rejectOverviewFetch?: boolean }
   ) {
     topContributorsMock = createRankedServiceMock();
     topMainContactsMock = createRankedServiceMock();
@@ -110,28 +110,30 @@ describe('ProjectDashboardComponent', () => {
       uploadFile: jest.fn().mockResolvedValue({ data: { filename: 'stored-file.pdf' } })
     };
     documentOverviewServiceMock = {
-      fetchDocumentOverviewSummary: jest.fn().mockResolvedValue(
-        options?.emptyOverview
-          ? { overview: { project_summary: '' } }
-          : {
-              overview: {
-                project_summary: 'Stored overview paragraph.\n\nSecond stored paragraph.'
-              },
-              generated_at: '2026-07-09T20:10:56.921192+00:00',
-              available_files: [
-                {
-                  file_name: 'stored-file.pdf',
-                  file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+      fetchDocumentOverviewSummary: options?.rejectOverviewFetch
+        ? jest.fn().mockRejectedValue(new Error('fetch failed'))
+        : jest.fn().mockResolvedValue(
+            options?.emptyOverview
+              ? { overview: { project_summary: '' } }
+              : {
+                  overview: {
+                    project_summary: 'Stored overview paragraph.\n\nSecond stored paragraph.'
+                  },
+                  generated_at: '2026-07-09T20:10:56.921192+00:00',
+                  available_files: [
+                    {
+                      file_name: 'stored-file.pdf',
+                      file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+                    }
+                  ],
+                  documents_processed: [
+                    {
+                      file_name: 'stored-file.pdf',
+                      file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+                    }
+                  ]
                 }
-              ],
-              documents_processed: [
-                {
-                  file_name: 'stored-file.pdf',
-                  file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
-                }
-              ]
-            }
-      ),
+          ),
       generateDocumentOverview: jest.fn().mockResolvedValue({
         overview: {
           project_summary: 'First overview paragraph.\n\nSecond overview paragraph.'
@@ -788,6 +790,59 @@ describe('ProjectDashboardComponent', () => {
       expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
         expect.objectContaining({ severity: 'error', summary: 'Upload failed' })
       );
+    });
+
+    it('should skip remove confirmation for non-admin users', async () => {
+      await setup('C-1', { isAdmin: false });
+      component.groundedDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
+
+      component.removeGroundingDocument('folder/a.pdf');
+
+      expect(actionsServiceMock.showGlobalAlert).not.toHaveBeenCalled();
+    });
+
+    it('should skip remove confirmation when the document does not exist', async () => {
+      await setup();
+
+      component.removeGroundingDocument('missing-key');
+
+      expect(actionsServiceMock.showGlobalAlert).not.toHaveBeenCalled();
+    });
+
+    it('should skip async document removal when project id is missing', async () => {
+      await setup(null);
+      component.groundedDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
+
+      await (component as any).removeGroundingDocumentAsync('folder/a.pdf');
+
+      expect(documentOverviewServiceMock.deleteDocumentOverviewFiles).not.toHaveBeenCalled();
+    });
+
+    it('should skip async document removal when document is no longer in the list', async () => {
+      await setup();
+
+      await (component as any).removeGroundingDocumentAsync('missing-key');
+
+      expect(documentOverviewServiceMock.deleteDocumentOverviewFiles).not.toHaveBeenCalled();
+    });
+
+    it('should skip loading executive overview summary when project id is missing', async () => {
+      await setup(null);
+      documentOverviewServiceMock.fetchDocumentOverviewSummary.mockClear();
+
+      await (component as any).loadExecutiveOverviewSummary();
+
+      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).not.toHaveBeenCalled();
+    });
+
+    it('should clear executive overview when summary fetch fails', async () => {
+      await setup('C-1', { rejectOverviewFetch: true });
+
+      expect(component.executiveOverviewParagraphs()).toEqual([]);
+      expect(component.groundedDocuments()).toEqual([]);
+      expect(component.overviewSourceDocuments()).toEqual([]);
+      expect(component.executiveOverviewGeneratedAt()).toBeNull();
+      expect(component.executiveOverviewLoading()).toBe(false);
     });
   });
 });
