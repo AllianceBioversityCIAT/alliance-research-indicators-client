@@ -5,14 +5,10 @@ import {
   Component,
   computed,
   ContentChild,
-  DestroyRef,
   effect,
-  EffectRef,
   inject,
-  Injector,
   Input,
   PLATFORM_ID,
-  runInInjectionContext,
   signal,
   TemplateRef,
   ViewChild,
@@ -54,9 +50,6 @@ export class MultiselectComponent implements OnInit, OnChanges {
   private readonly hostEl = inject(ElementRef<HTMLElement>);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly ngZone = inject(NgZone);
-  private readonly destroyRef = inject(DestroyRef);
-  private readonly injector = inject(Injector);
-  private listSyncEffect?: EffectRef;
 
   @ViewChild(MultiSelect) private readonly primeMultiSelect?: MultiSelect;
 
@@ -142,31 +135,6 @@ export class MultiselectComponent implements OnInit, OnChanges {
     });
 
     return [...filtered, ...missingSelected];
-  });
-
-  /** Below this count, virtual scroll reserves empty viewport space — use natural list height instead. */
-  private static readonly VIRTUAL_SCROLL_MIN_OPTIONS = 7;
-  private static readonly FILTER_HEADER_PX = 52;
-  private static readonly PANEL_PADDING_PX = 4;
-
-  /** Virtual scroll uses a fixed viewport; short lists (e.g. per-result SP picker) should size to content. */
-  readonly effectiveVirtualScroll = computed(() => {
-    if (!this.enableVirtualScroll) return false;
-    return this.availableOptions().length >= MultiselectComponent.VIRTUAL_SCROLL_MIN_OPTIONS;
-  });
-
-  readonly effectiveScrollHeight = computed(() => {
-    const maxPx = this.parseScrollHeightPx(this.scrollHeight);
-    if (this.effectiveVirtualScroll()) {
-      return this.scrollHeight;
-    }
-    const count = this.availableOptions().length;
-    const rowPx = this.virtualScrollEstimateSize();
-    const hasInlineFilter = !this.service?.isOpenSearch?.();
-    const filterPx = hasInlineFilter ? MultiselectComponent.FILTER_HEADER_PX : 0;
-    const contentPx =
-      filterPx + Math.max(count, 1) * rowPx + MultiselectComponent.PANEL_PADDING_PX;
-    return `${Math.min(contentPx, maxPx)}px`;
   });
 
   isInvalid = computed(() => {
@@ -264,45 +232,19 @@ export class MultiselectComponent implements OnInit, OnChanges {
   }
 
   private bindServiceSignals() {
-    this.listSyncEffect?.destroy();
-    this.listSyncEffect = undefined;
-
     if (this.service?.getList && this.service?.getLoading) {
       const listSig = this.service.getList(this.serviceParams as any);
       const loadingSig = this.service.getLoading(this.serviceParams as any);
       if (listSig) this.optionsSig = listSig;
       if (loadingSig) this.loadingSig = loadingSig;
-      return;
-    }
-
-    if (this.service?.loading) this.loadingSig = this.service.loading;
-
-    // Keep `optionsSig` as this component's writable signal. Sync from the
-    // control-list service in an effect — reassigning `optionsSig` to
-    // `service.list` breaks `availableOptions` when that computed already
-    // subscribed to the initial empty signal (e.g. field effects run first).
-    if (this.service?.list) {
-      const sourceList = this.service.list as () => unknown[];
-      this.listSyncEffect = runInInjectionContext(this.injector, () =>
-        effect(
-          () => {
-            const next = sourceList();
-            this.optionsSig.set(Array.isArray(next) ? next : []);
-          },
-          { allowSignalWrites: true }
-        )
-      );
-      this.destroyRef.onDestroy(() => this.listSyncEffect?.destroy());
+    } else {
+      if (this.service?.list) this.optionsSig = this.service.list;
+      if (this.service?.loading) this.loadingSig = this.service.loading;
     }
   }
 
   virtualScrollEstimateSize(): number {
     return this.optionLabel2 ? 60 : this.itemHeight;
-  }
-
-  private parseScrollHeightPx(value: string): number {
-    const parsed = parseInt(String(value).replace(/px$/i, ''), 10);
-    return Number.isFinite(parsed) && parsed > 0 ? parsed : 268;
   }
 
   trackSelectedOptionRow(index: number, row: unknown): string | number {
@@ -328,9 +270,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
     const agreementId = item['agreement_id'];
     if (agreementId != null && agreementId !== '') {
-      found = optionsList.find(
-        option => option['agreement_id'] == agreementId || option[key] == agreementId
-      );
+      found = optionsList.find(option => option['agreement_id'] == agreementId || option[key] == agreementId);
       if (found) return found;
     }
 
@@ -380,7 +320,6 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
   setValue(event: number[]) {
     this.body.set({ value: event });
-    let nextState: any;
 
     this.signal.update((current: any) => {
       const attr = this.optionValue;
@@ -398,11 +337,11 @@ export class MultiselectComponent implements OnInit, OnChanges {
         return merged as any;
       });
 
-      nextState = { ...current, [this.signalOptionValue]: nextItems };
-      return nextState;
-    });
+      this.utils.setNestedPropertyWithReduce(current, this.signalOptionValue, nextItems);
 
-    queueMicrotask(() => this.selectEvent.emit(nextState));
+      this.selectEvent.emit(current);
+      return { ...current };
+    });
   }
 
   objectArrayToIdArray(array: any[], attribute: string) {

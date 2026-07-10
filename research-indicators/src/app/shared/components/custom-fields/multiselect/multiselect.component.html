@@ -21,8 +21,8 @@
       [loading]="this.loadingSig()" [options]="this.availableOptions()" [filter]="!this.service?.isOpenSearch()"
       [filterBy]="this.filterBy || this.optionLabel" [optionLabel]="this.optionLabel" [showToggleAll]="false"
       [optionValue]="this.optionValue" [(ngModel)]="this.body().value" (ngModelChange)="this.setValue($event)"
-      [disabled]="disabled" [virtualScroll]="effectiveVirtualScroll()" [placeholder]="placeholder"
-      [virtualScrollItemSize]="virtualScrollEstimateSize()" [scrollHeight]="effectiveScrollHeight()"
+      [disabled]="disabled" [virtualScroll]="enableVirtualScroll" [placeholder]="placeholder"
+      [virtualScrollItemSize]="virtualScrollEstimateSize()" [scrollHeight]="this.scrollHeight"
       [panelStyle]="multiselectPanelStyle" [appendTo]="appendTo" (onPanelShow)="onMultiselectPanelShow()"
       (onPanelHide)="onMultiselectPanelHide()">
       @if (this.service?.isOpenSearch()) {
@@ -105,8 +105,7 @@
   }
   <div class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
     [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl"
-    [class.columns-xl-3]="columnsOnXl && columnsOnXlCount === 3"
-    [class.selected-items--stack-gap]="hideRemoveIcon"
+    [class.columns-xl-3]="columnsOnXl && columnsOnXlCount === 3" [class.selected-items--stack-gap]="hideRemoveIcon"
     [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor.trim()"
     [style.--multiselect-selected-surface]="selectedItemsSurfaceColor.trim() || null">
     @for (row of selectedOptions(); track trackSelectedOptionRow($index, row)) {

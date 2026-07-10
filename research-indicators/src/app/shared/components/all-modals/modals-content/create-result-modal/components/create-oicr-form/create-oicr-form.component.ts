@@ -108,11 +108,11 @@ export class CreateOicrFormComponent implements OnInit {
   shouldShowBottomBorder = signal(true); // Inicialmente true para acordeón cerrado
   private borderTimeout: ReturnType<typeof setTimeout> | null = null;
   private isFirstOpen = true; // Bandera para detectar primera apertura
-  
+
   updateAccordionActiveState(active: boolean): void {
     queueMicrotask(() => {
       this.accordionActiveState.set(active);
-      
+
       if (active) {
         if (this.isFirstOpen) {
           this.isFirstOpen = false;
@@ -124,13 +124,13 @@ export class CreateOicrFormComponent implements OnInit {
         this.shouldShowBottomBorder.set(false);
         return;
       }
-      
+
       if (this.isFirstOpen) {
         this.shouldShowBottomBorder.set(true);
         this.isFirstOpen = false;
         return;
       }
-      
+
       if (this.borderTimeout) {
         clearTimeout(this.borderTimeout);
       }
@@ -140,7 +140,7 @@ export class CreateOicrFormComponent implements OnInit {
       }, 450);
     });
   }
-  
+
   // Submission history data
   submissionHistory = signal<SubmissionHistoryItem[]>([]);
   actions = inject(ActionsService);
@@ -187,8 +187,7 @@ export class CreateOicrFormComponent implements OnInit {
 
   leverServiceParams = computed((): GetLeversParams | undefined => {
     const rawYear =
-      this.createResultManagementService.createOicrBody().base_information.year ||
-      String(this.createResultManagementService.year() ?? '');
+      this.createResultManagementService.createOicrBody().base_information.year || String(this.createResultManagementService.year() ?? '');
     const reportYear = Number(rawYear);
 
     return Number.isFinite(reportYear) && reportYear > 0 ? { reportYear } : undefined;
@@ -220,12 +219,8 @@ export class CreateOicrFormComponent implements OnInit {
     const contract = this.currentContract();
     const title = this.createResultManagementService.resultTitle();
     const statusId = this.createResultManagementService.statusId();
-    
-    return !this.headerDataLoading() && 
-           contract !== null && 
-           title !== null && 
-           title !== undefined && 
-           statusId !== null;
+
+    return !this.headerDataLoading() && contract !== null && title !== null && title !== undefined && statusId !== null;
   });
 
   constructor() {
@@ -238,8 +233,8 @@ export class CreateOicrFormComponent implements OnInit {
   }
 
   ngOnInit() {
-    if(this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 15) {
-      this.api.GET_SubmitionHistory(this.cache.getCurrentNumericResultId()).then((response) => {
+    if (this.createResultManagementService.statusId() === 11 || this.createResultManagementService.statusId() === 15) {
+      this.api.GET_SubmitionHistory(this.cache.getCurrentNumericResultId()).then(response => {
         if (response.data && Array.isArray(response.data) && response.data.length > 0) {
           this.submissionHistory.set(response.data);
         }
@@ -480,10 +475,7 @@ export class CreateOicrFormComponent implements OnInit {
 
   async createResult() {
     const payload = this.buildOicrPayloadWithCustomLeverNames();
-    const response = await this.api.POST_CreateOicr(
-      payload,
-      this.createResultManagementService.currentRequestedResultCode() || undefined
-    );
+    const response = await this.api.POST_CreateOicr(payload, this.createResultManagementService.currentRequestedResultCode() || undefined);
     // clean currentRequestedResultCode
 
     if (response.status !== 200 && response.status !== 201) {
@@ -507,10 +499,7 @@ export class CreateOicrFormComponent implements OnInit {
             if (isOicr) {
               targetRoute = fromResultsCenter
                 ? ['/results-center']
-                : [
-                    'project-detail/',
-                    this.createResultManagementService.createOicrBody()?.base_information?.contract_id ?? ''
-                  ];
+                : ['project-detail/', this.createResultManagementService.createOicrBody()?.base_information?.contract_id ?? ''];
             } else {
               targetRoute = ['result', response.data.result_official_code];
             }
@@ -616,18 +605,23 @@ export class CreateOicrFormComponent implements OnInit {
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
     const contract = this.currentContract?.();
-    
+
     // Map the new lever structure - levers come directly in the contract object
-    const levers = contract?.levers ? {
-      id: contract.levers.id,
-      full_name: contract.levers.full_name,
-      short_name: contract.levers.short_name,
-      other_names: contract.levers.other_names,
-      lever_url: contract.levers.lever_url
-    } : null;
-    
+    const levers = contract?.levers
+      ? {
+          id: contract.levers.id,
+          full_name: contract.levers.full_name,
+          short_name: contract.levers.short_name,
+          other_names: contract.levers.other_names,
+          lever_url: contract.levers.lever_url
+        }
+      : null;
+
     this.allModalsService.setSubmitHeader({
-      title: this.createResultManagementService.resultTitle?.() || this.createResultManagementService.createOicrBody()?.base_information?.title || undefined,
+      title:
+        this.createResultManagementService.resultTitle?.() ||
+        this.createResultManagementService.createOicrBody()?.base_information?.title ||
+        undefined,
       agreement_id: contract?.agreement_id,
       description: contract?.description,
       project_lead_description: contract?.project_lead_description,
@@ -636,10 +630,10 @@ export class CreateOicrFormComponent implements OnInit {
       levers: levers || undefined,
       status_id: this.createResultManagementService.statusId()?.toString() || undefined
     });
-    
+
     // Set up the cancel action to call handleSubmitBack
     this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
-    
+
     this.allModalsService.openModal('submitResult');
   }
 
@@ -653,18 +647,23 @@ export class CreateOicrFormComponent implements OnInit {
     this.allModalsService.closeModal('createResult');
     this.allModalsService.setSubmitBackStep(this.activeIndex());
     const contract = this.currentContract?.();
-    
+
     // Map the new lever structure - levers come directly in the contract object
-    const levers = contract?.levers ? {
-      id: contract.levers.id,
-      full_name: contract.levers.full_name,
-      short_name: contract.levers.short_name,
-      other_names: contract.levers.other_names,
-      lever_url: contract.levers.lever_url
-    } : null;
-    
+    const levers = contract?.levers
+      ? {
+          id: contract.levers.id,
+          full_name: contract.levers.full_name,
+          short_name: contract.levers.short_name,
+          other_names: contract.levers.other_names,
+          lever_url: contract.levers.lever_url
+        }
+      : null;
+
     this.allModalsService.setSubmitHeader({
-      title: this.createResultManagementService.resultTitle?.() || this.createResultManagementService.createOicrBody()?.base_information?.title || undefined,
+      title:
+        this.createResultManagementService.resultTitle?.() ||
+        this.createResultManagementService.createOicrBody()?.base_information?.title ||
+        undefined,
       agreement_id: contract?.agreement_id,
       description: contract?.description,
       project_lead_description: contract?.project_lead_description,
@@ -673,10 +672,10 @@ export class CreateOicrFormComponent implements OnInit {
       levers: levers || undefined,
       status_id: this.createResultManagementService.statusId()?.toString() || undefined
     });
-    
+
     // Set up the cancel action to call handleSubmitBack
     this.allModalsService.setSubmitBackAction(() => this.handleSubmitBack());
-    
+
     this.allModalsService.openModal('submitResult');
   }
 
@@ -688,9 +687,9 @@ export class CreateOicrFormComponent implements OnInit {
     this.allModalsService.clearSubmissionData();
     this.allModalsService.submitBackAction = undefined;
     this.allModalsService.createResultManagementService.resetModal();
-    
+
     this.allModalsService.closeModal('submitResult');
-    
+
     const currentMetadata = this.cache.currentMetadata();
     if (currentMetadata?.indicator_id && currentMetadata?.status_id) {
       const resultCode = this.cache.getCurrentNumericResultId();
@@ -710,13 +709,13 @@ export class CreateOicrFormComponent implements OnInit {
 
   getStatusIcon(): string {
     const statusId = this.createResultManagementService.statusId();
-    
+
     switch (statusId) {
-      case 11: 
+      case 11:
         return 'pi pi-minus-circle';
-      case 15: 
+      case 15:
         return 'pi pi-times-circle';
-      default: 
+      default:
         return 'pi pi-check-circle';
     }
   }
@@ -741,7 +740,7 @@ export class CreateOicrFormComponent implements OnInit {
     const index = Array.isArray(event) ? event[0] : event;
     const isOpening = index === 0;
     this.isAccordionOpen.set(isOpening);
-    
+
     if (isOpening) {
       if (this.isFirstOpen) {
         this.isFirstOpen = false;
@@ -821,11 +820,7 @@ export class CreateOicrFormComponent implements OnInit {
         return leverWithoutCustomName;
       }
 
-      const custom_lever_name = (
-        this.getLeverCustomNameSignal(lever)().custom_lever_name ??
-        lever.custom_lever_name ??
-        ''
-      ).trim();
+      const custom_lever_name = (this.getLeverCustomNameSignal(lever)().custom_lever_name ?? lever.custom_lever_name ?? '').trim();
 
       return { ...lever, custom_lever_name };
     });
