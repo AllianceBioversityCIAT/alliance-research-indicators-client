@@ -76,6 +76,7 @@ describe('ResultsCenterTableComponent', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const listSig = signal([mockResult]);
+    const tableFiltersSig = signal({ sources: [] as { platform_code: string; name: string }[] });
     mockService = {
       searchInput: signal(''),
       list: listSig,
@@ -92,6 +93,7 @@ describe('ResultsCenterTableComponent', () => {
         { label: 'OTHER', value: 'Y' }
       ]),
       tableColumns: signal([{ field: 'title', path: 'title', header: 'Title', getValue: (r: any) => r.title, filter: true }]),
+      tableFilters: tableFiltersSig,
       countTableFiltersSelected: jest.fn(() => 1),
       countFiltersSelected: jest.fn(() => 0),
       clearAllFilters: jest.fn(),
@@ -100,6 +102,7 @@ describe('ResultsCenterTableComponent', () => {
       showConfigurationsSidebar: signal(false),
       tableRef: signal<any>(undefined),
       main: jest.fn(),
+      applyFilters: jest.fn(),
       handleResultsTableLazyLoad: jest.fn(),
       getExportResultFilter: jest.fn().mockReturnValue({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] }),
       getExportPaginationOptions: jest.fn().mockReturnValue({ sortField: 'code', sortOrder: 'DESC', search: '' })
@@ -239,6 +242,35 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockService.showFiltersSidebar()).toBe(true);
     component.showConfiguratiosnSidebar();
     expect(mockService.showConfigurationsSidebar()).toBe(true);
+  });
+
+  it('onPlatformClick should set the clicked platform filter and apply filters', () => {
+    const updateSpy = jest.spyOn(mockService.tableFilters, 'update');
+    const platform = { platform_code: 'STAR', name: 'STAR' };
+
+    component.onPlatformClick(platform);
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    const updateFn = updateSpy.mock.calls[0][0];
+    expect(updateFn({ sources: [] })).toEqual({
+      sources: [{ platform_code: 'STAR', name: 'STAR' }]
+    });
+    expect(mockService.applyFilters).toHaveBeenCalled();
+  });
+
+  it('onPlatformClick should clear the platform filter when the same platform is clicked again', () => {
+    mockService.tableFilters.set({ sources: [{ platform_code: 'STAR', name: 'STAR' }] });
+    const updateSpy = jest.spyOn(mockService.tableFilters, 'update');
+    const platform = { platform_code: 'STAR', name: 'STAR' };
+
+    component.onPlatformClick(platform);
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    const updateFn = updateSpy.mock.calls[0][0];
+    expect(updateFn({ sources: [{ platform_code: 'STAR', name: 'STAR' }] })).toEqual({
+      sources: []
+    });
+    expect(mockService.applyFilters).toHaveBeenCalled();
   });
 
   it('openResult should open modal for PRMS and not navigate', () => {

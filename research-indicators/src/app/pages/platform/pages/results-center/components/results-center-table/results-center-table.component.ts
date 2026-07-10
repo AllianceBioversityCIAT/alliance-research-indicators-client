@@ -17,6 +17,8 @@ import { Result } from '@shared/interfaces/result/result.interface';
 import { FiltersActionButtonsComponent } from '../../../../../../shared/components/filters-action-buttons/filters-action-buttons.component';
 import { SearchExportControlsComponent } from '../../../../../../shared/components/search-export-controls/search-export-controls.component';
 import { CustomProgressBarComponent } from '../../../../../../shared/components/custom-progress-bar/custom-progress-bar.component';
+import { ProjectPlatformFiltersComponent } from '@shared/components/project-platform-filters/project-platform-filters.component';
+import { PlatformSourceFilter } from '@shared/interfaces/platform-source-filter.interface';
 import { PLATFORM_COLOR_MAP } from '../../../../../../shared/constants/platform-colors';
 import { PLATFORM_CODES } from '../../../../../../shared/constants/platform-codes';
 import { AllModalsService } from '@shared/services/cache/all-modals.service';
@@ -44,7 +46,8 @@ import {
     CustomTagComponent,
     FiltersActionButtonsComponent,
     SearchExportControlsComponent,
-    CustomProgressBarComponent
+    CustomProgressBarComponent,
+    ProjectPlatformFiltersComponent
   ],
   templateUrl: './results-center-table.component.html',
   styleUrl: './results-center-table.component.scss'
@@ -231,6 +234,19 @@ export class ResultsCenterTableComponent implements AfterViewInit, OnDestroy {
 
   showConfiguratiosnSidebar() {
     this.resultsCenterService.showConfigurationsSidebar.set(true);
+  }
+
+  onPlatformClick(platform: PlatformSourceFilter): void {
+    const selectedSources = this.resultsCenterService.tableFilters().sources ?? [];
+    const isAlreadySelected =
+      selectedSources.length === 1 && selectedSources[0]?.platform_code === platform.platform_code;
+
+    this.resultsCenterService.tableFilters.update(prev => ({
+      ...prev,
+      sources: isAlreadySelected ? [] : [{ platform_code: platform.platform_code, name: platform.name }]
+    }));
+
+    this.resultsCenterService.applyFilters();
   }
 
   openCreateResultForProject() {
