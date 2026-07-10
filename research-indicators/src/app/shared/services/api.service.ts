@@ -360,10 +360,7 @@ export class ApiService {
     reportYear?: number | string | null,
     reportName = 'cap_sharing'
   ): Promise<MainResponse<string>> => {
-    let params = new HttpParams()
-      .set('is-html', 'false')
-      .set('report_name', reportName)
-      .set('reportingPlatforms', reportingPlatform);
+    let params = new HttpParams().set('is-html', 'false').set('report_name', reportName).set('reportingPlatforms', reportingPlatform);
 
     if (reportYear != null && String(reportYear).trim() !== '') {
       params = params.set('reportYear', String(reportYear));
