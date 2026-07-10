@@ -197,6 +197,14 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('portfolios', {});
     });
 
+    it('should call GET_FundingTypes', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_FundingTypes();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/funding-types', {});
+    });
+
     it('should call GET_ClarisaSdgTargets', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
@@ -611,6 +619,7 @@ describe('ApiService', () => {
         status: 'active',
         'start-date': '2024-01-01',
         'end-date': '2024-12-31',
+        'funding-type': 'BLR,RUN',
         'with-indicators': false
       };
 
@@ -624,6 +633,7 @@ describe('ApiService', () => {
       expect(result.get('status')).toBe('active');
       expect(result.get('start-date')).toBe('2024-01-01');
       expect(result.get('end-date')).toBe('2024-12-31');
+      expect(result.get('funding-type')).toBe('BLR,RUN');
       expect(result.get('with-indicators')).toBe('false');
     });
 
@@ -1138,6 +1148,20 @@ describe('ApiService', () => {
       service.GET_FindContracts(filters);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/find-contracts', { params: expect.any(HttpParams) });
+    });
+
+    it('should call GET_FindContracts with funding-type filter', () => {
+      const filters = {
+        'current-user': false,
+        'funding-type': 'BLR,RUN'
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_FindContracts(filters);
+
+      const callArgs = (mockToPromiseService.get as jest.Mock).mock.calls.at(-1);
+      expect(callArgs?.[0]).toBe('agresso/contracts/find-contracts');
+      expect(callArgs?.[1].params.get('funding-type')).toBe('BLR,RUN');
     });
 
     it('should call GET_ResultsCount', () => {

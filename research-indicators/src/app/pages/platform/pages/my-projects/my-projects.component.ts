@@ -98,6 +98,7 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
 
   @ViewChild('statusSelect') statusSelect?: MultiselectComponent;
   @ViewChild('leverSelect') leverSelect?: MultiselectComponent;
+  @ViewChild('fundingTypeSelect') fundingTypeSelect?: MultiselectComponent;
   @ViewChild('tableRppScope') tableRppScope?: ElementRef<HTMLElement>;
 
   myProjectsFilterItems: MenuItem[] = [
@@ -297,11 +298,13 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
   }
 
   ngAfterViewInit() {
-    if (this.statusSelect && this.leverSelect) {
-      this.myProjectsService.multiselectRefs.set({
-        status: this.statusSelect,
-        lever: this.leverSelect
-      });
+    const refs: Record<string, MultiselectComponent> = {};
+    if (this.statusSelect) refs['status'] = this.statusSelect;
+    if (this.leverSelect) refs['lever'] = this.leverSelect;
+    if (this.fundingTypeSelect) refs['fundingType'] = this.fundingTypeSelect;
+
+    if (Object.keys(refs).length > 0) {
+      this.myProjectsService.multiselectRefs.set(refs);
 
       if (!this.restoredState) {
         setTimeout(() => {
@@ -666,7 +669,8 @@ export default class MyProjectsComponent implements OnInit, AfterViewInit, OnDes
       count_results: 'count-results',
       lead_center: 'lead-center',
       start_date: 'start-date',
-      end_date: 'end-date'
+      end_date: 'end-date',
+      funding_type: 'funding-type'
     };
     return fieldMapping[tableField] || tableField;
   }

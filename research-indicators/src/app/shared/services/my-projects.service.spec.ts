@@ -134,6 +134,14 @@ describe('MyProjectsService', () => {
       expect(service.hasFilters()).toBe(true);
     });
 
+    it('should return true when funding types filter is active', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [{ funding_type: 'BLR' }]
+      });
+      expect(service.hasFilters()).toBe(true);
+    });
+
     it('should return true when start date filter is active', () => {
       service.appliedFilters.set({
         ...new MyProjectsFilters(),
@@ -1069,6 +1077,25 @@ describe('MyProjectsService', () => {
       expect(service.appliedFilters().statusCodes).toHaveLength(2);
     });
 
+    it('should apply funding types filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [{ funding_type: 'BLR' }, { funding_type: 'RUN' }]
+      });
+
+      service.applyFilters();
+
+      expect(mockApiService.GET_FindContracts).toHaveBeenCalledWith(
+        expect.objectContaining({
+          'current-user': false,
+          'funding-type': 'BLR,RUN',
+          page: 1,
+          limit: 10
+        })
+      );
+      expect(service.appliedFilters().fundingTypes).toHaveLength(2);
+    });
+
     it('should apply start date filter', () => {
       service.tableFilters.set({
         ...new MyProjectsFilters(),
@@ -1286,6 +1313,24 @@ describe('MyProjectsService', () => {
 
       expect(service.countFiltersSelected()).toBeUndefined();
     });
+
+    it('should count funding types filter', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [{ funding_type: 'BLR' }, { funding_type: 'RUN' }]
+      });
+
+      expect(service.countFiltersSelected()).toBe('2');
+    });
+
+    it('should handle fundingTypes with null/undefined length', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: undefined as any
+      });
+
+      expect(service.countFiltersSelected()).toBeUndefined();
+    });
   });
 
   describe('getActiveFilters computed', () => {
@@ -1326,6 +1371,22 @@ describe('MyProjectsService', () => {
         expect.arrayContaining([
           expect.objectContaining({ label: 'STATUS', value: 'Active', id: 'active' }),
           expect.objectContaining({ label: 'STATUS', value: 'Draft', id: 'draft' })
+        ])
+      );
+    });
+
+    it('should include fundingTypes in getActiveFilters', () => {
+      service.appliedFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [{ funding_type: 'BLR' }, { funding_type: 'RUN' }]
+      });
+
+      const activeFilters = service.getActiveFilters();
+      expect(activeFilters).toHaveLength(2);
+      expect(activeFilters).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ label: 'FUNDING TYPE', value: 'BLR', id: 'BLR' }),
+          expect.objectContaining({ label: 'FUNDING TYPE', value: 'RUN', id: 'RUN' })
         ])
       );
     });
@@ -1790,6 +1851,34 @@ describe('MyProjectsService', () => {
       expect(service.tableFilters().levers).toEqual([{ id: 2, short_name: 'Test2' }]);
     });
 
+    it('should remove all funding types when label is FUNDING TYPE and id is not provided', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [
+          { funding_type: 'BLR' },
+          { funding_type: 'RUN' }
+        ]
+      });
+
+      service.removeFilter('FUNDING TYPE');
+
+      expect(service.tableFilters().fundingTypes).toEqual([]);
+    });
+
+    it('should remove specific funding type when id is provided', () => {
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [
+          { funding_type: 'BLR' },
+          { funding_type: 'RUN' }
+        ]
+      });
+
+      service.removeFilter('FUNDING TYPE', 'BLR');
+
+      expect(service.tableFilters().fundingTypes).toEqual([{ funding_type: 'RUN' }]);
+    });
+
     it('should call removeById on multiselect ref when id is provided', () => {
       const mockMultiselect = {
         removeById: jest.fn()
@@ -1925,6 +2014,44 @@ describe('MyProjectsService', () => {
       service.removeFilter('LEVER', 1);
 
       expect(mockMultiselect.removeById).toHaveBeenCalledWith(1);
+    });
+
+    it('should handle funding type multiselect ref', () => {
+      const mockMultiselect = {
+        removeById: jest.fn()
+      } as any;
+
+      service.multiselectRefs.set({
+        fundingType: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [{ funding_type: 'BLR' }]
+      });
+
+      service.removeFilter('FUNDING TYPE', 'BLR');
+
+      expect(mockMultiselect.removeById).toHaveBeenCalledWith('BLR');
+    });
+
+    it('should call clear on funding type multiselect ref when id is null', () => {
+      const mockMultiselect = {
+        clear: jest.fn()
+      } as any;
+
+      service.multiselectRefs.set({
+        fundingType: mockMultiselect
+      });
+
+      service.tableFilters.set({
+        ...new MyProjectsFilters(),
+        fundingTypes: [{ funding_type: 'BLR' }]
+      });
+
+      service.removeFilter('FUNDING TYPE');
+
+      expect(mockMultiselect.clear).toHaveBeenCalled();
     });
   });
 
