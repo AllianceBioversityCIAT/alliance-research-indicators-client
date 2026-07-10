@@ -31,6 +31,7 @@ import { getContractStatusClasses } from '@shared/constants/status-classes.const
 import { TextareaComponent } from '@shared/components/custom-fields/textarea/textarea.component';
 import { MultiselectComponent } from '@shared/components/custom-fields/multiselect/multiselect.component';
 import { RadioButtonComponent } from '@shared/components/custom-fields/radio-button/radio-button.component';
+import { InputComponent } from '@shared/components/custom-fields/input/input.component';
 import { MultiselectInstanceComponent } from '@shared/components/custom-fields/multiselect-instance/multiselect-instance.component';
 import {
   getGeoScopeMultiselectTexts,
@@ -67,6 +68,8 @@ import { FindContracts } from '@shared/interfaces/find-contracts.interface';
 import { AccordionModule } from 'primeng/accordion';
 import { SubmissionService } from '@shared/services/submission.service';
 
+const OTHER_LEVER_ID = 9;
+
 @Component({
   selector: 'app-create-oicr-form',
   templateUrl: './create-oicr-form.component.html',
@@ -77,6 +80,7 @@ import { SubmissionService } from '@shared/services/submission.service';
     RadioButtonComponent,
     MultiselectComponent,
     MultiselectInstanceComponent,
+    InputComponent,
     OicrFormFieldsComponent,
     NgTemplateOutlet,
     TooltipModule,
@@ -159,6 +163,7 @@ export class CreateOicrFormComponent implements OnInit {
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
   primaryOptionsDisabled: WritableSignal<Lever[]> = signal([]);
+  private readonly leverCustomNameSignals = new Map<string | number, WritableSignal<{ custom_lever_name: string }>>();
 
   public getContractStatusClasses = getContractStatusClasses;
   private stepSectionIds = [...CREATE_OICR_STEPPER_SECTIONS];
@@ -383,7 +388,21 @@ export class CreateOicrFormComponent implements OnInit {
 
   get isCompleteStepTwo(): boolean {
     const b = this.createResultManagementService.createOicrBody();
-    return b.step_two.primary_lever.length > 0;
+    const primaryLevers = b.step_two?.primary_lever ?? [];
+    if (primaryLevers.length === 0) {
+      return false;
+    }
+
+    const contributorLevers = b.step_two?.contributor_lever ?? [];
+    const allLevers = [...primaryLevers, ...contributorLevers];
+    return allLevers.every(lever => {
+      if (!this.isOtherLever(lever)) {
+        return true;
+      }
+
+      const customName = this.getLeverCustomNameSignal(lever)().custom_lever_name?.trim();
+      return !!customName;
+    });
   }
 
   get isCompleteStepThree(): boolean {
@@ -460,8 +479,9 @@ export class CreateOicrFormComponent implements OnInit {
   });
 
   async createResult() {
+    const payload = this.buildOicrPayloadWithCustomLeverNames();
     const response = await this.api.POST_CreateOicr(
-      this.createResultManagementService.createOicrBody(),
+      payload,
       this.createResultManagementService.currentRequestedResultCode() || undefined
     );
     // clean currentRequestedResultCode
@@ -757,5 +777,56 @@ export class CreateOicrFormComponent implements OnInit {
   getUpdatedDate() {
     const item = this.getFirstHistoryItem();
     return item?.updated_at || '';
+  }
+
+  isOtherLever(lever: Lever): boolean {
+    return Number(lever.lever_id) === OTHER_LEVER_ID;
+  }
+
+  getLeverCustomNameSignal(lever: Lever) {
+    let customNameSignal = this.leverCustomNameSignals.get(lever.lever_id);
+    if (!customNameSignal) {
+      customNameSignal = signal({ custom_lever_name: lever.custom_lever_name ?? '' });
+      this.leverCustomNameSignals.set(lever.lever_id, customNameSignal);
+    }
+    return customNameSignal;
+  }
+
+  private buildOicrPayloadWithCustomLeverNames() {
+    const body = this.createResultManagementService.createOicrBody();
+
+    if (!body.step_two) {
+      return body;
+    }
+
+    return {
+      ...body,
+      step_two: {
+        ...body.step_two,
+        primary_lever: this.mapLeversWithCustomNames(body.step_two.primary_lever),
+        contributor_lever: this.mapLeversWithCustomNames(body.step_two.contributor_lever)
+      }
+    };
+  }
+
+  private mapLeversWithCustomNames(levers: Lever[] | undefined): Lever[] {
+    if (!levers?.length) {
+      return levers ?? [];
+    }
+
+    return levers.map(lever => {
+      if (!this.isOtherLever(lever)) {
+        const { custom_lever_name: _customLeverName, ...rest } = lever;
+        return rest;
+      }
+
+      const custom_lever_name = (
+        this.getLeverCustomNameSignal(lever)().custom_lever_name ??
+        lever.custom_lever_name ??
+        ''
+      ).trim();
+
+      return { ...lever, custom_lever_name };
+    });
   }
 }

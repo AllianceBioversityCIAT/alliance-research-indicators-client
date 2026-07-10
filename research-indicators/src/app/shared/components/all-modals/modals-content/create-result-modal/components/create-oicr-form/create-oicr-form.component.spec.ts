@@ -536,10 +536,76 @@ describe('CreateOicrFormComponent', () => {
 
   it('should handle isCompleteStepTwo when complete', () => {
     mockCreateResultManagementService.createOicrBody.set({
-      step_two: { primary_lever: ['lever1'] }
+      step_two: { primary_lever: [{ lever_id: 1 }], contributor_lever: [] }
     });
-    
+
     expect(component.isCompleteStepTwo).toBe(true);
+  });
+
+  it('should require custom lever name when Other lever is selected', () => {
+    mockCreateResultManagementService.createOicrBody.set({
+      step_two: {
+        primary_lever: [{ lever_id: 9 }],
+        contributor_lever: []
+      }
+    });
+
+    expect(component.isCompleteStepTwo).toBe(false);
+
+    component.getLeverCustomNameSignal({ lever_id: 9 } as any).set({ custom_lever_name: 'Custom team' });
+
+    expect(component.isCompleteStepTwo).toBe(true);
+  });
+
+  it('should identify Other lever and send custom_lever_name on create', async () => {
+    const otherLever = { lever_id: 9, is_primary: true, lever_role_id: 1, result_id: 0, result_lever_id: 0 };
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: [otherLever],
+        contributor_lever: []
+      }
+    });
+    component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: 'Innovation team' });
+
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(component.isOtherLever(otherLever)).toBe(true);
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          primary_lever: [expect.objectContaining({ lever_id: 9, custom_lever_name: 'Innovation team' })]
+        })
+      }),
+      undefined
+    );
+  });
+
+  it('should send custom_lever_name for contributor Other lever on create', async () => {
+    const otherLever = { lever_id: 9, is_primary: false, lever_role_id: 2, result_id: 0, result_lever_id: 0 };
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: [{ lever_id: 1, is_primary: true, lever_role_id: 1, result_id: 0, result_lever_id: 0 }],
+        contributor_lever: [otherLever]
+      }
+    });
+    component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: 'Regional team' });
+
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          contributor_lever: [expect.objectContaining({ lever_id: 9, custom_lever_name: 'Regional team' })]
+        })
+      }),
+      undefined
+    );
   });
 
   it('should handle isCompleteStepThree when geo scope not set', () => {
