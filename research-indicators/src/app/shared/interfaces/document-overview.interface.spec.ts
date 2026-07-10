@@ -90,6 +90,25 @@ describe('mapAvailableOverviewFiles', () => {
       }
     ]);
   });
+
+  it('should fall back to documents_processed when available_files is empty', () => {
+    const response: DocumentOverviewResponse = {
+      available_files: [],
+      documents_processed: [
+        {
+          file_name: 'processed.pdf',
+          file_key: 'folder/processed.pdf'
+        }
+      ]
+    };
+
+    expect(mapAvailableOverviewFiles(response)).toEqual([
+      {
+        fileName: 'processed.pdf',
+        fileKey: 'folder/processed.pdf'
+      }
+    ]);
+  });
 });
 
 describe('mapOverviewSourceDocuments', () => {
@@ -113,6 +132,54 @@ describe('mapOverviewSourceDocuments', () => {
       {
         fileName: 'processed.pdf',
         fileKey: 'folder/processed.pdf'
+      }
+    ]);
+  });
+
+  it('should derive the file name from file key when file name is blank', () => {
+    const response: DocumentOverviewResponse = {
+      documents_processed: [
+        {
+          file_name: '   ',
+          file_key: 'folder/report.pdf'
+        }
+      ]
+    };
+
+    expect(mapOverviewSourceDocuments(response)).toEqual([
+      {
+        fileName: 'report.pdf',
+        fileKey: 'folder/report.pdf'
+      }
+    ]);
+  });
+
+  it('should return an empty list when no document entries are provided', () => {
+    expect(mapOverviewSourceDocuments({})).toEqual([]);
+    expect(mapAvailableOverviewFiles({})).toEqual([]);
+  });
+
+  it('should ignore entries without a file key', () => {
+    const response: DocumentOverviewResponse = {
+      documents_processed: [{ file_name: 'orphan.pdf' }]
+    };
+
+    expect(mapOverviewSourceDocuments(response)).toEqual([]);
+  });
+
+  it('should fall back to Document when file name cannot be derived from file key', () => {
+    const response: DocumentOverviewResponse = {
+      documents_processed: [
+        {
+          file_key: 'folder/'
+        }
+      ]
+    };
+
+    expect(mapOverviewSourceDocuments(response)).toEqual([
+      {
+        fileName: 'Document',
+        fileKey: 'folder/'
       }
     ]);
   });
