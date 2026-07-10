@@ -10,6 +10,8 @@ import { GetTopMainContactPersonsService } from '@shared/services/get-top-main-c
 import { GetTopPartnersService } from '@shared/services/get-top-partners.service';
 import { GetTopPrimaryLeversService } from '@shared/services/get-top-primary-levers.service';
 import { FileManagerService } from '@shared/services/file-manager.service';
+import { DocumentOverviewService } from '@shared/services/document-overview.service';
+import { RolesService } from '@shared/services/cache/roles.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { ProjectDashboardComponent } from './project-dashboard.component';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
@@ -65,6 +67,12 @@ describe('ProjectDashboardComponent', () => {
   let geoScopeMock: { main: jest.Mock };
   let resultsCenterServiceMock: { initializeProjectDashboardResultsTable: jest.Mock };
   let fileManagerServiceMock: { uploadFile: jest.Mock };
+  let documentOverviewServiceMock: {
+    fetchDocumentOverviewSummary: jest.Mock;
+    generateDocumentOverview: jest.Mock;
+    deleteDocumentOverviewFiles: jest.Mock;
+  };
+  let rolesServiceMock: { isAdmin: jest.Mock };
   let actionsServiceMock: { showToast: jest.Mock };
 
   function createFile(name: string, size = 1024, type = 'application/pdf'): File {
@@ -88,7 +96,7 @@ describe('ProjectDashboardComponent', () => {
     };
   }
 
-  async function setup(contractId: string | null = 'C-1') {
+  async function setup(contractId: string | null = 'C-1', options?: { isAdmin?: boolean }) {
     topContributorsMock = createRankedServiceMock();
     topMainContactsMock = createRankedServiceMock();
     topPartnersMock = createRankedServiceMock();
@@ -98,7 +106,47 @@ describe('ProjectDashboardComponent', () => {
     fileManagerServiceMock = {
       uploadFile: jest.fn().mockResolvedValue({ data: { filename: 'stored-file.pdf' } })
     };
-    actionsServiceMock = { showToast: jest.fn() };
+    documentOverviewServiceMock = {
+      fetchDocumentOverviewSummary: jest.fn().mockResolvedValue({
+        overview: {
+          project_summary: 'Stored overview paragraph.\n\nSecond stored paragraph.'
+        },
+        generated_at: '2026-07-09T20:10:56.921192+00:00',
+        available_files: [
+          {
+            file_name: 'stored-file.pdf',
+            file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+          }
+        ],
+        documents_processed: [
+          {
+            file_name: 'stored-file.pdf',
+            file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+          }
+        ]
+      }),
+      generateDocumentOverview: jest.fn().mockResolvedValue({
+        overview: {
+          project_summary: 'First overview paragraph.\n\nSecond overview paragraph.'
+        },
+        generated_at: '2026-07-10T14:05:25.094Z',
+        available_files: [
+          {
+            file_name: 'contract.pdf',
+            file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+          }
+        ],
+        documents_processed: [
+          {
+            file_name: 'contract.pdf',
+            file_key: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+          }
+        ]
+      }),
+      deleteDocumentOverviewFiles: jest.fn().mockResolvedValue(undefined)
+    };
+    actionsServiceMock = { showToast: jest.fn(), showGlobalAlert: jest.fn() };
+    rolesServiceMock = { isAdmin: jest.fn().mockReturnValue(options?.isAdmin ?? true) };
     apiMock = {
       GET_ResultsCount: jest.fn().mockResolvedValue({
         data: {
@@ -140,6 +188,8 @@ describe('ProjectDashboardComponent', () => {
         },
         { provide: ResultsCenterService, useValue: resultsCenterServiceMock },
         { provide: FileManagerService, useValue: fileManagerServiceMock },
+        { provide: DocumentOverviewService, useValue: documentOverviewServiceMock },
+        { provide: RolesService, useValue: rolesServiceMock },
         { provide: ActionsService, useValue: actionsServiceMock }
       ]
     })
@@ -325,31 +375,226 @@ describe('ProjectDashboardComponent', () => {
   describe('grounding and executive overview', () => {
     it('should format grounded docs badge for singular and plural counts', async () => {
       await setup();
+      component.groundedDocuments.set([]);
 
-      expect(component.groundedDocsBadgeLabel()).toBe('0 Docs Grounded');
+      expect(component.groundedDocumentsCountColor()).toBe('#8D9299');
 
-      component.groundedDocuments.set([{ originalName: 'a.pdf', storedFilename: 'a.pdf' }]);
-      expect(component.groundedDocsBadgeLabel()).toBe('1 Doc Grounded');
+      component.groundedDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
+      expect(component.groundedDocumentsCountColor()).toBe('#358540');
       expect(component.hasGroundedDocuments()).toBe(true);
       expect(component.canUploadMoreGroundingDocs()).toBe(true);
 
       component.groundedDocuments.set([
-        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
-        { originalName: 'b.pdf', storedFilename: 'b.pdf' },
-        { originalName: 'c.pdf', storedFilename: 'c.pdf' }
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' },
+        { fileName: 'c.pdf', fileKey: 'folder/c.pdf' }
       ]);
-      expect(component.groundedDocsBadgeLabel()).toBe('3 Docs Grounded');
+      expect(component.groundedDocumentsCountColor()).toBe('#CF0808');
       expect(component.canUploadMoreGroundingDocs()).toBe(false);
     });
 
-    it('should build executive overview paragraphs with and without agreement id', async () => {
+    it('should allow grounding setup only for center admin and system admin', async () => {
       await setup();
 
-      component.project.set({ agreement_id: '  D514  ' });
-      expect(component.executiveOverviewParagraphs()[0]).toContain('Project D514 demonstrates');
+      expect(component.canAccessGroundingSetup()).toBe(true);
+    });
 
-      component.project.set({});
-      expect(component.executiveOverviewParagraphs()[0]).toContain('Project this project demonstrates');
+    it('should hide grounding setup for non-admin users', async () => {
+      await setup('C-1', { isAdmin: false });
+
+      expect(component.canAccessGroundingSetup()).toBe(false);
+    });
+
+    it('should load stored executive overview summary and documents on dashboard init', async () => {
+      await setup();
+
+      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).toHaveBeenCalledWith('C-1');
+      expect(documentOverviewServiceMock.generateDocumentOverview).not.toHaveBeenCalled();
+      expect(component.executiveOverviewParagraphs()).toEqual([
+        'Stored overview paragraph.',
+        'Second stored paragraph.'
+      ]);
+      expect(component.groundedDocuments()).toEqual([
+        {
+          fileName: 'stored-file.pdf',
+          fileKey: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+        }
+      ]);
+      expect(component.overviewSourceDocuments()).toEqual([
+        {
+          fileName: 'stored-file.pdf',
+          fileKey: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+        }
+      ]);
+      expect(component.executiveOverviewGeneratedAt()).toBe('2026-07-09T20:10:56.921192+00:00');
+      expect(component.showExecutiveOverview()).toBe(true);
+    });
+
+    it('should not load executive overview summary for non-admin users', async () => {
+      await setup('C-1', { isAdmin: false });
+
+      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).not.toHaveBeenCalled();
+      expect(component.showExecutiveOverview()).toBe(false);
+    });
+
+    it('should block grounding upload actions for non-admin users', async () => {
+      await setup('C-1', { isAdmin: false });
+      const fileInput = document.createElement('input');
+      const clickSpy = jest.spyOn(fileInput, 'click');
+
+      component.triggerGroundingUpload(fileInput);
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('contract.pdf')])
+      } as unknown as Event);
+      await component.generateExecutiveOverview();
+
+      expect(clickSpy).not.toHaveBeenCalled();
+      expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
+      expect(documentOverviewServiceMock.fetchDocumentOverviewSummary).not.toHaveBeenCalled();
+      expect(documentOverviewServiceMock.generateDocumentOverview).not.toHaveBeenCalled();
+    });
+
+    it('should upload grounding files without generating executive overview', async () => {
+      await setup();
+      component.groundedDocuments.set([]);
+      documentOverviewServiceMock.fetchDocumentOverviewSummary.mockClear();
+
+      await component.onGroundingFilesSelected({
+        target: createFileInput([createFile('contract.pdf')])
+      } as unknown as Event);
+
+      expect(fileManagerServiceMock.uploadFile).toHaveBeenCalledTimes(1);
+      expect(documentOverviewServiceMock.generateDocumentOverview).not.toHaveBeenCalled();
+      expect(component.groundedDocuments()).toEqual([
+        {
+          fileName: 'contract.pdf',
+          fileKey: expect.stringContaining('stored-file.pdf')
+        }
+      ]);
+      expect(component.uploadingGroundingDoc()).toBe(false);
+    });
+
+    it('should generate executive overview when generate is clicked', async () => {
+      await setup();
+      component.groundedDocuments.set([{ fileName: 'contract.pdf', fileKey: 'folder/contract.pdf' }]);
+      documentOverviewServiceMock.generateDocumentOverview.mockClear();
+
+      await component.generateExecutiveOverview();
+
+      expect(documentOverviewServiceMock.generateDocumentOverview).toHaveBeenCalledWith('C-1');
+      expect(fileManagerServiceMock.uploadFile).not.toHaveBeenCalled();
+      expect(component.executiveOverviewParagraphs()).toEqual([
+        'First overview paragraph.',
+        'Second overview paragraph.'
+      ]);
+      expect(component.groundedDocuments()).toEqual([
+        {
+          fileName: 'contract.pdf',
+          fileKey: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+        }
+      ]);
+      expect(component.overviewSourceDocuments()).toEqual([
+        {
+          fileName: 'contract.pdf',
+          fileKey: 'star/ai-insights/test/project-overview/projects/C-1/stored-file.pdf'
+        }
+      ]);
+      expect(component.executiveOverviewGeneratedAt()).toBe('2026-07-10T14:05:25.094Z');
+      expect(component.executiveOverviewLoading()).toBe(false);
+      expect(component.executiveOverviewError()).toBe(false);
+    });
+
+    it('should set executive overview error when document overview generation fails', async () => {
+      await setup();
+      component.groundedDocuments.set([{ fileName: 'contract.pdf', fileKey: 'folder/contract.pdf' }]);
+      documentOverviewServiceMock.generateDocumentOverview.mockRejectedValueOnce(new Error('overview failed'));
+
+      await component.generateExecutiveOverview();
+
+      expect(component.executiveOverviewError()).toBe(true);
+      expect(component.executiveOverviewLoading()).toBe(false);
+    });
+
+    it('should skip executive overview generation when contract id is missing', async () => {
+      await setup(null);
+      component.groundedDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
+      documentOverviewServiceMock.generateDocumentOverview.mockClear();
+
+      await component.generateExecutiveOverview();
+
+      expect(documentOverviewServiceMock.generateDocumentOverview).not.toHaveBeenCalled();
+    });
+
+    it('should show a confirmation modal before removing a grounded document', async () => {
+      await setup();
+      component.groundedDocuments.set([
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' }
+      ]);
+      component.executiveOverviewParagraphs.set(['Existing overview']);
+      component.executiveOverviewGeneratedAt.set('2026-07-09T20:10:56.921192+00:00');
+      component.overviewSourceDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
+
+      component.removeGroundingDocument('folder/a.pdf');
+
+      expect(actionsServiceMock.showGlobalAlert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'warning',
+          summary: 'Remove document',
+          icon: 'pi pi-exclamation-triangle',
+          color: '#E69F00',
+          confirmCallback: expect.objectContaining({ label: 'Continue' }),
+          cancelCallback: expect.objectContaining({ label: 'Cancel' })
+        })
+      );
+      expect(documentOverviewServiceMock.deleteDocumentOverviewFiles).not.toHaveBeenCalled();
+    });
+
+    it('should remove a grounded document from the list after confirmation', async () => {
+      await setup();
+      component.groundedDocuments.set([
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' }
+      ]);
+      component.executiveOverviewParagraphs.set(['Existing overview']);
+      component.executiveOverviewGeneratedAt.set('2026-07-09T20:10:56.921192+00:00');
+      component.overviewSourceDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
+
+      component.removeGroundingDocument('folder/a.pdf');
+      const alertConfig = actionsServiceMock.showGlobalAlert.mock.calls[0][0];
+      await alertConfig.confirmCallback.event();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(documentOverviewServiceMock.deleteDocumentOverviewFiles).toHaveBeenCalledWith('C-1', ['a.pdf']);
+      expect(component.groundedDocuments()).toEqual([{ fileName: 'b.pdf', fileKey: 'folder/b.pdf' }]);
+      expect(component.executiveOverviewParagraphs()).toEqual([]);
+      expect(component.executiveOverviewGeneratedAt()).toBeNull();
+      expect(component.overviewSourceDocuments()).toEqual([]);
+    });
+
+    it('should keep the grounded document when delete request fails', async () => {
+      await setup();
+      documentOverviewServiceMock.deleteDocumentOverviewFiles.mockRejectedValueOnce(new Error('delete failed'));
+      component.groundedDocuments.set([
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' }
+      ]);
+
+      component.removeGroundingDocument('folder/a.pdf');
+      const alertConfig = actionsServiceMock.showGlobalAlert.mock.calls[0][0];
+      await alertConfig.confirmCallback.event();
+      await new Promise(resolve => setTimeout(resolve, 0));
+
+      expect(actionsServiceMock.showToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          summary: 'Remove failed'
+        })
+      );
+      expect(component.groundedDocuments()).toEqual([
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' }
+      ]);
     });
 
     it('should trigger grounding upload when slots are available', async () => {
@@ -369,9 +614,9 @@ describe('ProjectDashboardComponent', () => {
       const clickSpy = jest.spyOn(fileInput, 'click');
 
       component.groundedDocuments.set([
-        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
-        { originalName: 'b.pdf', storedFilename: 'b.pdf' },
-        { originalName: 'c.pdf', storedFilename: 'c.pdf' }
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' },
+        { fileName: 'c.pdf', fileKey: 'folder/c.pdf' }
       ]);
       component.triggerGroundingUpload(fileInput);
       expect(clickSpy).not.toHaveBeenCalled();
@@ -393,9 +638,9 @@ describe('ProjectDashboardComponent', () => {
     it('should warn when upload limit is already reached', async () => {
       await setup();
       component.groundedDocuments.set([
-        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
-        { originalName: 'b.pdf', storedFilename: 'b.pdf' },
-        { originalName: 'c.pdf', storedFilename: 'c.pdf' }
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' },
+        { fileName: 'c.pdf', fileKey: 'folder/c.pdf' }
       ]);
 
       await component.onGroundingFilesSelected({
@@ -410,6 +655,7 @@ describe('ProjectDashboardComponent', () => {
 
     it('should upload valid grounding files and pass project id to file manager', async () => {
       await setup();
+      component.groundedDocuments.set([]);
 
       await component.onGroundingFilesSelected({
         target: createFileInput([createFile('contract.pdf'), createFile('scope.docx')])
@@ -423,8 +669,8 @@ describe('ProjectDashboardComponent', () => {
         { projectId: 'C-1' }
       );
       expect(component.groundedDocuments()).toEqual([
-        { originalName: 'contract.pdf', storedFilename: 'stored-file.pdf' },
-        { originalName: 'scope.docx', storedFilename: 'stored-file.pdf' }
+        { fileName: 'contract.pdf', fileKey: expect.stringContaining('stored-file.pdf') },
+        { fileName: 'scope.docx', fileKey: expect.stringContaining('stored-file.pdf') }
       ]);
       expect(component.uploadingGroundingDoc()).toBe(false);
     });
@@ -432,8 +678,8 @@ describe('ProjectDashboardComponent', () => {
     it('should trim selected files to remaining slots and show singular limit toast', async () => {
       await setup();
       component.groundedDocuments.set([
-        { originalName: 'a.pdf', storedFilename: 'a.pdf' },
-        { originalName: 'b.pdf', storedFilename: 'b.pdf' }
+        { fileName: 'a.pdf', fileKey: 'folder/a.pdf' },
+        { fileName: 'b.pdf', fileKey: 'folder/b.pdf' }
       ]);
 
       await component.onGroundingFilesSelected({
@@ -467,7 +713,7 @@ describe('ProjectDashboardComponent', () => {
 
     it('should show plural limit toast when multiple slots remain', async () => {
       await setup();
-      component.groundedDocuments.set([{ originalName: 'a.pdf', storedFilename: 'a.pdf' }]);
+      component.groundedDocuments.set([{ fileName: 'a.pdf', fileKey: 'folder/a.pdf' }]);
 
       await component.onGroundingFilesSelected({
         target: createFileInput([createFile('one.pdf'), createFile('two.pdf'), createFile('three.pdf')])

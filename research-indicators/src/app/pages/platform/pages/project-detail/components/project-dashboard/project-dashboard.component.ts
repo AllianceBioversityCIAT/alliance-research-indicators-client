@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, effect, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { GeoScopeCardComponent } from '../geo-scope-card/geo-scope-card.component';
@@ -11,6 +12,16 @@ import { GetGeoScopeService } from '@services/get-geo-scope.service';
 import { ApiService } from '@shared/services/api.service';
 import { ActionsService } from '@shared/services/actions.service';
 import { FileManagerService } from '@shared/services/file-manager.service';
+import { DocumentOverviewService } from '@shared/services/document-overview.service';
+import { RolesService } from '@shared/services/cache/roles.service';
+import {
+  DocumentOverviewResponse,
+  GroundedProjectDocument,
+  mapAvailableOverviewFiles,
+  mapOverviewSourceDocuments,
+  parseDocumentOverviewParagraphs
+} from '@shared/interfaces/document-overview.interface';
+import { environment } from '@envs/environment';
 import { GetProjectDetail, GetProjectDetailIndicator } from '@shared/interfaces/get-project-detail.interface';
 import { ProjectDashboardRankedItem } from '@interfaces/project-dashboard.interface';
 import { projectDashboardBarColor } from '@shared/constants/project-dashboard-chart-colors.constants';
@@ -18,11 +29,6 @@ import { ProjectUtilsService } from '@shared/services/project-utils.service';
 import { ResultsCenterTableComponent } from '../../../results-center/components/results-center-table/results-center-table.component';
 import { ResultsCenterService } from '../../../results-center/results-center.service';
 import { Result } from '@shared/interfaces/result/result.interface';
-
-interface GroundedDocument {
-  originalName: string;
-  storedFilename: string;
-}
 
 const MAX_GROUNDING_DOCS = 3;
 const GROUNDING_ACCEPTED_FORMATS = ['.pdf', '.docx', '.txt'];
@@ -39,7 +45,7 @@ interface ProjectStatusChartItem {
 @Component({
   selector: 'app-project-dashboard',
   standalone: true,
-  imports: [ButtonModule, ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent],
+  imports: [ButtonModule, ProjectDashboardCardComponent, GeoScopeCardComponent, ResultsCenterTableComponent, DatePipe],
   providers: [
     GetTopContributorsContractsService,
     GetTopMainContactPersonsService,
@@ -56,22 +62,42 @@ export class ProjectDashboardComponent {
   private readonly projectUtils = inject(ProjectUtilsService);
   private readonly resultsCenterService = inject(ResultsCenterService);
   private readonly fileManagerService = inject(FileManagerService);
+  private readonly documentOverviewService = inject(DocumentOverviewService);
+  private readonly rolesService = inject(RolesService);
   private readonly actions = inject(ActionsService);
 
   readonly maxGroundingDocs = MAX_GROUNDING_DOCS;
   readonly groundingAcceptedFormats = GROUNDING_ACCEPTED_FORMATS;
-  readonly groundedDocuments = signal<GroundedDocument[]>([]);
+  readonly groundedDocuments = signal<GroundedProjectDocument[]>([]);
+  readonly overviewSourceDocuments = signal<GroundedProjectDocument[]>([]);
+  readonly executiveOverviewGeneratedAt = signal<string | null>(null);
   readonly uploadingGroundingDoc = signal(false);
+  readonly executiveOverviewParagraphs = signal<string[]>([]);
+  readonly executiveOverviewLoading = signal(false);
+  readonly executiveOverviewError = signal(false);
 
   readonly contractId = computed(() => this.route.parent?.snapshot.paramMap.get('id') ?? '');
   readonly project = signal<GetProjectDetail>({});
   readonly canUploadMoreGroundingDocs = computed(() => this.groundedDocuments().length < MAX_GROUNDING_DOCS);
-  readonly groundedDocsBadgeLabel = computed(() => {
+  readonly canGenerateExecutiveOverview = computed(
+    () => this.hasGroundedDocuments() && !this.executiveOverviewLoading() && !this.uploadingGroundingDoc()
+  );
+  readonly groundedDocumentsCountColor = computed(() => {
     const count = this.groundedDocuments().length;
-    return `${count} Doc${count === 1 ? '' : 's'} Grounded`;
+    if (count === 0) return '#8D9299';
+    if (count >= MAX_GROUNDING_DOCS) return '#CF0808';
+    return '#358540';
   });
   readonly hasGroundedDocuments = computed(() => this.groundedDocuments().length > 0);
-  readonly executiveOverviewParagraphs = computed(() => buildExecutiveOverviewParagraphs(this.project()));
+  readonly canAccessGroundingSetup = computed(() => this.rolesService.isAdmin());
+  readonly showExecutiveOverview = computed(
+    () =>
+      this.canAccessGroundingSetup() &&
+      (this.hasGroundedDocuments() ||
+        this.executiveOverviewLoading() ||
+        this.executiveOverviewError() ||
+        this.executiveOverviewParagraphs().length > 0)
+  );
 
   readonly indicatorSummaries = computed(() => {
     const indicators = this.projectUtils.sortIndicators([...(this.project().indicators ?? [])]);
@@ -182,6 +208,10 @@ export class ProjectDashboardComponent {
         this.topPrimaryLevers.main(contractId, 4);
         this.geoScope.main(contractId);
         this.resultsCenterService.initializeProjectDashboardResultsTable(contractId);
+
+        if (this.canAccessGroundingSetup()) {
+          void this.loadExecutiveOverviewSummary();
+        }
       }
     });
   }
@@ -213,7 +243,7 @@ export class ProjectDashboardComponent {
   }
 
   triggerGroundingUpload(fileInput: HTMLInputElement): void {
-    if (!this.canUploadMoreGroundingDocs() || this.uploadingGroundingDoc()) {
+    if (!this.canAccessGroundingSetup() || !this.canUploadMoreGroundingDocs() || this.uploadingGroundingDoc()) {
       return;
     }
 
@@ -222,6 +252,10 @@ export class ProjectDashboardComponent {
   }
 
   async onGroundingFilesSelected(event: Event): Promise<void> {
+    if (!this.canAccessGroundingSetup()) {
+      return;
+    }
+
     const input = event.target as HTMLInputElement;
     const files = Array.from(input.files ?? []);
     input.value = '';
@@ -269,8 +303,8 @@ export class ProjectDashboardComponent {
         this.groundedDocuments.update(current => [
           ...current,
           {
-            originalName: file.name,
-            storedFilename
+            fileName: file.name,
+            fileKey: `${environment.keyProjectOverview}${this.contractId()}/${storedFilename}`
           }
         ]);
       }
@@ -307,6 +341,121 @@ export class ProjectDashboardComponent {
     }
 
     return true;
+  }
+
+  removeGroundingDocument(fileKey: string): void {
+    if (!this.canAccessGroundingSetup()) {
+      return;
+    }
+
+    const document = this.groundedDocuments().find(item => item.fileKey === fileKey);
+    if (!document) {
+      return;
+    }
+
+    this.actions.showGlobalAlert({
+      severity: 'warning',
+      summary: 'Remove document',
+      icon: 'pi pi-exclamation-triangle',
+      color: '#E69F00',
+      detail:
+        'Removing this document will invalidate the current Executive Overview. ' +
+        'You will need to generate it again to update the grounded summary.',
+      confirmCallback: {
+        label: 'Continue',
+        event: () => {
+          void this.removeGroundingDocumentAsync(fileKey);
+        }
+      },
+      cancelCallback: {
+        label: 'Cancel'
+      },
+      buttonColor: '#035BA9'
+    });
+  }
+
+  private async removeGroundingDocumentAsync(fileKey: string): Promise<void> {
+    const projectId = this.contractId();
+    if (!projectId) {
+      return;
+    }
+
+    const document = this.groundedDocuments().find(item => item.fileKey === fileKey);
+    if (!document) {
+      return;
+    }
+
+    try {
+      await this.documentOverviewService.deleteDocumentOverviewFiles(projectId, [document.fileName]);
+      this.groundedDocuments.update(current => current.filter(item => item.fileKey !== fileKey));
+      this.clearGeneratedExecutiveOverview();
+    } catch {
+      this.actions.showToast({
+        severity: 'error',
+        summary: 'Remove failed',
+        detail: 'Something went wrong while removing the document. Please try again.'
+      });
+    }
+  }
+
+  async generateExecutiveOverview(): Promise<void> {
+    if (!this.canAccessGroundingSetup() || !this.hasGroundedDocuments()) {
+      return;
+    }
+
+    const projectId = this.contractId();
+    if (!projectId) {
+      return;
+    }
+
+    this.executiveOverviewLoading.set(true);
+    this.executiveOverviewError.set(false);
+
+    try {
+      const response = await this.documentOverviewService.generateDocumentOverview(projectId);
+      this.applyDocumentOverviewResponse(response);
+    } catch {
+      this.executiveOverviewError.set(true);
+    } finally {
+      this.executiveOverviewLoading.set(false);
+    }
+  }
+
+  private async loadExecutiveOverviewSummary(): Promise<void> {
+    if (!this.canAccessGroundingSetup()) {
+      return;
+    }
+
+    const projectId = this.contractId();
+    if (!projectId) {
+      return;
+    }
+
+    this.executiveOverviewLoading.set(true);
+    this.executiveOverviewError.set(false);
+
+    try {
+      const response = await this.documentOverviewService.fetchDocumentOverviewSummary(projectId);
+      this.applyDocumentOverviewResponse(response);
+    } catch {
+      this.clearGeneratedExecutiveOverview();
+      this.groundedDocuments.set([]);
+    } finally {
+      this.executiveOverviewLoading.set(false);
+    }
+  }
+
+  private applyDocumentOverviewResponse(response: DocumentOverviewResponse): void {
+    this.executiveOverviewParagraphs.set(parseDocumentOverviewParagraphs(response));
+    this.groundedDocuments.set(mapAvailableOverviewFiles(response));
+    this.overviewSourceDocuments.set(mapOverviewSourceDocuments(response));
+    this.executiveOverviewGeneratedAt.set(response.generated_at ?? null);
+  }
+
+  private clearGeneratedExecutiveOverview(): void {
+    this.executiveOverviewParagraphs.set([]);
+    this.overviewSourceDocuments.set([]);
+    this.executiveOverviewGeneratedAt.set(null);
   }
 
   private async loadProjectResultsByStatus(contractId: string): Promise<void> {
@@ -397,16 +546,6 @@ function getPartnerItemId(item: ProjectDashboardRankedItem, index: number): stri
 
 function formatIndicatorName(indicator: GetProjectDetailIndicator): string {
   return indicator.indicator?.name ?? indicator.full_name ?? 'Indicator';
-}
-
-function buildExecutiveOverviewParagraphs(project: GetProjectDetail): string[] {
-  const projectCode = project.agreement_id?.trim() || 'this project';
-
-  return [
-    `Project ${projectCode} demonstrates a strong institutional commitment to climate adaptation in Africa, with a clear focus on deploying knowledge products that bridge research and practice. The initiative aligns foundational project goals with measurable reporting outcomes across STAR indicators.`,
-    'Technical innovations and digital advisory systems are emerging as core delivery mechanisms, supported by capacity development activities that engage a broad network of partners and participants across target regions.',
-    'Evidence completeness remains a key tracking metric for this portfolio, with thematic coverage spanning multiple strategic areas that inform future investment and reporting priorities.'
-  ];
 }
 
 function getIndicatorChartColor(indicator: GetProjectDetailIndicator, fallbackIndex: number, totalIndicators: number): string {
