@@ -816,8 +816,9 @@ export class CreateOicrFormComponent implements OnInit {
 
     return levers.map(lever => {
       if (!this.isOtherLever(lever)) {
-        const { custom_lever_name: _customLeverName, ...rest } = lever;
-        return rest;
+        const leverWithoutCustomName = { ...lever };
+        delete leverWithoutCustomName.custom_lever_name;
+        return leverWithoutCustomName;
       }
 
       const custom_lever_name = (
