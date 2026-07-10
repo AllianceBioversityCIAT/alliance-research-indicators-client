@@ -122,7 +122,6 @@ export default class AllianceAlignmentComponent {
   async getData() {
     this.leverOutcomeSignals.clear();
     this.leverSdgSignals.clear();
-    this.leverCustomNameSignals.clear();
 
     const portfolioParams = this.leverServiceParams();
     const contractParams = this.contractServiceParams();
@@ -203,8 +202,8 @@ export default class AllianceAlignmentComponent {
     this.body.set({
       contracts: enrichPortfolio2Contracts(response.data.contracts, contractsCatalog),
       result_sdgs: this.isOicrIndicator() ? [] : legacyRootSdgs,
-      primary_levers,
-      contributor_levers,
+      primary_levers: this.applyCustomNamesToLevers(primary_levers),
+      contributor_levers: this.applyCustomNamesToLevers(contributor_levers),
       research_areas: response.data.research_areas || [],
       strategic_objectives: response.data.strategic_objectives || [],
       impact_outcomes: response.data.impact_outcomes || []
@@ -224,14 +223,52 @@ export default class AllianceAlignmentComponent {
           result_lever_sdg_targets: (lever.result_lever_sdg_targets ?? []) as AlignmentSdgTargetRow[]
         })
       );
+    }
 
-      if (this.isOtherLever(lever)) {
-        this.leverCustomNameSignals.set(
-          lever.lever_id,
-          signal({ custom_lever_name: lever.custom_lever_name ?? '' })
-        );
+    this.syncLeverCustomNameSignals(levers);
+  }
+
+  private syncLeverCustomNameSignals(levers: Lever[]): void {
+    const activeOtherIds = new Set(
+      levers.filter(lever => this.isOtherLever(lever)).map(lever => lever.lever_id)
+    );
+
+    for (const leverId of [...this.leverCustomNameSignals.keys()]) {
+      if (!activeOtherIds.has(leverId)) {
+        this.leverCustomNameSignals.delete(leverId);
       }
     }
+
+    for (const lever of levers) {
+      if (!this.isOtherLever(lever)) {
+        continue;
+      }
+
+      const apiValue = (lever.custom_lever_name ?? '').trim();
+      const existing = this.leverCustomNameSignals.get(lever.lever_id);
+      if (!existing) {
+        this.leverCustomNameSignals.set(lever.lever_id, signal({ custom_lever_name: apiValue }));
+        continue;
+      }
+
+      const current = (existing().custom_lever_name ?? '').trim();
+      const nextValue = apiValue || current;
+      if (existing().custom_lever_name !== nextValue) {
+        existing.set({ custom_lever_name: nextValue });
+      }
+    }
+  }
+
+  private applyCustomNamesToLevers(levers: Lever[]): Lever[] {
+    return levers.map(lever => {
+      if (!this.isOtherLever(lever)) {
+        return lever;
+      }
+
+      const customNameSignal = this.leverCustomNameSignals.get(lever.lever_id);
+      const custom_lever_name = customNameSignal?.().custom_lever_name ?? lever.custom_lever_name ?? '';
+      return { ...lever, custom_lever_name };
+    });
   }
 
   optionsDisabled: WritableSignal<Lever[]> = signal([]);
