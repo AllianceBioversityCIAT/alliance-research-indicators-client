@@ -1123,6 +1123,192 @@ describe('AllianceAlignmentComponent', () => {
       const payload = api.PATCH_Alignments.mock.calls[0][1];
       expect(payload.primary_levers[0].custom_lever_name).toBeUndefined();
     });
+
+    it('should keep the same custom name signal and hydrate it after save reload', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 36141,
+              result_id: 22604,
+              lever_role_id: 1,
+              is_primary: true,
+              custom_lever_name: 'name test',
+              result_lever_sdg_targets: [],
+              result_lever_strategic_outcomes: []
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [otherLever],
+        contributor_levers: []
+      });
+      const customNameSignal = component.getLeverCustomNameSignal(otherLever);
+      customNameSignal.set({ custom_lever_name: 'name test' });
+
+      await component.saveData();
+
+      const reloadedLever = component.body().primary_levers[0];
+      expect(component.getLeverCustomNameSignal(reloadedLever)).toBe(customNameSignal);
+      expect(customNameSignal().custom_lever_name).toBe('name test');
+      expect(reloadedLever.custom_lever_name).toBe('name test');
+    });
+
+    it('should preserve typed custom name when GET after save omits custom_lever_name', async () => {
+      api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+      api.GET_Alignments.mockResolvedValue({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 36141,
+              result_id: 22604,
+              lever_role_id: 1,
+              is_primary: true,
+              result_lever_sdg_targets: [],
+              result_lever_strategic_outcomes: []
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      component.body.set({
+        contracts: [],
+        result_sdgs: [],
+        primary_levers: [otherLever],
+        contributor_levers: []
+      });
+      const customNameSignal = component.getLeverCustomNameSignal(otherLever);
+      customNameSignal.set({ custom_lever_name: 'name test' });
+
+      await component.saveData();
+
+      expect(customNameSignal().custom_lever_name).toBe('name test');
+      expect(component.body().primary_levers[0].custom_lever_name).toBe('name test');
+    });
+
+    it('should normalize padded custom lever name signal when API omits custom_lever_name on reload', async () => {
+      api.GET_Alignments.mockResolvedValueOnce({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true,
+              custom_lever_name: 'Team X'
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      const otherLever = component.body().primary_levers[0];
+      const customNameSignal = component.getLeverCustomNameSignal(otherLever);
+      customNameSignal.set({ custom_lever_name: '  Team X  ' });
+
+      api.GET_Alignments.mockResolvedValueOnce({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true,
+              result_lever_sdg_targets: [],
+              result_lever_strategic_outcomes: []
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      expect(customNameSignal().custom_lever_name).toBe('Team X');
+    });
+
+    it('should apply API custom lever name when existing signal value is undefined', async () => {
+      api.GET_Alignments.mockResolvedValueOnce({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true,
+              custom_lever_name: 'API team'
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      const otherLever = component.body().primary_levers[0];
+      const customNameSignal = component.getLeverCustomNameSignal(otherLever);
+      customNameSignal.set({ custom_lever_name: undefined as unknown as string });
+
+      api.GET_Alignments.mockResolvedValueOnce({
+        data: {
+          contracts: [],
+          result_sdgs: [],
+          primary_levers: [
+            {
+              lever_id: 9,
+              result_lever_id: 1,
+              result_id: 1,
+              lever_role_id: 1,
+              is_primary: true,
+              custom_lever_name: 'API team'
+            }
+          ],
+          contributor_levers: []
+        }
+      });
+
+      await component.getData();
+
+      expect(customNameSignal().custom_lever_name).toBe('API team');
+    });
+
+    it('should fall back to lever custom_lever_name when no signal exists during apply', () => {
+      const result = (component as any).applyCustomNamesToLevers([
+        { lever_id: 9, custom_lever_name: 'from lever' }
+      ]);
+
+      expect(result[0].custom_lever_name).toBe('from lever');
+    });
+
+    it('should default custom lever name to empty string when no signal or lever value exists', () => {
+      const result = (component as any).applyCustomNamesToLevers([{ lever_id: 9 }]);
+
+      expect(result[0].custom_lever_name).toBe('');
+    });
   });
 
   describe('getData', () => {

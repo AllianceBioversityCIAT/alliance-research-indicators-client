@@ -12,6 +12,7 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
   const jwtToken = cacheService.dataCache().access_token;
   const targetDomain = environment.mainApiUrl;
   const textMiningDomain = environment.textMiningUrl;
+  const documentOverviewDomain = environment.documentOverviewUrl;
   const fileManagerDomain = environment.fileManagerUrl;
 
   if (req.headers.has('no-auth-interceptor')) {
@@ -21,7 +22,12 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
     return next(cleanReq);
   }
 
-  if (req.url.includes(targetDomain) || req.url.includes(textMiningDomain) || req.url.includes(fileManagerDomain)) {
+  if (
+    req.url.includes(targetDomain) ||
+    req.url.includes(textMiningDomain) ||
+    req.url.includes(documentOverviewDomain) ||
+    req.url.includes(fileManagerDomain)
+  ) {
     // Skip token refresh if this is already a refresh token request
     if (req.url.includes('refresh-token')) {
       return next(req);
@@ -33,7 +39,11 @@ export const jWtInterceptor: HttpInterceptorFn = (req, next) => {
         const currentToken = tokenValidation.isTokenExpired ? tokenValidation?.token_data?.access_token : jwtToken;
 
         let clonedRequest;
-        if (req.url.includes(fileManagerDomain) || req.url.includes(textMiningDomain)) {
+        if (
+          req.url.includes(fileManagerDomain) ||
+          req.url.includes(textMiningDomain) ||
+          req.url.includes(documentOverviewDomain)
+        ) {
           clonedRequest = req.clone({
             setHeaders: {
               'access-token': currentToken ?? ''
