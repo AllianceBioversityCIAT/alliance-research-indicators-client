@@ -137,13 +137,6 @@ export class ResultsCenterService {
       }
     },
     {
-      field: 'research_areas',
-      path: 'researchAreasSort',
-      header: 'Research Areas',
-      maxWidth: 'max-w-[140px]',
-      getValue: (result: Result) => this.getResearchAreasDisplay(result)
-    },
-    {
       field: 'year',
       path: 'report_year_id',
       header: 'Live Version',
