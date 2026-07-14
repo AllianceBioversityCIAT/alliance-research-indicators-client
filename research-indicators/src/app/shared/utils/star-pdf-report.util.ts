@@ -9,15 +9,17 @@ export const STAR_INN_DEV_PDF_ENABLED = false;
 export const STAR_PDF_COMING_SOON_TOOLTIP = 'Coming soon';
 
 export type StarPdfReportName = 'cap_sharing' | 'inn_dev';
+export type StarResultCodeValue = number | string;
+export type StarResultIdValue = string | number | null;
 
 export interface StarPdfReportSource {
   platform_code?: string;
   indicator_id?: number;
-  result_official_code?: number | string;
+  result_official_code?: StarResultCodeValue;
   report_year_id?: number;
   report_year?: number;
   snapshot_years?: number[];
-  year?: number | string;
+  year?: StarResultCodeValue;
 }
 
 export function getStarPdfReportName(indicatorId: number | undefined): StarPdfReportName | null {
@@ -34,7 +36,7 @@ export function isStarPdfReportEligible(source: StarPdfReportSource): boolean {
   return source.platform_code === PLATFORM_CODES.STAR && getStarPdfReportName(source.indicator_id) != null;
 }
 
-export function isStarPdfReportEligibleFromResultId(indicatorId: number | undefined, resultId: string | number | null | undefined): boolean {
+export function isStarPdfReportEligibleFromResultId(indicatorId: number | undefined, resultId: StarResultIdValue | undefined): boolean {
   if (getStarPdfReportName(indicatorId) == null) return false;
   const normalized = String(resultId ?? '')
     .trim()
@@ -59,7 +61,7 @@ export function getStarReportYear(source: Pick<StarPdfReportSource, 'report_year
   return Number.isFinite(parsedYear) ? parsedYear : null;
 }
 
-export function getStarFrontendResultCode(resultOfficialCode: number | string | undefined, resultIdFallback?: string | number | null): string {
+export function getStarFrontendResultCode(resultOfficialCode: StarResultCodeValue | undefined, resultIdFallback?: StarResultIdValue): string {
   const officialCode = String(resultOfficialCode ?? resultIdFallback ?? '').trim();
   if (!officialCode) return `${PLATFORM_CODES.STAR}-`;
   if (officialCode.toUpperCase().startsWith(`${PLATFORM_CODES.STAR}-`)) {
@@ -71,18 +73,20 @@ export function getStarFrontendResultCode(resultOfficialCode: number | string | 
 export function getStarReportViewerUrl(
   source: StarPdfReportSource,
   options?: {
-    resultIdFallback?: string | number | null;
-    versionOverride?: string | number | null;
+    resultIdFallback?: StarResultIdValue;
+    versionOverride?: StarResultIdValue;
     includeVersion?: boolean;
   }
 ): string {
   const resultCode = getStarFrontendResultCode(source.result_official_code, options?.resultIdFallback);
   const includeVersion = options?.includeVersion !== false;
-  const version = includeVersion
-    ? options?.versionOverride != null && String(options.versionOverride).trim() !== ''
-      ? options.versionOverride
-      : getStarReportYear(source)
-    : null;
+  let version: StarResultIdValue = null;
+
+  if (includeVersion) {
+    const override = options?.versionOverride;
+    version = override != null && String(override).trim() !== '' ? override : getStarReportYear(source);
+  }
+
   const queryParts: string[] = [];
 
   if (version != null && String(version).trim() !== '') {

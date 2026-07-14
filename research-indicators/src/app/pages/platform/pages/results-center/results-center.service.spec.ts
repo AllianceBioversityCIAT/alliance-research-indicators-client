@@ -1597,65 +1597,53 @@ describe('ResultsCenterService', () => {
     });
 
     it('should get research areas from direct result research areas', () => {
-      const columns = service.tableColumns();
-      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
-      const getValue = researchAreasColumn?.getValue;
-
-      if (getValue) {
-        const result = {
+      const display = (result: Result) => (service as any).getResearchAreasDisplay(result);
+      expect(
+        display({
           result_research_areas: [{ research_area: { short_name: 'RA1' } }, { short_name: 'RA2' }]
-        } as unknown as Result;
-        expect(getValue(result)).toBe('RA1, RA2');
-      }
+        } as unknown as Result)
+      ).toBe('RA1, RA2');
     });
 
     it('should get research areas from result levers when classified as research area', () => {
-      const columns = service.tableColumns();
-      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
-      const getValue = researchAreasColumn?.getValue;
-
-      if (getValue) {
-        const result = {
+      const display = (result: Result) => (service as any).getResearchAreasDisplay(result);
+      expect(
+        display({
           result_levers: [
             { type: 'lever', lever: { short_name: 'L1' } },
-            { type: 'research_area', lever: { short_name: 'RA1' } }
+            { type: 'research_area', lever: { short_name: 'RA1' } },
+            { group: 'Research Area', lever: { short_name: 'RA2' } },
+            { category: 'research-area', lever: { short_name: 'RA3' } }
           ]
-        } as unknown as Result;
-        expect(getValue(result)).toBe('RA1');
-      }
+        } as unknown as Result)
+      ).toBe('RA1, RA2, RA3');
     });
 
     it('should return dash when research areas are missing', () => {
-      const columns = service.tableColumns();
-      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
-      const getValue = researchAreasColumn?.getValue;
-
-      if (getValue) {
-        expect(getValue({ result_research_areas: [], result_levers: null } as unknown as Result)).toBe('-');
-      }
+      const display = (result: Result) => (service as any).getResearchAreasDisplay(result);
+      expect(display({ result_research_areas: [], result_levers: null } as unknown as Result)).toBe('-');
+      expect(display({ research_areas: 'not-an-array' } as unknown as Result)).toBe('-');
     });
 
     it('should format research areas from alternate label fields', () => {
-      const columns = service.tableColumns();
-      const researchAreasColumn = columns.find(col => col.field === 'research_areas');
-      const getValue = researchAreasColumn?.getValue;
-
-      if (getValue) {
-        const result = {
+      const display = (result: Result) => (service as any).getResearchAreasDisplay(result);
+      expect(
+        display({
           research_areas: [
             { research_area: { short_name: null } },
             { research_area: { name: 'Research Area Name' } },
             { research_area: { full_name: 'Research Area Full Name' } },
+            { lever: { short_name: 'Lever Short' } },
             { lever: { name: 'Lever Name' } },
             { lever: { full_name: 'Lever Full Name' } },
+            { short_name: 'Direct Short' },
             { name: 'Direct Name' },
             { full_name: 'Direct Full Name' }
           ]
-        } as unknown as Result;
-        expect(getValue(result)).toBe(
-          'Research Area Name, Research Area Full Name, Lever Name, Lever Full Name, Direct Name, Direct Full Name'
-        );
-      }
+        } as unknown as Result)
+      ).toBe(
+        'Research Area Name, Research Area Full Name, Lever Short, Lever Name, Lever Full Name, Direct Short, Direct Name, Direct Full Name'
+      );
     });
 
     it('should get year value correctly', () => {
