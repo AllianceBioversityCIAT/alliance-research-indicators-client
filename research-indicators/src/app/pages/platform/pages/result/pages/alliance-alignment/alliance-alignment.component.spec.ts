@@ -515,6 +515,28 @@ describe('AllianceAlignmentComponent', () => {
     expect(component.getData).toHaveBeenCalled();
   });
 
+  it('should merge contributor levers when saving default alignment', async () => {
+    cache.metadata.set({ indicator_id: 5 });
+    api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });
+    api.GET_Alignments.mockResolvedValue({ data: { contracts: [], result_sdgs: [], primary_levers: [], contributor_levers: [] } });
+
+    const primaryLever = { lever_id: 1, result_lever_id: 1, result_id: 1, lever_role_id: 1, is_primary: true };
+    const contributorLever = { lever_id: 2, result_lever_id: 2, result_id: 1, lever_role_id: 2, is_primary: false };
+    component.body.set({
+      contracts: [],
+      result_sdgs: [],
+      primary_levers: [primaryLever],
+      contributor_levers: [contributorLever]
+    });
+
+    await component.saveData();
+
+    const payload = api.PATCH_Alignments.mock.calls[0][1];
+    expect(payload.contributor_levers).toHaveLength(1);
+    expect(payload.contributor_levers[0].lever_id).toBe(2);
+    expect(payload.primary_levers).toHaveLength(1);
+  });
+
   it('should send selected root SDGs for non-OICR indicators', async () => {
     cache.metadata.set({ indicator_id: 1 });
     api.PATCH_Alignments.mockResolvedValue({ successfulRequest: true });

@@ -54,39 +54,41 @@ const normalizeSdgs = (sdgs: GetSdgs[] | undefined): GetSdgs[] =>
   });
 
 const normalizeResearchAreas = (areas: GetLevers[] | undefined): GetLevers[] =>
-  (areas ?? [])
-    .map(area => {
-      const leverId = area.lever_id ?? area.id;
-      if (leverId == null || String(leverId).trim() === '') return null;
-      return {
-        ...area,
-        id: area.id ?? Number(leverId),
-        lever_id: Number(leverId)
-      } as GetLevers;
-    })
-    .filter((area): area is GetLevers => area != null);
+  (areas ?? []).reduce<GetLevers[]>((acc, area) => {
+    const leverId = area.lever_id ?? area.id;
+    if (leverId == null || String(leverId).trim() === '') return acc;
+
+    acc.push({
+      ...area,
+      id: area.id ?? Number(leverId),
+      lever_id: Number(leverId)
+    });
+    return acc;
+  }, []);
 
 export const enrichAlignmentLevers = (levers: Lever[] | undefined, catalog?: GetLevers[]): Lever[] =>
   (levers ?? []).map(lever => {
     const leverKey = String(lever.lever_id);
     const match = catalog?.find(item => String(item.lever_id ?? item.id) === leverKey);
-    const otherDefaults =
-      Number(lever.lever_id) === OTHER_LEVER_ID
-        ? { short_name: 'Other', other_names: 'Other', full_name: 'Other' }
-        : {};
 
     if (!match) {
-      return { ...otherDefaults, ...lever } as Lever;
+      if (Number(lever.lever_id) !== OTHER_LEVER_ID) {
+        return lever;
+      }
+
+      return {
+        ...lever,
+        short_name: lever.short_name ?? 'Other',
+        other_names: lever.other_names ?? 'Other'
+      };
     }
 
     return {
-      ...match,
       ...lever,
-      lever_id: lever.lever_id,
       short_name: lever.short_name ?? match.short_name,
       other_names: lever.other_names ?? match.other_names,
       icon: lever.icon ?? match.icon ?? match.lever_url
-    } as Lever;
+    };
   });
 
 export const enrichResearchAreas = (areas: GetLevers[] | undefined, catalog?: GetLevers[]): GetLevers[] =>
@@ -101,7 +103,7 @@ export const enrichResearchAreas = (areas: GetLevers[] | undefined, catalog?: Ge
       lever_id: match.lever_id ?? match.id ?? area.lever_id ?? area.id,
       full_name: area.full_name ?? match.full_name,
       short_name: area.short_name ?? match.short_name
-    } as GetLevers;
+    };
   });
 
 export type AlignmentSdgTargetRow = ResultLeverSdgTargetPayload & Partial<LeverSdgTargetOption>;
@@ -109,8 +111,17 @@ export type AlignmentSdgTargetRow = ResultLeverSdgTargetPayload & Partial<LeverS
 const resolveSdgTargetId = (raw: unknown): number | null => {
   if (typeof raw === 'number' && Number.isFinite(raw) && raw > 0) return raw;
   if (!raw || typeof raw !== 'object') return null;
-  const id = (raw as Record<string, unknown>)['sdg_target_id'] ?? (raw as Record<string, unknown>)['id'];
-  const parsed = typeof id === 'number' ? id : typeof id === 'string' && id !== '' ? Number(id) : Number.NaN;
+
+  const record = raw as Record<string, unknown>;
+  const id = record['sdg_target_id'] ?? record['id'];
+
+  let parsed = Number.NaN;
+  if (typeof id === 'number') {
+    parsed = id;
+  } else if (typeof id === 'string' && id !== '') {
+    parsed = Number(id);
+  }
+
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 };
 
@@ -147,15 +158,18 @@ export const enrichResultSdgs = (sdgs: GetSdgs[] | undefined, catalog?: GetSdgs[
     .map(sdg => {
       const sdgId = Number(sdg.id ?? sdg.clarisa_sdg_id);
       if (!Number.isFinite(sdgId) || sdgId <= 0) return null;
+
       const match = catalog?.find(
         item => Number(item.id) === sdgId || Number(item.clarisa_sdg_id) === sdgId
       );
+      const withSdgId = sdg as GetSdgs & { sdg_id?: number };
+
       return {
-        ...(match ?? {}),
+        ...match,
         ...sdg,
         id: sdgId,
         clarisa_sdg_id: sdg.clarisa_sdg_id ?? match?.clarisa_sdg_id ?? sdgId,
-        sdg_id: (sdg as GetSdgs & { sdg_id?: number }).sdg_id ?? match?.id ?? sdgId
+        sdg_id: withSdgId.sdg_id ?? match?.id ?? sdgId
       } as GetSdgs;
     })
     .filter((sdg): sdg is GetSdgs => sdg != null);
@@ -171,11 +185,11 @@ const enrichPortfolioConfigItems = (
       if (!Number.isFinite(persistedId) || persistedId <= 0) return null;
       const match = catalog?.find(entry => entry.id === persistedId);
       return {
-        ...(match ?? {}),
+        ...match,
         ...item,
         id: persistedId,
         name: item.name ?? match?.name ?? ''
-      } as PortfolioConfigItem;
+      };
     })
     .filter((item): item is PortfolioConfigItem => item != null);
 
@@ -235,7 +249,7 @@ export const normalizeContractLevers = (
     return leverData[0];
   }
 
-  const leverName = (contract.lever ?? contract.lever_name) as LeverNameValue | undefined;
+  const leverName = contract.lever ?? contract.lever_name;
   const leverUrl = contract.leverUrl ?? contract.lever_url;
   if (!leverName && !leverUrl) {
     return undefined;
@@ -255,7 +269,7 @@ export const enrichPortfolio2Contracts = (
   catalog?: ContractCatalogItem[]
 ): GetAllianceAlignment['contracts'] =>
   (contracts ?? []).map(rawContract => {
-    const flattened = flattenAlignmentContract(rawContract as Portfolio2AlignmentContract);
+    const flattened = flattenAlignmentContract(rawContract);
     const lookupKeys = contractLookupKeys(flattened);
     const catalogMatch = catalog?.find(item => catalogItemMatchesKeys(item, lookupKeys));
 

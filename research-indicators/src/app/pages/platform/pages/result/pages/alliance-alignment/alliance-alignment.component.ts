@@ -212,15 +212,12 @@ export default class AllianceAlignmentComponent {
 
   private populateLeverChildSignals(levers: Lever[]) {
     for (const lever of levers) {
-      this.leverOutcomeSignals.set(
-        lever.lever_id,
-        signal({ result_lever_strategic_outcomes: lever.result_lever_strategic_outcomes ?? [] })
-      );
+      this.leverOutcomeSignals.set(lever.lever_id, signal({ result_lever_strategic_outcomes: lever.result_lever_strategic_outcomes ?? [] }));
       this.leverSdgSignals.set(
         lever.lever_id,
         signal({
           result_lever_sdgs: lever.result_lever_sdgs ?? [],
-          result_lever_sdg_targets: (lever.result_lever_sdg_targets ?? []) as AlignmentSdgTargetRow[]
+          result_lever_sdg_targets: lever.result_lever_sdg_targets ?? []
         })
       );
     }
@@ -229,11 +226,9 @@ export default class AllianceAlignmentComponent {
   }
 
   private syncLeverCustomNameSignals(levers: Lever[]): void {
-    const activeOtherIds = new Set(
-      levers.filter(lever => this.isOtherLever(lever)).map(lever => lever.lever_id)
-    );
+    const activeOtherIds = new Set(levers.filter(lever => this.isOtherLever(lever)).map(lever => lever.lever_id));
 
-    for (const leverId of [...this.leverCustomNameSignals.keys()]) {
+    for (const leverId of this.leverCustomNameSignals.keys()) {
       if (!activeOtherIds.has(leverId)) {
         this.leverCustomNameSignals.delete(leverId);
       }
@@ -307,7 +302,6 @@ export default class AllianceAlignmentComponent {
     return out;
   }
 
-
   updateOptionsDisabledEffect = effect(
     () => {
       this.optionsDisabled.set(this.getPrimaryLeversForOptions());
@@ -345,98 +339,56 @@ export default class AllianceAlignmentComponent {
 
     if (this.submission.isEditableStatus()) {
       if (this.isPortfolioP2Alignment()) {
-        const dataToSend = buildPortfolio2AlignmentPatch(
-          this.body(),
-          this.isOicrIndicator() || this.isPolicyChangeIndicator(),
-          !this.isOicrIndicator()
-        );
-        const response = await this.apiService.PATCH_Alignments(
-          numericResultId,
-          dataToSend,
-          this.alignmentRequestParams()
-        );
-        if (response.successfulRequest) {
-          this.actions.showToast({
-            severity: 'success',
-            summary: 'Alliance Alignment',
-            detail: 'Data saved successfully'
-          });
-
-          await this.getData();
-        }
+        await this.savePortfolioP2Alignment(numericResultId);
       } else {
-      const normalizeOutcome = (value: unknown): LeverStrategicOutcome => {
-        if (typeof value === 'number') {
-          return { lever_strategic_outcome_id: value };
-        }
-        if (value && typeof value === 'object') {
-          const obj = value as Partial<LeverStrategicOutcome> & { id?: number };
-          const idFromObject = obj.lever_strategic_outcome_id ?? obj.id;
-          return { ...(obj as LeverStrategicOutcome), lever_strategic_outcome_id: idFromObject as number };
-        }
-        return { lever_strategic_outcome_id: 0 };
-      };
-
-      const mergeLever = (l: Lever): Lever => {
-        let next: Lever = { ...l };
-        const outSig = this.leverOutcomeSignals.get(l.lever_id);
-        if (outSig) {
-          const raw: unknown = outSig().result_lever_strategic_outcomes as unknown;
-          let normalized: LeverStrategicOutcome[] = [];
-          if (Array.isArray(raw)) {
-            normalized = (raw as unknown[]).map(normalizeOutcome);
-          } else if (typeof raw === 'number' || (raw && typeof raw === 'object')) {
-            normalized = [normalizeOutcome(raw)];
-          }
-          next = { ...next, result_lever_strategic_outcomes: normalized };
-        }
-        const sdgSig = this.leverSdgSignals.get(l.lever_id);
-        if (sdgSig) {
-          const sig = sdgSig();
-          const targets = (sig.result_lever_sdg_targets ?? [])
-            .map(t => ({ sdg_target_id: t.sdg_target_id }))
-            .filter(t => Number.isFinite(t.sdg_target_id) && t.sdg_target_id > 0);
-          next = { ...next, result_lever_sdg_targets: targets, result_lever_sdgs: [] };
-        }
-        const customNameSig = this.leverCustomNameSignals.get(l.lever_id);
-        if (this.isOtherLever(l)) {
-          const custom_lever_name = (customNameSig?.().custom_lever_name ?? l.custom_lever_name ?? '').trim();
-          next = { ...next, custom_lever_name };
-        } else if ('custom_lever_name' in next) {
-          next = { ...next, custom_lever_name: undefined };
-        }
-        return next;
-      };
-
-      const primary_levers = this.body().primary_levers.map(mergeLever);
-      const contributor_levers = this.body().contributor_levers.map(mergeLever);
-
-      const result_sdgs = this.isOicrIndicator()
-        ? this.buildResultSdgsFromLevers([...primary_levers, ...contributor_levers], numericResultId)
-        : this.buildResultSdgsFromSelection(this.body().result_sdgs ?? [], numericResultId);
-
-      const dataToSend = {
-        ...this.body(),
-        primary_levers,
-        contributor_levers,
-        result_sdgs
-      };
-
-      const response = await this.apiService.PATCH_Alignments(numericResultId, dataToSend, this.alignmentRequestParams());
-      if (response.successfulRequest) {
-        this.actions.showToast({
-          severity: 'success',
-          summary: 'Alliance Alignment',
-          detail: 'Data saved successfully'
-        });
-
-        await this.getData();
-      }
+        await this.saveDefaultAlignment(numericResultId);
       }
     }
     if (page === 'back') navigateTo('general-information');
     else if (page === 'next') navigateTo(nextPath);
     this.loading.set(false);
+  }
+
+  private async savePortfolioP2Alignment(numericResultId: number): Promise<void> {
+    const dataToSend = buildPortfolio2AlignmentPatch(
+      this.body(),
+      this.isOicrIndicator() || this.isPolicyChangeIndicator(),
+      !this.isOicrIndicator()
+    );
+    await this.patchAlignmentAndReload(numericResultId, dataToSend);
+  }
+
+  private async saveDefaultAlignment(numericResultId: number): Promise<void> {
+    const primary_levers = this.body().primary_levers.map(l => this.mergeLeverForSave(l));
+    const contributor_levers = this.body().contributor_levers.map(l => this.mergeLeverForSave(l));
+
+    const result_sdgs = this.isOicrIndicator()
+      ? this.buildResultSdgsFromLevers([...primary_levers, ...contributor_levers], numericResultId)
+      : this.buildResultSdgsFromSelection(this.body().result_sdgs ?? [], numericResultId);
+
+    const dataToSend = {
+      ...this.body(),
+      primary_levers,
+      contributor_levers,
+      result_sdgs
+    };
+
+    await this.patchAlignmentAndReload(numericResultId, dataToSend);
+  }
+
+  private async patchAlignmentAndReload(numericResultId: number, dataToSend: unknown): Promise<void> {
+    const response = await this.apiService.PATCH_Alignments(numericResultId, dataToSend, this.alignmentRequestParams());
+    if (!response.successfulRequest) {
+      return;
+    }
+
+    this.actions.showToast({
+      severity: 'success',
+      summary: 'Alliance Alignment',
+      detail: 'Data saved successfully'
+    });
+
+    await this.getData();
   }
 
   private buildResultSdgsFromLevers(levers: Lever[], resultId: number) {
@@ -573,6 +525,53 @@ export default class AllianceAlignmentComponent {
 
   isOtherLever(lever: Lever): boolean {
     return Number(lever.lever_id) === OTHER_LEVER_ID;
+  }
+
+  private normalizeOutcome(value: unknown): LeverStrategicOutcome {
+    if (typeof value === 'number') {
+      return { lever_strategic_outcome_id: value };
+    }
+    if (value && typeof value === 'object') {
+      const obj = value as Partial<LeverStrategicOutcome> & { id?: number };
+      const idFromObject = obj.lever_strategic_outcome_id ?? obj.id;
+      return { ...(obj as LeverStrategicOutcome), lever_strategic_outcome_id: idFromObject as number };
+    }
+    return { lever_strategic_outcome_id: 0 };
+  }
+
+  private mergeLeverForSave(lever: Lever): Lever {
+    let next: Lever = { ...lever };
+
+    const outSig = this.leverOutcomeSignals.get(lever.lever_id);
+    if (outSig) {
+      const raw: unknown = outSig().result_lever_strategic_outcomes as unknown;
+      let normalized: LeverStrategicOutcome[] = [];
+      if (Array.isArray(raw)) {
+        normalized = (raw as unknown[]).map(value => this.normalizeOutcome(value));
+      } else if (typeof raw === 'number' || (raw && typeof raw === 'object')) {
+        normalized = [this.normalizeOutcome(raw)];
+      }
+      next = { ...next, result_lever_strategic_outcomes: normalized };
+    }
+
+    const sdgSig = this.leverSdgSignals.get(lever.lever_id);
+    if (sdgSig) {
+      const sig = sdgSig();
+      const targets = (sig.result_lever_sdg_targets ?? [])
+        .map(t => ({ sdg_target_id: t.sdg_target_id }))
+        .filter(t => Number.isFinite(t.sdg_target_id) && t.sdg_target_id > 0);
+      next = { ...next, result_lever_sdg_targets: targets, result_lever_sdgs: [] };
+    }
+
+    const customNameSig = this.leverCustomNameSignals.get(lever.lever_id);
+    if (this.isOtherLever(lever)) {
+      const custom_lever_name = (customNameSig?.().custom_lever_name ?? lever.custom_lever_name ?? '').trim();
+      next = { ...next, custom_lever_name };
+    } else if ('custom_lever_name' in next) {
+      next = { ...next, custom_lever_name: undefined };
+    }
+
+    return next;
   }
 
   private getCurrentPortfolioId(): number | null {
