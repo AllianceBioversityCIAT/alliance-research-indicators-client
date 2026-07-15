@@ -75,6 +75,7 @@ describe('CreateOicrFormComponent', () => {
       oicrPrimaryOptionsDisabled: signal([]),
       resultTitle: signal(''),
       statusId: signal(9),
+      year: signal<number | null>(null),
       resultCreationEntryContext: signal<'results-center' | 'project' | null>(null),
       setResultCreationEntryContext: jest.fn(),
       setModalTitle: jest.fn(),
@@ -535,10 +536,162 @@ describe('CreateOicrFormComponent', () => {
 
   it('should handle isCompleteStepTwo when complete', () => {
     mockCreateResultManagementService.createOicrBody.set({
-      step_two: { primary_lever: ['lever1'] }
+      step_two: { primary_lever: [{ lever_id: 1 }], contributor_lever: [] }
     });
-    
+
     expect(component.isCompleteStepTwo).toBe(true);
+  });
+
+  it('should require custom lever name when Other lever is selected', () => {
+    mockCreateResultManagementService.createOicrBody.set({
+      step_two: {
+        primary_lever: [{ lever_id: 9 }],
+        contributor_lever: []
+      }
+    });
+
+    expect(component.isCompleteStepTwo).toBe(false);
+
+    component.getLeverCustomNameSignal({ lever_id: 9 } as any).set({ custom_lever_name: 'Custom team' });
+
+    expect(component.isCompleteStepTwo).toBe(true);
+  });
+
+  it('should identify Other lever and send custom_lever_name on create', async () => {
+    const otherLever = { lever_id: 9, is_primary: true, lever_role_id: 1, result_id: 0, result_lever_id: 0 };
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: [otherLever],
+        contributor_lever: []
+      }
+    });
+    component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: 'Innovation team' });
+
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(component.isOtherLever(otherLever)).toBe(true);
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          primary_lever: [expect.objectContaining({ lever_id: 9, custom_lever_name: 'Innovation team' })]
+        })
+      }),
+      undefined
+    );
+  });
+
+  it('should send custom_lever_name for contributor Other lever on create', async () => {
+    const otherLever = { lever_id: 9, is_primary: false, lever_role_id: 2, result_id: 0, result_lever_id: 0 };
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: [{ lever_id: 1, is_primary: true, lever_role_id: 1, result_id: 0, result_lever_id: 0 }],
+        contributor_lever: [otherLever]
+      }
+    });
+    component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: 'Regional team' });
+
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          contributor_lever: [expect.objectContaining({ lever_id: 9, custom_lever_name: 'Regional team' })]
+        })
+      }),
+      undefined
+    );
+  });
+
+  it('should treat missing primary_lever as incomplete step two', () => {
+    mockCreateResultManagementService.createOicrBody.set({
+      step_two: { primary_lever: undefined, contributor_lever: undefined }
+    });
+
+    expect(component.isCompleteStepTwo).toBe(false);
+  });
+
+  it('should map undefined lever arrays to empty arrays on create', async () => {
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: undefined,
+        contributor_lever: undefined
+      }
+    });
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          primary_lever: [],
+          contributor_lever: []
+        })
+      }),
+      undefined
+    );
+  });
+
+  it('should fall back to lever custom_lever_name when signal value is nullish', async () => {
+    const otherLever = {
+      lever_id: 9,
+      is_primary: true,
+      lever_role_id: 1,
+      result_id: 0,
+      result_lever_id: 0,
+      custom_lever_name: 'From lever object'
+    };
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: [otherLever],
+        contributor_lever: []
+      }
+    });
+    component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: undefined as unknown as string });
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          primary_lever: [expect.objectContaining({ lever_id: 9, custom_lever_name: 'From lever object' })]
+        })
+      }),
+      undefined
+    );
+  });
+
+  it('should send empty custom_lever_name when Other lever has no signal or lever name', async () => {
+    const otherLever = { lever_id: 9, is_primary: true, lever_role_id: 1, result_id: 0, result_lever_id: 0 };
+    mockCreateResultManagementService.createOicrBody.set({
+      base_information: { indicator_id: 5, contract_id: 'C-1', title: 'Test', description: '', year: '2025', is_ai: false },
+      step_two: {
+        primary_lever: [otherLever],
+        contributor_lever: []
+      }
+    });
+    component.getLeverCustomNameSignal(otherLever).set({ custom_lever_name: null as unknown as string });
+    mockApiService.POST_CreateOicr.mockResolvedValue({ status: 200, data: { result_official_code: 'RES123' } });
+
+    await component.createResult();
+
+    expect(mockApiService.POST_CreateOicr).toHaveBeenCalledWith(
+      expect.objectContaining({
+        step_two: expect.objectContaining({
+          primary_lever: [expect.objectContaining({ lever_id: 9, custom_lever_name: '' })]
+        })
+      }),
+      undefined
+    );
   });
 
   it('should handle isCompleteStepThree when geo scope not set', () => {
@@ -2006,6 +2159,44 @@ describe('CreateOicrFormComponent', () => {
       const parts = component.leverParts();
       expect(parts.first).toBe('First');
       expect(parts.second).toBe('');
+    });
+
+    it('leverServiceParams should use reportYear from base_information.year', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: {
+          ...mockCreateResultManagementService.createOicrBody().base_information,
+          year: '2026'
+        }
+      });
+
+      expect(component.leverServiceParams()).toEqual({ reportYear: 2026 });
+    });
+
+    it('leverServiceParams should fall back to createResultManagementService.year', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: {
+          ...mockCreateResultManagementService.createOicrBody().base_information,
+          year: ''
+        }
+      });
+      mockCreateResultManagementService.year.set(2025);
+
+      expect(component.leverServiceParams()).toEqual({ reportYear: 2025 });
+    });
+
+    it('leverServiceParams should be undefined when no valid report year exists', () => {
+      mockCreateResultManagementService.createOicrBody.set({
+        ...mockCreateResultManagementService.createOicrBody(),
+        base_information: {
+          ...mockCreateResultManagementService.createOicrBody().base_information,
+          year: ''
+        }
+      });
+      mockCreateResultManagementService.year.set(null);
+
+      expect(component.leverServiceParams()).toBeUndefined();
     });
 
     it('isHeaderDataLoaded should return true when all conditions met', () => {

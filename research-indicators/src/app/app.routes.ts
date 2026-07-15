@@ -36,6 +36,14 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/oicr-download/oicr-download.component').then(m => m.default)
   },
   {
+    path: 'reports/result/:id',
+    loadComponent: () => import('./pages/star-report-viewer/star-report-viewer.component').then(m => m.default),
+    canMatch: [rolesGuard],
+    data: {
+      isLoggedIn: true
+    }
+  },
+  {
     path: '',
     loadComponent: () => import('@platform/platform.component'),
     canMatch: [rolesGuard],
@@ -259,6 +267,16 @@ export const routes: Routes = [
         canMatch: [centerAdminGuard],
         data: {
           title: 'SDG Management',
+          isLoggedIn: true
+        }
+      },
+      {
+        path: 'administration/center-admin/portfolio-management',
+        loadComponent: () =>
+          import('@platform/pages/administration/center-admin/portfolio-management/portfolio-management.component').then(m => m.default),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'Portfolio Management',
           isLoggedIn: true
         }
       },

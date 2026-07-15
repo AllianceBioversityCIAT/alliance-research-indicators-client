@@ -3,33 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { CacheService } from './cache/cache.service';
 import { ApiService } from './api.service';
-import { AIAssistantResult } from '@shared/components/all-modals/modals-content/create-result-modal/models/AIAssistantResult';
+import { ResponseAiDto } from '@shared/interfaces/text-mining.interface';
 import { environment } from '@envs/environment';
-
-export class TextMiningDto {
-  bucketName!: string;
-  key!: string;
-  token!: string;
-  prompt?: string;
-}
-
-export interface RootAi {
-  results: AIAssistantResult[];
-}
-
-export interface CountryArea {
-  country_code: string;
-  areas: string[];
-}
-
-export interface ResponseAiDto {
-  content: MiningTextItem[];
-}
-
-export interface MiningTextItem {
-  type: string;
-  text: string;
-}
 
 @Injectable({
   providedIn: 'root'

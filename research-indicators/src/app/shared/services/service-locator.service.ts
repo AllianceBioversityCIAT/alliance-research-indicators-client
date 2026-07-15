@@ -46,6 +46,8 @@ import { ExpansionPotentialService } from './short-control-list/expansion-potent
 import { InnResultsService } from './short-control-list/inn-results.service';
 import { ApplicationOptionsService } from './short-control-list/application-options.service';
 import { GetLeversService } from './control-list/get-levers.service';
+import { GetStrategicObjectivesService } from './control-list/get-strategic-objectives.service';
+import { GetImpactOutcomesService } from './control-list/get-impact-outcomes.service';
 import { GetProjectStatusService } from './control-list/get-project-status.service';
 import { GetFundingTypesService } from './control-list/get-funding-types.service';
 import { GetInitiativesService } from './control-list/get-initiatives.service';
@@ -245,6 +247,10 @@ export class ServiceLocatorService {
         return this.getFromInjector(ApplicationOptionsService);
       case 'levers':
         return this.getFromInjector(GetLeversService);
+      case 'strategicObjectives':
+        return this.getFromInjector(GetStrategicObjectivesService);
+      case 'impactOutcomes':
+        return this.getFromInjector(GetImpactOutcomesService);
       case 'leverStrategicOutcomes':
         return this.getFromInjector(GetLeverStrategicOutcomesService);
       case 'leverSdgTargets':

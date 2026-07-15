@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MultiselectComponent } from './multiselect.component';
 import { ElementRef, PLATFORM_ID, signal } from '@angular/core';
-import { SimpleChanges } from '@angular/core';
 import { ActionsService } from '../../../services/actions.service';
 import { ServiceLocatorService } from '../../../services/service-locator.service';
 import { CacheService } from '../../../services/cache/cache.service';
@@ -104,6 +103,7 @@ describe('MultiselectComponent', () => {
     expect(component.helperText).toBe('');
     expect(component.textSpan).toBe('');
     expect(component.columnsOnXl).toBe(false);
+    expect(component.columnsOnXlCount).toBe(2);
     expect(component.placeholder).toBe('');
     expect(component.scrollHeight).toBe('268px');
     expect(component.itemHeight).toBe(41);
@@ -582,6 +582,7 @@ describe('MultiselectComponent', () => {
     component.helperText = 'Helper text';
     component.textSpan = 'Text span';
     component.columnsOnXl = true;
+    component.columnsOnXlCount = 3;
     component.placeholder = 'Select options';
     component.scrollHeight = '400px';
     component.itemHeight = 50;
@@ -599,6 +600,7 @@ describe('MultiselectComponent', () => {
     expect(component.helperText).toBe('Helper text');
     expect(component.textSpan).toBe('Text span');
     expect(component.columnsOnXl).toBe(true);
+    expect(component.columnsOnXlCount).toBe(3);
     expect(component.placeholder).toBe('Select options');
     expect(component.scrollHeight).toBe('400px');
     expect(component.itemHeight).toBe(50);
@@ -1047,7 +1049,7 @@ describe('MultiselectComponent', () => {
       const host = document.createElement('div');
       const trigger = document.createElement('div');
       trigger.className = 'p-multiselect';
-      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 240 } as DOMRect);
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 240 });
       host.appendChild(trigger);
       (component as any).hostEl = { nativeElement: host };
 
@@ -1079,7 +1081,7 @@ describe('MultiselectComponent', () => {
       const host = document.createElement('div');
       const trigger = document.createElement('div');
       trigger.className = 'p-multiselect';
-      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 180 } as DOMRect);
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 180 });
       host.appendChild(trigger);
       (component as any).hostEl = { nativeElement: host };
       const root = document.createElement('div');
@@ -1104,7 +1106,7 @@ describe('MultiselectComponent', () => {
       const host = document.createElement('div');
       const trigger = document.createElement('div');
       trigger.className = 'p-multiselect';
-      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 0 } as DOMRect);
+      jest.spyOn(trigger, 'getBoundingClientRect').mockReturnValue({ width: 0 });
       host.appendChild(trigger);
       (component as any).hostEl = { nativeElement: host };
       const root = document.createElement('div');
@@ -1143,7 +1145,7 @@ describe('MultiselectComponent', () => {
       jest.spyOn(ngZone, 'runOutsideAngular').mockImplementation((fn: any) => {
         (fn as () => void)();
       });
-      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
+      jest.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => {
         cb(0);
         return 0;
       });
@@ -1216,6 +1218,149 @@ describe('MultiselectComponent', () => {
     it('should return index when optionValue is not set', () => {
       component.optionValue = '';
       expect(component.trackSelectedOptionRow(6, { id: 1 })).toBe(6);
+    });
+  });
+
+  describe('findOptionForItem agreement_id fallback', () => {
+    beforeEach(() => {
+      component.optionValue = 'id';
+    });
+
+    it('should match option by agreement_id when primary key does not match (lines 273-276)', () => {
+      const optionsList = [{ id: 1, agreement_id: 'AGR-100', name: 'Contract A' }];
+      const item = { id: 99, agreement_id: 'AGR-100' };
+
+      const found = (component as any).findOptionForItem(item, optionsList);
+
+      expect(found).toEqual(optionsList[0]);
+    });
+
+    it('should match option agreement_id when item id equals option agreement_id (line 280)', () => {
+      const optionsList = [{ id: 1, agreement_id: 'AGR-200', name: 'Contract B' }];
+      const item = { id: 'AGR-200' };
+
+      const found = (component as any).findOptionForItem(item, optionsList);
+
+      expect(found).toEqual(optionsList[0]);
+    });
+
+    it('should return undefined when item has no id or agreement_id (line 283)', () => {
+      const optionsList = [{ id: 1, agreement_id: 'AGR-300', name: 'Contract C' }];
+      const item = { name: 'orphan' };
+
+      const found = (component as any).findOptionForItem(item, optionsList);
+
+      expect(found).toBeUndefined();
+    });
+
+    it('should match option primary key when it equals agreement_id (line 274 branch)', () => {
+      const optionsList = [{ id: 'AGR-150', name: 'Contract D' }];
+      const item = { id: 99, agreement_id: 'AGR-150' };
+
+      const found = (component as any).findOptionForItem(item, optionsList);
+
+      expect(found).toEqual(optionsList[0]);
+    });
+
+    it('should keep original item in onChange when findOptionForItem returns undefined (lines 165-166)', () => {
+      const fixture = TestBed.createComponent(MultiselectComponent);
+      const comp = fixture.componentInstance;
+      comp.optionValue = 'id';
+      comp.optionLabel = 'name';
+      comp.signalOptionValue = 'testField';
+      const itemsWithoutLabels = [{ id: 404 }];
+      (comp as any).optionsSig = signal([{ id: 1, name: 'Other' }]);
+      mockCacheService.currentResultIsLoading.set(false);
+      comp.ngOnInit();
+      fixture.detectChanges();
+      comp.firstLoad.set(true);
+      mockUtilsService.getNestedProperty.mockReturnValue(itemsWithoutLabels);
+      comp.signal.set({ testField: itemsWithoutLabels } as any);
+      comp.signal.update(current => ({ ...current }));
+      fixture.detectChanges();
+
+      expect(comp.body().value).toEqual([404]);
+    });
+
+    it('should merge found option in onChange effect (line 165 true branch)', () => {
+      const fixture = TestBed.createComponent(MultiselectComponent);
+      const comp = fixture.componentInstance;
+      comp.optionValue = 'id';
+      comp.optionLabel = 'name';
+      comp.signalOptionValue = 'testField';
+      const options = [{ id: 10, name: 'Matched' }];
+      mockCacheService.currentResultIsLoading.set(false);
+      comp.ngOnInit();
+      (comp as any).optionsSig = signal(options);
+      fixture.detectChanges();
+      comp.firstLoad.set(true);
+      mockUtilsService.getNestedProperty.mockReturnValue([{ id: 10 }]);
+      comp.signal.set({ testField: [{ id: 10 }] } as any);
+      comp.signal.update(current => ({ ...current }));
+      fixture.detectChanges();
+
+      expect(comp.body().value).toEqual([10]);
+    });
+
+    it('should use empty options fallback when optionsSig is nullish inside onChange map (line 165 ?? branch)', () => {
+      const fixture = TestBed.createComponent(MultiselectComponent);
+      const comp = fixture.componentInstance;
+      comp.optionValue = 'id';
+      comp.optionLabel = 'name';
+      comp.signalOptionValue = 'testField';
+      const itemsWithoutLabels = [{ id: 505 }];
+      const optionsArr = [{ id: 505, name: 'Option' }];
+      let nestedPropertyCalls = 0;
+      let mapCallbackReads = 0;
+      mockCacheService.currentResultIsLoading.set(false);
+      comp.ngOnInit();
+      fixture.detectChanges();
+      const optionsSigSpy = jest.fn(() => {
+        if (nestedPropertyCalls >= 2) {
+          mapCallbackReads += 1;
+          if (mapCallbackReads === 1) {
+            return undefined;
+          }
+        }
+        return optionsArr;
+      });
+      Object.assign(optionsSigSpy, { set: jest.fn(), update: jest.fn(), asReadonly: jest.fn() });
+      (comp as any).optionsSig = optionsSigSpy;
+      mockUtilsService.getNestedProperty.mockImplementation(() => {
+        nestedPropertyCalls += 1;
+        if (nestedPropertyCalls >= 2) {
+          mapCallbackReads = 0;
+        }
+        return itemsWithoutLabels;
+      });
+      comp.firstLoad.set(true);
+      comp.signal.set({ testField: itemsWithoutLabels } as any);
+      comp.signal.update(current => ({ ...current }));
+      fixture.detectChanges();
+
+      expect(nestedPropertyCalls).toBeGreaterThanOrEqual(2);
+      expect(comp.body().value).toEqual([505]);
+    });
+
+    it('should skip agreement_id lookup when agreement_id is an empty string', () => {
+      const optionsList = [{ id: 2, agreement_id: 'AGR-400', name: 'Contract E' }];
+      const item = { id: 1, agreement_id: '' };
+
+      const found = (component as any).findOptionForItem(item, optionsList);
+
+      expect(found).toBeUndefined();
+    });
+
+    it('should resolve agreement_id fallback via setValue', () => {
+      component.optionValue = 'id';
+      component.signalOptionValue = 'testField';
+      mockUtilsService.getNestedProperty.mockReturnValue([]);
+      (component as any).optionsSig = signal([{ id: 1, agreement_id: 'AGR-50', name: 'Via agreement' }]);
+      component.ngOnInit();
+
+      component.setValue([50]);
+
+      expect(component.body().value).toEqual([50]);
     });
   });
 

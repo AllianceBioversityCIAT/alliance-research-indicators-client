@@ -417,6 +417,85 @@ describe('SectionHeaderComponent', () => {
     expect(items[0].items?.length).toBe(0);
   });
 
+  it('showStarPdfReport should require STAR result and supported indicators', () => {
+    (cacheService.currentResultId as any).set('STAR-8');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 8, report_year: 2026 });
+    expect(component.showStarPdfReport()).toBe(true);
+
+    (cacheService.currentMetadata as any).set({ indicator_id: 2, result_official_code: 8, report_year: 2026 });
+    expect(component.showStarPdfReport()).toBe(true);
+
+    (cacheService.currentMetadata as any).set({ indicator_id: 4, result_official_code: 8, report_year: 2026 });
+    expect(component.showStarPdfReport()).toBe(false);
+
+    (cacheService.currentResultId as any).set('PRMS-8');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 8, report_year: 2026 });
+    expect(component.showStarPdfReport()).toBe(false);
+  });
+
+  it('showStarPdfReport should use private currentResultId when cache id is falsy', () => {
+    (cacheService.currentResultId as any).set('');
+    component['currentResultId'].set('STAR-8');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 8, report_year: 2026 });
+
+    expect(component.showStarPdfReport()).toBe(true);
+  });
+
+  it('openStarPdfReport should use private currentResultId when cache id is falsy', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    (cacheService.currentResultId as any).set('');
+    component['currentResultId'].set('STAR-44');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 44, report_year: 2026 });
+    (component.route.snapshot as any).queryParamMap = {
+      get: jest.fn().mockReturnValue(null)
+    };
+
+    component.openStarPdfReport();
+
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-44', '_blank', 'noopener,noreferrer');
+    openSpy.mockRestore();
+  });
+
+  it('openStarPdfReport should open the internal viewer with version when URL has version query param', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    (cacheService.currentResultId as any).set('STAR-8');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 8, report_year: 2026 });
+    (component.route.snapshot as any).queryParamMap = {
+      get: jest.fn().mockReturnValue('2026')
+    };
+
+    component.openStarPdfReport();
+
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-8?version=2026', '_blank', 'noopener,noreferrer');
+    openSpy.mockRestore();
+  });
+
+  it('openStarPdfReport should not open when inn_dev PDF is temporarily disabled', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    (cacheService.currentResultId as any).set('STAR-8');
+    (cacheService.currentMetadata as any).set({ indicator_id: 2, result_official_code: 8, report_year: 2026 });
+
+    component.openStarPdfReport();
+
+    expect(openSpy).not.toHaveBeenCalled();
+    expect(component.starPdfReportDisabled()).toBe(true);
+    openSpy.mockRestore();
+  });
+
+  it('openStarPdfReport should omit version when URL has no version query param', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    (cacheService.currentResultId as any).set('STAR-44');
+    (cacheService.currentMetadata as any).set({ indicator_id: 1, result_official_code: 44, report_year: 2026 });
+    (component.route.snapshot as any).queryParamMap = {
+      get: jest.fn().mockReturnValue(null)
+    };
+
+    component.openStarPdfReport();
+
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-44', '_blank', 'noopener,noreferrer');
+    openSpy.mockRestore();
+  });
+
   it('should show delete option when status_id is 5', () => {
     // Mock currentMetadata to return an object with status_id === 5 (deletable)
     jest.spyOn(cacheService, 'currentMetadata').mockReturnValue({

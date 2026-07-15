@@ -51,7 +51,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   private readonly platformId = inject(PLATFORM_ID);
   private readonly ngZone = inject(NgZone);
 
-  @ViewChild(MultiSelect) private primeMultiSelect?: MultiSelect;
+  @ViewChild(MultiSelect) private readonly primeMultiSelect?: MultiSelect;
 
   @ContentChild('rows') rows!: TemplateRef<any>;
   @ContentChild('selectedItems') selectedItems!: TemplateRef<any>;
@@ -82,6 +82,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   @Input() helperText = '';
   @Input() textSpan = '';
   @Input() columnsOnXl = false;
+  @Input() columnsOnXlCount: 2 | 3 = 2;
   @Input() placeholder = '';
   @Input() serviceParams: unknown;
 
@@ -101,7 +102,7 @@ export class MultiselectComponent implements OnInit, OnChanges {
   environment = environment;
 
   service: any;
-  private inFlightLoadByKey = new Map<string, Promise<void>>();
+  private readonly inFlightLoadByKey = new Map<string, Promise<void>>();
   optionsSig: WritableSignal<any[]> = signal<any[]>([]);
   loadingSig: WritableSignal<boolean> = signal<boolean>(false);
 
@@ -161,8 +162,8 @@ export class MultiselectComponent implements OnInit, OnChanges {
             current,
             this.signalOptionValue,
             this.utils.getNestedProperty(current, this.signalOptionValue)?.map((item: any) => {
-              const itemFound = this.optionsSig()?.find((option: any) => option[this.optionValue] === item[this.optionValue]);
-              return { ...item, ...itemFound };
+              const itemFound = this.findOptionForItem(item, this.optionsSig() ?? []);
+              return itemFound ? { ...itemFound, ...item } : item;
             })
           );
           return {
@@ -261,6 +262,27 @@ export class MultiselectComponent implements OnInit, OnChanges {
     return undefined;
   }
 
+  private findOptionForItem(item: Record<string, unknown>, optionsList: Record<string, unknown>[]): Record<string, unknown> | undefined {
+    const key = this.optionValue;
+    const id = item[key];
+    let found = optionsList.find(option => option[key] == id);
+    if (found) return found;
+
+    const agreementId = item['agreement_id'];
+    if (agreementId != null && agreementId !== '') {
+      found = optionsList.find(
+        option => option['agreement_id'] == agreementId || option[key] == agreementId
+      );
+      if (found) return found;
+    }
+
+    if (id != null && id !== '') {
+      return optionsList.find(option => option['agreement_id'] == id);
+    }
+
+    return undefined;
+  }
+
   private loadKey(): string {
     return `${String(this.serviceName)}::${JSON.stringify(this.serviceParams)}`;
   }
@@ -309,8 +331,10 @@ export class MultiselectComponent implements OnInit, OnChanges {
 
       const nextItems = eventIds.map((id: number) => {
         const fromPrev = prevItems.find((item: any) => item[attr] == id);
-        const fromOptions = optionsList.find((option: any) => option[attr] == id);
-        const merged: Record<string, unknown> = { ...(fromPrev ?? {}), ...(fromOptions ?? {}) };
+        const fromOptions = this.findOptionForItem({ [attr]: id }, optionsList);
+        const merged: Record<string, unknown> = {};
+        if (fromOptions) Object.assign(merged, fromOptions);
+        if (fromPrev) Object.assign(merged, fromPrev);
         merged[attr] ??= id;
         return merged as any;
       });

@@ -15,6 +15,8 @@ export class RolesService {
   createResultManagementService = inject(CreateResultManagementService);
   cache = inject(CacheService);
 
+  isSystemAdmin = computed(() => this.cache.dataCache().user.user_role_list.some(r => r.role_id === this.adminRoleId));
+
   isAdmin = computed(() =>
     this.cache.dataCache().user.user_role_list.some(r => r.role_id === this.adminRoleId || r.role_id === this.centerAdminRoleId)
   );
