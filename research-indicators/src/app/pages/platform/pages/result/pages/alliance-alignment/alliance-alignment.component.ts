@@ -217,7 +217,7 @@ export default class AllianceAlignmentComponent {
         lever.lever_id,
         signal({
           result_lever_sdgs: lever.result_lever_sdgs ?? [],
-          result_lever_sdg_targets: (lever.result_lever_sdg_targets ?? []) as AlignmentSdgTargetRow[]
+          result_lever_sdg_targets: lever.result_lever_sdg_targets ?? []
         })
       );
     }

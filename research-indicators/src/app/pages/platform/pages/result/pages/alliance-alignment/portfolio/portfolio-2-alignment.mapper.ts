@@ -103,7 +103,7 @@ export const enrichResearchAreas = (areas: GetLevers[] | undefined, catalog?: Ge
       lever_id: match.lever_id ?? match.id ?? area.lever_id ?? area.id,
       full_name: area.full_name ?? match.full_name,
       short_name: area.short_name ?? match.short_name
-    } as GetLevers;
+    };
   });
 
 export type AlignmentSdgTargetRow = ResultLeverSdgTargetPayload & Partial<LeverSdgTargetOption>;
