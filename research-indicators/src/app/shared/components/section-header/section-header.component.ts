@@ -17,6 +17,13 @@ import { DownloadOicrTemplateComponent } from '../download-oicr-template/downloa
 import { RolesService } from '@shared/services/cache/roles.service';
 import { isHomeEntryFromUrl, isResultsCenterEntryFromUrl } from '@shared/constants/result-entry-source';
 import { WhatsNewService } from '@platform/pages/whats-new/services/whats-new.service';
+import { PLATFORM_CODES } from '@shared/constants/platform-codes';
+import {
+  getStarReportViewerUrl,
+  isStarInnDevPdfTemporarilyDisabled,
+  isStarPdfReportEligibleFromResultId,
+  openStarPdfReportInNewTab
+} from '@shared/utils/star-pdf-report.util';
 
 export interface BreadcrumbItem {
   label: string;
@@ -51,6 +58,11 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
     const statusId = this.cache.currentMetadata()?.status_id;
     return statusId === 5 || statusId === 7 || (statusId === 4 && this.cache.isMyResult()) || this.rolesService.isAdmin();
   });
+  showStarPdfReport = computed(() => {
+    const resultId = this.cache.currentResultId() || this.currentResultId();
+    return isStarPdfReportEligibleFromResultId(this.cache.currentMetadata()?.indicator_id, resultId);
+  });
+  starPdfReportDisabled = computed(() => isStarInnDevPdfTemporarilyDisabled(this.cache.currentMetadata()?.indicator_id));
   resultTitle = signal('');
   items = computed((): MenuItem[] => {
     const deleteOption: MenuItem = {
@@ -151,6 +163,26 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
   getHistoryItemTitle(item: { title: string; id: string | null }): string {
     return item.id ? `${item.title} (id: ${item.id})` : item.title;
+  }
+
+  openStarPdfReport(): void {
+    if (this.starPdfReportDisabled()) return;
+    const metadata = this.cache.currentMetadata();
+    const resultId = this.cache.currentResultId() || this.currentResultId();
+    const versionFromUrl = this.route.snapshot.queryParamMap.get('version')?.trim() ?? '';
+    const url = getStarReportViewerUrl(
+      {
+        indicator_id: metadata.indicator_id,
+        platform_code: PLATFORM_CODES.STAR,
+        result_official_code: metadata.result_official_code
+      },
+      {
+        resultIdFallback: resultId,
+        versionOverride: versionFromUrl || null,
+        includeVersion: versionFromUrl.length > 0
+      }
+    );
+    openStarPdfReportInNewTab(url);
   }
 
   welcomeMessage = computed(() => {
@@ -262,8 +294,7 @@ export class SectionHeaderComponent implements OnDestroy, AfterViewInit, OnInit 
 
     const pageId = segments[2];
     const title =
-      this.whatsNewService.getActiveReleaseNoteTitle() ||
-      this.whatsNewService.getReleaseNoteTitle(this.whatsNewService.findReleaseNoteById(pageId));
+      this.whatsNewService.getActiveReleaseNoteTitle() || this.whatsNewService.getReleaseNoteTitle(this.whatsNewService.findReleaseNoteById(pageId));
     return [
       { label: 'Release Notes', route: '/whats-new' },
       { label: title || 'Release note', tooltip: title || undefined }

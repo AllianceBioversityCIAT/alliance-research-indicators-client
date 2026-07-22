@@ -19,7 +19,7 @@ import { PatchAllianceAlignment } from '../interfaces/alliance-aligment.interfac
 import { PatchPartners } from '../interfaces/patch-partners.interface';
 import { Degree, Gender, GetCapSharing, IpOwners, Length, SessionFormat, SessionType } from '../interfaces/get-cap-sharing.interface';
 import { CacheService } from './cache/cache.service';
-import { GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
+import { AlignmentRequestParams, GetAllianceAlignment } from '../interfaces/get-alliance-alignment.interface';
 import { GetMetadata } from '../interfaces/get-metadata.interface';
 import { UserStaff } from '../interfaces/get-user-staff.interface';
 import { GetCountries } from '../interfaces/get-countries.interface';
@@ -31,6 +31,7 @@ import { ContactPersonResponse } from '../interfaces/contact-person.interface';
 import { GlobalTarget } from '../interfaces/global-target.interface';
 import { GetResultsByContract } from '../interfaces/get-results-by-contract.interface';
 import { GetProjectDetail } from '../interfaces/get-project-detail.interface';
+import { Portfolio, PortfolioPayload } from '../interfaces/portfolio.interface';
 import { GetGeoLocation } from '../interfaces/get-geo-location.interface';
 import { GetIndicatorsResultsAmount } from '../interfaces/get-indicators-results-amount.interface';
 import { GetResultsStatus } from '../interfaces/get-results-status.interface';
@@ -86,8 +87,10 @@ import {
   PoolFundingSciencePrograms,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
-import { GetLevers } from '@shared/interfaces/get-levers.interface';
+import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
 import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
+import { PortfolioConfigItem, PortfolioScopedParams } from '@shared/interfaces/portfolio-config.interface';
+import { FundingType } from '@shared/interfaces/funding-type.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';
 import { ConfigurationByKeyResponse } from '@shared/interfaces/configuration-by-key.interface';
 import {
@@ -164,8 +167,48 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_Levers = (): Promise<MainResponse<GetLevers[]>> => {
+  GET_Levers = (params?: GetLeversParams): Promise<MainResponse<GetLevers[]>> => {
     const url = () => `tools/clarisa/levers`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_StrategicObjectives = (params?: PortfolioScopedParams): Promise<MainResponse<PortfolioConfigItem[]>> => {
+    const url = () => `strategic-objectives`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_ImpactOutcomes = (params?: PortfolioScopedParams): Promise<MainResponse<PortfolioConfigItem[]>> => {
+    const url = () => `impact-outcomes`;
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.reportYear != null) httpParams = httpParams.set('reportYear', String(params.reportYear));
+    return this.TP.get(url(), httpParams.keys().length ? { params: httpParams } : {});
+  };
+
+  GET_Portfolios = (): Promise<MainResponse<Portfolio[]>> => {
+    return this.TP.get('portfolios', {});
+  };
+
+  POST_Portfolio = (body: PortfolioPayload): Promise<MainResponse<Portfolio>> => {
+    return this.TP.post('portfolios', body, {});
+  };
+
+  PATCH_Portfolio = (portfolioId: number, body: PortfolioPayload): Promise<MainResponse<Portfolio>> => {
+    return this.TP.patch(`portfolios/${portfolioId}`, body, {});
+  };
+
+  DELETE_Portfolio = (portfolioId: number): Promise<MainResponse<unknown>> => {
+    return this.TP.delete(`portfolios/${portfolioId}`, {});
+  };
+
+  GET_FundingTypes = (): Promise<MainResponse<FundingType[]>> => {
+    const url = () => `agresso/contracts/funding-types`;
     return this.TP.get(url(), {});
   };
 
@@ -309,6 +352,21 @@ export class ApiService {
     }
 
     return this.TP.getBlob('reports/resultCenter/xlsx', { params });
+  };
+
+  GET_ResultPdfReport = async (
+    resultCode: string | number,
+    reportingPlatform = 'STAR',
+    reportYear?: number | string | null,
+    reportName = 'cap_sharing'
+  ): Promise<MainResponse<string>> => {
+    let params = new HttpParams().set('is-html', 'false').set('report_name', reportName).set('reportingPlatforms', reportingPlatform);
+
+    if (reportYear != null && String(reportYear).trim() !== '') {
+      params = params.set('reportYear', String(reportYear));
+    }
+
+    return this.TP.get(`reports/${encodeURIComponent(String(resultCode))}/pdf`, { params });
   };
 
   private unwrapV2ResultsResponse(raw: MainResponse<unknown>): MainResponse<GetResultsResponseData> {
@@ -603,14 +661,27 @@ export class ApiService {
     return this.TP.patch(url(), body, { useResultInterceptor: true });
   };
 
-  GET_Alignments = (id: number): Promise<MainResponse<GetAllianceAlignment>> => {
+  GET_Alignments = (id: number, params?: AlignmentRequestParams): Promise<MainResponse<GetAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.get(url(), { loadingTrigger: true, useResultInterceptor: true });
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.return != null) httpParams = httpParams.set('return', String(params.return));
+    return this.TP.get(url(), {
+      ...(httpParams.keys().length ? { params: httpParams } : {}),
+      loadingTrigger: true,
+      useResultInterceptor: true
+    });
   };
 
-  PATCH_Alignments = <T>(id: number, body: T): Promise<MainResponse<PatchAllianceAlignment>> => {
+  PATCH_Alignments = <T>(id: number, body: T, params?: AlignmentRequestParams): Promise<MainResponse<PatchAllianceAlignment>> => {
     const url = () => `results/${id}/alignments`;
-    return this.TP.patch(url(), body, { useResultInterceptor: true });
+    let httpParams = new HttpParams();
+    if (params?.portfolioId != null) httpParams = httpParams.set('portfolioId', String(params.portfolioId));
+    if (params?.return != null) httpParams = httpParams.set('return', String(params.return));
+    return this.TP.patch(url(), body, {
+      ...(httpParams.keys().length ? { params: httpParams } : {}),
+      useResultInterceptor: true
+    });
   };
 
   GET_SessionFormat = (): Promise<MainResponse<SessionFormat[]>> => {
@@ -691,6 +762,7 @@ export class ApiService {
     'order-field'?: string;
     direction?: string;
     'end-date'?: string;
+    'funding-type'?: string;
     query?: string;
     page?: number | string;
     limit?: number | string;
@@ -791,12 +863,8 @@ export class ApiService {
     return this.TP.get(url(), {});
   };
 
-  GET_TopContributorsContracts = (
-    contractId: string,
-    limit = 5
-  ): Promise<MainResponse<TopContributorsContractReport>> => {
-    const url = () =>
-      `agresso/contracts/reports/top-contributors-contracts?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+  GET_TopContributorsContracts = (contractId: string, limit = 5): Promise<MainResponse<TopContributorsContractReport>> => {
+    const url = () => `agresso/contracts/reports/top-contributors-contracts?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
@@ -806,14 +874,12 @@ export class ApiService {
   };
 
   GET_TopMainContactPersons = (contractId: string, limit = 5): Promise<MainResponse<TopMainContactPersonsReport>> => {
-    const url = () =>
-      `agresso/contracts/reports/top-main-contact-persons?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    const url = () => `agresso/contracts/reports/top-main-contact-persons?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
   GET_TopPrimaryLevers = (contractId: string, limit = 5): Promise<MainResponse<TopPrimaryLeversReport>> => {
-    const url = () =>
-      `agresso/contracts/reports/top-primary-levers?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
+    const url = () => `agresso/contracts/reports/top-primary-levers?contract-id=${encodeURIComponent(contractId)}&limit=${limit}`;
     return this.TP.get(url(), {});
   };
 
@@ -1058,6 +1124,7 @@ export class ApiService {
     status?: string;
     'start-date'?: string;
     'end-date'?: string;
+    'funding-type'?: string;
     query?: string;
     page?: number | string;
     limit?: number | string;
@@ -1079,6 +1146,7 @@ export class ApiService {
       'status',
       'start-date',
       'end-date',
+      'funding-type',
       'query',
       'page',
       'limit',

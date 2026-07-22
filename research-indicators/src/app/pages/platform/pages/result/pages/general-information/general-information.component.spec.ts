@@ -26,12 +26,11 @@ import { CacheService } from '@shared/services/cache/cache.service';
 import { ApiService } from '@shared/services/api.service';
 import { SubmissionService } from '@shared/services/submission.service';
 import { GetMetadataService } from '@shared/services/get-metadata.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { GetResultsService } from '@shared/services/control-list/get-results.service';
 import { GetUserStaffService } from '@shared/services/control-list/get-user-staff.service';
 import { VersionWatcherService } from '@shared/services/version-watcher.service';
 import { ServiceLocatorService } from '@shared/services/service-locator.service';
-import { ActivatedRoute } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { GeneralInformation } from '@interfaces/result/general-information.interface';
 
@@ -47,12 +46,8 @@ describe('GeneralInformationComponent', () => {
   let cacheService: jest.Mocked<CacheService>;
   let apiService: jest.Mocked<ApiService>;
   let submissionService: jest.Mocked<SubmissionService>;
-  let getMetadataService: jest.Mocked<GetMetadataService>;
   let router: jest.Mocked<Router>;
   let getResultsService: jest.Mocked<GetResultsService>;
-  let getUserStaffService: jest.Mocked<GetUserStaffService>;
-  let versionWatcherService: jest.Mocked<VersionWatcherService>;
-  let serviceLocator: jest.Mocked<ServiceLocatorService>;
   let route: ActivatedRoute;
 
   beforeEach(async () => {
@@ -97,12 +92,8 @@ describe('GeneralInformationComponent', () => {
     cacheService = TestBed.inject(CacheService) as jest.Mocked<CacheService>;
     apiService = TestBed.inject(ApiService) as jest.Mocked<ApiService>;
     submissionService = TestBed.inject(SubmissionService) as jest.Mocked<SubmissionService>;
-    getMetadataService = TestBed.inject(GetMetadataService) as jest.Mocked<GetMetadataService>;
     router = TestBed.inject(Router) as jest.Mocked<Router>;
     getResultsService = TestBed.inject(GetResultsService) as jest.Mocked<GetResultsService>;
-    getUserStaffService = TestBed.inject(GetUserStaffService) as jest.Mocked<GetUserStaffService>;
-    versionWatcherService = TestBed.inject(VersionWatcherService) as jest.Mocked<VersionWatcherService>;
-    serviceLocator = TestBed.inject(ServiceLocatorService) as jest.Mocked<ServiceLocatorService>;
     route = TestBed.inject(ActivatedRoute);
   });
 
@@ -283,6 +274,98 @@ describe('GeneralInformationComponent', () => {
     expect(component.loading()).toBe(false);
   });
 
+  it('should show a warning and avoid service calls when portafolio change before saving', async () => {
+    const originalData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2025',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ successfulRequest: true, status: 200 });
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+      report_year: 2025,
+      portfolio: { id: 1, name: 'Portfolio 1', start_year: 2021, end_year: 2025 }
+    });
+    (actionsService.showGlobalAlert as jest.Mock).mockClear();
+
+    await component.getData();
+    component.body.update(current => ({ ...current, year: '2026' }));
+    await component.saveData();
+
+    expect(actionsService.showGlobalAlert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'warning',
+        summary: 'Portafolio Change',
+        detail: expect.stringContaining('This change could affect the portfolio period'),
+        confirmCallback: expect.objectContaining({ label: 'Continue' }),
+        cancelCallback: expect.objectContaining({ label: 'Cancel' })
+      })
+    );
+    expect((apiService as any).PATCH_GeneralInformation).not.toHaveBeenCalled();
+    expect(component.loading()).toBe(false);
+  });
+
+  it('should save without warning when reporting year remains inside the current portfolio range', async () => {
+    const originalData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2025',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ successfulRequest: true, status: 200 });
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+      report_year: 2025,
+      portfolio: { id: 1, name: 'Portfolio 1', start_year: 2021, end_year: 2025 }
+    });
+    (actionsService.showGlobalAlert as jest.Mock).mockClear();
+
+    await component.getData();
+    component.body.update(current => ({ ...current, year: '2024' }));
+    await component.saveData();
+
+    expect(actionsService.showGlobalAlert).not.toHaveBeenCalled();
+    expect((apiService as any).PATCH_GeneralInformation).toHaveBeenCalledWith(123, expect.objectContaining({ year: '2024' }));
+  });
+
+  it('should continue saving after confirming the portafolio change warning', async () => {
+    const originalData: GeneralInformation = {
+      title: 'Test Title',
+      description: 'Test Description',
+      year: '2025',
+      keywords: ['test'],
+      user_id: '1',
+      main_contact_person: { user_id: '1' }
+    };
+    const updatedData = { ...originalData, year: '2026' };
+    (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValueOnce({ data: originalData }).mockResolvedValue({ data: updatedData });
+    (apiService as any).PATCH_GeneralInformation = jest.fn().mockResolvedValue({ successfulRequest: true, status: 200 });
+    (submissionService as any).isEditableStatus = jest.fn().mockReturnValue(true);
+    (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+      report_year: 2025,
+      portfolio: { id: 1, name: 'Portfolio 1', start_year: 2021, end_year: 2025 }
+    });
+    (actionsService.showGlobalAlert as jest.Mock).mockClear();
+
+    await component.getData();
+    component.body.update(current => ({ ...current, year: '2026' }));
+    await component.saveData();
+
+    const warning = (actionsService.showGlobalAlert as jest.Mock).mock.calls[0][0];
+    warning.confirmCallback.event();
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect((apiService as any).PATCH_GeneralInformation).toHaveBeenCalledWith(123, expect.objectContaining({ year: '2026' }));
+  });
+
   it('should show error toast when status is 409 (conflict)', async () => {
     const mockData: GeneralInformation = {
       title: 'Test Title',
@@ -425,14 +508,156 @@ describe('GeneralInformationComponent', () => {
     expect(component.body().title).toBeUndefined();
   });
 
+  describe('hasReportingYearChanged', () => {
+    it('returns false when reporting year is empty', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: undefined }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when reporting year is unchanged', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: 2025 }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when changed year is still inside the portfolio range', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2023' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when portfolio years are not finite', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: undefined, end_year: undefined }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2030' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns false when next year is not a finite number', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: 'not-a-year' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(false);
+    });
+
+    it('returns true when year moves before portfolio start', async () => {
+      const originalData: GeneralInformation = {
+        title: 'Test',
+        description: 'Desc',
+        year: '2025',
+        keywords: [],
+        user_id: '1',
+        main_contact_person: { user_id: '1' }
+      };
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({ data: originalData });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2019' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(true);
+    });
+
+    it('uses report_year from metadata when initial year was not loaded', async () => {
+      (apiService as any).GET_GeneralInformation = jest.fn().mockResolvedValue({
+        data: { title: 'Test', description: 'Desc', keywords: [], user_id: '1' }
+      });
+      (cacheService as any).currentMetadata = jest.fn().mockReturnValue({
+        report_year: 2025,
+        portfolio: { start_year: 2021, end_year: 2025 }
+      });
+
+      await component.getData();
+      component.body.update(current => ({ ...current, year: '2026' }));
+
+      expect((component as any).hasReportingYearChanged()).toBe(true);
+    });
+  });
+
   it('should call getData when version watcher callback is invoked', async () => {
     const vw = TestBed.inject(VersionWatcherService) as jest.Mocked<VersionWatcherService>;
     const getDataSpy = jest.spyOn(component, 'getData').mockResolvedValue();
     // Component registers its callback in constructor; find the one that invokes our getData
     const calls = vw.onVersionChange.mock.calls;
-    for (let i = 0; i < calls.length; i++) {
+    for (const call of calls) {
       getDataSpy.mockClear();
-      await calls[i][0]();
+      await call[0]('1.0');
       if (getDataSpy.mock.calls.length > 0) break;
     }
     expect(getDataSpy).toHaveBeenCalled();

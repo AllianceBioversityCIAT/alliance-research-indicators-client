@@ -76,6 +76,7 @@ describe('ResultsCenterTableComponent', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const listSig = signal([mockResult]);
+    const tableFiltersSig = signal({ sources: [] as { platform_code: string; name: string }[] });
     mockService = {
       searchInput: signal(''),
       list: listSig,
@@ -92,6 +93,7 @@ describe('ResultsCenterTableComponent', () => {
         { label: 'OTHER', value: 'Y' }
       ]),
       tableColumns: signal([{ field: 'title', path: 'title', header: 'Title', getValue: (r: any) => r.title, filter: true }]),
+      tableFilters: tableFiltersSig,
       countTableFiltersSelected: jest.fn(() => 1),
       countFiltersSelected: jest.fn(() => 0),
       clearAllFilters: jest.fn(),
@@ -100,6 +102,7 @@ describe('ResultsCenterTableComponent', () => {
       showConfigurationsSidebar: signal(false),
       tableRef: signal<any>(undefined),
       main: jest.fn(),
+      applyFilters: jest.fn(),
       handleResultsTableLazyLoad: jest.fn(),
       getExportResultFilter: jest.fn().mockReturnValue({ 'indicator-codes': [], 'lever-codes': [], 'create-user-codes': [] }),
       getExportPaginationOptions: jest.fn().mockReturnValue({ sortField: 'code', sortOrder: 'DESC', search: '' })
@@ -130,7 +133,8 @@ describe('ResultsCenterTableComponent', () => {
     };
 
     mockApiService = {
-      GET_ResultCenterXlsx: jest.fn().mockResolvedValue(new Blob(['x'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }))
+      GET_ResultCenterXlsx: jest.fn().mockResolvedValue(new Blob(['x'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })),
+      GET_ResultPdfReport: jest.fn().mockResolvedValue({ data: 'https://reports.example.com/star-report.pdf' })
     };
 
     mockCreateResultManagementService = {
@@ -238,6 +242,50 @@ describe('ResultsCenterTableComponent', () => {
     expect(mockService.showFiltersSidebar()).toBe(true);
     component.showConfiguratiosnSidebar();
     expect(mockService.showConfigurationsSidebar()).toBe(true);
+  });
+
+  it('onPlatformClick should set the clicked platform filter and apply filters', () => {
+    const updateSpy = jest.spyOn(mockService.tableFilters, 'update');
+    const platform = { platform_code: 'STAR', name: 'STAR' };
+
+    component.onPlatformClick(platform);
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    const updateFn = updateSpy.mock.calls[0][0];
+    expect(updateFn({ sources: [] })).toEqual({
+      sources: [{ platform_code: 'STAR', name: 'STAR' }]
+    });
+    expect(mockService.applyFilters).toHaveBeenCalled();
+  });
+
+  it('onPlatformClick should clear the platform filter when the same platform is clicked again', () => {
+    mockService.tableFilters.set({ sources: [{ platform_code: 'STAR', name: 'STAR' }] });
+    const updateSpy = jest.spyOn(mockService.tableFilters, 'update');
+    const platform = { platform_code: 'STAR', name: 'STAR' };
+
+    component.onPlatformClick(platform);
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    const updateFn = updateSpy.mock.calls[0][0];
+    expect(updateFn({ sources: [{ platform_code: 'STAR', name: 'STAR' }] })).toEqual({
+      sources: []
+    });
+    expect(mockService.applyFilters).toHaveBeenCalled();
+  });
+
+  it('onPlatformClick should treat missing sources as an empty selection list', () => {
+    mockService.tableFilters.set({ sources: undefined as unknown as { platform_code: string; name: string }[] });
+    const updateSpy = jest.spyOn(mockService.tableFilters, 'update');
+    const platform = { platform_code: 'STAR', name: 'STAR' };
+
+    component.onPlatformClick(platform);
+
+    expect(updateSpy).toHaveBeenCalledTimes(1);
+    const updateFn = updateSpy.mock.calls[0][0];
+    expect(updateFn({})).toEqual({
+      sources: [{ platform_code: 'STAR', name: 'STAR' }]
+    });
+    expect(mockService.applyFilters).toHaveBeenCalled();
   });
 
   it('openResult should open modal for PRMS and not navigate', () => {
@@ -794,6 +842,91 @@ describe('ResultsCenterTableComponent', () => {
     await component.exportTable();
     expect(consoleErrorSpy).toHaveBeenCalledWith('Downloaded file is empty or invalid');
     consoleErrorSpy.mockRestore();
+  });
+
+  it('showStarPdfReport should require STAR platform and supported indicators', () => {
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(true);
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 2 })).toBe(true);
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 4 })).toBe(false);
+    expect(component.showStarPdfReport({ ...mockResult, platform_code: 'PRMS', indicator_id: 1 })).toBe(false);
+  });
+
+  it('isStarPdfReportDisabled should disable inn_dev PDF temporarily', () => {
+    expect(component.isStarPdfReportDisabled({ ...mockResult, platform_code: 'STAR', indicator_id: 2 })).toBe(true);
+    expect(component.isStarPdfReportDisabled({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(false);
+  });
+
+  it('openStarPdfReport should not open when inn_dev PDF is temporarily disabled', () => {
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue({ opener: {} } as Window);
+    component.openStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 2 });
+    expect(openSpy).not.toHaveBeenCalled();
+    openSpy.mockRestore();
+  });
+
+  it('getStarReportViewerUrl should include STAR result code without version from results center', () => {
+    expect(component.getStarReportViewerUrl({ ...mockResult, platform_code: 'STAR', indicator_id: 1 })).toBe(
+      '/reports/result/STAR-7'
+    );
+  });
+
+  it('getStarReportViewerUrl should not duplicate STAR prefix', () => {
+    expect(
+      component.getStarReportViewerUrl({ ...mockResult, result_official_code: 'STAR-7', platform_code: 'STAR', indicator_id: 1 })
+    ).toBe('/reports/result/STAR-7');
+  });
+
+  it('getStarReportViewerUrl should omit version even when snapshot years are available', () => {
+    const result = {
+      ...mockResult,
+      report_year_id: undefined,
+      snapshot_years: [2022, 2026, 2024],
+      platform_code: 'STAR',
+      indicator_id: 2
+    };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7');
+  });
+
+  it('getStarReportViewerUrl should omit version even when year is available', () => {
+    const result = {
+      ...mockResult,
+      report_year_id: undefined,
+      snapshot_years: [],
+      year: '2025',
+      platform_code: 'STAR',
+      indicator_id: 1
+    };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-7');
+  });
+
+  it('getStarReportViewerUrl should handle missing official code', () => {
+    const result = { ...mockResult, result_official_code: undefined, platform_code: 'STAR', indicator_id: 1 };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-');
+  });
+
+  it('getStarReportViewerUrl should build a clean URL when no report year is available', () => {
+    const result = {
+      ...mockResult,
+      result_official_code: 8,
+      report_year_id: undefined,
+      snapshot_years: [],
+      year: undefined,
+      platform_code: 'STAR',
+      indicator_id: 2
+    };
+    expect(component.getStarReportViewerUrl(result)).toBe('/reports/result/STAR-8');
+  });
+
+  it('openStarPdfReport should open the internal STAR report viewer URL in a new tab', () => {
+    const openedWindow = { opener: {} };
+    const openSpy = jest.spyOn(globalThis, 'open').mockReturnValue(openedWindow as any);
+
+    component.openStarPdfReport({ ...mockResult, platform_code: 'STAR', indicator_id: 1 });
+
+    expect(mockApiService.GET_ResultPdfReport).not.toHaveBeenCalled();
+    expect(openSpy).toHaveBeenCalledWith('/reports/result/STAR-7', '_blank', 'noopener,noreferrer');
+    expect(openedWindow.opener).toBeNull();
+
+    openSpy.mockRestore();
   });
 
   it('buildResultsCenterExportFileName should use single-letter initials when only one name is present', () => {

@@ -1,11 +1,21 @@
 import { GetSdgs } from './get-sdgs.interface';
+import { GetLevers } from './get-levers.interface';
 import { Lever } from './oicr-creation.interface';
+import { PortfolioConfigItem } from './portfolio-config.interface';
 
 export interface GetAllianceAlignment {
   contracts: Contract[];
   result_sdgs: GetSdgs[];
   primary_levers: Lever[];
   contributor_levers: Lever[];
+  research_areas?: GetLevers[];
+  strategic_objectives?: PortfolioConfigItem[];
+  impact_outcomes?: PortfolioConfigItem[];
+}
+
+export interface AlignmentRequestParams {
+  portfolioId?: number | null;
+  return?: boolean;
 }
 
 interface Contract {

@@ -77,6 +77,9 @@
   .selected-items.columns-xl .item {
     width: 48.9%;
   }
+  .selected-items.columns-xl.columns-xl-3 .item {
+    width: calc((100% - 32px) / 3);
+  }
 }
 
 @media (min-width: 1960px) {

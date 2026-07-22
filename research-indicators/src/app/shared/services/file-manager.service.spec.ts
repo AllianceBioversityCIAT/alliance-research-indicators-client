@@ -10,7 +10,9 @@ jest.mock('@envs/environment', () => ({
   environment: {
     managementApiUrl: 'https://test-management-api.com',
     fileManagerUrl: 'https://test-file-manager.com',
-    clarisaApiKey: 'test-clarisa-api-key'
+    clarisaApiKey: 'test-clarisa-api-key',
+    keyTextMining: 'star/text-mining/files/test/',
+    keyProjectOverview: 'star/ai-insights/project-overview/projects/'
   }
 }));
 
@@ -155,6 +157,24 @@ describe('FileManagerService', () => {
           headers: expect.any(HttpHeaders)
         })
       );
+    });
+
+    it('should use default text-mining key when projectId is not provided', async () => {
+      httpClientMock.post.mockReturnValue(of(mockResponse));
+
+      await service.uploadFile(mockFile, 10, 100);
+
+      const formData = httpClientMock.post.mock.calls[0][1] as FormData;
+      expect(formData.get('key')).toBe('star/text-mining/files/test/');
+    });
+
+    it('should use project overview key when uploading from dashboard', async () => {
+      httpClientMock.post.mockReturnValue(of(mockResponse));
+
+      await service.uploadFile(mockFile, 10, 100, { projectId: 'D514' });
+
+      const formData = httpClientMock.post.mock.calls[0][1] as FormData;
+      expect(formData.get('key')).toBe('star/ai-insights/project-overview/projects/D514');
     });
   });
 });

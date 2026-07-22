@@ -30,8 +30,9 @@
         <div class="p-dropdown-header">
           <div class="p-input-icon-left p-fluid">
             <i class="pi pi-search"></i>
-            <input #filter type="text" class="p-inputtext p-component" (input)="onFilter({ filter: filter.value })"
-              (click)="$event.stopPropagation()" placeholder="Search..." />
+            <label class="sr-only" for="multiselect-open-search-input">Search options</label>
+            <input #filter id="multiselect-open-search-input" type="text" class="p-inputtext p-component"
+              (input)="onFilter({ filter: filter.value })" (click)="$event.stopPropagation()" placeholder="Search..." />
           </div>
         </div>
       </ng-template>
@@ -83,6 +84,13 @@
   </div>
   }
 
+  @if (!this.currentResultIsLoading() && isInvalid()) {
+  <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
+    <i class="material-symbols-rounded !text-base">warning</i>
+    <span>This field is required</span>
+  </div>
+  }
+
   @if (!this.hideSelected && !this.hideTemplate) {
   @if (this.currentResultIsLoading() || !(this.optionsSig().length)) {
   @for (row of list; track trackSelectedOptionRow($index, row)) {
@@ -92,17 +100,12 @@
   @if (helperText) {
   <span class="block text-[14px] mt-1.5 text-[#8D9299]" [innerHTML]="helperText"></span>
   }
-  @if (isInvalid()) {
-  <div class="flex items-center gap-1 mt-1 text-[#E69F00] text-sm">
-    <i class="material-symbols-rounded !text-base">warning</i>
-    <span>This field is required</span>
-  </div>
-  }
   @if (textSpan && selectedOptions().length) {
   <span class="block text-[14.5px] pb-3 pt-6 text-[#777C83]">{{ textSpan }}</span>
   }
   <div class="selected-items {{ !textSpan && selectedOptions().length ? 'mt-6' : '' }}"
     [class.show-scroll]="!this.disabledSelectedScroll" [class.columns-xl]="columnsOnXl"
+    [class.columns-xl-3]="columnsOnXl && columnsOnXlCount === 3"
     [class.selected-items--stack-gap]="hideRemoveIcon"
     [class.selected-items--custom-surface]="!!selectedItemsSurfaceColor.trim()"
     [style.--multiselect-selected-surface]="selectedItemsSurfaceColor.trim() || null">

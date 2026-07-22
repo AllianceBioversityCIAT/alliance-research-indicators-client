@@ -67,6 +67,12 @@ export class AllianceSidebarComponent implements OnInit, AfterViewInit, OnDestro
             link: '/administration/center-admin/bilateral-mapping',
             icon: 'pi-sitemap',
             iconSize: '13px'
+          },
+          {
+            label: 'Portfolio Management',
+            link: '/administration/center-admin/portfolio-management',
+            icon: 'pi-briefcase',
+            iconSize: '13px'
           }
         ]
       });

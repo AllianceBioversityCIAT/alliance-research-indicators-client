@@ -58,4 +58,14 @@ describe('AllianceLeverCardComponent', () => {
     (fixture.nativeElement as HTMLElement).querySelector('[data-testid="remove"]')?.dispatchEvent(new Event('click'));
     expect(component.removeLever.emit).toHaveBeenCalled();
   });
+
+  it('should identify Other lever by CLARISA lever id 9', () => {
+    fixture.componentRef.setInput('lever', { ...baseLever, lever_id: 9 });
+    expect(component.isOtherLever()).toBe(true);
+  });
+
+  it('should return false when lever is not Other', () => {
+    fixture.componentRef.setInput('lever', { ...baseLever, lever_id: 1 });
+    expect(component.isOtherLever()).toBe(false);
+  });
 });

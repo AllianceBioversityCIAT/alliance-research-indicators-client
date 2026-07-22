@@ -136,6 +136,32 @@ describe('GeoScopeCardComponent', () => {
     expect(component.topSubNationals().map(item => item.label)).toEqual(['High', 'Mid', 'Hidden', 'Sédhiou']);
   });
 
+  it('should map top countries and sub-national items for list rendering', () => {
+    service.topCountries.set([
+      {
+        iso_alpha_2: 'SN',
+        country_name: 'Senegal',
+        count: 1,
+        top_sub_nationals: [{ sub_national_id: 10, sub_national_name: 'Sédhiou', count: 1 }]
+      },
+      {
+        iso_alpha_2: 'CO',
+        country_name: 'Colombia',
+        count: 32,
+        top_sub_nationals: [{ sub_national_id: 2, sub_national_name: 'High', count: 5 }]
+      }
+    ]);
+
+    expect(component.topCountryItems()).toEqual([
+      { id: 'CO', label: 'Colombia', count: 32 },
+      { id: 'SN', label: 'Senegal', count: 1 }
+    ]);
+    expect(component.topSubNationalItems()).toEqual([
+      { id: '2', label: 'High', count: 5 },
+      { id: '10', label: 'Sédhiou', count: 1 }
+    ]);
+  });
+
   it('should support country and metric fallback values', () => {
     service.summary.set({
       global: undefined,

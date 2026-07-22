@@ -53,6 +53,13 @@ describe('RolesService', () => {
     expect(service.isAdmin()).toBe(true);
   });
 
+  it('isSystemAdmin should be true only when role_id 1 is present', () => {
+    userRoleList.set([{ role_id: 1 }]);
+    expect(service.isSystemAdmin()).toBe(true);
+    userRoleList.set([{ role_id: 9 }]);
+    expect(service.isSystemAdmin()).toBe(false);
+  });
+
   it('isAdmin should be false when role_id 9 is absent', () => {
     userRoleList.set([{ role_id: 2 }, { role_id: 3 }]);
     expect(service.isAdmin()).toBe(false);

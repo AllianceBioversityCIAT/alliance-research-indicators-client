@@ -29,13 +29,16 @@
   </div>
 
   <div class="lever-card-fields w-full min-w-0">
+    <ng-content select="[lever-card-extra-fields]"></ng-content>
+
     @if (showStrategicOutcomes) {
-    <app-multiselect class="block w-full min-w-0" label="Strategic Outcome(s)" [signal]="outcomeSignal"
-      signalOptionValue="result_lever_strategic_outcomes" optionValue="id" optionLabel="strategic_outcome"
-      serviceName="leverStrategicOutcomes" filterBy="strategic_outcome" [enableVirtualScroll]="false"
-      [scrollHeight]="'200px'" [columnsOnXl]="true" [selectedItemsSurfaceColor]="selectedItemsSurfaceColor"
-      [textSpan]="'Outcomes selected'" [serviceParams]="lever.lever_id" [disabled]="disabled"
-      [optionLabel2]="'strategic_outcome'" [isRequired]="strategicOutcomesRequired" placeholder="Select the outcomes">
+    <app-multiselect class="block w-full min-w-0" [class.-mt-2]="isOtherLever()" label="Strategic Outcome(s)"
+      [signal]="outcomeSignal" signalOptionValue="result_lever_strategic_outcomes" optionValue="id"
+      optionLabel="strategic_outcome" serviceName="leverStrategicOutcomes" filterBy="strategic_outcome"
+      [enableVirtualScroll]="false" [scrollHeight]="'200px'" [columnsOnXl]="true"
+      [selectedItemsSurfaceColor]="selectedItemsSurfaceColor" [textSpan]="'Outcomes selected'"
+      [serviceParams]="lever.lever_id" [disabled]="disabled" [optionLabel2]="'strategic_outcome'"
+      [isRequired]="strategicOutcomesRequired" placeholder="Select the outcomes">
       <ng-template #selectedItems let-value>
         @if (value?.length > 0) {
         <div class="flex items-center gap-2">
@@ -74,8 +77,8 @@
 
     <app-multiselect class="block w-full min-w-0" label="SDG target(s)" [signal]="sdgSignal" optionLabel="select_label"
       optionLabel2="sdg_target" optionValue="sdg_target_id" signalOptionValue="result_lever_sdg_targets"
-      [disabled]="disabled" [removeCondition]="allowRemove" [columnsOnXl]="true"
-      [selectedItemsSurfaceColor]="selectedItemsSurfaceColor" [isRequired]="sdgTargetsRequired"
+      [disabled]="disabled" [class.-mt-2]="isOtherLever() && !showStrategicOutcomes" [removeCondition]="allowRemove"
+      [columnsOnXl]="true" [selectedItemsSurfaceColor]="selectedItemsSurfaceColor" [isRequired]="sdgTargetsRequired"
       serviceName="leverSdgTargets" [serviceParams]="lever.lever_id" filterBy="sdg_target_code,sdg_target,select_label"
       [enableVirtualScroll]="false" [scrollHeight]="'200px'" placeholder="Select the SDG targets">
       <ng-template #selectedItems let-value>

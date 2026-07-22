@@ -4,7 +4,7 @@ import { SubmissionService } from '@shared/services/submission.service';
 import { ButtonModule } from 'primeng/button';
 
 const RESULT_SIDEBAR_WIDTH_PX = 308;
-const CONTENT_RIGHT_OFFSET_PX = 10;
+const CONTENT_RIGHT_OFFSET_PX = 0;
 
 @Component({
   selector: 'app-navigation-buttons',

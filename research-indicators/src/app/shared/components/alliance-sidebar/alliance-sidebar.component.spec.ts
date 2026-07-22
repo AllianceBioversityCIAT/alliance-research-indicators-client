@@ -166,6 +166,22 @@ describe('AllianceSidebarComponent', () => {
     expect(visible[0].label).toBe('Visible');
   });
 
+  it('should include portfolio management in center admin navigation', () => {
+    const roles = TestBed.inject(RolesService) as { canAccessCenterAdmin: jest.Mock };
+    roles.canAccessCenterAdmin.mockReturnValue(true);
+
+    const centerAdmin = component.administrationGroups().find(group => group.id === 'center-admin');
+
+    expect(centerAdmin?.children).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Portfolio Management',
+          link: '/administration/center-admin/portfolio-management'
+        })
+      ])
+    );
+  });
+
   it('should clear flyout id when closeAdministrationFlyout is called', () => {
     component.administrationFlyoutGroupId.set('center-admin');
     const cdr = (component as unknown as { cdr: ChangeDetectorRef }).cdr;

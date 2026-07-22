@@ -398,19 +398,91 @@ describe('ProjectDetailComponent', () => {
     expect(component.canEditPoolFundingTag()).toBe(true);
   });
 
-  it('should clear indicator filters, set the clicked indicator, and apply filters', () => {
-    const updateSpy = jest.spyOn(component.resultsCenterService.tableFilters, 'update');
-    const indicator = { indicator_id: 1, name: 'Innovation Development' };
-
-    component.onIndicatorClick(indicator);
-
-    expect(updateSpy).toHaveBeenCalledTimes(2);
-    expect(updateSpy).toHaveBeenNthCalledWith(1, expect.any(Function));
-    expect(updateSpy.mock.calls[0][0]({ indicators: [{ indicator_id: 99, name: 'Previous' }] } as any)).toEqual({ indicators: [] });
-    expect(updateSpy).toHaveBeenNthCalledWith(2, expect.any(Function));
-    expect(updateSpy.mock.calls[1][0]({ indicators: [] } as any)).toEqual({
-      indicators: [{ indicator_id: 1, name: 'Innovation Development' }]
+  describe('getContactInitials and display helpers', () => {
+    it('should handle undefined current project for computed helpers', () => {
+      component.currentProject.set(undefined as any);
+      expect(component.projectLeverName()).toBe('-');
+      expect(component.projectGrantAmount()).toBe('—');
+      expect(component.projectTitle()).toBe('');
+      expect(component.projectStatus()).toEqual({ statusId: 1, statusName: 'Ongoing' });
     });
-    expect(resultsCenterService.applyFilters).toHaveBeenCalled();
+
+    it('should expose lever name and empty staff state', () => {
+      component.currentProject.set({ levers: [{ short_name: 'Lever A' }, { short_name: 'Lever B' }] } as any);
+      expect(component.projectLeverName()).toContain('Lever A');
+
+      contractStaffService.staff.set([]);
+      contractStaffService.loading.set(false);
+      contractStaffService.loadError.set(false);
+      expect(component.staffEmpty()).toBe(true);
+    });
+
+    it('should handle empty project for title and status helpers', () => {
+      component.currentProject.set({} as any);
+      expect(component.projectTitle()).toBe('');
+      expect(component.projectStatus()).toBeDefined();
+    });
+
+    it('should derive initials from comma-separated names', () => {
+      expect(component.getContactInitials('Smith, John')).toBe('SJ');
+    });
+
+    it('should derive initials from space-separated names', () => {
+      expect(component.getContactInitials('Jane Doe')).toBe('JD');
+    });
+
+    it('should fall back to a single initial or question mark', () => {
+      expect(component.getContactInitials('Madonna')).toBe('M');
+      expect(component.getContactInitials('')).toBe('?');
+    });
+
+    it('should format grant amount as USD currency', () => {
+      component.currentProject.set({ grant_amount: 1250000 } as any);
+      expect(component.projectGrantAmount()).toBe('$1,250,000');
+    });
+
+    it('should show em dash for non-finite grant amounts', () => {
+      component.currentProject.set({ grant_amount: 'invalid' } as any);
+      expect(component.projectGrantAmount()).toBe('—');
+    });
+
+    it('should format division and unit labels with code and name', () => {
+      component.currentProject.set({ divisionId: 'DIV1', division: 'Research Division', unitId: 'U2', unit: 'Science Unit' } as any);
+      expect(component.projectDivisionLabel()).toBe('DIV1 - Research Division');
+      expect(component.projectUnitLabel()).toBe('U2 - Science Unit');
+    });
+
+    it('should format code labels with label-only, code-only, or em dash fallbacks', () => {
+      component.currentProject.set({ division: '  Research  ', unitId: '  U9  ' } as any);
+      expect(component.projectDivisionLabel()).toBe('Research');
+      expect(component.projectUnitLabel()).toBe('U9');
+
+      component.currentProject.set({} as any);
+      expect(component.projectDivisionLabel()).toBe('—');
+      expect(component.projectUnitLabel()).toBe('—');
+    });
+  });
+
+  describe('onIndicatorClick', () => {
+    it('should clear indicator filters, set the clicked indicator, and apply filters', () => {
+      const updateSpy = jest.spyOn(component.resultsCenterService.tableFilters, 'update');
+      const applyFiltersSpy = jest.spyOn(component.resultsCenterService, 'applyFilters');
+      const indicator = { indicator_id: 1, name: 'Innovation Development' };
+
+      component.onIndicatorClick(indicator);
+
+      expect(updateSpy).toHaveBeenCalledTimes(2);
+      expect(updateSpy).toHaveBeenNthCalledWith(1, expect.any(Function));
+      const firstUpdateFn = updateSpy.mock.calls[0][0];
+      expect(firstUpdateFn({ indicators: [{ indicator_id: 99, name: 'Previous' }] } as any)).toEqual({ indicators: [] });
+
+      expect(updateSpy).toHaveBeenNthCalledWith(2, expect.any(Function));
+      const secondUpdateFn = updateSpy.mock.calls[1][0];
+      expect(secondUpdateFn({} as any)).toEqual({
+        indicators: [{ indicator_id: 1, name: 'Innovation Development' }]
+      });
+
+      expect(applyFiltersSpy).toHaveBeenCalled();
+    });
   });
 });

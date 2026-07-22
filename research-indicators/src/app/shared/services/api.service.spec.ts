@@ -140,6 +140,71 @@ describe('ApiService', () => {
       expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/levers', {});
     });
 
+    it('should call GET_Levers with portfolio params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Levers({ portfolioId: 2, reportYear: 2026 });
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params;
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('tools/clarisa/levers', { params });
+      expect(params.get('portfolioId')).toBe('2');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should call GET_StrategicObjectives with portfolio params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_StrategicObjectives({ portfolioId: 2, reportYear: 2026 });
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params;
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('strategic-objectives', { params });
+      expect(params.get('portfolioId')).toBe('2');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should call GET_StrategicObjectives without params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_StrategicObjectives();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('strategic-objectives', {});
+    });
+
+    it('should call GET_ImpactOutcomes with portfolio params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ImpactOutcomes({ portfolioId: 2, reportYear: 2026 });
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params;
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('impact-outcomes', { params });
+      expect(params.get('portfolioId')).toBe('2');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should call GET_ImpactOutcomes without params', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_ImpactOutcomes();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('impact-outcomes', {});
+    });
+
+    it('should call GET_Portfolios', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_Portfolios();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('portfolios', {});
+    });
+
+    it('should call GET_FundingTypes', () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_FundingTypes();
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/funding-types', {});
+    });
+
     it('should call GET_ClarisaSdgTargets', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
 
@@ -376,6 +441,20 @@ describe('ApiService', () => {
 
       expect(mockToPromiseService.post).toHaveBeenCalledWith('tools/clarisa/manager/partner-request/create', body, {});
     });
+
+    it('should call POST_Portfolio', () => {
+      const body = {
+        name: 'Portfolio',
+        description: 'Description',
+        start_year: 2026,
+        end_year: 2030
+      };
+      (mockToPromiseService.post as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.POST_Portfolio(body);
+
+      expect(mockToPromiseService.post).toHaveBeenCalledWith('portfolios', body, {});
+    });
   });
 
   describe('PATCH methods', () => {
@@ -467,6 +546,19 @@ describe('ApiService', () => {
       service.PATCH_Alignments(id, body);
 
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/alignments', body, { useResultInterceptor: true });
+    });
+
+    it('should call PATCH_Alignments with portfolio query params', () => {
+      const id = 123;
+      const body = { contracts: [] };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_Alignments(id, body, { portfolioId: 2, return: true });
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('results/123/alignments', body, {
+        params: expect.any(Object),
+        useResultInterceptor: true
+      });
     });
 
     it('should call PATCH_ReportingCycle', () => {
@@ -697,6 +789,7 @@ describe('ApiService', () => {
         status: 'active',
         'start-date': '2024-01-01',
         'end-date': '2024-12-31',
+        'funding-type': 'BLR,RUN',
         'with-indicators': false
       };
 
@@ -710,6 +803,7 @@ describe('ApiService', () => {
       expect(result.get('status')).toBe('active');
       expect(result.get('start-date')).toBe('2024-01-01');
       expect(result.get('end-date')).toBe('2024-12-31');
+      expect(result.get('funding-type')).toBe('BLR,RUN');
       expect(result.get('with-indicators')).toBe('false');
     });
 
@@ -1097,7 +1191,23 @@ describe('ApiService', () => {
 
       service.GET_Alignments(id);
 
-      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', { loadingTrigger: true, useResultInterceptor: true });
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', {
+        loadingTrigger: true,
+        useResultInterceptor: true
+      });
+    });
+
+    it('should call GET_Alignments with portfolio query params', () => {
+      const id = 123;
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.GET_Alignments(id, { portfolioId: 2, return: true });
+
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('results/123/alignments', {
+        params: expect.any(Object),
+        loadingTrigger: true,
+        useResultInterceptor: true
+      });
     });
 
     it('should call GET_SessionFormat', () => {
@@ -1221,6 +1331,20 @@ describe('ApiService', () => {
       service.GET_FindContracts(filters);
 
       expect(mockToPromiseService.get).toHaveBeenCalledWith('agresso/contracts/find-contracts', { params: expect.any(HttpParams) });
+    });
+
+    it('should call GET_FindContracts with funding-type filter', () => {
+      const filters = {
+        'current-user': false,
+        'funding-type': 'BLR,RUN'
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      service.GET_FindContracts(filters);
+
+      const callArgs = (mockToPromiseService.get as jest.Mock).mock.calls.at(-1);
+      expect(callArgs?.[0]).toBe('agresso/contracts/find-contracts');
+      expect(callArgs?.[1].params.get('funding-type')).toBe('BLR,RUN');
     });
 
     it('should call GET_ResultsCount', () => {
@@ -1883,6 +2007,69 @@ describe('ApiService', () => {
     });
   });
 
+  describe('GET_ResultPdfReport', () => {
+    it('should request the PDF report envelope with params and return the report URL response', async () => {
+      const response = {
+        data: 'https://microservice-reports.s3.amazonaws.com/STAR-result-22603_20260623_1457',
+        status: 200,
+        description: 'PDF report sections were found correctly',
+        timestamp: '2026-06-23T14:57:23.433Z',
+        path: '/api/reports/19821/pdf?is-html=false&report_name=cap_sharing&reportingPlatforms=STAR'
+      };
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue(response);
+
+      const result = await service.GET_ResultPdfReport('STAR-22603', 'STAR');
+
+      expect(result).toBe(response);
+      expect(mockToPromiseService.get).toHaveBeenCalledWith('reports/STAR-22603/pdf', {
+        params: expect.any(HttpParams)
+      });
+      expect(mockToPromiseService.getBlob).not.toHaveBeenCalledWith(expect.stringContaining('reports/STAR-22603/pdf'), expect.anything());
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('is-html')).toBe('false');
+      expect(params.get('report_name')).toBe('cap_sharing');
+      expect(params.get('reportingPlatforms')).toBe('STAR');
+    });
+
+    it('should use STAR as the default reporting platform', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('STAR-8');
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('reportingPlatforms')).toBe('STAR');
+    });
+
+    it('should include reportYear when provided', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('8', 'STAR', 2026);
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('reportYear')).toBe('2026');
+    });
+
+    it('should omit reportYear when not provided', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('8', 'STAR');
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('reportYear')).toBeNull();
+    });
+
+    it('should use inn_dev as report_name when provided', async () => {
+      (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: 'pdf-url' });
+
+      await service.GET_ResultPdfReport('8', 'STAR', 2026, 'inn_dev');
+
+      const params = (mockToPromiseService.get as jest.Mock).mock.calls[0][1].params as HttpParams;
+      expect(params.get('report_name')).toBe('inn_dev');
+      expect(params.get('reportYear')).toBe('2026');
+    });
+  });
+
   describe('Additional GET methods', () => {
     it('should call GET_InformativeRoles', () => {
       (mockToPromiseService.get as jest.Mock).mockResolvedValue({ data: [] });
@@ -2047,10 +2234,32 @@ describe('ApiService', () => {
       expect(mockToPromiseService.patch).toHaveBeenCalledWith('lever-sdg-targets', body, {});
     });
 
+    it('should call PATCH_Portfolio with id in path', () => {
+      const body = {
+        name: 'Portfolio',
+        description: 'Description',
+        start_year: 2026,
+        end_year: 2030
+      };
+      (mockToPromiseService.patch as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.PATCH_Portfolio(7, body);
+
+      expect(mockToPromiseService.patch).toHaveBeenCalledWith('portfolios/7', body, {});
+    });
+
     it('should call DELETE_LeverSdgTargetMapping for id in path', () => {
       (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
       service.DELETE_LeverSdgTargetMapping(42);
       expect(mockToPromiseService.delete).toHaveBeenCalledWith('lever-sdg-targets/42', {});
+    });
+
+    it('should call DELETE_Portfolio with id in path', () => {
+      (mockToPromiseService.delete as jest.Mock).mockResolvedValue({ data: {} });
+
+      service.DELETE_Portfolio(7);
+
+      expect(mockToPromiseService.delete).toHaveBeenCalledWith('portfolios/7', {});
     });
 
     it('should call GET_AutorContact with resultCode', () => {

@@ -11,6 +11,7 @@ jest.mock('@services/actions.service');
 
 const mainApiUrl = 'https://main.api/';
 const textMiningUrl = 'https://textmining.api/';
+const documentOverviewUrl = 'https://document-overview.api/';
 const fileManagerUrl = 'https://filemanager.api/';
 
 describe('jWtInterceptor', () => {
@@ -25,6 +26,7 @@ describe('jWtInterceptor', () => {
     envBackup = { ...environment };
     environment.mainApiUrl = mainApiUrl;
     environment.textMiningUrl = textMiningUrl;
+    environment.documentOverviewUrl = documentOverviewUrl;
     environment.fileManagerUrl = fileManagerUrl;
   });
 
@@ -108,6 +110,24 @@ describe('jWtInterceptor', () => {
 
   it('should add access-token header for fileManagerDomain requests', done => {
     const req = new HttpRequest('GET', fileManagerUrl + 'file');
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect(calledReq.headers.get('access-token')).toBe('token123');
+      done();
+    });
+  });
+
+  it('should add access-token header for documentOverviewDomain GET requests', done => {
+    const req = new HttpRequest('GET', documentOverviewUrl + 'api/document-overview', { bucket_name: 'ai-services-ibd' });
+    interceptor(req, mockHandler).subscribe(() => {
+      const calledReq = mockHandler.mock.calls[0][0];
+      expect(calledReq.headers.get('access-token')).toBe('token123');
+      done();
+    });
+  });
+
+  it('should add access-token header for documentOverviewDomain POST requests', done => {
+    const req = new HttpRequest('POST', documentOverviewUrl + 'api/document-overview', { bucket_name: 'ai-services-ibd' });
     interceptor(req, mockHandler).subscribe(() => {
       const calledReq = mockHandler.mock.calls[0][0];
       expect(calledReq.headers.get('access-token')).toBe('token123');

@@ -1,3 +1,5 @@
+import { PortfolioScopedParams } from './portfolio-config.interface';
+
 export interface GetLevers {
   created_at: string;
   updated_at: string;
@@ -10,4 +12,11 @@ export interface GetLevers {
   other_names: string;
   icon?: string;
   lever_url?: string;
+  type?: string;
+  group?: string;
+  category?: string;
+  parent_id?: number;
+  portfolio_id?: number;
 }
+
+export type GetLeversParams = PortfolioScopedParams;
