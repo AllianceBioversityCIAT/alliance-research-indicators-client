@@ -288,21 +288,21 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'administration/center-admin/bilateral-mapping',
+        loadComponent: () => import('@platform/pages/administration/center-admin/bilateral-mapping/bilateral-mapping.component').then(m => m.default),
+        canMatch: [centerAdminGuard],
+        data: {
+          title: 'Bilateral Mapping',
+          isLoggedIn: true
+        }
+      },
+      {
         path: 'administration/center-admin/portfolio-management',
         loadComponent: () =>
           import('@platform/pages/administration/center-admin/portfolio-management/portfolio-management.component').then(m => m.default),
         canMatch: [centerAdminGuard],
         data: {
           title: 'Portfolio Management',
-          isLoggedIn: true
-        }
-      },
-      {
-        path: 'administration/center-admin/bilateral-mapping',
-        loadComponent: () => import('@platform/pages/administration/center-admin/bilateral-mapping/bilateral-mapping.component').then(m => m.default),
-        canMatch: [centerAdminGuard],
-        data: {
-          title: 'Bilateral Mapping',
           isLoggedIn: true
         }
       },

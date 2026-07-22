@@ -87,8 +87,8 @@ import {
   PoolFundingSciencePrograms,
   UpdatePoolFundingAlignmentDto
 } from '@interfaces/bilateral/pool-funding-alignment.interface';
-import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { GetLevers, GetLeversParams } from '@shared/interfaces/get-levers.interface';
+import { GetSciencePrograms } from '@shared/interfaces/get-science-programs.interface';
 import { PortfolioConfigItem, PortfolioScopedParams } from '@shared/interfaces/portfolio-config.interface';
 import { FundingType } from '@shared/interfaces/funding-type.interface';
 import { Configuration } from '@shared/interfaces/configuration.interface';

@@ -383,6 +383,25 @@ describe('ProjectDetailComponent', () => {
     expect(component.currentProject()).toBe(undefined);
   });
 
+  it('showPoolFundingBadge should reflect bilateralService.currentContract', () => {
+    bilateralService.currentContract.set({ is_pool_funding_contributor: true });
+    expect(component.showPoolFundingBadge()).toBe(true);
+
+    bilateralService.currentContract.set({ is_pool_funding_contributor: false });
+    expect(component.showPoolFundingBadge()).toBe(false);
+
+    bilateralService.currentContract.set(null);
+    expect(component.showPoolFundingBadge()).toBe(false);
+  });
+
+  it('canEditPoolFundingTag should mirror RolesService.canAccessCenterAdmin', () => {
+    canAccessCenterAdminSignal.set(false);
+    expect(component.canEditPoolFundingTag()).toBe(false);
+
+    canAccessCenterAdminSignal.set(true);
+    expect(component.canEditPoolFundingTag()).toBe(true);
+  });
+
   describe('getContactInitials and display helpers', () => {
     it('should handle undefined current project for computed helpers', () => {
       component.currentProject.set(undefined as any);
@@ -454,34 +473,20 @@ describe('ProjectDetailComponent', () => {
       const applyFiltersSpy = jest.spyOn(component.resultsCenterService, 'applyFilters');
       const indicator = { indicator_id: 1, name: 'Innovation Development' };
 
-    bilateralService.currentContract.set({ is_pool_funding_contributor: false });
-    expect(component.showPoolFundingBadge()).toBe(false);
+      component.onIndicatorClick(indicator);
 
-    bilateralService.currentContract.set(null);
-    expect(component.showPoolFundingBadge()).toBe(false);
-  });
+      expect(updateSpy).toHaveBeenCalledTimes(2);
+      expect(updateSpy).toHaveBeenNthCalledWith(1, expect.any(Function));
+      const firstUpdateFn = updateSpy.mock.calls[0][0];
+      expect(firstUpdateFn({ indicators: [{ indicator_id: 99, name: 'Previous' }] } as any)).toEqual({ indicators: [] });
 
-  it('canEditPoolFundingTag should mirror RolesService.canAccessCenterAdmin', () => {
-    canAccessCenterAdminSignal.set(false);
-    expect(component.canEditPoolFundingTag()).toBe(false);
+      expect(updateSpy).toHaveBeenNthCalledWith(2, expect.any(Function));
+      const secondUpdateFn = updateSpy.mock.calls[1][0];
+      expect(secondUpdateFn({} as any)).toEqual({
+        indicators: [{ indicator_id: 1, name: 'Innovation Development' }]
+      });
 
-    canAccessCenterAdminSignal.set(true);
-    expect(component.canEditPoolFundingTag()).toBe(true);
-  });
-
-  it('should clear indicator filters, set the clicked indicator, and apply filters', () => {
-    const updateSpy = jest.spyOn(component.resultsCenterService.tableFilters, 'update');
-    const indicator = { indicator_id: 1, name: 'Innovation Development' };
-
-    component.onIndicatorClick(indicator);
-
-    expect(updateSpy).toHaveBeenCalledTimes(2);
-    expect(updateSpy).toHaveBeenNthCalledWith(1, expect.any(Function));
-    expect(updateSpy.mock.calls[0][0]({ indicators: [{ indicator_id: 99, name: 'Previous' }] } as any)).toEqual({ indicators: [] });
-    expect(updateSpy).toHaveBeenNthCalledWith(2, expect.any(Function));
-    expect(updateSpy.mock.calls[1][0]({ indicators: [] } as any)).toEqual({
-      indicators: [{ indicator_id: 1, name: 'Innovation Development' }]
+      expect(applyFiltersSpy).toHaveBeenCalled();
     });
-    expect(resultsCenterService.applyFilters).toHaveBeenCalled();
   });
 });
